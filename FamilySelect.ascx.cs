@@ -18,29 +18,28 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Web.UI;
 using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
-
 using Rock;
 using Rock.Attribute;
 using Rock.CheckIn;
+using Rock.Data;
 using Rock.Model;
 using Rock.Web.Cache;
 using Rock.Web.UI.Controls;
-using System.Runtime.InteropServices;
-using Rock.Data;
 
 namespace RockWeb.Blocks.CheckIn.Attended
 {
     /// <summary>
     /// Family Select block for Attended Check-in
     /// </summary>
-    [DisplayName("Family Select")]
-    [Category("Check-in > Attended")]
+    [DisplayName( "Family Select" )]
+    [Category( "Check-in > Attended" )]
     [Description( "Attended Check-In Family Select Block" )]
     [BooleanField( "Enable Add Buttons", "Show the add people/visitor/family buttons on the family select page?", true )]
-    [TextField("Not Found Text", "What text should display when the nothing is found?", true, "Please add them using one of the buttons on the right")]
+    [TextField( "Not Found Text", "What text should display when the nothing is found?", true, "Please add them using one of the buttons on the right" )]
     public partial class FamilySelect : CheckInBlock
     {
         #region Control Methods
@@ -88,7 +87,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                     divNothingFound.InnerText = nothingFoundText;
                     lbAddPerson.Visible = showAddButtons;
                     lbAddVisitor.Visible = showAddButtons;
-                    lbAddFamily.Visible = showAddButtons;                    
+                    lbAddFamily.Visible = showAddButtons;
                 }
 
                 rGridPersonResults.PageSize = 4;
@@ -225,10 +224,10 @@ namespace RockWeb.Blocks.CheckIn.Attended
         {
             var tbFirstName = (RockTextBox)e.Item.FindControl( "tbFirstName" );
             var tbLastName = (RockTextBox)e.Item.FindControl( "tbLastName" );
-            var dpBirthDate = (DatePicker)e.Item.FindControl( "dpBirthDate" );            
+            var dpBirthDate = (DatePicker)e.Item.FindControl( "dpBirthDate" );
             var ddlGender = (RockDropDownList)e.Item.FindControl( "ddlGender" );
-            ddlGender.BindToEnum( typeof( Gender ) );
-            BindAbilityGrade( (RockDropDownList)e.Item.FindControl( "ddlAbilityGrade" ) );            
+            ddlGender.BindToEnum<Gender>();
+            BindAbilityGrade( (RockDropDownList)e.Item.FindControl( "ddlAbilityGrade" ) );
         }
 
         #endregion
@@ -244,7 +243,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
         {
             int id = int.Parse( e.CommandArgument.ToString() );
             var family = CurrentCheckInState.CheckIn.Families.Where( f => f.Group.Id == id ).FirstOrDefault();
-            
+
             foreach ( ListViewDataItem li in lvFamily.Items )
             {
                 ( (LinkButton)li.FindControl( "lbSelectFamily" ) ).RemoveCssClass( "active" );
@@ -259,11 +258,11 @@ namespace RockWeb.Blocks.CheckIn.Attended
             }
             else
             {
-                family.Selected = false;               
+                family.Selected = false;
                 lvPerson.DataSource = null;
                 lvPerson.DataBind();
                 lvVisitor.DataSource = null;
-                lvVisitor.DataBind();  
+                lvVisitor.DataBind();
             }
 
             dpPersonPager.Visible = true;
@@ -272,14 +271,13 @@ namespace RockWeb.Blocks.CheckIn.Attended
             {
                 dpPersonPager.Visible = false;
             }
-            
+
             dpVisitorPager.Visible = true;
             dpVisitorPager.SetPageProperties( 0, dpVisitorPager.MaximumRows, false );
             if ( lvVisitor.DataSource == null )
             {
                 dpVisitorPager.Visible = false;
             }
-            
         }
 
         /// <summary>
@@ -340,7 +338,6 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbAddPerson_Click( object sender, EventArgs e )
         {
-
             lblAddPersonHeader.Text = "Add Person";
             personVisitorType.Value = "Person";
             SetAddPersonFields();
@@ -409,7 +406,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 tbLastNameSearch.Required = false;
                 ddlGenderSearch.Required = false;
                 dpDOBSearch.Required = false;
-                
+
                 ProcessFamily();
             }
         }
@@ -460,11 +457,11 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbPersonSearch_Click( object sender, EventArgs e )
         {
-            lbSavePerson.Visible = true;            
+            lbSavePerson.Visible = true;
             rGridPersonResults.PageIndex = 0;
             rGridPersonResults.Visible = true;
             rGridPersonResults.PageSize = 4;
-            BindPersonGrid();            
+            BindPersonGrid();
             mpeAddPerson.Show();
         }
 
@@ -480,7 +477,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             ViewState["newFamily"] = newFamilyList;
             lvAddFamily.DataSource = newFamilyList;
             lvAddFamily.DataBind();
-            
+
             mpeAddFamily.Show();
         }
 
@@ -580,7 +577,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                         family.People.Add( checkInPerson );
                         ProcessFamily();
                     }
-                    
+
                     mpeAddPerson.Hide();
                 }
                 else
@@ -609,7 +606,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
         #endregion
 
         #region Internal Methods
-        
+
         /// <summary>
         /// Binds the person search results grid.
         /// </summary>
@@ -664,20 +661,25 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 }
                 else if ( optionGroup.Equals( "Ability" ) )
                 {
-                    var abilityLevelGuid = ddlAbilitySearch.SelectedValue;                    
-                    peopleList = peopleList.Where( p => p.Attributes.ContainsKey( "AbilityLevel" ) 
+                    var abilityLevelGuid = ddlAbilitySearch.SelectedValue;
+                    peopleList = peopleList.Where( p => p.Attributes.ContainsKey( "AbilityLevel" )
                         && p.GetAttributeValue( "AbilityLevel" ) == abilityLevelGuid ).ToList();
                 }
             }
-            
-            var matches = peopleList.Select( p => new 
+
+            var matches = peopleList.Select( p => new
             {
-                p.Id, p.FirstName, p.LastName, p.BirthDate, p.Age, p.Gender,
-                Attribute = p.Grade.HasValue 
-                    ? ( (GradeLevel) p.Grade ).GetDescription() 
+                p.Id,
+                p.FirstName,
+                p.LastName,
+                p.BirthDate,
+                p.Age,
+                p.Gender,
+                Attribute = p.Grade.HasValue
+                    ? ( (GradeLevel)p.Grade ).GetDescription()
                     : abilityLevelValues.Where( dv => dv.Guid.ToString()
                         .Equals( p.GetAttributeValue( "AbilityLevel" ), StringComparison.OrdinalIgnoreCase ) )
-                        .Select( dv => dv.Name ).FirstOrDefault()
+                        .Select( dv => dv.Value ).FirstOrDefault()
             } ).OrderByDescending( p => p.BirthDate ).ToList();
 
             rGridPersonResults.DataSource = matches;
@@ -728,7 +730,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 string errorMsg = "<ul><li>" + errors.AsDelimited( "</li><li>" ) + "</li></ul>";
                 maWarning.Show( errorMsg, Rock.Web.UI.Controls.ModalAlertType.Warning );
             }
-        }        
+        }
 
         /// <summary>
         /// Refreshes the family.
@@ -757,7 +759,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// </summary>
         protected void SetAddPersonFields()
         {
-            ddlGenderSearch.BindToEnum( typeof( Gender ) );
+            ddlGenderSearch.BindToEnum<Gender>();
             ddlGenderSearch.SelectedIndex = 0;
             BindAbilityGrade( ddlAbilitySearch );
             ddlAbilitySearch.SelectedIndex = 0;
@@ -786,7 +788,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             var dtAbility = DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_ABILITY_LEVEL_TYPE ) );
             if ( dtAbility != null && dtAbility.DefinedValues.Count > 0 )
             {
-                foreach ( var ability in dtAbility.DefinedValues.Select( dv => new ListItem( dv.Name, dv.Guid.ToString() ) ).ToList() )
+                foreach ( var ability in dtAbility.DefinedValues.Select( dv => new ListItem( dv.Value, dv.Guid.ToString() ) ).ToList() )
                 {
                     ability.Attributes.Add( "optiongroup", "Ability" );
                     thisDDL.Items.Add( ability );
@@ -801,7 +803,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 thisDDL.Items.Add( grade );
             }
         }
-        
+
         /// <summary>
         /// Adds a new person.
         /// </summary>
@@ -832,7 +834,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             ps.Add( person );
             rockContext.SaveChanges();
 
-            if ( !string.IsNullOrWhiteSpace( ability ) &&  abilityGroup == "Ability" )
+            if ( !string.IsNullOrWhiteSpace( ability ) && abilityGroup == "Ability" )
             {
                 rockContext = new RockContext();
                 Person p = new PersonService( rockContext ).Get( person.Id );
@@ -840,7 +842,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 {
                     p.LoadAttributes( rockContext );
                     p.SetAttributeValue( "AbilityLevel", ability );
-                    p.SaveAttributeValues(  );
+                    p.SaveAttributeValues();
                 }
             }
 
@@ -862,7 +864,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             familyGroup.IsActive = true;
 
             var rockContext = new RockContext();
-            var gs = new GroupService(rockContext);
+            var gs = new GroupService( rockContext );
             gs.Add( familyGroup );
             rockContext.SaveChanges();
 
@@ -910,10 +912,10 @@ namespace RockWeb.Blocks.CheckIn.Attended
             var groupService = new GroupService( rockContext );
             var groupMemberService = new GroupMemberService( rockContext );
             var groupRoleService = new GroupTypeRoleService( rockContext );
-            
+
             int ownerRoleId = groupRoleService.Get( new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_KNOWN_RELATIONSHIPS_OWNER ) ).Id;
             int canCheckInId = groupRoleService.Get( new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_KNOWN_RELATIONSHIPS_CAN_CHECK_IN ) ).Id;
-            
+
             foreach ( var familyMember in family.People )
             {
                 var group = groupMemberService.Queryable()
@@ -947,10 +949,11 @@ namespace RockWeb.Blocks.CheckIn.Attended
 
             rockContext.SaveChanges();
         }
-               
+
         #endregion
 
         #region NewPerson Class
+
         /// <summary>
         /// Lightweight Person model to quickly add people during Check-in
         /// </summary>
@@ -958,10 +961,15 @@ namespace RockWeb.Blocks.CheckIn.Attended
         protected class NewPerson
         {
             public string FirstName { get; set; }
+
             public string LastName { get; set; }
+
             public DateTime? BirthDate { get; set; }
+
             public Gender Gender { get; set; }
+
             public string Ability { get; set; }
+
             public string AbilityGroup { get; set; }
 
             public bool IsValid()
@@ -982,7 +990,5 @@ namespace RockWeb.Blocks.CheckIn.Attended
         }
 
         #endregion
-
-        
-}
+    }
 }

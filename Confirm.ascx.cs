@@ -36,10 +36,10 @@ namespace RockWeb.Blocks.CheckIn.Attended
     /// <summary>
     /// Confirmation block for Attended Check-in
     /// </summary>
-    [DisplayName("Confirmation Block")]
-    [Category("Check-in > Attended")]
+    [DisplayName( "Confirmation Block" )]
+    [Category( "Check-in > Attended" )]
     [Description( "Attended Check-In Confirmation Block" )]
-    [LinkedPage("Activity Select Page")]
+    [LinkedPage( "Activity Select Page" )]
     public partial class Confirm : CheckInBlock
     {
         /// <summary>
@@ -48,10 +48,15 @@ namespace RockWeb.Blocks.CheckIn.Attended
         protected class CheckIn
         {
             public int PersonId { get; set; }
+
             public string Name { get; set; }
+
             public string Location { get; set; }
+
             public int LocationId { get; set; }
+
             public string Schedule { get; set; }
+
             public int ScheduleId { get; set; }
 
             public CheckIn()
@@ -129,8 +134,8 @@ namespace RockWeb.Blocks.CheckIn.Attended
                             checkIn.Schedule = schedule.Schedule.Name;
                             checkIn.ScheduleId = schedule.Schedule.Id;
                             checkInList.Add( checkIn );
-                        }                    
-                    }                    
+                        }
+                    }
                 }
                 else
                 {   // auto assignment didn't select anything
@@ -141,7 +146,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             gPersonList.DataSource = checkInList.OrderBy( c => c.Schedule ).ToList();
             gPersonList.DataBind();
         }
-        
+
         #endregion
 
         #region Edit Events
@@ -168,7 +173,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             SaveState();
             NavigateToNextPage();
         }
-                
+
         /// <summary>
         /// Handles the Click event of the lbPrintAll control.
         /// </summary>
@@ -178,11 +183,11 @@ namespace RockWeb.Blocks.CheckIn.Attended
         {
             SaveAttendance();
             foreach ( DataKey dataKey in gPersonList.DataKeys )
-            {               
+            {
                 var personId = Convert.ToInt32( dataKey["PersonId"] );
                 var locationId = Convert.ToInt32( dataKey["LocationId"] );
                 var scheduleId = Convert.ToInt32( dataKey["ScheduleId"] );
-                PrintLabel( personId, locationId, scheduleId );               
+                PrintLabel( personId, locationId, scheduleId );
             }
         }
 
@@ -198,7 +203,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             queryParams.Add( "personId", dataKeyValues["PersonId"].ToString() );
             queryParams.Add( "locationId", dataKeyValues["LocationId"].ToString() );
             queryParams.Add( "scheduleId", dataKeyValues["ScheduleId"].ToString() );
-            NavigateToLinkedPage( "ActivitySelectPage", queryParams);
+            NavigateToLinkedPage( "ActivitySelectPage", queryParams );
         }
 
         /// <summary>
@@ -212,7 +217,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             var personId = Convert.ToInt32( dataKeyValues["PersonId"] );
             var locationId = Convert.ToInt32( dataKeyValues["LocationId"] );
             var scheduleId = Convert.ToInt32( dataKeyValues["ScheduleId"] );
-            
+
             var selectedPerson = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault()
                 .People.Where( p => p.Person.Id == personId ).FirstOrDefault();
             var selectedGroups = selectedPerson.GroupTypes.Where( gt => gt.Selected )
@@ -220,12 +225,12 @@ namespace RockWeb.Blocks.CheckIn.Attended
             CheckInGroup selectedGroup = selectedGroups.Where( g => g.Selected
                 && g.Locations.Any( l => l.Location.Id == locationId
                     && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) ) ).FirstOrDefault();
-            CheckInLocation selectedLocation = selectedGroup.Locations.Where( l => l.Selected 
-                && l.Location.Id == locationId 
+            CheckInLocation selectedLocation = selectedGroup.Locations.Where( l => l.Selected
+                && l.Location.Id == locationId
                     && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) ).FirstOrDefault();
-            CheckInSchedule selectedSchedule = selectedLocation.Schedules.Where( s => s.Selected 
+            CheckInSchedule selectedSchedule = selectedLocation.Schedules.Where( s => s.Selected
                 && s.Schedule.Id == scheduleId ).FirstOrDefault();
-            
+
             selectedSchedule.Selected = false;
             selectedSchedule.PreSelected = false;
 
@@ -233,21 +238,21 @@ namespace RockWeb.Blocks.CheckIn.Attended
             if ( !selectedLocation.Schedules.Any( s => s.Selected ) )
             {
                 selectedLocation.Selected = false;
-                selectedLocation.PreSelected = false;                
+                selectedLocation.PreSelected = false;
             }
-            
+
             if ( !selectedGroup.Locations.Any( l => l.Selected ) )
             {
                 selectedGroup.Selected = false;
                 selectedGroup.PreSelected = false;
-            }       
-     
+            }
+
             if ( !selectedGroups.Any() )
             {
                 selectedPerson.Selected = false;
                 selectedPerson.PreSelected = false;
             }
-            
+
             BindGrid();
         }
 
@@ -260,8 +265,8 @@ namespace RockWeb.Blocks.CheckIn.Attended
         {
             if ( e.CommandName == "Print" )
             {
-                SaveAttendance();                
-                int index = Convert.ToInt32( e.CommandArgument );                
+                SaveAttendance();
+                int index = Convert.ToInt32( e.CommandArgument );
                 var dataKeyValues = gPersonList.DataKeys[index].Values;
                 var personId = Convert.ToInt32( dataKeyValues["PersonId"] );
                 var locationId = Convert.ToInt32( dataKeyValues["LocationId"] );
@@ -279,6 +284,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
         {
             BindGrid();
         }
+
         #endregion
 
         #region Internal Methods
@@ -300,7 +306,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 maWarning.Show( errorMsg, Rock.Web.UI.Controls.ModalAlertType.Warning );
             }
         }
-        
+
         /// <summary>
         /// Prints the label.
         /// </summary>
@@ -309,13 +315,13 @@ namespace RockWeb.Blocks.CheckIn.Attended
         {
             CheckInPerson selectedPerson = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault()
                     .People.Where( p => p.Person.Id == personId ).FirstOrDefault();
-            List<CheckInGroupType> selectedGroupTypes = selectedPerson.GroupTypes.Where( gt => gt.Selected 
-                && gt.Groups.Any( g => g.Selected && g.Locations.Any( l => l.Location.Id == locationId 
+            List<CheckInGroupType> selectedGroupTypes = selectedPerson.GroupTypes.Where( gt => gt.Selected
+                && gt.Groups.Any( g => g.Selected && g.Locations.Any( l => l.Location.Id == locationId
                     && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) ) ) ).ToList();
-            
+
             foreach ( var groupType in selectedGroupTypes )
             {
-                var printFromClient = groupType.Labels.Where( l => l.PrintFrom == Rock.Model.PrintFrom.Client);
+                var printFromClient = groupType.Labels.Where( l => l.PrintFrom == Rock.Model.PrintFrom.Client );
                 if ( printFromClient.Any() )
                 {
                     AddLabelScript( printFromClient.ToJson() );
@@ -329,7 +335,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
 
                     foreach ( var label in printFromServer )
                     {
-                        var labelCache = KioskLabel.Read( label.FileId );
+                        var labelCache = KioskLabel.Read( label.FileGuid );
                         if ( labelCache != null )
                         {
                             if ( label.PrinterAddress != currentIp )
@@ -374,7 +380,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                         socket.Close();
                     }
                 }
-            }            
+            }
         }
 
         /// <summary>
@@ -394,18 +400,18 @@ namespace RockWeb.Blocks.CheckIn.Attended
 		    function onDeviceReady() {{
 			    printLabels();
 		    }}
-		
+
 		    function alertDismissed() {{
 		        // do something
 		    }}
-		
+
 		    function printLabels() {{
 		        ZebraPrintPlugin.printTags(
-            	    JSON.stringify(labelData), 
-            	    function(result) {{ 
+            	    JSON.stringify(labelData),
+            	    function(result) {{
 			            console.log('I printed that tag like a champ!!!');
 			        }},
-			        function(error) {{   
+			        function(error) {{
 				        // error is an array where:
 				        // error[0] is the error message
 				        // error[1] determines if a re-print is possible (in the case where the JSON is good, but the printer was not connected)
@@ -416,6 +422,6 @@ namespace RockWeb.Blocks.CheckIn.Attended
             ScriptManager.RegisterStartupScript( this, this.GetType(), "addLabelScript", script, true );
         }
 
-        #endregion        
-}
+        #endregion
+    }
 }
