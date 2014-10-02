@@ -31,7 +31,6 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             RockMigrationHelper.AddPage( "32A132A6-63A2-4840-B4A5-23D80994CCBD", "3BD6CFC1-0BF2-43C8-AD38-44E711D6ACE0", "Admin", "Admin screen for Attended Check-in", "771E3CF1-63BD-4880-BC43-AC29B4CCE963", "" ); // Site:Rock Attended Check-in
             RockMigrationHelper.AddPageRoute( "771E3CF1-63BD-4880-BC43-AC29B4CCE963", "attendedcheckin" );
             RockMigrationHelper.AddPageRoute( "771E3CF1-63BD-4880-BC43-AC29B4CCE963", "attendedcheckin/admin" );
-            // RockMigrationHelper.UpdateBlockType( "Check-in Administration", "Check-In Administration block", "~/Blocks/Checkin/Attended/Admin.ascx", "Check-in > Attended", "2C51230E-BA2E-4646-BB10-817B26C16218" );
             RockMigrationHelper.UpdateBlockType( "Check-in Administration", "Check-In Administration block", "~/Plugins/cc_newspring/AttendedCheckIn/Admin.ascx", "Check-in > Attended", "2C51230E-BA2E-4646-BB10-817B26C16218" );
             RockMigrationHelper.AddBlock("771E3CF1-63BD-4880-BC43-AC29B4CCE963", "", "2C51230E-BA2E-4646-BB10-817B26C16218", "Admin", "Main", "", "", 0, "9F8731AB-07DB-406F-A344-45E31D0DE301");
             RockMigrationHelper.AddBlockTypeAttribute( "2C51230E-BA2E-4646-BB10-817B26C16218", "BD53F9C9-EBA9-4D3F-82EA-DE5DD34A8108", "Previous Page", "PreviousPage", "", "", 0, @"", "B196160E-4397-4C6F-8C5A-317CAD3C118F" );
@@ -47,7 +46,6 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             // Page: Search
             RockMigrationHelper.AddPage( "32A132A6-63A2-4840-B4A5-23D80994CCBD", "3BD6CFC1-0BF2-43C8-AD38-44E711D6ACE0", "Search", "Search screen for Attended Check-in", "8F618315-F554-4751-AB7F-00CC5658120A", "" ); // Site:Rock Attended Check-in
             RockMigrationHelper.AddPageRoute( "8F618315-F554-4751-AB7F-00CC5658120A", "attendedcheckin/search" );
-            // RockMigrationHelper.UpdateBlockType( "Family Select", "Attended Check-In Search block", "~/Blocks/CheckIn/Attended/Search.ascx", "Check-in > Attended", "645D3F2F-0901-44FE-93E9-446DBC8A1680" );
             RockMigrationHelper.UpdateBlockType( "Family Select", "Attended Check-In Search block", "~/Plugins/cc_newspring/AttendedCheckIn/Search.ascx", "Check-in > Attended", "645D3F2F-0901-44FE-93E9-446DBC8A1680" );
             RockMigrationHelper.AddBlock("8F618315-F554-4751-AB7F-00CC5658120A", "", "645D3F2F-0901-44FE-93E9-446DBC8A1680", "Search", "Main", "", "", 0, "182C9AA0-E76F-4AAF-9F61-5418EE5A0CDB");
             RockMigrationHelper.AddBlockTypeAttribute( "645D3F2F-0901-44FE-93E9-446DBC8A1680", "BD53F9C9-EBA9-4D3F-82EA-DE5DD34A8108", "Admin Page", "AdminPage", "", "", 0, @"", "BBB93FF9-C021-4E82-8C03-55942FA4141E" );
@@ -66,8 +64,6 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             // Page: Family Select
             RockMigrationHelper.AddPage( "32A132A6-63A2-4840-B4A5-23D80994CCBD", "3BD6CFC1-0BF2-43C8-AD38-44E711D6ACE0", "Family Select", "Family select for Attended Check-in", "AF83D0B2-2995-4E46-B0DF-1A4763637A68", "" ); // Site:Rock Attended Check-in
             RockMigrationHelper.AddPageRoute( "AF83D0B2-2995-4E46-B0DF-1A4763637A68", "attendedcheckin/family" );
-            // RockMigrationHelper.UpdateBlockType( "Family Select", "Attended Check-In Family Select Block", "~/Blocks/CheckIn/Attended/FamilySelect.ascx", "Check-in > Attended", "4D48B5F0-F0B2-4C10-8498-DAF690761A80" );
-            // RockMigrationHelper.UpdateBlockType( "Idle Redirect", "Attended Check-In Idle Redirect Block", "~/Blocks/CheckIn/Attended/Search.ascx", "Check-in > Attended", "0DF27F26-691D-41F8-B0F7-987E4FEC375C" );
             RockMigrationHelper.UpdateBlockType( "Family Select", "Attended Check-In Family Select Block", "~/Plugins/cc_newspring/AttendedCheckIn/FamilySelect.ascx", "Check-in > Attended", "4D48B5F0-F0B2-4C10-8498-DAF690761A80" );
             RockMigrationHelper.UpdateBlockType( "Idle Redirect", "Attended Check-In Idle Redirect Block", "~/Plugins/cc_newspring/AttendedCheckIn/Search.ascx", "Check-in > Attended", "0DF27F26-691D-41F8-B0F7-987E4FEC375C" );
             RockMigrationHelper.AddBlock( "AF83D0B2-2995-4E46-B0DF-1A4763637A68", "", "4D48B5F0-F0B2-4C10-8498-DAF690761A80", "Family Select", "Main", "", "", 0, "82929409-8551-413C-972A-98EDBC23F420");
@@ -88,7 +84,6 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             // Page: Confirmation
             RockMigrationHelper.AddPage( "32A132A6-63A2-4840-B4A5-23D80994CCBD", "3BD6CFC1-0BF2-43C8-AD38-44E711D6ACE0", "Confirmation", "Confirmation screen for Attended Check-in", "BE996C9B-3DFE-407F-BD53-D6F58D85A035", "" ); // Site:Rock Attended Check-in
             RockMigrationHelper.AddPageRoute( "BE996C9B-3DFE-407F-BD53-D6F58D85A035", "attendedcheckin/confirm" );
-            // RockMigrationHelper.UpdateBlockType( "Confirmation Block", "Attended Check-In Confirmation Block", "~/Blocks/CheckIn/Attended/Confirm.ascx", "Check-in > Attended", "5B1D4187-9B34-4AB6-AC57-7E2CF67B266F" );
             RockMigrationHelper.UpdateBlockType( "Confirmation Block", "Attended Check-In Confirmation Block", "~/Plugins/cc_newspring/AttendedCheckIn/Confirm.ascx", "Check-in > Attended", "5B1D4187-9B34-4AB6-AC57-7E2CF67B266F" );
             RockMigrationHelper.AddBlock("BE996C9B-3DFE-407F-BD53-D6F58D85A035", "", "5B1D4187-9B34-4AB6-AC57-7E2CF67B266F", "Confirmation", "Main", "", "", 0, "7CC68DD4-A6EF-4B67-9FEA-A144C479E058");
             RockMigrationHelper.AddBlockTypeAttribute( "5B1D4187-9B34-4AB6-AC57-7E2CF67B266F", "BD53F9C9-EBA9-4D3F-82EA-DE5DD34A8108", "Previous Page", "PreviousPage", "", "", 0, @"", "E45D2B10-D1B1-4CBE-9C7A-3098B1D95F47" );
@@ -105,7 +100,6 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             // Page: Activity Select
             RockMigrationHelper.AddPage( "32A132A6-63A2-4840-B4A5-23D80994CCBD", "3BD6CFC1-0BF2-43C8-AD38-44E711D6ACE0", "Activity Select", "Activity select for Attended Check-in", "C87916FE-417E-4A11-8831-5CFA7678A228", "" ); // Site:Rock Attended Check-in
             RockMigrationHelper.AddPageRoute( "C87916FE-417E-4A11-8831-5CFA7678A228", "attendedcheckin/activity" );
-            // RockMigrationHelper.UpdateBlockType( "Activity Select", "Attended Check-In Activity Select Block", "~/Blocks/CheckIn/Attended/ActivitySelect.ascx", "Check-in > Attended", "78E2AB4A-FDF7-4864-92F7-F052050BC4BB" );
             RockMigrationHelper.UpdateBlockType("Activity Select", "Attended Check-In Activity Select Block", "~/Plugins/cc_newspring/AttendedCheckIn/ActivitySelect.ascx", "Check-in > Attended", "78E2AB4A-FDF7-4864-92F7-F052050BC4BB" );
             RockMigrationHelper.AddBlock("C87916FE-417E-4A11-8831-5CFA7678A228", "", "78E2AB4A-FDF7-4864-92F7-F052050BC4BB", "Activity Select", "Main", "", "", 0, "8C8CBBE9-2502-4FEC-804D-C0DA13C07FA4");
             RockMigrationHelper.AddBlockTypeAttribute( "78E2AB4A-FDF7-4864-92F7-F052050BC4BB", "BD53F9C9-EBA9-4D3F-82EA-DE5DD34A8108", "Previous Page", "PreviousPage", "", "", 0, @"", "6048A23D-6544-441A-A8B3-5782CAF5B468" );
@@ -117,11 +111,11 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             RockMigrationHelper.AddBlockAttributeValue( "8C8CBBE9-2502-4FEC-804D-C0DA13C07FA4", "BEC10B87-4B19-4CD5-8952-A4D59DDA3E9C", @"6E8CD562-A1DA-4E13-A45C-853DB56E0014" ); // Workflow Type
             RockMigrationHelper.AddBlockAttributeValue( "8C8CBBE9-2502-4FEC-804D-C0DA13C07FA4", "5046A353-D901-45BB-9981-9CC1B33550C6", @"8F618315-F554-4751-AB7F-00CC5658120A" ); // Home Page
 
-            // Custom workflow actions 
-            RockMigrationHelper.UpdateEntityType( "cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.FilterGroupsByGender", "DC7DB1FD-8CC8-4AC4-B0A5-B5F85FF03540", false, true );
-            RockMigrationHelper.UpdateEntityType( "cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByBestFit", "B1A855F8-7ED6-49AE-8EEA-D1DCB6C7E944", false, true );
-            RockMigrationHelper.UpdateEntityType( "cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByLastAttended", "B4E27263-BB68-46DB-9876-D0E8C26449A3", false, true );
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "DC7DB1FD-8CC8-4AC4-B0A5-B5F85FF03540", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Active", "Active", "Should Service be used?", 0, @"False", "1EFECBBD-0F94-4BFF-BE4D-C5B90082746D" ); // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.FilterGroupsByGender:Active
+            // Custom workflow actions
+            RockMigrationHelper.UpdateEntityType( "cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.FilterGroupsByGender", "Filter Groups By Gender", "cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.FilterGroupsByGender", false, true, "DC7DB1FD-8CC8-4AC4-B0A5-B5F85FF03540" );
+            RockMigrationHelper.UpdateEntityType( "cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByBestFit", "Select By Best Fit", "cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByBestFit", false, true, "B1A855F8-7ED6-49AE-8EEA-D1DCB6C7E944" );
+            RockMigrationHelper.UpdateEntityType( "cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByLastAttended", "Select By Last Attended", "cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByLastAttended", false, true, "B4E27263-BB68-46DB-9876-D0E8C26449A3" );
+            RockMigrationHelper.UpdateWorkflowActionEntityAttribute("DC7DB1FD-8CC8-4AC4-B0A5-B5F85FF03540", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Active", "Active", "Should Service be used?", 0, @"False", "1EFECBBD-0F94-4BFF-BE4D-C5B90082746D"); // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.FilterGroupsByGender:Active
             RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "DC7DB1FD-8CC8-4AC4-B0A5-B5F85FF03540", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Remove", "Remove", "Select 'Yes' if groups should be be removed.  Select 'No' if they should just be marked as excluded.", 0, @"True", "C908BE27-C2C9-4880-A755-D9983EEFE7E8" ); // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.FilterGroupsByGender:Remove
             RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "DC7DB1FD-8CC8-4AC4-B0A5-B5F85FF03540", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "Order", "Order", "The order that this service should be used (priority)", 0, @"", "AA84866B-F294-4209-890A-0901DE7C1B15" ); // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.FilterGroupsByGender:Order
             RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "B1A855F8-7ED6-49AE-8EEA-D1DCB6C7E944", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Active", "Active", "Should Service be used?", 0, @"False", "83F299E7-F2C9-4F0A-BA51-23D6CD0F9433" ); // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByBestFit:Active
