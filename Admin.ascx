@@ -46,7 +46,7 @@
 
 <script type="text/javascript">
     function setControlEvents() {
-        $('.btn-checkin-select').unbind('click').on('click', function () {
+        $('.btn-checkin-select').off('click').on('click', function () {
             $(this).toggleClass('active');
             var selectedIds = $('input[id$="hfGroupTypes"]').val();
             var buttonId = this.getAttribute('data-id') + ',';

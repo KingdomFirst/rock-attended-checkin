@@ -181,6 +181,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// </summary>
         private void AddGeoLocationScript()
         {
+            /*
             string geoScript = string.Format( @"
             <script>
                 $(document).ready(function (e) {{
@@ -217,6 +218,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             </script>
             ", this.Page.ClientScript.GetPostBackEventReference( lbCheckGeoLocation, "" ) );
                 phScript.Controls.Add( new LiteralControl( geoScript ) );
+            */
         }
 
         /// <summary>
