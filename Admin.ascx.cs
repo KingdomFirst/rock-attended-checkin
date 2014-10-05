@@ -313,7 +313,40 @@ namespace RockWeb.Blocks.CheckIn.Attended
         #endregion
 
         #region Internal Methods
-                
+
+        /// <summary>
+        /// Gets the device group types.
+        /// </summary>
+        /// <param name="deviceId">The device identifier.</param>
+        /// <returns></returns>
+        private List<GroupType> GetDeviceGroupTypes(int deviceId)
+        {
+            var groupTypes = new Dictionary<int, GroupType>();
+
+            var locationService = new LocationService(new RockContext());
+
+            // Get all locations (and their children) associated with device
+            var locationIds = locationService
+                .GetByDevice(deviceId, true)
+                .Select(l => l.Id)
+                .ToList();
+
+            // Requery using EF
+            foreach (var groupType in locationService.Queryable()
+                .Where(l => locationIds.Contains(l.Id))
+                .SelectMany(l => l.GroupLocations)
+                .Select(gl => gl.Group.GroupType)
+                .ToList())
+            {
+                if (!groupTypes.ContainsKey(groupType.Id))
+                {
+                    groupTypes.Add(groupType.Id, groupType);
+                }
+            }
+
+            return groupTypes.Select(g => g.Value).ToList();
+        }
+
         /// <summary>
         /// Binds the group types.
         /// </summary>
@@ -333,8 +366,10 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 var kiosk = new DeviceService( new RockContext() ).Get( (int)CurrentKioskId );
                 if ( kiosk != null )
                 {
-                    var groupTypes = kiosk.Locations.SelectMany( l => l.GroupLocations
-                        .Select( gl => gl.Group.GroupType ) ).Distinct().ToList();
+                    // var groupTypes = kiosk.Locations.SelectMany( l => l.GroupLocations
+                    //     .Select( gl => gl.Group.GroupType ) ).Distinct().ToList();
+
+                    var groupTypes = GetDeviceGroupTypes(kiosk.Id);
 
                     hfGroupTypes.Value = selectedGroupTypes;
 
