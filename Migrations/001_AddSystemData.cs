@@ -65,7 +65,7 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             RockMigrationHelper.AddPage( "32A132A6-63A2-4840-B4A5-23D80994CCBD", "3BD6CFC1-0BF2-43C8-AD38-44E711D6ACE0", "Family Select", "Family select for Attended Check-in", "AF83D0B2-2995-4E46-B0DF-1A4763637A68", "" ); // Site:Rock Attended Check-in
             RockMigrationHelper.AddPageRoute( "AF83D0B2-2995-4E46-B0DF-1A4763637A68", "attendedcheckin/family" );
             RockMigrationHelper.UpdateBlockType( "Family Select", "Attended Check-In Family Select Block", "~/Plugins/cc_newspring/AttendedCheckIn/FamilySelect.ascx", "Check-in > Attended", "4D48B5F0-F0B2-4C10-8498-DAF690761A80" );
-            RockMigrationHelper.UpdateBlockType( "Idle Redirect", "Attended Check-In Idle Redirect Block", "~/Plugins/cc_newspring/AttendedCheckIn/Search.ascx", "Check-in > Attended", "0DF27F26-691D-41F8-B0F7-987E4FEC375C" );
+            RockMigrationHelper.UpdateBlockType("Idle Redirect", "Attended Check-In Idle Redirect Block", "~/Blocks/Utility/IdleRedirect.ascx", "Check-in > Attended", "0DF27F26-691D-41F8-B0F7-987E4FEC375C");
             RockMigrationHelper.AddBlock( "AF83D0B2-2995-4E46-B0DF-1A4763637A68", "", "4D48B5F0-F0B2-4C10-8498-DAF690761A80", "Family Select", "Main", "", "", 0, "82929409-8551-413C-972A-98EDBC23F420" );
             RockMigrationHelper.AddBlock( "AF83D0B2-2995-4E46-B0DF-1A4763637A68", "", "0DF27F26-691D-41F8-B0F7-987E4FEC375C", "Idle Redirect", "Main", "", "", 1, "BDD502FF-40D2-42E6-845E-95C49C3505B3" );
             RockMigrationHelper.AddBlockTypeAttribute( "0DF27F26-691D-41F8-B0F7-987E4FEC375C", "9C204CD0-1233-41C5-818A-C5DA439445AA", "New Location", "NewLocation", "", "The new location URL to send user to after idle time", 0, @"", "C4204D6E-715E-4E3A-BA1B-949D20D26487" );
