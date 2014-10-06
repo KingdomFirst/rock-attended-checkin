@@ -1,6 +1,7 @@
 ﻿*:not(.modal-foreground) > .checkin-header {
     background-color: rgba(10,10,10,0.5);
     padding: 20px;
+    border-radius: 10px;
 }
 
 .checkin-header input {
