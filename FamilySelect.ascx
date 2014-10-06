@@ -18,8 +18,10 @@
             </div>
 
             <div class="col-sm-8">   
-                <Rock:RockTextBox ID="tbSearchBox" MaxLength="50" CssClass="checkin-phone-entry" runat="server" Label="" TabIndex="0" placeholder="Search..." />       
-                <span class="fa fa-search"></span> 
+                <Rock:RockTextBox ID="tbSearchBox" MaxLength="50" CssClass="checkin-phone-entry" runat="server" Label="" TabIndex="0" placeholder="Search..." />     
+                <asp:LinkButton runat="server" OnClick="doSearch">
+                    <span class="fa fa-search"></span>
+                </asp:LinkButton>
             </div>
 
             <div class="col-sm-2 checkin-actions text-right">
