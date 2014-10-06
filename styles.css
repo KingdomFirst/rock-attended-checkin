@@ -55,3 +55,12 @@
 .btn.active {
     box-shadow: inset 2px 3px 5px #000000, 0px 2px 2px #333;
 }
+
+.bootbox .modal-content {
+    background-color: #000000;
+    color: #eeeeee;
+}
+
+.bootbox .modal-footer {
+    border-color: #cccccc;
+}
