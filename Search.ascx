@@ -10,8 +10,12 @@
             
         <div class="row checkin-header">
             <div class="col-sm-2 checkin-actions">
-                <Rock:BootstrapButton ID="lbAdmin" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbAdmin_Click" Text="Back" EnableViewState="false" />
-                <Rock:BootstrapButton ID="lbBack" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbBack_Click" Text="Back" Visible="false" EnableViewState="false" />
+                <Rock:BootstrapButton ID="lbAdmin" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbAdmin_Click" EnableViewState="false">
+                    <span class="fa fa-arrow-left"></span>
+                </Rock:BootstrapButton>
+                <Rock:BootstrapButton ID="lbBack" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbBack_Click" Visible="false" EnableViewState="false">
+                    <span class="fa fa-arrow-left"></span>
+                </Rock:BootstrapButton>
             </div>
 
             <div class="col-sm-8">
@@ -20,7 +24,9 @@
             </div>
 
             <div class="col-sm-2 checkin-actions text-right">
-                <Rock:BootstrapButton ID="lbSearch" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbSearch_Click" Text="Go" EnableViewState="false" />
+                <Rock:BootstrapButton ID="lbSearch" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbSearch_Click" EnableViewState="false" >
+                    <span class="fa fa-arrow-right"></span>
+                </Rock:BootstrapButton>
             </div>
         </div>
             

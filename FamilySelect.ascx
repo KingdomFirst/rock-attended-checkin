@@ -12,7 +12,9 @@
         <div class="row checkin-header">
             <div class="col-sm-2 checkin-actions">
                 <Rock:BootstrapButton ID="lbBack" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbBack_Click" 
-                    EnableViewState="false" CausesValidation="False" Text="Back" />
+                    EnableViewState="false" CausesValidation="False" Text="Back">
+                    <span class="fa fa-arrow-left"></span>
+                </Rock:BootstrapButton>
             </div>
 
             <div class="col-sm-8">   
@@ -21,8 +23,9 @@
             </div>
 
             <div class="col-sm-2 checkin-actions text-right">
-                <Rock:BootstrapButton ID="lbNext" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbNext_Click" 
-                    EnableViewState="false" CausesValidation="False" Text="Go" />
+                <Rock:BootstrapButton ID="lbNext" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbNext_Click" EnableViewState="false" CausesValidation="False">
+                    <span class="fa fa-arrow-right"></span>
+                </Rock:BootstrapButton>
             </div>
         </div>
 
