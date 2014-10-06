@@ -7,6 +7,15 @@
     width: 100%;
 }
 
+.checkin-header input + .fa {
+    color: #000000;
+    font-size: 36px;
+    font-weight: 700;
+    position: absolute;
+    right: 25px;
+    top: 15px;
+}
+
 .btn-primary .checkin-sub-title {
     width: 100%;
     white-space: nowrap;
