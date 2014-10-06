@@ -16,14 +16,14 @@
 
     <asp:Panel ID="pnlAdmin" runat="server" DefaultButton="lbOk" CssClass="attended">
         <div class="row checkin-header">
-            <div class="col-sm-3 checkin-actions">
+            <div class="col-sm-2 checkin-actions">
                 <a id="lbRetry" runat="server" class="btn btn-lg btn-primary" visible="false" href="javascript:window.location.href=window.location.href">Retry</a>
             </div>
-            <div class="col-sm-6">
+            <div class="col-sm-8 text-center">
                 <h1>Admin</h1>
             </div>
-            <div class="col-sm-3 checkin-actions">
-                <Rock:BootstrapButton ID="lbOk" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbOk_Click" Text="Ok" EnableViewState="false" />
+            <div class="col-sm-2 checkin-actions text-right">
+                <Rock:BootstrapButton ID="lbOk" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbOk_Click" Text="Go" EnableViewState="false" />
             </div>
         </div>
 
@@ -45,9 +45,11 @@
 </asp:Panel>
 
 <script type="text/javascript">
+    $('head').append('<link rel="stylesheet" type="text/css" href="../plugins/cc_newspring/attendedcheckin/styles.css" />');
+
     function setControlEvents() {
         $('.btn-checkin-select').off('click').on('click', function () {
-            $(this).toggleClass('active');
+            $(this).toggleClass('active').blur();
             var selectedIds = $('input[id$="hfGroupTypes"]').val();
             var buttonId = this.getAttribute('data-id') + ',';
             if (typeof selectedIds == "string" && (selectedIds.indexOf(buttonId) >= 0)) {
@@ -58,7 +60,12 @@
             return false;
         });
     };
-    $(document).ready(function () { setControlEvents(); });
+
+    $(document).ready(function () {
+        setControlEvents();
+        $('.checkin-header .btn').blur();
+    });
+
     Sys.WebForms.PageRequestManager.getInstance().add_endRequest(setControlEvents);
 
 </script>

@@ -138,3 +138,5 @@
     Sys.WebForms.PageRequestManager.getInstance().add_endRequest(setControlEvents);
 
 </script>
+
+<link rel="stylesheet" href="AttendedCheckin.css" />

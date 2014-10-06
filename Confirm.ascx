@@ -61,3 +61,5 @@
 
 </ContentTemplate>
 </asp:UpdatePanel>
+
+<link rel="stylesheet" href="AttendedCheckin.css" />

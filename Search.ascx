@@ -9,22 +9,24 @@
     <asp:Panel ID="pnlSearch" runat="server" DefaultButton="lbSearch" CssClass="attended">
             
         <div class="row checkin-header">
-            <div class="col-sm-3 checkin-actions">
-                <Rock:BootstrapButton ID="lbAdmin" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbAdmin_Click" Text="Admin" EnableViewState="false" />
+            <div class="col-sm-2 checkin-actions">
+                <Rock:BootstrapButton ID="lbAdmin" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbAdmin_Click" Text="Back" EnableViewState="false" />
                 <Rock:BootstrapButton ID="lbBack" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbBack_Click" Text="Back" Visible="false" EnableViewState="false" />
             </div>
-            <div class="col-sm-6">
-                <h1>Search</h1>
+
+            <div class="col-sm-8">
+                <Rock:RockTextBox ID="tbSearchBox" MaxLength="50" CssClass="checkin-phone-entry" runat="server" Label="" TabIndex="0" placeholder="Search..." />    
             </div>
-            <div class="col-sm-3 checkin-actions">
-                <Rock:BootstrapButton ID="lbSearch" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbSearch_Click" Text="Search" EnableViewState="false" />
+
+            <div class="col-sm-2 checkin-actions text-right">
+                <Rock:BootstrapButton ID="lbSearch" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbSearch_Click" Text="Go" EnableViewState="false" />
             </div>
         </div>
             
         <div class="row checkin-body">
             <div class="col-md-3"></div>
             <div class="col-md-6">
-                <Rock:RockTextBox ID="tbSearchBox" MaxLength="50" CssClass="checkin-phone-entry" runat="server" Label="" TabIndex="0" />
+                
 
                 <asp:Panel id="pnlKeyPad" runat="server" Visible="false" CssClass="tenkey checkin-phone-entry ">
                     <div>
@@ -59,6 +61,8 @@
 
 <script>
 
+    $('head').append('<link rel="stylesheet" type="text/css" href="../plugins/cc_newspring/attendedcheckin/styles.css" />');
+    
     function SetKeyEvents() {
         $('.tenkey a.digit').unbind('click').click(function () {
             $name = $("input[id$='tbSearchBox']");
@@ -74,7 +78,10 @@
         });
     };
 
-    $(document).ready(function () { SetKeyEvents(); });
+    $(document).ready(function () {
+        SetKeyEvents();
+        $('input[type=text]').first().focus();
+    });
     Sys.WebForms.PageRequestManager.getInstance().add_endRequest(SetKeyEvents);
 
 </script>

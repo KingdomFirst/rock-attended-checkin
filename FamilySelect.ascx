@@ -10,38 +10,48 @@
         <asp:HiddenField ID="personVisitorType" runat="server" />
         
         <div class="row checkin-header">
-            <div class="col-sm-3 checkin-actions">
+            <div class="col-sm-2 checkin-actions">
                 <Rock:BootstrapButton ID="lbBack" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbBack_Click" 
                     EnableViewState="false" CausesValidation="False" Text="Back" />
             </div>
 
-            <div class="col-sm-6">                
-                <h1 id="lblFamilyTitle" runat="server">Search Results</h1>
+            <div class="col-sm-8">   
+                <Rock:RockTextBox ID="tbSearchBox" MaxLength="50" CssClass="checkin-phone-entry" runat="server" Label="" TabIndex="0" placeholder="Search..." />        
             </div>
 
-            <div class="col-sm-3 checkin-actions">
+            <div class="col-sm-2 checkin-actions text-right">
                 <Rock:BootstrapButton ID="lbNext" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbNext_Click" 
-                    EnableViewState="false" CausesValidation="False" Text="Next" />
+                    EnableViewState="false" CausesValidation="False" Text="Go" />
             </div>
         </div>
-                
+
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <h1 id="lblFamilyTitle" runat="server">Search Results</h1>
+            </div>
+        </div>
+              
         <div class="row checkin-body">
             <div class="col-md-3">
                 <asp:UpdatePanel ID="pnlFamily" runat="server" UpdateMode="Conditional">
                 <ContentTemplate>                
-			        <h3>Families</h3>
+			        <h3 class="text-center">Families</h3>
 			        <asp:ListView ID="lvFamily" runat="server" OnPagePropertiesChanging="lvFamily_PagePropertiesChanging" 
 				        OnItemCommand="lvFamily_ItemCommand" OnItemDataBound="lvFamily_ItemDataBound" >
 			        <ItemTemplate>                            
 					        <asp:LinkButton ID="lbSelectFamily" runat="server" CommandArgument='<%# Eval("Group.Id") %>'
 						        CssClass="btn btn-primary btn-lg btn-block btn-checkin-select family" CausesValidation="false">
-						        <%# Eval("Caption") %><br /><span class='checkin-sub-title'><%# Eval("SubCaption") %></span>
+						        <%# Eval("Caption") %>
+                                <br />
+                                <div class='checkin-sub-title'>
+                                    <%# Eval("SubCaption") %>
+                                </div>
 					        </asp:LinkButton>
 			        </ItemTemplate>                    
 			        </asp:ListView>
 			        <asp:DataPager ID="dpFamilyPager" runat="server" PageSize="5" PagedControlID="lvFamily">
 				        <Fields>
-					        <asp:NextPreviousPagerField ButtonType="Button" ButtonCssClass="btn btn-lg btn-primary btn-checkin-select" />
+					        <asp:NextPreviousPagerField ButtonType="Button" ButtonCssClass="pagination btn btn-lg btn-primary btn-checkin-select" />
 				        </Fields>
 			        </asp:DataPager>                
                 </ContentTemplate>
@@ -53,7 +63,7 @@
                 <ContentTemplate>
 			        <asp:HiddenField ID="hfSelectedPerson" runat="server" ClientIDMode="Static" />
 
-			        <h3>People</h3>                    
+			        <h3 class="text-center">People</h3>                    
 			        <asp:ListView ID="lvPerson" runat="server" OnItemDataBound="lvPerson_ItemDataBound" OnPagePropertiesChanging="lvPerson_PagePropertiesChanging" >
 				        <ItemTemplate>                            
 					        <asp:LinkButton ID="lbSelectPerson" runat="server" data-id='<%# Eval("Person.Id") %>'
@@ -85,7 +95,7 @@
                 <ContentTemplate>
                     <asp:HiddenField ID="hfSelectedVisitor" runat="server" ClientIDMode="Static" />
 
-			        <h3>Visitors</h3>
+			        <h3 class="text-center">Visitors</h3>
 			        <asp:ListView ID="lvVisitor" runat="server" OnItemDataBound="lvVisitor_ItemDataBound" OnPagePropertiesChanging="lvVisitor_PagePropertiesChanging">
 				        <ItemTemplate>
 					        <asp:LinkButton ID="lbSelectVisitor" runat="server" data-id='<%# Eval("Person.Id") %>' 
@@ -112,7 +122,7 @@
             </div>
 
             <div ID="divActions" runat="server" class="col-md-3">
-                <h3 ID="actions" runat="server">Actions</h3>
+                <h3 ID="actions" runat="server" class="text-center">Actions</h3>
                 <asp:LinkButton ID="lbAddPerson" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClick="lbAddPerson_Click" Text="Add Person" CausesValidation="false" EnableViewState="false" />
                 <asp:LinkButton ID="lbAddVisitor" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClick="lbAddVisitor_Click" Text="Add Visitor" CausesValidation="false" EnableViewState="false" />
                 <asp:LinkButton ID="lbAddFamily" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClick="lbAddFamily_Click" Text="Add Family" CausesValidation="false" EnableViewState="false" />
@@ -133,10 +143,10 @@
                 </div>
 
                 <div class="col-sm-6">
-                    <h2><asp:Literal ID="lblAddPersonHeader" runat="server" EnableViewState="false" /></h2>
+                    <h2 class="text-center"><asp:Literal ID="lblAddPersonHeader" runat="server" EnableViewState="false" /></h2>
                 </div>
 
-                <div class="col-sm-3">
+                <div class="col-sm-3 text-right">
                     <Rock:BootstrapButton ID="lbPersonSearch" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbPersonSearch_Click" Text="Search" EnableViewState="false" />
                 </div>
             </div>
@@ -205,11 +215,11 @@
                 <Rock:BootstrapButton ID="lbAddFamilyCancel" CssClass="btn btn-lg btn-primary cancel" runat="server" Text="Cancel" CausesValidation="false" EnableViewState="false" />
             </div>
 
-            <div class="col-sm-6">
+            <div class="col-sm-6 text-center">
                 <h2>Add Family</h2>
             </div>
 
-            <div class="col-sm-3 checkin-actions">
+            <div class="col-sm-3 checkin-actions text-right">
                 <Rock:BootstrapButton ID="lbSaveFamily" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbSaveFamily_Click" Text="Save" EnableViewState="false" ValidationGroup="Family" />
             </div>
         </div>        
@@ -258,11 +268,13 @@
             </asp:ListView>        
 
             <div class="row">
-                <asp:DataPager ID="dpAddFamily" runat="server" PageSize="5" PagedControlID="lvAddFamily">
-                    <Fields>
-                        <asp:NextPreviousPagerField ButtonType="Button" ButtonCssClass="btn btn-lg btn-primary btn-checkin-select" />
-                    </Fields>
-                </asp:DataPager>
+                <div class="col-xs-3">
+                    <asp:DataPager ID="dpAddFamily" runat="server" PageSize="5" PagedControlID="lvAddFamily">
+                        <Fields>
+                            <asp:NextPreviousPagerField ButtonType="Button" ButtonCssClass="pagination btn btn-lg btn-primary btn-checkin-select" />
+                        </Fields>
+                    </asp:DataPager>
+                </div>
             </div>
         </div>
 
@@ -272,6 +284,7 @@
 </asp:UpdatePanel>
 
 <script type="text/javascript">
+    $('head').append('<link rel="stylesheet" type="text/css" href="../plugins/cc_newspring/attendedcheckin/styles.css" />');
 
     function setControlEvents() {
 
@@ -302,21 +315,12 @@
         $('#<%= pnlFamily.ClientID %>').on('click', 'a', function () {
             $('.nothing-eligible').html("<i class='fa fa-refresh fa-spin fa-2x'></i>");
         });
-                
-        $find("mpeAddPerson").add_shown(function () {
-            $find("mpeAddPerson")._backgroundElement.onclick = function () {
-                $find("mpeAddPerson").hide();
-            }
-        });
-
-        $find("mpeAddFamily").add_shown(function () {
-            $find("mpeAddFamily")._backgroundElement.onclick = function () {
-                $find("mpeAddFamily").hide();
-            }
-        });
     };
 
-    $(document).ready(function () { setControlEvents(); });
+    $(document).ready(function () {
+        setControlEvents();
+        $('input[type=text]').first().focus();
+    });
     Sys.WebForms.PageRequestManager.getInstance().add_endRequest(setControlEvents);
 
 </script>
