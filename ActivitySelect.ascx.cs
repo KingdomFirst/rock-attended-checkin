@@ -243,18 +243,6 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 var schedules = locations.SelectMany( l => l.Schedules )
                     .Where( s => s.Schedule.Id == scheduleId ).ToList();
                 
-                // clear any schedules with the same time as the chosen schedule
-                var clearSchedules = schedules.Where( s => s.Schedule.Id == scheduleId && s.Selected ).ToList();
-                clearSchedules.ForEach( s => s.Selected = false );
-
-                // clear any locations where a schedule is not selected
-                var clearLocations = locations.Where( l => l.Schedules.All( s => s.Selected == false ) ).ToList();
-                clearLocations.ForEach( l => l.Selected = false );
-
-                // clear any groups where a location is not selected
-                var clearGroups = groups.Where( g => g.Locations.All( l => l.Selected == false ) ).ToList();
-                clearGroups.ForEach( g => g.Selected = false );
-
                 // set this selected group, location, and schedule
                 var selectedGroupTypes = person.GroupTypes.Where( gt => gt.GroupType.Id == groupTypeId ).ToList();
                 selectedGroupTypes.ForEach( gt => gt.Selected = true );
