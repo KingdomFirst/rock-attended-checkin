@@ -8,16 +8,20 @@
         <Rock:ModalAlert ID="maWarning" runat="server" />
 
         <div class="row checkin-header">
-            <div class="col-sm-3 checkin-actions">
-                <Rock:BootstrapButton ID="lbBack" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbBack_Click" Text="Back" EnableViewState="false" />
+            <div class="col-sm-2 checkin-actions">
+                <Rock:BootstrapButton ID="lbBack" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbBack_Click" EnableViewState="false">
+                    <span class="fa fa-arrow-left"></span>
+                </Rock:BootstrapButton>
             </div>
 
-            <div class="col-sm-6">
+            <div class="col-sm-8 text-center">
                 <h1>Confirm</h1>
             </div>
 
-            <div class="col-sm-3 checkin-actions">
-                <Rock:BootstrapButton ID="lbDone" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbDone_Click" Text="Done" EnableViewState="false" />
+            <div class="col-sm-2 checkin-actions text-right">
+                <Rock:BootstrapButton ID="lbDone" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbDone_Click" EnableViewState="false">
+                    <span class="fa fa-arrow-right"></span>
+                </Rock:BootstrapButton>
             </div>
         </div>
 
@@ -62,4 +66,6 @@
 </ContentTemplate>
 </asp:UpdatePanel>
 
-<link rel="stylesheet" href="AttendedCheckin.css" />
+<script>
+    $('head').append('<link rel="stylesheet" type="text/css" href="../plugins/cc_newspring/attendedcheckin/styles.css" />');
+</script>

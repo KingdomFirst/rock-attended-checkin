@@ -58,8 +58,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             {
                 NavigateToHomePage();
             }
-
-            if ( !Page.IsPostBack )
+            else if ( !Page.IsPostBack )
             {
                 if ( CurrentCheckInState.CheckIn.Families.Count > 0 )
                 {
@@ -80,7 +79,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 {
                     bool showAddButtons = bool.Parse( GetAttributeValue( "EnableAddButtons" ) );
                     string nothingFoundText = GetAttributeValue( "NotFoundText" );
-                    lblFamilyTitle.InnerText = "No Results for \"" 
+                    lblFamilyTitle.InnerText = "No Results for \""
                         + CurrentCheckInState.CheckIn.SearchValue + "\"";
                     lbNext.Enabled = false;
                     lbNext.Visible = false;

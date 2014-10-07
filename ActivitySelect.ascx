@@ -12,15 +12,19 @@
 
         <div class="row checkin-header">
             <div class="col-sm-3 checkin-actions">
-                <Rock:BootstrapButton ID="lbBack" CssClass="btn btn-primary btn-lg" runat="server" OnClick="lbBack_Click" Text="Back" EnableViewState="false" />
+                <Rock:BootstrapButton ID="lbBack" CssClass="btn btn-primary btn-lg" runat="server" OnClick="lbBack_Click" EnableViewState="false">
+                    <span class="fa fa-arrow-left"></span>
+                </Rock:BootstrapButton>
             </div>
 
-            <div class="col-sm-6">
+            <div class="col-sm-6 text-center">
                 <h1><asp:Literal ID="lblPersonName" runat="server" EnableViewState="false" /></h1>
             </div>
 
-            <div class="col-sm-3 checkin-actions">
-                <Rock:BootstrapButton ID="lbNext" CssClass="btn btn-primary btn-lg" runat="server" OnClick="lbNext_Click" Text="Next" EnableViewState="false" />
+            <div class="col-sm-3 checkin-actions text-right">
+                <Rock:BootstrapButton ID="lbNext" CssClass="btn btn-primary btn-lg" runat="server" OnClick="lbNext_Click" EnableViewState="false">
+                     <span class="fa fa-arrow-right"></span>
+                </Rock:BootstrapButton>
             </div>
         </div>
                 
@@ -49,7 +53,7 @@
                     </asp:ListView>
                     <asp:DataPager ID="Pager" runat="server" PageSize="5" PagedControlID="lvLocation">
                         <Fields>
-                            <asp:NextPreviousPagerField ButtonType="Button" ButtonCssClass="btn btn-primary btn-checkin-select" />
+                            <asp:NextPreviousPagerField ButtonType="Button" ButtonCssClass="pagination btn btn-primary btn-checkin-select" />
                         </Fields>
                     </asp:DataPager>                
                 </ContentTemplate>
@@ -90,8 +94,7 @@
         </div>
 
         <div class="row checkin-footer">
-            <div class="col-md-9"></div>
-            <div class="col-md-3">
+            <div class="col-xs-12">
                 <asp:LinkButton ID="lbAddNote" runat="server" Text="Add a Note" CssClass="btn btn-primary btn-lg btn-checkin-select" OnClick="lbAddNote_Click" CausesValidation="false" />
             </div>
         </div>
@@ -125,6 +128,8 @@
 </asp:UpdatePanel>
 
 <script type="text/javascript">
+
+    $('head').append('<link rel="stylesheet" type="text/css" href="../plugins/cc_newspring/attendedcheckin/styles.css" />');
 
     function setControlEvents() {
         $find("mpeAddNote").add_shown(function () {

@@ -4,6 +4,10 @@
     border-radius: 10px;
 }
 
+*:not(.modal-foreground) > .checkin-header h1 {
+    margin-bottom: 0;
+}
+
 .modal-foreground > .checkin-header {
     border-bottom: 1px solid #222222;
     margin-top: 0;
@@ -15,6 +19,18 @@
 
 .checkin-header input {
     width: 100%;
+}
+
+table {
+    background-color: rgba(10,10,10,0.2);
+}
+
+table thead {
+    background-color: rgba(10,10,10,0.2);
+}
+
+table td {
+    text-align: left;
 }
 
 .checkin-header input + a > .fa {
