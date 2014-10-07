@@ -55,21 +55,29 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                 if ( family != null )
                 {
                     foreach ( var person in family.People.Where( f => f.Selected ) )
-                    {   
-                        char[] delimiter = { ',' };                        
+                    {
+                        char[] delimiter = { ',' };
                         if ( person.GroupTypes.Any() )
                         {
                             CheckInGroupType groupType;
                             if ( person.GroupTypes.Count > 1 )
                             {
                                 // check grouptypes for a grade range
-                                var gradeFilter = person.GroupTypes.Where( gt => gt.GroupType.Attributes.ContainsKey( "GradeRange" ) ).Select( g =>
-                                        new
-                                        {
-                                            GroupType = g,
-                                            GradeRange = g.GroupType.GetAttributeValue( "GradeRange" ).Split( delimiter, StringSplitOptions.None )
-                                                .Select( av => av.AsType<int?>() )
-                                        } ).ToList();
+                                var gradeFilter = person.GroupTypes.Where(
+                                    gt => gt.Groups.Any(
+                                        g => g.Group.Attributes.ContainsKey( "GradeRange" )
+                                    )
+                                ).Select( gt =>
+                                    new
+                                    {
+                                        GroupType = gt,
+                                        GradeRange = gt.Groups.First(
+                                            g => g.Group.Attributes.ContainsKey( "GradeRange" )
+                                        ).Group.GetAttributeValue( "GradeRange" ).Split(
+                                            delimiter, StringSplitOptions.None
+                                        ).Select( av => av.AsType<int?>() )
+                                    }
+                                ).ToList();
 
                                 // #TODO: Test the upper value of grade and age ranges
                                 var groupTypeMatchGrade = gradeFilter.Aggregate( ( x, y ) => Math.Abs( Convert.ToDouble( x.GradeRange.First() - person.Person.Grade ) )
@@ -77,11 +85,15 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                             .GroupType;
 
                                 // check grouptypes for an age range
-                                var ageFilter = person.GroupTypes.Where( g => g.GroupType.Attributes.ContainsKey( "AgeRange" ) ).Select( g =>
+                                var ageFilter = person.GroupTypes.Where(
+                                    gt => gt.Groups.Any(
+                                        g => g.Group.Attributes.ContainsKey( "AgeRange" )
+                                    )
+                                ).Select( g =>
                                         new
                                         {
                                             GroupType = g,
-                                            AgeRange = g.GroupType.GetAttributeValue( "AgeRange" ).Split( delimiter, StringSplitOptions.None )
+                                            AgeRange = g.Groups.First( gr => gr.Group.Attributes.ContainsKey( "AgeRange" ) ).Group.GetAttributeValue( "AgeRange" ).Split( delimiter, StringSplitOptions.None )
                                                 .Select( av => av.AsType<double?>() )
                                         } ).ToList();
 
@@ -91,7 +103,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
 
                                 groupType = groupTypeMatchGrade ?? groupTypeMatchAge;
                             }
-                            else 
+                            else
                             {   // only one grouptype is available
                                 groupType = person.GroupTypes.FirstOrDefault();
                             }
@@ -105,9 +117,10 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                 if ( group == null && groupType.Groups.Any() )
                                 {
                                     //  check groups by grade
-                                    var gradeGroups = groupType.Groups.Where( g => g.Group.Attributes.ContainsKey( "GradeRange" ) ).Select( g => 
-                                        new {  
-                                            Group = g, 
+                                    var gradeGroups = groupType.Groups.Where( g => g.Group.Attributes.ContainsKey( "GradeRange" ) ).Select( g =>
+                                        new
+                                        {
+                                            Group = g,
                                             GradeRange = g.Group.GetAttributeValue( "GradeRange" ).Split( delimiter, StringSplitOptions.None )
                                                 .Select( av => av.AsType<int?>() )
                                         } ).ToList();
@@ -121,14 +134,15 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     }
 
                                     // check groups by age
-                                    var ageGroups = groupType.Groups.Where( g => g.Group.Attributes.ContainsKey( "AgeRange" ) ).Select( g => 
-                                        new {
+                                    var ageGroups = groupType.Groups.Where( g => g.Group.Attributes.ContainsKey( "AgeRange" ) ).Select( g =>
+                                        new
+                                        {
                                             Group = g,
                                             AgeRange = g.Group.GetAttributeValue( "AgeRange" ).Split( delimiter, StringSplitOptions.None )
                                                 .Select( av => av.AsType<double?>() )
                                         } ).ToList();
 
-                                    CheckInGroup groupMatchAge = null;                                    
+                                    CheckInGroup groupMatchAge = null;
                                     if ( ageGroups.Count > 0 )
                                     {
                                         groupMatchAge = ageGroups.Aggregate( ( x, y ) => Math.Abs( Convert.ToDouble( x.AgeRange.First() - person.Person.Age ) )
@@ -137,7 +151,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     }
 
                                     group = groupMatchGrade ?? groupMatchAge ?? groupType.Groups.FirstOrDefault();
-                                }                               
+                                }
 
                                 if ( group != null && group.Locations.Any() )
                                 {
@@ -165,7 +179,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         }
                                     }
                                 }
-                            }                            
+                            }
                         }
                     }
                 }
