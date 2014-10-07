@@ -4,6 +4,15 @@
     border-radius: 10px;
 }
 
+.modal-foreground > .checkin-header {
+    border-bottom: 1px solid #222222;
+    margin-top: 0;
+}
+
+.checkin-header {
+    padding: 20px;
+}
+
 .checkin-header input {
     width: 100%;
 }

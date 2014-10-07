@@ -17,23 +17,14 @@
                 </Rock:BootstrapButton>
             </div>
 
-            <div class="col-sm-8">   
-                <Rock:RockTextBox ID="tbSearchBox" MaxLength="50" CssClass="checkin-phone-entry" runat="server" Label="" TabIndex="0" placeholder="Search..." />     
-                <asp:LinkButton runat="server" OnClick="doSearch">
-                    <span class="fa fa-search"></span>
-                </asp:LinkButton>
+            <div class="col-sm-8 text-center">   
+                <h1 id="lblFamilyTitle" runat="server">Search Results</h1>
             </div>
 
             <div class="col-sm-2 checkin-actions text-right">
                 <Rock:BootstrapButton ID="lbNext" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbNext_Click" EnableViewState="false" CausesValidation="False">
                     <span class="fa fa-arrow-right"></span>
                 </Rock:BootstrapButton>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-12 text-center">
-                <h1 id="lblFamilyTitle" runat="server">Search Results</h1>
             </div>
         </div>
               
@@ -55,7 +46,7 @@
 					        </asp:LinkButton>
 			        </ItemTemplate>                    
 			        </asp:ListView>
-			        <asp:DataPager ID="dpFamilyPager" runat="server" PageSize="5" PagedControlID="lvFamily">
+			        <asp:DataPager ID="dpFamilyPager" runat="server" PageSize="4" PagedControlID="lvFamily">
 				        <Fields>
 					        <asp:NextPreviousPagerField ButtonType="Button" ButtonCssClass="pagination btn btn-lg btn-primary btn-checkin-select" />
 				        </Fields>
@@ -87,9 +78,9 @@
 					        </div>                            
 				        </EmptyDataTemplate>              
 			        </asp:ListView>
-			        <asp:DataPager ID="dpPersonPager" runat="server" PageSize="5" PagedControlID="lvPerson">
+			        <asp:DataPager ID="dpPersonPager" runat="server" PageSize="4" PagedControlID="lvPerson">
 				        <Fields>
-					        <asp:NextPreviousPagerField ButtonType="Button" ButtonCssClass="btn btn-lg btn-primary btn-checkin-select" />
+					        <asp:NextPreviousPagerField ButtonType="Button" ButtonCssClass="pagination btn btn-lg btn-primary btn-checkin-select" />
 				        </Fields>
 			        </asp:DataPager>
                 </ContentTemplate>
@@ -111,7 +102,7 @@
 					        </asp:LinkButton>
 				        </ItemTemplate>
 			        </asp:ListView>
-			        <asp:DataPager ID="dpVisitorPager" runat="server" PageSize="5" PagedControlID="lvVisitor">
+			        <asp:DataPager ID="dpVisitorPager" runat="server" PageSize="4" PagedControlID="lvVisitor">
 				        <Fields>
 					        <asp:NextPreviousPagerField ButtonType="Button" ButtonCssClass="btn btn-lg btn-primary btn-checkin-select" />
 				        </Fields>
@@ -275,7 +266,7 @@
 
             <div class="row">
                 <div class="col-xs-3">
-                    <asp:DataPager ID="dpAddFamily" runat="server" PageSize="5" PagedControlID="lvAddFamily">
+                    <asp:DataPager ID="dpAddFamily" runat="server" PageSize="4" PagedControlID="lvAddFamily">
                         <Fields>
                             <asp:NextPreviousPagerField ButtonType="Button" ButtonCssClass="pagination btn btn-lg btn-primary btn-checkin-select" />
                         </Fields>
