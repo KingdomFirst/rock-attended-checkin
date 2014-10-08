@@ -123,15 +123,20 @@ namespace RockWeb.Blocks.CheckIn.Attended
 
                             // look up check-in notes
                             var rockContext = new RockContext();
+                            var personTypeId = new Person().TypeId;
                             CheckInNoteTypeId = new NoteTypeService( rockContext ).Queryable()
-                                .Where( t => t.Name == "Check-In" && t.EntityTypeId == new Person().TypeId )
+                                .Where( t => t.Name == "Check-In" && t.EntityTypeId == personTypeId )
                                 .Select( t => t.Id ).FirstOrDefault();
 
                             var checkInNote = new NoteService( rockContext )
                                 .GetByNoteTypeId( CheckInNoteTypeId )
                                 .Where( n => n.EntityId == personId )
                                 .FirstOrDefault();
-                            tbNoteText.Text = checkInNote.Text;
+
+                            if ( checkInNote != null )
+                            {
+                                tbNoteText.Text = checkInNote.Text;
+                            }
 
                             var allergyAttributeId = new AttributeService( rockContext )
                                 .GetByEntityTypeId( new Person().TypeId )

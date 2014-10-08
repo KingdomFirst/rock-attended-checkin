@@ -25,10 +25,12 @@
 
 table {
     background-color: rgba(10,10,10,0.2);
+    font-size: 19px;
 }
 
 table thead {
     background-color: rgba(10,10,10,0.2);
+    font-size: 20px;
 }
 
 table td {
