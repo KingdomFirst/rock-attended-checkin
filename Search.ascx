@@ -10,7 +10,7 @@
             
         <div class="row checkin-header">
             <div class="col-sm-2 checkin-actions">
-                <Rock:BootstrapButton ID="lbBack" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbBack_Click" Visible="false" EnableViewState="false">
+                <Rock:BootstrapButton ID="lbBack" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbBack_Click" EnableViewState="false">
                     <span class="fa fa-arrow-left"></span>
                 </Rock:BootstrapButton>
             </div>
