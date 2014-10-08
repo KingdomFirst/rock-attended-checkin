@@ -37,8 +37,8 @@ namespace RockWeb.Blocks.CheckIn.Attended
     /// <summary>
     /// Admin block for Attended Check-in
     /// </summary>
-    [DisplayName("Check-in Administration")]
-    [Category("Check-in > Attended")]
+    [DisplayName( "Check-in Administration" )]
+    [Category( "Check-in > Attended" )]
     [Description( "Check-In Administration block" )]
     [BooleanField( "Enable Location Sharing", "If enabled, the block will attempt to determine the kiosk's location via location sharing geocode.", false, "Geo Location", 0 )]
     [IntegerField( "Time to Cache Kiosk GeoLocation", "Time in minutes to cache the coordinates of the kiosk. A value of zero (0) means cache forever. Default 20 minutes.", false, 20, "Geo Location", 1 )]
@@ -69,7 +69,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
 
                 string script = string.Format( @"
                 <script>
-                    $(document).ready( function (e) {{
+                    $(document).ready(function (e) {{
                         if (localStorage) {{
                             if (localStorage.checkInKiosk) {{
                                 $('[id$=""hfKiosk""]').val(localStorage.checkInKiosk);
@@ -144,7 +144,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             var groupTypeIds = new List<int>();
 
             if ( !string.IsNullOrEmpty( hfGroupTypes.Value ) )
-            {   
+            {
                 groupTypeIds = hfGroupTypes.Value.SplitDelimitedValues().Select( int.Parse ).Distinct().ToList();
             }
             else
@@ -153,7 +153,8 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 {
                     ( (Button)item.FindControl( "lbMinistry" ) ).RemoveCssClass( "active" );
                 }
-                maWarning.Show( "At least one ministry must be selected!", ModalAlertType.Warning );
+
+                maWarning.Show( "Please select at least one ministry.", ModalAlertType.Warning );
                 return;
             }
 
@@ -161,7 +162,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             {
                 CurrentKioskId = hfKiosk.ValueAsInt();
             }
-            
+
             ClearMobileCookie();
             CurrentGroupTypeIds = groupTypeIds;
             CurrentCheckInState = null;
@@ -185,7 +186,6 @@ namespace RockWeb.Blocks.CheckIn.Attended
             string geoScript = string.Format( @"
             <script>
                 $(document).ready(function (e) {{
-
                     tryGeoLocation();
 
                     function tryGeoLocation() {{
@@ -206,7 +206,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                         $(""input[id$='hfLongitude']"").val( longitude );
                         $(""div.checkin-header h1"").html( 'Checking Your Location...' );
                         $(""div.checkin-header"").append( ""<p class='muted'>"" + latitude + "" "" + longitude + ""</p>"" );
-                        // now perform a postback to fire the check geo location 
+                        // now perform a postback to fire the check geo location
                         {0};
                     }}
 
@@ -253,10 +253,10 @@ namespace RockWeb.Blocks.CheckIn.Attended
             {
                 SetDeviceIdCookie( kiosk );
                 CurrentKioskId = kiosk.Id;
-                BindGroupTypes();                
+                BindGroupTypes();
             }
         }
-        
+
         /// <summary>
         /// Returns a kiosk based on finding a geo location match for the given latitude and longitude.
         /// </summary>
@@ -276,7 +276,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
         }
 
         #endregion
-        
+
         #region Storage Methods
 
         /// <summary>
@@ -311,7 +311,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             isMobileCookie.Expires = RockDateTime.Now.AddDays( -1d );
             Response.Cookies.Set( isMobileCookie );
         }
-               
+
         #endregion
 
         #region Internal Methods
@@ -321,32 +321,32 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// </summary>
         /// <param name="deviceId">The device identifier.</param>
         /// <returns></returns>
-        private List<GroupType> GetDeviceGroupTypes(int deviceId)
+        private List<GroupType> GetDeviceGroupTypes( int deviceId )
         {
             var groupTypes = new Dictionary<int, GroupType>();
 
-            var locationService = new LocationService(new RockContext());
+            var locationService = new LocationService( new RockContext() );
 
             // Get all locations (and their children) associated with device
             var locationIds = locationService
-                .GetByDevice(deviceId, true)
-                .Select(l => l.Id)
+                .GetByDevice( deviceId, true )
+                .Select( l => l.Id )
                 .ToList();
 
             // Requery using EF
-            foreach (var groupType in locationService.Queryable()
-                .Where(l => locationIds.Contains(l.Id))
-                .SelectMany(l => l.GroupLocations)
-                .Select(gl => gl.Group.GroupType)
-                .ToList())
+            foreach ( var groupType in locationService.Queryable()
+                .Where( l => locationIds.Contains( l.Id ) )
+                .SelectMany( l => l.GroupLocations )
+                .Select( gl => gl.Group.GroupType )
+                .ToList() )
             {
-                if (!groupTypes.ContainsKey(groupType.Id))
+                if ( !groupTypes.ContainsKey( groupType.Id ) )
                 {
-                    groupTypes.Add(groupType.Id, groupType);
+                    groupTypes.Add( groupType.Id, groupType );
                 }
             }
 
-            return groupTypes.Select(g => g.Value).ToList();
+            return groupTypes.Select( g => g.Value ).ToList();
         }
 
         /// <summary>
@@ -362,7 +362,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// </summary>
         /// <param name="selectedValues">The selected values.</param>
         private void BindGroupTypes( string selectedGroupTypes )
-        {           
+        {
             if ( CurrentKioskId > 0 )
             {
                 var kiosk = new DeviceService( new RockContext() ).Get( (int)CurrentKioskId );
@@ -371,7 +371,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                     // var groupTypes = kiosk.Locations.SelectMany( l => l.GroupLocations
                     //     .Select( gl => gl.Group.GroupType ) ).Distinct().ToList();
 
-                    var groupTypes = GetDeviceGroupTypes(kiosk.Id);
+                    var groupTypes = GetDeviceGroupTypes( kiosk.Id );
 
                     hfGroupTypes.Value = selectedGroupTypes;
 
@@ -395,12 +395,12 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 {
                     if ( selectedGroupTypes.Contains( ( (GroupType)e.Item.DataItem ).Id ) )
                     {
-                        ( (Button)e.Item.FindControl( "lbMinistry" ) ).AddCssClass( "active" );                        
+                        ( (Button)e.Item.FindControl( "lbMinistry" ) ).AddCssClass( "active" );
                     }
                 }
             }
         }
-        
+
         #endregion
     }
 }

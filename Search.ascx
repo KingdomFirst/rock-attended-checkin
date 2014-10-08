@@ -10,9 +10,6 @@
             
         <div class="row checkin-header">
             <div class="col-sm-2 checkin-actions">
-                <Rock:BootstrapButton ID="lbAdmin" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbAdmin_Click" EnableViewState="false">
-                    <span class="fa fa-arrow-left"></span>
-                </Rock:BootstrapButton>
                 <Rock:BootstrapButton ID="lbBack" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbBack_Click" Visible="false" EnableViewState="false">
                     <span class="fa fa-arrow-left"></span>
                 </Rock:BootstrapButton>
@@ -34,9 +31,7 @@
             
         <div class="row checkin-body">
             <div class="col-md-3"></div>
-            <div class="col-md-6">
-                
-
+            <div class="col-md-6">                
                 <asp:Panel id="pnlKeyPad" runat="server" Visible="false" CssClass="tenkey checkin-phone-entry ">
                     <div>
                         <a href="#" class="btn btn-default btn-lg digit">1</a>

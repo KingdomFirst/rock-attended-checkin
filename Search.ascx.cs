@@ -35,11 +35,11 @@ namespace RockWeb.Blocks.CheckIn.Attended
     /// <summary>
     /// Search block for Attended Check-in
     /// </summary>
-    [DisplayName("Search Block")]
-    [Category("Check-in > Attended")]
+    [DisplayName( "Search Block" )]
+    [Category( "Check-in > Attended" )]
     [Description( "Attended Check-In Search block" )]
     [LinkedPage( "Admin Page" )]
-    [BooleanField( "Show Key Pad", "Show the number key pad on the search screen", false)]
+    [BooleanField( "Show Key Pad", "Show the number key pad on the search screen", false )]
     [IntegerField( "Minimum Text Length", "Minimum length for text searches (defaults to 4).", false, 4 )]
     [IntegerField( "Maximum Text Length", "Maximum length for text searches (defaults to 20).", false, 20 )]
     public partial class Search : CheckInBlock
@@ -54,11 +54,11 @@ namespace RockWeb.Blocks.CheckIn.Attended
         {
             if ( !Page.IsPostBack )
             {
-                if ( CurrentKioskId == null  || CurrentGroupTypeIds == null || CurrentCheckInState.Kiosk == null )
+                if ( CurrentKioskId == null || CurrentGroupTypeIds == null || CurrentCheckInState.Kiosk == null )
                 {
                     var queryParams = new Dictionary<string, string>();
                     queryParams.Add( "back", "true" );
-                    NavigateToLinkedPage( "AdminPage" );
+                    NavigateToLinkedPage( "AdminPage", queryParams );
                 }
                 else
                 {
@@ -68,14 +68,12 @@ namespace RockWeb.Blocks.CheckIn.Attended
                         // not active yet, display next active time
                         return;
                     }
-                    else if ( CurrentCheckInState.CheckIn.SearchType != null || CurrentCheckInState.CheckIn.Families.Count > 0)
+                    else if ( CurrentCheckInState.CheckIn.SearchType != null || CurrentCheckInState.CheckIn.Families.Count > 0 )
                     {
                         if ( !string.IsNullOrWhiteSpace( CurrentCheckInState.CheckIn.SearchValue ) )
                         {
                             tbSearchBox.Text = CurrentCheckInState.CheckIn.SearchValue;
                         }
-                        lbAdmin.Visible = false;
-                        lbBack.Visible = true;
                     }
 
                     string script = string.Format( @"
@@ -94,11 +92,11 @@ namespace RockWeb.Blocks.CheckIn.Attended
                     {
                         pnlKeyPad.Visible = true;
                     }
-                    
+
                     tbSearchBox.Focus();
                     SaveState();
                 }
-            }            
+            }
         }
 
         #endregion
