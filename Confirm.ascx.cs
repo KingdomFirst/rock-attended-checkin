@@ -310,11 +310,13 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// <param name="person">The person.</param>
         private void PrintLabel( int personId, int locationId, int scheduleId )
         {
-            CheckInPerson selectedPerson = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault()
-                    .People.Where( p => p.Person.Id == personId ).FirstOrDefault();
-            List<CheckInGroupType> selectedGroupTypes = selectedPerson.GroupTypes.Where( gt => gt.Selected
-                && gt.Groups.Any( g => g.Selected && g.Locations.Any( l => l.Location.Id == locationId
-                    && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) ) ) ).ToList();
+            var selectedPerson = CurrentCheckInState.CheckIn.Families
+                .Where( f => f.Selected ).FirstOrDefault()
+                .People.Where( p => p.Person.Id == personId ).FirstOrDefault();
+            var selectedGroupTypes = selectedPerson.GroupTypes
+                .Where( gt => gt.Selected && gt.Groups.Any( g => g.Selected 
+                    && g.Locations.Any( l => l.Location.Id == locationId 
+                        && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) ) ) ).ToList();
 
             foreach ( var groupType in selectedGroupTypes )
             {
@@ -354,8 +356,17 @@ namespace RockWeb.Blocks.CheckIn.Attended
                             string printContent = labelCache.FileContent;
                             foreach ( var mergeField in label.MergeFields )
                             {
-                                var rgx = new Regex( string.Format( @"(?<=\^FD){0}(?=\^FS)", mergeField.Key ) );
-                                printContent = rgx.Replace( printContent, mergeField.Value );
+                                if ( !string.IsNullOrWhiteSpace( mergeField.Value ) )
+                                {
+                                    printContent = Regex.Replace( printContent, string.Format( @"(?<=\^FD){0}(?=\^FS)", mergeField.Key ), mergeField.Value );
+                                }
+                                else
+                                {
+                                    // Remove the box preceding merge field
+                                    printContent = Regex.Replace( printContent, string.Format( @"\^FO.*\^FS\s*(?=\^FT.*\^FD{0}\^FS)", mergeField.Key ), string.Empty );
+                                    // Remove the merge field
+                                    printContent = Regex.Replace( printContent, string.Format( @"\^FD{0}\^FS", mergeField.Key ), "^FD^FS" );
+                                }
                             }
 
                             if ( socket.Connected )
@@ -389,7 +400,13 @@ namespace RockWeb.Blocks.CheckIn.Attended
             string script = string.Format( @"
 
             // setup deviceready event to wait for cordova
-	        document.addEventListener('deviceready', onDeviceReady, false);
+	        if (navigator.userAgent.match(/(iPhone|iPod|iPad)/)) {{
+                document.addEventListener('deviceready', onDeviceReady, false);
+            }} else {{
+                $( document ).ready(function() {{
+                    onDeviceReady();
+                }});
+            }}
 
 	        // label data
             var labelData = {0};
@@ -397,22 +414,28 @@ namespace RockWeb.Blocks.CheckIn.Attended
 		    function onDeviceReady() {{
 			    printLabels();
 		    }}
-
+		
 		    function alertDismissed() {{
 		        // do something
 		    }}
-
+		
 		    function printLabels() {{
 		        ZebraPrintPlugin.printTags(
-            	    JSON.stringify(labelData),
-            	    function(result) {{
-			            console.log('I printed that tag like a champ!!!');
+            	    JSON.stringify(labelData), 
+            	    function(result) {{ 
+			            console.log('Tag printed');
 			        }},
-			        function(error) {{
+			        function(error) {{   
 				        // error is an array where:
 				        // error[0] is the error message
 				        // error[1] determines if a re-print is possible (in the case where the JSON is good, but the printer was not connected)
 			            console.log('An error occurred: ' + error[0]);
+                        navigator.notification.alert(
+                            'An error occurred while printing the labels.' + error[0],  // message
+                            alertDismissed,         // callback
+                            'Error',            // title
+                            'Ok'                  // buttonName
+                        );
 			        }}
                 );
 	        }}", jsonObject );
