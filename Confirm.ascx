@@ -69,3 +69,6 @@
 <script>
     $('head').append('<link rel="stylesheet" type="text/css" href="../plugins/cc_newspring/attendedcheckin/styles.css" />');
 </script>
+
+<script type="text/javascript" src="../plugins/cc_newspring/attendedcheckin/cordova-2.4.0.js"></script>
+<script type="text/javascript" src="../plugins/cc_newspring/attendedcheckin/ZebraPrint.js"></script>
