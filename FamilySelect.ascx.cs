@@ -119,7 +119,8 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbNext_Click( object sender, EventArgs e )
         {
-            var selectedPeopleList = ( hfSelectedPerson.Value + hfSelectedVisitor.Value ).SplitDelimitedValues();
+            var selectedPeopleIds = ( hfSelectedPerson.Value + hfSelectedVisitor.Value )
+                .SplitDelimitedValues().Select( int.Parse ).ToList();
             var family = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault();
             if ( family == null )
             {
@@ -133,14 +134,9 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 return;
             }
 
-            if ( selectedPeopleList.Count() > 0 )
+            if ( selectedPeopleIds.Count() > 0 )
             {
-                var selectedPeopleIds = selectedPeopleList.Select( int.Parse ).ToList();
-                family.People.ForEach( p => p.Selected = false );
-                foreach ( var person in family.People.Where( p => selectedPeopleIds.Contains( p.Person.Id ) ).ToList() )
-                {
-                    person.Selected = true;
-                }
+                family.People.ForEach( p => p.Selected = selectedPeopleIds.Contains( p.Person.Id ) );
 
                 var errors = new List<string>();
                 if ( ProcessActivity( "Activity Search", out errors ) )
@@ -308,9 +304,15 @@ namespace RockWeb.Blocks.CheckIn.Attended
         {
             dpPersonPager.SetPageProperties( e.StartRowIndex, e.MaximumRows, false );
 
+            var selectedFamily = CurrentCheckInState.CheckIn.Families
+                .Where( f => f.Selected ).FirstOrDefault()
+                .People.Where( f => f.FamilyMember )
+                .OrderBy( p => p.Person.FullNameReversed ).ToList();
+            var selectedPeopleList = hfSelectedPerson.Value.SplitDelimitedValues().Select( int.Parse ).ToList();
+            selectedFamily.ForEach( p => p.Selected = selectedPeopleList.Contains( p.Person.Id ) );
+
             // rebind List View
-            lvPerson.DataSource = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault()
-                .People.Where( f => f.FamilyMember ).OrderBy( p => p.Person.FullNameReversed ).ToList();
+            lvPerson.DataSource = selectedFamily;
             lvPerson.DataBind();
             pnlPerson.Update();
         }
@@ -324,9 +326,15 @@ namespace RockWeb.Blocks.CheckIn.Attended
         {
             dpVisitorPager.SetPageProperties( e.StartRowIndex, e.MaximumRows, false );
 
+            var visitorList = CurrentCheckInState.CheckIn.Families
+                .Where( f => f.Selected ).FirstOrDefault()
+                .People.Where( f => !f.FamilyMember )
+                .OrderBy( p => p.Person.FullNameReversed ).ToList();
+            var selectedVisitors = hfSelectedVisitor.Value.SplitDelimitedValues().Select( int.Parse ).ToList();
+            visitorList.ForEach( p => p.Selected = selectedVisitors.Contains( p.Person.Id ) );
+
             // rebind List View
-            lvVisitor.DataSource = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault()
-                .People.Where( f => !f.FamilyMember ).OrderBy( p => p.Person.FullNameReversed ).ToList();
+            lvVisitor.DataSource = visitorList;
             lvVisitor.DataBind();
             pnlVisitor.Update();
         }
