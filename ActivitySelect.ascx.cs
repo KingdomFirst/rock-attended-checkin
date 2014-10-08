@@ -96,7 +96,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                     {
                         CheckInPerson person = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault()
                             .People.Where( p => p.Person.Id == personId ).FirstOrDefault();
-                    
+                        
                         if ( person != null && person.GroupTypes.Any() )
                         {
                             lblPersonName.Text = person.Person.FullName;                            
@@ -112,6 +112,18 @@ namespace RockWeb.Blocks.CheckIn.Attended
                             BindLocations( person.GroupTypes );
                             BindSchedules( person.GroupTypes );
                             BindSelectedGrid();
+
+                            var rockContext = new RockContext();
+                            var notesService = new NoteService(rockContext);
+                            var notes = notesService.Queryable()
+                                .Where( n => n.EntityId == personId )
+                                .Select(n => n.Text).FirstOrDefault();
+                            tbNoteText.Text = notes;
+
+                            var allergyAttributeId = new AttributeService( rockContext )
+                                .GetByEntityTypeId( new Person().TypeId )
+                                .Where( a => a.Name.ToUpper() == "ALLERGY" ).FirstOrDefault().Id;
+                            LoadAttributeControl( allergyAttributeId, (int)personId );
                         }
                     }
                     else
@@ -409,18 +421,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbAddNote_Click( object sender, EventArgs e )
         {
-            var personId = Request.QueryString["personId"].AsType<int?>();
-            if ( personId > 0 )
-            {
-                var allergyAttributeId = new AttributeService( new RockContext() ).GetByEntityTypeId( new Person().TypeId )
-                    .Where( a => a.Name.ToUpper() == "ALLERGY" ).FirstOrDefault().Id;
-                LoadAttributeControl( allergyAttributeId, (int)personId );
-                mpeAddNote.Show();
-            }
-            else
-            {
-                maWarning.Show( InvalidParameterError, ModalAlertType.Warning );
-            }
+            mpeAddNote.Show();
         }
 
         /// <summary>
@@ -440,25 +441,45 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbAddNoteSave_Click( object sender, EventArgs e )
         {
+            var rockContext = new RockContext();
+            // look up check-in note type
+            var checkInNoteTypeId = new NoteTypeService( rockContext ).Queryable()
+                .Where( t => t.Name == "Check-In")
+                .Select( t => (int?)t.Id).FirstOrDefault();
             var personId = Request.QueryString["personId"].AsType<int?>();
             var person = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault()
                 .People.Where( p => p.Person.Id == personId ).FirstOrDefault();
 
-            person.Person.LoadAttributes();
-
-            var allergyAttributeId = new AttributeService( new RockContext() ).GetByEntityTypeId( new Person().TypeId )
-                .Where( a => a.Name.ToUpper() == "ALLERGY" ).FirstOrDefault().Id;
-            var allergyAttribute = Rock.Web.Cache.AttributeCache.Read( allergyAttributeId );
-
-            Control allergyAttributeControl = phAttributes.FindControl( string.Format( "attribute_field_{0}", allergyAttributeId ) );
-            if ( allergyAttributeControl != null )
+            if ( checkInNoteTypeId != null )
             {
-                person.Person.SetAttributeValue( "Allergy", allergyAttribute.FieldType.Field
-                    .GetEditValue( allergyAttributeControl, allergyAttribute.QualifierValues ) );
-            }
+                var note = new Note();
+                note.IsSystem = false;
+                note.EntityId = personId;
+                note.NoteTypeId = (int)checkInNoteTypeId;
+                note.Text = tbNoteText.Text;
+                rockContext.Notes.Add( note );
+                rockContext.SaveChanges();
+            }           
 
-            person.Person.SaveAttributeValues();
-            hfAllergyAttributeId.Value = string.Empty;
+            var allergyAttributeId = new AttributeService( new RockContext() )
+                .GetByEntityTypeId( new Person().TypeId )
+                .Where( a => a.Name.ToUpper() == "ALLERGY" )
+                .Select( a => (int?)a.Id).FirstOrDefault();
+            if ( allergyAttributeId != null )
+            {
+                var allergyAttribute = Rock.Web.Cache.AttributeCache.Read( (int)allergyAttributeId );
+
+                var allergyAttributeControl = phAttributes.FindControl( string.Format( "attribute_field_{0}", allergyAttributeId ) );
+                if ( allergyAttributeControl != null )
+                {
+                    person.Person.LoadAttributes();
+                    person.Person.SetAttributeValue( "Allergy", allergyAttribute.FieldType.Field
+                        .GetEditValue( allergyAttributeControl, allergyAttribute.QualifierValues ) );
+                    person.Person.SaveAttributeValues();
+                    hfAllergyAttributeId.Value = string.Empty;
+                }
+            }            
+            
             mpeAddNote.Hide();
         }
                 

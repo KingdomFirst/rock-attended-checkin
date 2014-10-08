@@ -106,13 +106,13 @@
         <asp:HiddenField ID="hfOpenNotePanel" runat="server" />
 
         <div class="checkin-header row">
-            <div class="col-sm-3 checkin-actions">
+            <div class="col-sm-2 checkin-actions">
                 <asp:LinkButton ID="lbAddNoteCancel" CssClass="btn btn-lg btn-primary cancel" runat="server" Text="Cancel" CausesValidation="false" EnableViewState="false" />
             </div>
-            <div class="col-sm-6">
-                <h3>Add Note</h3>
+            <div class="col-sm-8 text-center">
+                <h3>Add Notes</h3>
             </div>
-            <div class="col-sm-3 checkin-actions">
+            <div class="col-sm-2 checkin-actions text-right">
                 <asp:LinkButton ID="lbAddNoteSave" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbAddNoteSave_Click" Text="Save" EnableViewState="false" />
             </div>
         </div>
@@ -120,6 +120,12 @@
         <div class="checkin-body">
             <div class="row">
                 <asp:PlaceHolder ID="phAttributes" runat="server" EnableViewState="false"></asp:PlaceHolder>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    <label>Notes</label>
+                    <Rock:RockTextBox ID="tbNoteText" runat="server" MaxLength="60" Rows="3" />
+                </div>
             </div>
         </div>
     </asp:Panel>
@@ -131,16 +137,9 @@
 
     $('head').append('<link rel="stylesheet" type="text/css" href="../plugins/cc_newspring/attendedcheckin/styles.css" />');
 
-    function setControlEvents() {
-        $find("mpeAddNote").add_shown(function () {
-            $find("mpeAddNote")._backgroundElement.onclick = function () {
-                $find("mpeAddNote").hide();
-            }
-        });
-    };
+    $(document).ready(function () {
 
-    $(document).ready(function () { setControlEvents(); });
-    Sys.WebForms.PageRequestManager.getInstance().add_endRequest(setControlEvents);
+    });
 
 </script>
 

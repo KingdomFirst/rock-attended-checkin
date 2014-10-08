@@ -6,6 +6,7 @@
 
 *:not(.modal-foreground) > .checkin-header h1 {
     margin-bottom: 0;
+    margin-top: 10px;
 }
 
 .modal-foreground > .checkin-header {
@@ -19,6 +20,7 @@
 
 .checkin-header input {
     width: 100%;
+    margin-top: 5px;
 }
 
 table {
@@ -48,6 +50,10 @@ table td {
     overflow: hidden;
     text-overflow: ellipsis;
     margin-left: 0;
+}
+
+.btn.pagination[disabled] {
+    opacity: 0;
 }
 
 .btn.pagination {
