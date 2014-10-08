@@ -79,6 +79,9 @@ namespace RockWeb.Blocks.CheckIn.Attended
         protected override void OnInit( EventArgs e )
         {
             base.OnInit( e );
+
+            RockPage.AddScriptLink( this.Page, "~/Scripts/CheckinClient/cordova-2.4.0.js", false );
+            RockPage.AddScriptLink( this.Page, "~/Scripts/CheckinClient/ZebraPrint.js", false );
         }
 
         /// <summary>
@@ -314,8 +317,8 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 .Where( f => f.Selected ).FirstOrDefault()
                 .People.Where( p => p.Person.Id == personId ).FirstOrDefault();
             var selectedGroupTypes = selectedPerson.GroupTypes
-                .Where( gt => gt.Selected && gt.Groups.Any( g => g.Selected 
-                    && g.Locations.Any( l => l.Location.Id == locationId 
+                .Where( gt => gt.Selected && gt.Groups.Any( g => g.Selected
+                    && g.Locations.Any( l => l.Location.Id == locationId
                         && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) ) ) ).ToList();
 
             foreach ( var groupType in selectedGroupTypes )
@@ -414,18 +417,18 @@ namespace RockWeb.Blocks.CheckIn.Attended
 		    function onDeviceReady() {{
 			    printLabels();
 		    }}
-		
+
 		    function alertDismissed() {{
 		        // do something
 		    }}
-		
+
 		    function printLabels() {{
 		        ZebraPrintPlugin.printTags(
-            	    JSON.stringify(labelData), 
-            	    function(result) {{ 
+            	    JSON.stringify(labelData),
+            	    function(result) {{
 			            console.log('Tag printed');
 			        }},
-			        function(error) {{   
+			        function(error) {{
 				        // error is an array where:
 				        // error[0] is the error message
 				        // error[1] determines if a re-print is possible (in the case where the JSON is good, but the printer was not connected)
