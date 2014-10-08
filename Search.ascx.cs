@@ -161,18 +161,6 @@ namespace RockWeb.Blocks.CheckIn.Attended
         }
 
         /// <summary>
-        /// Handles the Click event of the lbAdmin control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
-        protected void lbAdmin_Click( object sender, EventArgs e )
-        {
-            var queryParams = new Dictionary<string, string>();
-            queryParams.Add( "back", "true" );
-            NavigateToLinkedPage( "AdminPage", queryParams );
-        }
-
-        /// <summary>
         /// Handles the Click event of the lbBack control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
@@ -183,8 +171,9 @@ namespace RockWeb.Blocks.CheckIn.Attended
 
             if ( !selectedFamilyExists )
             {
-                maWarning.Show( "There is not a selected family to go back to.", ModalAlertType.Warning );
-                return;
+                var queryParams = new Dictionary<string, string>();
+                queryParams.Add( "back", "true" );
+                NavigateToLinkedPage( "AdminPage", queryParams );
             }
             else
             {
