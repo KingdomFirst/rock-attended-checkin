@@ -73,7 +73,7 @@
 					        </asp:LinkButton>
 				        </ItemTemplate>    
 				        <EmptyDataTemplate>
-					        <div runat="server" class="nothing-eligible">
+					        <div class="nothing-eligible text-center">
 						        <asp:Literal ID="lblPersonTitle" runat="server" Text="No one in this family is eligible to check-in." />
 					        </div>                            
 				        </EmptyDataTemplate>              
