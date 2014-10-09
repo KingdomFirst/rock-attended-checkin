@@ -104,7 +104,7 @@
 			        </asp:ListView>
 			        <asp:DataPager ID="dpVisitorPager" runat="server" PageSize="4" PagedControlID="lvVisitor">
 				        <Fields>
-					        <asp:NextPreviousPagerField ButtonType="Button" ButtonCssClass="btn btn-lg btn-primary btn-checkin-select" />
+					        <asp:NextPreviousPagerField ButtonType="Button" ButtonCssClass="pagination btn btn-lg btn-primary btn-checkin-select" />
 				        </Fields>
 			        </asp:DataPager>
                 </ContentTemplate>
@@ -197,7 +197,9 @@
             </div>
 
             <div class="row">
-                <asp:LinkButton ID="lbSavePerson" runat="server" Text="None of these, add a new person." CssClass="btn btn-lg btn-primary btn-checkin-select" ValidationGroup="Person" CausesValidation="true" OnClick="lbSavePerson_Click" />
+                <div class="col-xs-12 text-right">
+                    <asp:LinkButton ID="lbSavePerson" runat="server" Text="None of these, add a new person" CssClass="btn btn-lg btn-primary btn-checkin-select" ValidationGroup="Person" CausesValidation="true" OnClick="lbSavePerson_Click" />
+                </div>
             </div>
             
         </div>
@@ -265,7 +267,7 @@
             </asp:ListView>        
 
             <div class="row">
-                <div class="col-xs-3">
+                <div class="col-xs-offset-10 col-xs-2 text-right">
                     <asp:DataPager ID="dpAddFamily" runat="server" PageSize="4" PagedControlID="lvAddFamily">
                         <Fields>
                             <asp:NextPreviousPagerField ButtonType="Button" ButtonCssClass="pagination btn btn-lg btn-primary btn-checkin-select" />

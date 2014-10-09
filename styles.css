@@ -37,6 +37,10 @@ table td {
     text-align: left;
 }
 
+.three-col-with-controls td:nth-child(3) ~ td {
+    width: 100px;
+}
+
 .checkin-header input + a > .fa {
     color: #000000;
     font-size: 36px;
@@ -86,8 +90,9 @@ table td {
 }
 
 .btn.active {
-    box-shadow: inset 3px 4px 6px #000000, 1px 3px 3px #222222;
-    border: 1px solid #000000;
+    background-color: #000000;
+    box-shadow: inset 10px 15px 20px #999999, inset -2px -2px 1px #999999;
+    border: 0;
 }
 
 .bootbox .modal-content {
