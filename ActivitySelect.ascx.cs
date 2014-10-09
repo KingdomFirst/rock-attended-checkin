@@ -97,8 +97,6 @@ namespace RockWeb.Blocks.CheckIn.Attended
             {
                 if ( !Page.IsPostBack )
                 {
-                    mpeAddNote.OnCancelScript = string.Format( "$('#{0}').val('');", hfAllergyAttributeId.ClientID );
-
                     var personId = Request.QueryString["personId"].AsType<int?>();
                     if ( personId > 0 )
                     {
@@ -353,6 +351,11 @@ namespace RockWeb.Blocks.CheckIn.Attended
             }
         }
 
+        protected void lbCloseNotes_Click( object sender, EventArgs e )
+        {
+            ShowOrHideAddModal( "notes-modal", false );
+        }
+
         /// <summary>
         /// Handles the PagePropertiesChanging event of the lvLocation control.
         /// </summary>
@@ -438,7 +441,26 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbAddNote_Click( object sender, EventArgs e )
         {
-            mpeAddNote.Show();
+            //mpeAddNote.Show();
+            ShowOrHideAddModal("notes-modal", true);
+        }
+
+        protected void ShowOrHideAddModal( string elementId, bool doShow )
+        {
+            var js = "$('.modal-backdrop').remove();";
+
+            if ( doShow )
+            {
+                js += "var modal = $('#" + elementId + ":not(:visible)');" +
+                    "modal.modal('show');";
+            }
+            else
+            {
+                js += "var modal = $('#" + elementId + ":visible');" +
+                    "modal.modal('hide');";
+            }
+
+            ScriptManager.RegisterStartupScript( Page, Page.GetType(), DateTime.Now.ToString(), js, true );
         }
 
         /// <summary>
@@ -497,7 +519,8 @@ namespace RockWeb.Blocks.CheckIn.Attended
             }
 
             rockContext.SaveChanges();
-            mpeAddNote.Hide();
+            //mpeAddNote.Hide();
+            ShowOrHideAddModal( "notes-modal", false );
         }
 
         /// <summary>

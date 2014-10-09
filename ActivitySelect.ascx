@@ -101,34 +101,37 @@
 
     </asp:Panel>
 
-    <asp:Panel ID="pnlAddNote" runat="server" CssClass="attended modal-foreground small-modal" DefaultButton="lbAddNoteSave" style="display:none">
-        <asp:ModalPopupExtender ID="mpeAddNote" runat="server" BehaviorID="mpeAddNote" TargetControlID="hfOpenNotePanel" PopupControlID="pnlAddNote" CancelControlID="lbAddNoteCancel" BackgroundCssClass="attended modal-background" />
-        <asp:HiddenField ID="hfOpenNotePanel" runat="server" />
+    <div class="modal fade" id="notes-modal" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <asp:HiddenField ID="hfOpenNotePanel" runat="server" />
 
-        <div class="checkin-header row">
-            <div class="col-sm-2 checkin-actions">
-                <asp:LinkButton ID="lbAddNoteCancel" CssClass="btn btn-lg btn-primary cancel" runat="server" Text="Cancel" CausesValidation="false" EnableViewState="false" />
-            </div>
-            <div class="col-sm-8 text-center">
-                <h3>Add Notes</h3>
-            </div>
-            <div class="col-sm-2 checkin-actions text-right">
-                <asp:LinkButton ID="lbAddNoteSave" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbAddNoteSave_Click" Text="Save" EnableViewState="false" />
-            </div>
-        </div>
+                <div class="checkin-header row">
+                    <div class="col-sm-2 checkin-actions">
+                        <Rock:BootstrapButton ID="closeNotesModal" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbCloseNotes_Click" Text="Cancel" EnableViewState="false" />
+                    </div>
+                    <div class="col-sm-8 text-center">
+                        <h3>Add Notes</h3>
+                    </div>
+                    <div class="col-sm-2 checkin-actions text-right">
+                        <asp:LinkButton ID="lbAddNoteSave" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbAddNoteSave_Click" Text="Save" EnableViewState="false" />
+                    </div>
+                </div>
 		
-        <div class="checkin-body">
-            <div class="row">
-                <asp:PlaceHolder ID="phAttributes" runat="server" EnableViewState="false"></asp:PlaceHolder>
-            </div>
-            <div class="row">
-                <div class="form-group">
-                    <label>Notes</label>
-                    <Rock:RockTextBox ID="tbNoteText" runat="server" MaxLength="60" Rows="3" />
+                <div class="checkin-body">
+                    <div class="row">
+                        <asp:PlaceHolder ID="phAttributes" runat="server" EnableViewState="false"></asp:PlaceHolder>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <label>Notes</label>
+                            <Rock:RockTextBox ID="tbNoteText" runat="server" MaxLength="60" Rows="3" />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </asp:Panel>
+    </div>
 
 </ContentTemplate>
 </asp:UpdatePanel>

@@ -129,155 +129,160 @@
 
     </asp:Panel>
 
-    <asp:Panel ID="pnlAddPerson" runat="server" CssClass="attended modal-foreground" DefaultButton="lbPersonSearch" style="display:none">
-        <asp:ModalPopupExtender ID="mpeAddPerson" runat="server" BehaviorID="mpeAddPerson" TargetControlID="hfOpenPersonPanel" PopupControlID="pnlAddPerson" CancelControlID="lbAddPersonCancel" BackgroundCssClass="attended modal-background" />
-        <asp:HiddenField ID="hfOpenPersonPanel" runat="server" />   
+    <div class="modal fade" id="add-person-modal" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <asp:HiddenField ID="hfOpenPersonPanel" runat="server" />   
+                <div class="row checkin-header">
+                    <div class="checkin-actions">
+                        <div class="col-sm-3">
+                            <Rock:BootstrapButton ID="lbCloseAddPerson" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbCloseAddPerson_Click" Text="Cancel" EnableViewState="false" />
+                        </div>
 
-        <div class="row checkin-header">
-            <div class="checkin-actions">
-                <div class="col-sm-3">
-                    <Rock:BootstrapButton ID="lbAddPersonCancel" runat="server" CssClass="btn btn-lg btn-primary cancel" Text="Cancel" EnableViewState="false" />
-                </div>
+                        <div class="col-sm-6">
+                            <h2 class="text-center"><asp:Literal ID="lblAddPersonHeader" runat="server" EnableViewState="false" /></h2>
+                        </div>
 
-                <div class="col-sm-6">
-                    <h2 class="text-center"><asp:Literal ID="lblAddPersonHeader" runat="server" EnableViewState="false" /></h2>
+                        <div class="col-sm-3 text-right">
+                            <Rock:BootstrapButton ID="lbPersonSearch" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbPersonSearch_Click" Text="Search" EnableViewState="false" />
+                        </div>
+                    </div>
                 </div>
-
-                <div class="col-sm-3 text-right">
-                    <Rock:BootstrapButton ID="lbPersonSearch" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbPersonSearch_Click" Text="Search" EnableViewState="false" />
-                </div>
-            </div>
-        </div>
 		
-        <div class="checkin-body">
-            <div class="row">               
-                <div class="col-md-2">
-                    <Rock:RockTextBox ID="tbFirstNameSearch" runat="server" CssClass="col-md-12" Label="First Name" ValidationGroup="Person" Text="" />
-                </div>
-                <div class="col-md-3">
-                    <Rock:RockTextBox ID="tbLastNameSearch" runat="server" CssClass="col-md-12" Label="Last Name" ValidationGroup="Person" Text="" />
-                </div>
-                <div class="col-md-2">
-                    <Rock:DatePicker ID="dpDOBSearch" runat="server" Label="DOB" ValidationGroup="Person" CssClass="col-md-12" />
-                </div>
-                <div class="col-md-2">
-                    <Rock:RockDropDownList ID="ddlGenderSearch" runat="server" ValidationGroup="Person" CssClass="col-md-12" Label="Gender" />
-                </div>
-                <div class="col-md-3">
-                    <Rock:RockDropDownList ID="ddlAbilitySearch" runat="server" CssClass="col-md-12" Label="Ability/Grade" />
-                </div>
-            </div>
+                <div class="checkin-body">
+                    <div class="row">               
+                        <div class="col-md-2">
+                            <Rock:RockTextBox ID="tbFirstNameSearch" runat="server" CssClass="col-md-12" Label="First Name" ValidationGroup="Person" Text="" />
+                        </div>
+                        <div class="col-md-3">
+                            <Rock:RockTextBox ID="tbLastNameSearch" runat="server" CssClass="col-md-12" Label="Last Name" ValidationGroup="Person" Text="" />
+                        </div>
+                        <div class="col-md-2">
+                            <Rock:DatePicker ID="dpDOBSearch" runat="server" Label="DOB" ValidationGroup="Person" CssClass="col-md-12 date-picker" />
+                        </div>
+                        <div class="col-md-2">
+                            <Rock:RockDropDownList ID="ddlGenderSearch" runat="server" ValidationGroup="Person" CssClass="col-md-12" Label="Gender" />
+                        </div>
+                        <div class="col-md-3">
+                            <Rock:RockDropDownList ID="ddlAbilitySearch" runat="server" CssClass="col-md-12" Label="Ability/Grade" />
+                        </div>
+                    </div>
             
-            <div class="row">
-                <asp:UpdatePanel ID="pnlPersonSearch" runat="server">
-                <ContentTemplate>
-                    <div class="grid">
-                        <Rock:Grid ID="rGridPersonResults" runat="server" OnRowCommand="rGridPersonResults_AddExistingPerson"
-                            OnGridRebind="rGridPersonResults_GridRebind" ShowActionRow="false" PageSize="4" DataKeyNames="Id" AllowSorting="true">
-                            <Columns>
-                                <asp:BoundField DataField="Id" Visible="false" />
-                                <asp:BoundField DataField="FirstName" HeaderText="First Name" SortExpression="FirstName"/>
-                                <asp:BoundField DataField="LastName" HeaderText="Last Name" SortExpression="LastName" />
-                                <asp:BoundField DataField="BirthDate" HeaderText="DOB" SortExpression="BirthDate" DataFormatString="{0:MM/dd/yy}" HtmlEncode="false" />
-                                <asp:BoundField DataField="Age" HeaderText="Age" SortExpression="Age" />
-                                <asp:BoundField DataField="Gender" HeaderText="Gender" SortExpression="Gender" />
-                                <asp:BoundField DataField="Attribute" HeaderText="Ability/Grade" SortExpression="Attribute" />
-                                <asp:TemplateField>
-                                    <ItemTemplate>
-                                        <asp:LinkButton ID="lbAdd" runat="server" CssClass="btn btn-lg btn-primary" CommandName="Add" 
-                                            Text="Add" CommandArgument="<%# ((GridViewRow) Container).RowIndex %>" CausesValidation="false"><i class="fa fa-plus"></i>
-                                        </asp:LinkButton>
-                                    </ItemTemplate>
-                                </asp:TemplateField>
-                            </Columns>
-                        </Rock:Grid>
+                    <div class="row">
+                        <asp:UpdatePanel ID="pnlPersonSearch" runat="server">
+                        <ContentTemplate>
+                            <div class="grid">
+                                <Rock:Grid ID="rGridPersonResults" runat="server" OnRowCommand="rGridPersonResults_AddExistingPerson"
+                                    OnGridRebind="rGridPersonResults_GridRebind" ShowActionRow="false" PageSize="4" DataKeyNames="Id" AllowSorting="true">
+                                    <Columns>
+                                        <asp:BoundField DataField="Id" Visible="false" />
+                                        <asp:BoundField DataField="FirstName" HeaderText="First Name" SortExpression="FirstName"/>
+                                        <asp:BoundField DataField="LastName" HeaderText="Last Name" SortExpression="LastName" />
+                                        <asp:BoundField DataField="BirthDate" HeaderText="DOB" SortExpression="BirthDate" DataFormatString="{0:MM/dd/yy}" HtmlEncode="false" />
+                                        <asp:BoundField DataField="Age" HeaderText="Age" SortExpression="Age" />
+                                        <asp:BoundField DataField="Gender" HeaderText="Gender" SortExpression="Gender" />
+                                        <asp:BoundField DataField="Attribute" HeaderText="Ability/Grade" SortExpression="Attribute" />
+                                        <asp:TemplateField>
+                                            <ItemTemplate>
+                                                <asp:LinkButton ID="lbAdd" runat="server" CssClass="btn btn-lg btn-primary" CommandName="Add" 
+                                                    Text="Add" CommandArgument="<%# ((GridViewRow) Container).RowIndex %>" CausesValidation="false"><i class="fa fa-plus"></i>
+                                                </asp:LinkButton>
+                                            </ItemTemplate>
+                                        </asp:TemplateField>
+                                    </Columns>
+                                </Rock:Grid>
+                            </div>
+                        </ContentTemplate>
+                        </asp:UpdatePanel>
                     </div>
-                </ContentTemplate>
-                </asp:UpdatePanel>
-            </div>
 
-            <div class="row">
-                <div class="col-xs-12 text-right">
-                    <asp:LinkButton ID="lbSavePerson" runat="server" Text="None of these, add a new person" CssClass="btn btn-lg btn-primary btn-checkin-select" ValidationGroup="Person" CausesValidation="true" OnClick="lbSavePerson_Click" />
-                </div>
-            </div>
+                    <div class="row">
+                        <div class="col-xs-12 text-right">
+                            <asp:LinkButton ID="lbSavePerson" runat="server" Text="None of these, add a new person" CssClass="btn btn-lg btn-primary btn-checkin-select" ValidationGroup="Person" CausesValidation="true" OnClick="lbSavePerson_Click" />
+                        </div>
+                    </div>
             
-        </div>
-    </asp:Panel>
-    
-    <asp:Panel ID="pnlAddFamily" runat="server" CssClass="attended modal-foreground" style="display:none">
-        <asp:ModalPopupExtender ID="mpeAddFamily" runat="server" BehaviorID="mpeAddFamily" TargetControlID="hfOpenFamilyPanel" PopupControlID="pnlAddFamily" CancelControlID="lbAddFamilyCancel" BackgroundCssClass="attended modal-background" />
-        <asp:HiddenField ID="hfOpenFamilyPanel" runat="server" />
-
-        <div class="row checkin-header">
-            <div class="col-sm-3 checkin-actions">
-                <Rock:BootstrapButton ID="lbAddFamilyCancel" CssClass="btn btn-lg btn-primary cancel" runat="server" Text="Cancel" CausesValidation="false" EnableViewState="false" />
-            </div>
-
-            <div class="col-sm-6 text-center">
-                <h2>Add Family</h2>
-            </div>
-
-            <div class="col-sm-3 checkin-actions text-right">
-                <Rock:BootstrapButton ID="lbSaveFamily" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbSaveFamily_Click" Text="Save" EnableViewState="false" ValidationGroup="Family" />
-            </div>
-        </div>        
-    
-        <div class="checkin-body">
-            <asp:ListView ID="lvAddFamily" runat="server" OnPagePropertiesChanging="lvAddFamily_PagePropertiesChanging" OnItemDataBound="lvAddFamily_ItemDataBound" >
-            <LayoutTemplate>
-                <div class="row">
-                    <div class="col-md-2">
-                        <h4>First Name</h4>
-                    </div>
-                    <div class="col-md-3">
-                        <h4>Last Name</h4>
-                    </div>
-                    <div class="col-md-2">
-                        <h4>DOB</h4>
-                    </div>
-                    <div class="col-md-2">
-                        <h4>Gender</h4>
-                    </div>
-                    <div class="col-md-3">
-                        <h4>Ability/Grade</h4>
-                    </div>                
-                </div>
-                <asp:PlaceHolder ID="itemPlaceholder" runat="server" />
-            </LayoutTemplate>
-            <ItemTemplate>
-                <div class="row">
-                    <div class="col-md-2">
-                        <Rock:RockTextBox ID="tbFirstName" runat="server" RequiredErrorMessage="First Name is Required"  Text='<%# ((NewPerson)Container.DataItem).FirstName %>' ValidationGroup="Family" />
-                    </div>
-                    <div class="col-md-3">
-                        <Rock:RockTextBox ID="tbLastName" runat="server" RequiredErrorMessage="Last Name is Required" Text='<%# ((NewPerson)Container.DataItem).LastName %>' ValidationGroup="Family" />
-                    </div>
-                    <div class="col-md-2">
-                        <Rock:DatePicker ID="dpBirthDate" runat="server" RequiredErrorMessage="DOB is Required" SelectedDate='<%# ((NewPerson)Container.DataItem).BirthDate %>' ValidationGroup="Family"  />
-                    </div>
-                    <div class="col-md-2">
-                        <Rock:RockDropDownList ID="ddlGender" runat="server" RequiredErrorMessage="Gender is Required" ValidationGroup="Family" />
-                    </div>
-                    <div class="col-md-3">
-                        <Rock:RockDropDownList ID="ddlAbilityGrade" runat="server" />
-                    </div>
-                </div>                
-            </ItemTemplate>        
-            </asp:ListView>        
-
-            <div class="row">
-                <div class="col-xs-offset-10 col-xs-2 text-right">
-                    <asp:DataPager ID="dpAddFamily" runat="server" PageSize="4" PagedControlID="lvAddFamily">
-                        <Fields>
-                            <asp:NextPreviousPagerField ButtonType="Button" ButtonCssClass="pagination btn btn-lg btn-primary btn-checkin-select" />
-                        </Fields>
-                    </asp:DataPager>
                 </div>
             </div>
         </div>
+    </div>
+    
+    <div class="modal fade" id="add-family-modal" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <asp:HiddenField ID="hfOpenFamilyPanel" runat="server" />
 
-    </asp:Panel>
+                <div class="row checkin-header">
+                    <div class="col-sm-3 checkin-actions">
+                        <Rock:BootstrapButton ID="lbCloseAddFamily" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbCloseAddFamily_Click" Text="Cancel" EnableViewState="false" />
+                    </div>
+
+                    <div class="col-sm-6 text-center">
+                        <h2>Add Family</h2>
+                    </div>
+
+                    <div class="col-sm-3 checkin-actions text-right">
+                        <Rock:BootstrapButton ID="lbSaveFamily" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbSaveFamily_Click" Text="Save" EnableViewState="false" ValidationGroup="Family" />
+                    </div>
+                </div>        
+    
+                <div class="checkin-body">
+                    <asp:ListView ID="lvAddFamily" runat="server" OnPagePropertiesChanging="lvAddFamily_PagePropertiesChanging" OnItemDataBound="lvAddFamily_ItemDataBound" >
+                    <LayoutTemplate>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <h4>First Name</h4>
+                            </div>
+                            <div class="col-md-3">
+                                <h4>Last Name</h4>
+                            </div>
+                            <div class="col-md-2">
+                                <h4>DOB</h4>
+                            </div>
+                            <div class="col-md-2">
+                                <h4>Gender</h4>
+                            </div>
+                            <div class="col-md-3">
+                                <h4>Ability/Grade</h4>
+                            </div>                
+                        </div>
+                        <asp:PlaceHolder ID="itemPlaceholder" runat="server" />
+                    </LayoutTemplate>
+                    <ItemTemplate>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <Rock:RockTextBox ID="tbFirstName" runat="server" RequiredErrorMessage="First Name is Required"  Text='<%# ((NewPerson)Container.DataItem).FirstName %>' ValidationGroup="Family" />
+                            </div>
+                            <div class="col-md-3">
+                                <Rock:RockTextBox ID="tbLastName" runat="server" RequiredErrorMessage="Last Name is Required" Text='<%# ((NewPerson)Container.DataItem).LastName %>' ValidationGroup="Family" />
+                            </div>
+                            <div class="col-md-2">
+                                <Rock:DatePicker ID="dpBirthDate" runat="server" RequiredErrorMessage="DOB is Required" SelectedDate='<%# ((NewPerson)Container.DataItem).BirthDate %>' ValidationGroup="Family"  />
+                            </div>
+                            <div class="col-md-2">
+                                <Rock:RockDropDownList ID="ddlGender" runat="server" RequiredErrorMessage="Gender is Required" ValidationGroup="Family" />
+                            </div>
+                            <div class="col-md-3">
+                                <Rock:RockDropDownList ID="ddlAbilityGrade" runat="server" />
+                            </div>
+                        </div>                
+                    </ItemTemplate>        
+                    </asp:ListView>        
+
+                    <div class="row">
+                        <div class="col-xs-offset-9 col-xs-3 text-right">
+                            <asp:DataPager ID="dpAddFamily" runat="server" PageSize="4" PagedControlID="lvAddFamily">
+                                <Fields>
+                                    <asp:NextPreviousPagerField ButtonType="Button" ButtonCssClass="pagination btn btn-lg btn-primary btn-checkin-select" />
+                                </Fields>
+                            </asp:DataPager>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
 
 </ContentTemplate>
 </asp:UpdatePanel>
@@ -286,6 +291,12 @@
     $('head').append('<link rel="stylesheet" type="text/css" href="../plugins/cc_newspring/attendedcheckin/styles.css" />');
 
     function setControlEvents() {
+
+        $('body').on('focus', '.date-picker', function () {
+            setTimeout(function () {
+                $('.datepicker').css('z-index', 2000);
+            }, 100);            
+        });
 
         $('.person').unbind('click').on('click', function () {
             $(this).toggleClass('active');
