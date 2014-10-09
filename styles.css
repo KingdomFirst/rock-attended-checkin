@@ -50,6 +50,10 @@ table td {
     top: 15px;
 }
 
+.checkin-footer {
+    position: relative;
+}
+
 .btn-primary .checkin-sub-title {
     width: 100%;
     white-space: nowrap;

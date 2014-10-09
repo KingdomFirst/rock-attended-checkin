@@ -94,8 +94,8 @@
         </div>
 
         <div class="row checkin-footer">
-            <div class="col-xs-12">
-                <asp:LinkButton ID="lbAddNote" runat="server" Text="Add a Note" CssClass="btn btn-primary btn-lg btn-checkin-select" OnClick="lbAddNote_Click" CausesValidation="false" />
+           <div class="col-md-3 col-md-offset-9">
+                <asp:LinkButton ID="lbAddNote" runat="server" Text="Add a Note" CssClass="btn btn-primary btn-block btn-checkin-select" OnClick="lbAddNote_Click" CausesValidation="false" />
             </div>
         </div>
 
