@@ -98,3 +98,7 @@ table td {
 .grid-pagesize, .grid-itemcount {
     display: none;
 }
+
+.bootbox .modal-content {
+    background-color: #ffffff;
+}

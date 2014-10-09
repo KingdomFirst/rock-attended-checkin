@@ -136,14 +136,4 @@
 </ContentTemplate>
 </asp:UpdatePanel>
 
-<script type="text/javascript">
-
-    $('head').append('<link rel="stylesheet" type="text/css" href="../plugins/cc_newspring/attendedcheckin/styles.css" />');
-
-    $(document).ready(function () {
-
-    });
-
-</script>
-
-<link rel="stylesheet" href="AttendedCheckin.css" />
+<script type="text/javascript" src="../plugins/cc_newspring/attendedcheckin/scripts.js"></script>

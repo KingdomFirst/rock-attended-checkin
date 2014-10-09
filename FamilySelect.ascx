@@ -287,8 +287,9 @@
 </ContentTemplate>
 </asp:UpdatePanel>
 
+<script type="text/javascript" src="../plugins/cc_newspring/attendedcheckin/scripts.js"></script>
+
 <script type="text/javascript">
-    $('head').append('<link rel="stylesheet" type="text/css" href="../plugins/cc_newspring/attendedcheckin/styles.css" />');
 
     function setControlEvents() {
 

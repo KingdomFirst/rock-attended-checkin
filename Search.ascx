@@ -63,9 +63,9 @@
 </ContentTemplate>
 </asp:UpdatePanel>
 
-<script>
+<script type="text/javascript" src="../plugins/cc_newspring/attendedcheckin/scripts.js"></script>
 
-    $('head').append('<link rel="stylesheet" type="text/css" href="../plugins/cc_newspring/attendedcheckin/styles.css" />');
+<script>
     
     function SetKeyEvents() {
         $('.tenkey a.digit').unbind('click').click(function () {
