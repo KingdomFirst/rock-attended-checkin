@@ -8,17 +8,17 @@
         <Rock:ModalAlert ID="maWarning" runat="server" />
 
         <div class="row checkin-header">
-            <div class="col-sm-2 checkin-actions">
+            <div class="col-xs-2 checkin-actions">
                 <Rock:BootstrapButton ID="lbBack" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbBack_Click" EnableViewState="false">
                     <span class="fa fa-arrow-left"></span>
                 </Rock:BootstrapButton>
             </div>
 
-            <div class="col-sm-8 text-center">
+            <div class="col-xs-8 text-center">
                 <h1>Confirm</h1>
             </div>
 
-            <div class="col-sm-2 checkin-actions text-right">
+            <div class="col-xs-2 checkin-actions text-right">
                 <Rock:BootstrapButton ID="lbDone" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbDone_Click" EnableViewState="false">
                     <span class="fa fa-arrow-right"></span>
                 </Rock:BootstrapButton>
@@ -55,8 +55,8 @@
                 </asp:UpdatePanel>
             </div>
             <div class="row">
-                <div class="col-md-9"></div>
-                <div class="col-md-3">
+                <div class="col-xs-9"></div>
+                <div class="col-xs-3">
                     <Rock:BootstrapButton ID="lbPrintAll" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" runat="server" OnClick="lbPrintAll_Click" Text="Print All" EnableViewState="false" />
                 </div>
             </div>

@@ -9,20 +9,20 @@
     <asp:Panel ID="pnlSearch" runat="server" DefaultButton="lbSearch" CssClass="attended">
             
         <div class="row checkin-header">
-            <div class="col-sm-2 checkin-actions">
+            <div class="col-xs-2 checkin-actions">
                 <Rock:BootstrapButton ID="lbBack" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbBack_Click" EnableViewState="false">
                     <span class="fa fa-arrow-left"></span>
                 </Rock:BootstrapButton>
             </div>
 
-            <div class="col-sm-8">
+            <div class="col-xs-8">
                 <Rock:RockTextBox ID="tbSearchBox" MaxLength="50" CssClass="checkin-phone-entry" runat="server" Label="" TabIndex="0" placeholder="Search..." />
                 <asp:LinkButton runat="server" OnClick="lbSearch_Click">
                     <span class="fa fa-search"></span>
                 </asp:LinkButton>     
             </div>
 
-            <div class="col-sm-2 checkin-actions text-right">
+            <div class="col-xs-2 checkin-actions text-right">
                 <Rock:BootstrapButton ID="lbSearch" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbSearch_Click" EnableViewState="false" >
                     <span class="fa fa-arrow-right"></span>
                 </Rock:BootstrapButton>
@@ -30,8 +30,8 @@
         </div>
             
         <div class="row checkin-body">
-            <div class="col-md-3"></div>
-            <div class="col-md-6">                
+            <div class="col-xs-3"></div>
+            <div class="col-xs-6">                
                 <asp:Panel id="pnlKeyPad" runat="server" Visible="false" CssClass="tenkey checkin-phone-entry ">
                     <div>
                         <a href="#" class="btn btn-default btn-lg digit">1</a>
@@ -55,7 +55,7 @@
                     </div>
                 </asp:Panel>
             </div>
-            <div class="col-md-3"></div>
+            <div class="col-xs-3"></div>
             
         </div>
     </asp:Panel>
@@ -67,7 +67,7 @@
 
 <script>
     
-    function SetKeyEvents() {
+    var SetKeyEvents = function () {
         $('.tenkey a.digit').unbind('click').click(function () {
             $name = $("input[id$='tbSearchBox']");
             $name.val($name.val() + $(this).html());
@@ -84,8 +84,8 @@
 
     $(document).ready(function () {
         SetKeyEvents();
-        $('input[type=text]').first().focus();
     });
+
     Sys.WebForms.PageRequestManager.getInstance().add_endRequest(SetKeyEvents);
 
 </script>

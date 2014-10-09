@@ -11,17 +11,17 @@
         <Rock:ModalAlert ID="maWarning" runat="server" />
 
         <div class="row checkin-header">
-            <div class="col-sm-3 checkin-actions">
+            <div class="col-xs-3 checkin-actions">
                 <Rock:BootstrapButton ID="lbBack" CssClass="btn btn-primary btn-lg" runat="server" OnClick="lbBack_Click" EnableViewState="false">
                     <span class="fa fa-arrow-left"></span>
                 </Rock:BootstrapButton>
             </div>
 
-            <div class="col-sm-6 text-center">
+            <div class="col-xs-6 text-center">
                 <h1><asp:Literal ID="lblPersonName" runat="server" EnableViewState="false" /></h1>
             </div>
 
-            <div class="col-sm-3 checkin-actions text-right">
+            <div class="col-xs-3 checkin-actions text-right">
                 <Rock:BootstrapButton ID="lbNext" CssClass="btn btn-primary btn-lg" runat="server" OnClick="lbNext_Click" EnableViewState="false">
                      <span class="fa fa-arrow-right"></span>
                 </Rock:BootstrapButton>
@@ -29,7 +29,7 @@
         </div>
                 
         <div class="row checkin-body">
-            <div class="col-md-3">
+            <div class="col-xs-3">
                 <asp:UpdatePanel ID="pnlGroupTypes" runat="server" UpdateMode="Conditional">
                 <ContentTemplate>     
                     <h3>GroupType</h3>
@@ -42,7 +42,7 @@
                 </asp:UpdatePanel>
             </div>
 
-            <div class="col-md-3">
+            <div class="col-xs-3">
                 <asp:UpdatePanel ID="pnlLocations" runat="server" UpdateMode="Conditional">
                 <ContentTemplate>                        
                     <h3>Location</h3>
@@ -60,7 +60,7 @@
                 </asp:UpdatePanel>
             </div>
 
-            <div class="col-md-3">
+            <div class="col-xs-3">
                 <asp:UpdatePanel ID="pnlSchedules" runat="server" UpdateMode="Conditional">
                 <ContentTemplate>        
                     <h3>Schedule</h3>
@@ -73,7 +73,7 @@
                 </asp:UpdatePanel>
             </div>
 
-            <div class="col-md-3 selected-grid">
+            <div class="col-xs-3 selected-grid">
                 <h3>Selected</h3>
                 <asp:UpdatePanel ID="pnlSelected" runat="server" UpdateMode="Conditional">
                 <ContentTemplate> 
@@ -94,7 +94,7 @@
         </div>
 
         <div class="row checkin-footer">
-           <div class="col-md-3 col-md-offset-9">
+           <div class="col-xs-3 col-xs-offset-9">
                 <asp:LinkButton ID="lbAddNote" runat="server" Text="Add a Note" CssClass="btn btn-primary btn-block btn-checkin-select" OnClick="lbAddNote_Click" CausesValidation="false" />
             </div>
         </div>
@@ -107,13 +107,13 @@
                 <asp:HiddenField ID="hfOpenNotePanel" runat="server" />
 
                 <div class="checkin-header row">
-                    <div class="col-sm-2 checkin-actions">
+                    <div class="col-xs-2 checkin-actions">
                         <Rock:BootstrapButton ID="closeNotesModal" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbCloseNotes_Click" Text="Cancel" EnableViewState="false" />
                     </div>
-                    <div class="col-sm-8 text-center">
+                    <div class="col-xs-8 text-center">
                         <h3>Add Notes</h3>
                     </div>
-                    <div class="col-sm-2 checkin-actions text-right">
+                    <div class="col-xs-2 checkin-actions text-right">
                         <asp:LinkButton ID="lbAddNoteSave" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbAddNoteSave_Click" Text="Save" EnableViewState="false" />
                     </div>
                 </div>

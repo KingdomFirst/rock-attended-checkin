@@ -16,13 +16,13 @@
 
     <asp:Panel ID="pnlAdmin" runat="server" DefaultButton="lbOk" CssClass="attended">
         <div class="row checkin-header">
-            <div class="col-sm-2 checkin-actions">
+            <div class="col-xs-2 checkin-actions">
                 <a id="lbRetry" runat="server" class="btn btn-lg btn-primary" visible="false" href="javascript:window.location.href=window.location.href">Retry</a>
             </div>
-            <div class="col-sm-8 text-center">
+            <div class="col-xs-8 text-center">
                 <h1>Admin</h1>
             </div>
-            <div class="col-sm-2 checkin-actions text-right">
+            <div class="col-xs-2 checkin-actions text-right">
                 <Rock:BootstrapButton ID="lbOk" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbOk_Click" EnableViewState="false">
                     <span class="fa fa-arrow-right"></span>
                 </Rock:BootstrapButton>
@@ -30,8 +30,8 @@
         </div>
 
         <div class="row checkin-body">
-            <div class="col-md-4"></div>
-            <div class="col-md-4">
+            <div class="col-xs-4"></div>
+            <div class="col-xs-4">
                 <h3>Checkin Type(s)</h3>
                 <asp:Repeater ID="repMinistry" runat="server" OnItemDataBound="repMinistry_ItemDataBound">
                     <ItemTemplate>
@@ -39,7 +39,7 @@
                     </ItemTemplate>
                 </asp:Repeater>
             </div>
-            <div class="col-md-4"></div>
+            <div class="col-xs-4"></div>
         </div>
 
     </asp:Panel>
@@ -50,7 +50,7 @@
 
 <script type="text/javascript">
 
-    function setControlEvents() {
+    var setControlEvents = function () {
         $('.btn-checkin-select').off('click').on('click', function () {
             $(this).toggleClass('active').blur();
             var selectedIds = $('input[id$="hfGroupTypes"]').val();
@@ -66,7 +66,6 @@
 
     $(document).ready(function () {
         setControlEvents();
-        $('.checkin-header .btn').blur();
     });
 
     Sys.WebForms.PageRequestManager.getInstance().add_endRequest(setControlEvents);
