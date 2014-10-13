@@ -37,6 +37,7 @@
     overflow-y: auto;
     margin-bottom: 20px;
     box-shadow: inset 0 -5px 5px #999999;
+    border-radius: 10px;
 }
 
 table.table {
