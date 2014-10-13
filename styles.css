@@ -33,21 +33,19 @@
 }
 
 .grid {
-    max-height: 300px;
     overflow-y: auto;
     margin-bottom: 20px;
-    box-shadow: inset 0 -5px 5px #999999;
     border-radius: 10px;
 }
 
 table.table {
-    background-color: rgba(10,10,10,0.2);
+    background-color: rgba(10,10,10,0.5);
     font-size: 21px;
     margin-bottom: 0;
 }
 
 table thead {
-    background-color: rgba(10,10,10,0.2);
+    background-color: rgba(10,10,10,0.3);
     font-size: 24px;
 }
 
@@ -118,4 +116,19 @@ table td {
 
 .bootbox .modal-content {
     background-color: #ffffff;
+}
+
+.in-the-middle, .at-the-bottom {
+    position: absolute;
+    left: 15px;
+    right: 15px;
+}
+
+.in-the-middle {
+    top: 180px;
+    bottom: 80px;
+}
+
+.at-the-bottom {
+    bottom: 0;
 }
