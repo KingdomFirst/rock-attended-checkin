@@ -79,6 +79,14 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// </summary>
         protected int CheckInNoteTypeId;
 
+        protected class ScheduleAttendance
+        {
+            public int ScheduleId { get; set; }
+            public int AttendanceCount { get; set; }
+        }
+
+        protected List<ScheduleAttendance> ScheduleAttendanceList = new List<ScheduleAttendance>(); 
+
         #region Control Methods
 
         /// <summary>
@@ -323,7 +331,8 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 var location = (CheckInLocation)e.Item.DataItem;
                 var lbLocation = (LinkButton)e.Item.FindControl( "lbLocation" );
                 lbLocation.CommandArgument = location.Location.Id.ToString();
-                lbLocation.Text = location.Location.Name;
+                lbLocation.Text = location.Location.Name + " (" + getLocationAttendance(location) + ")";
+                
                 if ( location.Selected && location.Location.Id == selectedLocationId )
                 {
                     lbLocation.AddCssClass( "active" );
@@ -348,6 +357,10 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 {
                     lbSchedule.AddCssClass( "active" );
                 }
+
+                var scheduleAttendance = ScheduleAttendanceList.Where(s => s.ScheduleId == schedule.Schedule.Id);
+                lbSchedule.Text += " (" + scheduleAttendance.Select(s => s.AttendanceCount).FirstOrDefault() + ")";
+
             }
         }
 
@@ -633,6 +646,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 location = locations.FirstOrDefault();
             }
 
+            getScheduleAttendance(location);
             rSchedule.DataSource = location.Schedules.ToList();
             rSchedule.DataBind();
             pnlSchedules.Update();
@@ -754,6 +768,42 @@ namespace RockWeb.Blocks.CheckIn.Attended
             var attributeValue = person.Person.GetAttributeValue( attribute.Key );
             attribute.AddControl( phAttributes.Controls, attributeValue, "", true, true );
             hfAllergyAttributeId.Value = attribute.Id.ToString();
+        }
+
+        /// <summary>
+        /// Gets the attendance count for the first available schedule for a location. This will show on the location buttons.
+        /// </summary>
+        /// <param name="location"></param>
+        /// <returns></returns>
+        protected string getLocationAttendance(CheckInLocation location)
+        {
+            var attendanceCount = "";
+            var rockContext = new RockContext();
+            var attendanceService = new AttendanceService(rockContext);
+            var attendanceQuery = attendanceService.GetByDateAndLocation(DateTime.Now, location.Location.Id);
+            var firstScheduleId = location.Schedules.FirstOrDefault().Schedule.Id;
+            attendanceQuery = attendanceQuery.Where(l => l.ScheduleId == firstScheduleId);
+            attendanceCount = attendanceQuery.Count().ToString();
+            return attendanceCount;
+        }
+
+        /// <summary>
+        /// Gets the attendance count for all of the schedules for a location. This will show on the schedule buttons.
+        /// </summary>
+        /// <param name="location"></param>
+        protected void getScheduleAttendance(CheckInLocation location)
+        {
+            var rockContext = new RockContext();
+            var attendanceService = new AttendanceService(rockContext);
+            var attendanceQuery = attendanceService.GetByDateAndLocation(DateTime.Now, location.Location.Id);
+            ScheduleAttendanceList.Clear();
+            foreach (var schedule in location.Schedules)
+            {
+                ScheduleAttendance sa = new ScheduleAttendance();
+                sa.ScheduleId = schedule.Schedule.Id;
+                sa.AttendanceCount = attendanceQuery.Where(l => l.ScheduleId == sa.ScheduleId).Count();
+                ScheduleAttendanceList.Add(sa);
+            }
         }
 
         #endregion
