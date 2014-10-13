@@ -29,7 +29,7 @@
             <div class="row">
                 <asp:UpdatePanel ID="pnlSelectedGrid" runat="server">
                 <ContentTemplate>
-                    <div class="grid">
+                    <div class="grid in-the-middle">
                         <Rock:Grid ID="gPersonList" runat="server" DataKeyNames="PersonId,LocationId,ScheduleId" DisplayType="Light" OnRowCommand="gPersonList_Print"  CssClass="three-col-with-controls"
                             EmptyDataText="No People Selected" OnGridRebind="gPersonList_GridRebind">
                             <Columns>
@@ -54,7 +54,7 @@
                 </ContentTemplate>
                 </asp:UpdatePanel>
             </div>
-            <div class="row">
+            <div class="row at-the-bottom">
                 <div class="col-xs-9"></div>
                 <div class="col-xs-3">
                     <Rock:BootstrapButton ID="lbPrintAll" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" runat="server" OnClick="lbPrintAll_Click" Text="Print All" EnableViewState="false" />

@@ -120,12 +120,16 @@
 		
                 <div class="checkin-body">
                     <div class="row">
-                        <asp:PlaceHolder ID="phAttributes" runat="server" EnableViewState="false"></asp:PlaceHolder>
+                        <div class="col-xs-12">
+                            <asp:PlaceHolder ID="phAttributes" runat="server" EnableViewState="false"></asp:PlaceHolder>
+                        </div>
                     </div>
                     <div class="row">
-                        <div class="form-group">
-                            <label>Notes</label>
-                            <Rock:RockTextBox ID="tbNoteText" runat="server" MaxLength="60" Rows="3" />
+                        <div class="col-xs-12">
+                            <div class="form-group">
+                                <label>Notes</label>
+                                <Rock:RockTextBox ID="tbNoteText" runat="server" MaxLength="60" Rows="3" />
+                            </div>
                         </div>
                     </div>
                 </div>
