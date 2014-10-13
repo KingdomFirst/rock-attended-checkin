@@ -326,6 +326,8 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 var printFromClient = groupType.Labels.Where( l => l.PrintFrom == Rock.Model.PrintFrom.Client );
                 if ( printFromClient.Any() )
                 {
+                    var urlRoot = string.Format( "{0}://{1}", Request.Url.Scheme, Request.Url.Authority );
+                    printFromClient.ToList().ForEach( l => l.LabelFile = urlRoot + l.LabelFile );
                     AddLabelScript( printFromClient.ToJson() );
                 }
 
@@ -340,47 +342,50 @@ namespace RockWeb.Blocks.CheckIn.Attended
                         var labelCache = KioskLabel.Read( label.FileGuid );
                         if ( labelCache != null )
                         {
-                            if ( label.PrinterAddress != currentIp )
+                            if ( !string.IsNullOrWhiteSpace( label.PrinterAddress ) )
                             {
-                                if ( socket != null && socket.Connected )
+                                if ( label.PrinterAddress != currentIp )
                                 {
-                                    socket.Shutdown( SocketShutdown.Both );
-                                    socket.Close();
+                                    if ( socket != null && socket.Connected )
+                                    {
+                                        socket.Shutdown( SocketShutdown.Both );
+                                        socket.Close();
+                                    }
+
+                                    currentIp = label.PrinterAddress;
+                                    var printerIp = new IPEndPoint( IPAddress.Parse( currentIp ), 9100 );
+
+                                    socket = new Socket( AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp );
+                                    IAsyncResult result = socket.BeginConnect( printerIp, null, null );
+                                    bool success = result.AsyncWaitHandle.WaitOne( 5000, true );
                                 }
 
-                                currentIp = label.PrinterAddress;
-                                var printerIp = new IPEndPoint( IPAddress.Parse( currentIp ), 9100 );
-
-                                socket = new Socket( AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp );
-                                IAsyncResult result = socket.BeginConnect( printerIp, null, null );
-                                bool success = result.AsyncWaitHandle.WaitOne( 5000, true );
-                            }
-
-                            string printContent = labelCache.FileContent;
-                            foreach ( var mergeField in label.MergeFields )
-                            {
-                                if ( !string.IsNullOrWhiteSpace( mergeField.Value ) )
+                                string printContent = labelCache.FileContent;
+                                foreach ( var mergeField in label.MergeFields )
                                 {
-                                    printContent = Regex.Replace( printContent, string.Format( @"(?<=\^FD){0}(?=\^FS)", mergeField.Key ), mergeField.Value );
+                                    if ( !string.IsNullOrWhiteSpace( mergeField.Value ) )
+                                    {
+                                        printContent = Regex.Replace( printContent, string.Format( @"(?<=\^FD){0}(?=\^FS)", mergeField.Key ), mergeField.Value );
+                                    }
+                                    else
+                                    {
+                                        // Remove the box preceding merge field
+                                        printContent = Regex.Replace( printContent, string.Format( @"\^FO.*\^FS\s*(?=\^FT.*\^FD{0}\^FS)", mergeField.Key ), string.Empty );
+                                        // Remove the merge field
+                                        printContent = Regex.Replace( printContent, string.Format( @"\^FD{0}\^FS", mergeField.Key ), "^FD^FS" );
+                                    }
+                                }
+
+                                if ( socket.Connected )
+                                {
+                                    var ns = new NetworkStream( socket );
+                                    byte[] toSend = System.Text.Encoding.ASCII.GetBytes( printContent );
+                                    ns.Write( toSend, 0, toSend.Length );
                                 }
                                 else
                                 {
-                                    // Remove the box preceding merge field
-                                    printContent = Regex.Replace( printContent, string.Format( @"\^FO.*\^FS\s*(?=\^FT.*\^FD{0}\^FS)", mergeField.Key ), string.Empty );
-                                    // Remove the merge field
-                                    printContent = Regex.Replace( printContent, string.Format( @"\^FD{0}\^FS", mergeField.Key ), "^FD^FS" );
+                                    maWarning.Show( "Could not connect to printer.", ModalAlertType.Warning );
                                 }
-                            }
-
-                            if ( socket.Connected )
-                            {
-                                var ns = new NetworkStream( socket );
-                                byte[] toSend = System.Text.Encoding.ASCII.GetBytes( printContent );
-                                ns.Write( toSend, 0, toSend.Length );
-                            }
-                            else
-                            {
-                                maWarning.Show( "Could not connect to printer.", ModalAlertType.Warning );
                             }
                         }
                     }
@@ -423,6 +428,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
 		    }}
 
 		    function printLabels() {{
+                console.log('printing tags');
 		        ZebraPrintPlugin.printTags(
             	    JSON.stringify(labelData),
             	    function(result) {{
