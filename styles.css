@@ -1,6 +1,6 @@
 ﻿body {
     background-size: cover !important;
-  }
+}
 
 .container.body-content {
     padding: 0 30px 0 30px;
@@ -104,8 +104,7 @@ table td {
 }
 
 .btn.active {
-    background-color: #000000;
-    box-shadow: inset 10px 15px 20px #999999, inset -2px -2px 1px #999999;
+    box-shadow: inset 15px 20px 50px #222222, inset -10px -10px 50px #000000;
     border: 0;
 }
 
