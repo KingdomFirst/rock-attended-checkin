@@ -154,10 +154,10 @@
                         <div class="col-xs-2">
                             <Rock:RockTextBox ID="tbFirstNameSearch" runat="server" CssClass="col-xs-12" Label="First Name" ValidationGroup="Person" Text="" />
                         </div>
-                        <div class="col-xs-3">
+                        <div class="col-xs-2">
                             <Rock:RockTextBox ID="tbLastNameSearch" runat="server" CssClass="col-xs-12" Label="Last Name" ValidationGroup="Person" Text="" />
                         </div>
-                        <div class="col-xs-2">
+                        <div class="col-xs-3">
                             <Rock:DatePicker ID="dpDOBSearch" runat="server" Label="DOB" ValidationGroup="Person" CssClass="col-xs-12 date-picker" />
                         </div>
                         <div class="col-xs-2">
@@ -233,10 +233,10 @@
                             <div class="col-xs-2">
                                 <h4>First Name</h4>
                             </div>
-                            <div class="col-xs-3">
+                            <div class="col-xs-2">
                                 <h4>Last Name</h4>
                             </div>
-                            <div class="col-xs-2">
+                            <div class="col-xs-3">
                                 <h4>DOB</h4>
                             </div>
                             <div class="col-xs-2">
@@ -253,10 +253,10 @@
                             <div class="col-xs-2">
                                 <Rock:RockTextBox ID="tbFirstName" runat="server" RequiredErrorMessage="First Name is Required"  Text='<%# ((NewPerson)Container.DataItem).FirstName %>' ValidationGroup="Family" />
                             </div>
-                            <div class="col-xs-3">
+                            <div class="col-xs-2">
                                 <Rock:RockTextBox ID="tbLastName" runat="server" RequiredErrorMessage="Last Name is Required" Text='<%# ((NewPerson)Container.DataItem).LastName %>' ValidationGroup="Family" />
                             </div>
-                            <div class="col-xs-2">
+                            <div class="col-xs-3">
                                 <Rock:DatePicker ID="dpBirthDate" runat="server" RequiredErrorMessage="DOB is Required" SelectedDate='<%# ((NewPerson)Container.DataItem).BirthDate %>' ValidationGroup="Family"  />
                             </div>
                             <div class="col-xs-2">
