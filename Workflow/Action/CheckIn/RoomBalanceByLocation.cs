@@ -32,10 +32,10 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
     /// <summary>
     /// Assigns a grouptype, group, location and schedule from those available if one hasn't been previously selected
     /// </summary>
-    [Description( "Selects the grouptype, group, location and schedule for each person based on the group with the least number of people." )]
+    [Description( "Selects the grouptype, group, location and schedule for each person based on the location with the least number of people. Ideal for a structure of groups with multiple locations." )]
     [Export( typeof( ActionComponent ) )]
-    [ExportMetadata( "ComponentName", "Select By Room Balancing" )]
-    public class SelectByRoomBalancingGroups : CheckInActionComponent
+    [ExportMetadata( "ComponentName", "Room Balance By Location" )]
+    public class RoomBalanceByLocation : CheckInActionComponent
     {
         /// <summary>
         /// Executes the specified workflow.
@@ -138,8 +138,9 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                     CheckInGroup groupMatchGrade = null;
                     if ( gradeGroups.Count > 0 )
                     {
-                        var smallestRoomCount = gradeGroups.Min( gg => gg.Group.Locations.Sum( l => l.CurrentCount ) );
-                        groupMatchGrade = gradeGroups.First( gg => gg.Group.Locations.Sum( l => l.CurrentCount ) == smallestRoomCount ).Group;
+                        groupMatchGrade = gradeGroups.Aggregate( ( x, y ) => Math.Abs( Convert.ToDouble( x.GradeRange.First() - person.Person.Grade ) )
+                                < Math.Abs( Convert.ToDouble( y.GradeRange.First() - person.Person.Grade ) ) ? x : y )
+                                    .Group;
                     }
 
                     // check groups by age
@@ -154,8 +155,9 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                     CheckInGroup groupMatchAge = null;
                     if ( ageGroups.Count > 0 )
                     {
-                        var smallestRoomCount = ageGroups.Min( ag => ag.Group.Locations.Sum( l => l.CurrentCount ) );
-                        groupMatchAge = ageGroups.First( ag => ag.Group.Locations.Sum( l => l.CurrentCount ) == smallestRoomCount ).Group;
+                        groupMatchAge = ageGroups.Aggregate( ( x, y ) => Math.Abs( Convert.ToDouble( x.AgeRange.First() - person.Person.Age ) )
+                                < Math.Abs( Convert.ToDouble( y.AgeRange.First() - person.Person.Age ) ) ? x : y )
+                                    .Group;
                     }
 
                     group = groupMatchGrade ?? groupMatchAge ?? groupType.Groups.FirstOrDefault();

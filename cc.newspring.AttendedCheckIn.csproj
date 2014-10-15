@@ -96,7 +96,8 @@
     <Compile Include="Migrations\003_ChangeIdleRedirect.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Workflow\Action\CheckIn\FilterGroupsByGender.cs" />
-    <Compile Include="Workflow\Action\CheckIn\SelectByRoomBalancingLocations.cs" />
+    <Compile Include="Workflow\Action\CheckIn\RoomBalanceByGroup.cs" />
+    <Compile Include="Workflow\Action\CheckIn\RoomBalanceByLocation.cs" />
     <Compile Include="Workflow\Action\CheckIn\SelectByBestFit.cs" />
     <Compile Include="Workflow\Action\CheckIn\SelectByLastAttended.cs" />
   </ItemGroup>
