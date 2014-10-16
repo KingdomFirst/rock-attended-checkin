@@ -134,6 +134,8 @@ namespace RockWeb.Blocks.CheckIn.Attended
                                 .Where(t => t.Name == "Check-In" && t.EntityTypeId == personTypeId)
                                 .Select(t => t.Id).FirstOrDefault();
 
+                            ViewState["checkInNoteTypeId"] = CheckInNoteTypeId;
+
                             var checkInNote = new NoteService(rockContext)
                                 .GetByNoteTypeId(CheckInNoteTypeId)
                                 .Where(n => n.EntityId == personId)
@@ -516,7 +518,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 .People.Where( p => p.Person.Id == personId ).FirstOrDefault();
 
             var rockContext = new RockContext();
-            var checkInNote = new NoteService( rockContext ).GetByNoteTypeId( CheckInNoteTypeId )
+            var checkInNote = new NoteService( rockContext ).GetByNoteTypeId( int.Parse( ViewState["checkInNoteTypeId"].ToString() ) )
                 .Where( n => n.EntityId == personId )
                 .FirstOrDefault();
             if ( checkInNote == null )
@@ -524,7 +526,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 checkInNote = new Note();
                 checkInNote.IsSystem = false;
                 checkInNote.EntityId = personId;
-                checkInNote.NoteTypeId = CheckInNoteTypeId;
+                checkInNote.NoteTypeId = int.Parse(ViewState["checkInNoteTypeId"].ToString());
                 rockContext.Notes.Add( checkInNote );
             }
 
