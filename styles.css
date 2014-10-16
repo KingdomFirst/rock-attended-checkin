@@ -65,6 +65,10 @@ table td {
     color: #000000;
 }
 
+.modal-content .checkin-body > .row:not(:first-of-type) {
+    margin-bottom: 10px;
+}
+
 .modal-content table tfoot ul.grid-pager li.active a {
     background-color: #BBBBBB;
     border-color: #BBBBBB;
