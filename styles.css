@@ -150,3 +150,11 @@ table td {
 .at-the-bottom {
     bottom: 0;
 }
+
+td.day, th.prev, th.next, th.today, th.datepicker-switch {
+    cursor: pointer;
+}
+
+td.day:hover, th.prev:hover, th.next:hover, th.today:hover, th.datepicker-switch:hover {
+    background-color: #eeeeee;
+}
