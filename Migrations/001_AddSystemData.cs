@@ -67,8 +67,6 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             RockMigrationHelper.UpdateBlockType( "Family Select", "Attended Check-In Family Select Block", "~/Plugins/cc_newspring/AttendedCheckIn/FamilySelect.ascx", "Check-in > Attended", "4D48B5F0-F0B2-4C10-8498-DAF690761A80" );
             RockMigrationHelper.AddBlock( "AF83D0B2-2995-4E46-B0DF-1A4763637A68", "", "4D48B5F0-F0B2-4C10-8498-DAF690761A80", "Family Select", "Main", "", "", 0, "82929409-8551-413C-972A-98EDBC23F420" );
             RockMigrationHelper.AddBlock( "AF83D0B2-2995-4E46-B0DF-1A4763637A68", "", "49FC4B38-741E-4B0B-B395-7C1929340D88", "Idle Redirect", "Main", "", "", 1, "BDD502FF-40D2-42E6-845E-95C49C3505B3" );
-            RockMigrationHelper.AddBlockTypeAttribute( "49FC4B38-741E-4B0B-B395-7C1929340D88", "9C204CD0-1233-41C5-818A-C5DA439445AA", "New Location", "NewLocation", "", "The new location URL to send user to after idle time", 0, @"", "C4204D6E-715E-4E3A-BA1B-949D20D26487" );
-            RockMigrationHelper.AddBlockTypeAttribute( "49FC4B38-741E-4B0B-B395-7C1929340D88", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "Idle Seconds", "IdleSeconds", "", "How many seconds of idle time to wait before redirecting user", 0, @"20", "A7F99980-BED4-4A80-AB83-DDAB5C7D7AAD" );
             RockMigrationHelper.AddBlockTypeAttribute( "4D48B5F0-F0B2-4C10-8498-DAF690761A80", "BD53F9C9-EBA9-4D3F-82EA-DE5DD34A8108", "Previous Page", "PreviousPage", "", "", 0, @"", "DD9F93C9-009B-4FA5-8FF9-B186E4969ACB" );
             RockMigrationHelper.AddBlockTypeAttribute( "4D48B5F0-F0B2-4C10-8498-DAF690761A80", "BD53F9C9-EBA9-4D3F-82EA-DE5DD34A8108", "Next Page", "NextPage", "", "", 0, @"", "81A02B6F-F760-4110-839C-4507CF285A7E" );
             RockMigrationHelper.AddBlockTypeAttribute( "4D48B5F0-F0B2-4C10-8498-DAF690761A80", "46A03F59-55D3-4ACE-ADD5-B4642225DD20", "Workflow Type", "WorkflowType", "", "The workflow type to activate for check-in", 0, @"0", "338CAD91-3272-465B-B768-0AC2F07A0B40" );
@@ -77,8 +75,8 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             RockMigrationHelper.AddBlockAttributeValue( "82929409-8551-413C-972A-98EDBC23F420", "81A02B6F-F760-4110-839C-4507CF285A7E", @"BE996C9B-3DFE-407F-BD53-D6F58D85A035" ); // Next Page
             RockMigrationHelper.AddBlockAttributeValue( "82929409-8551-413C-972A-98EDBC23F420", "338CAD91-3272-465B-B768-0AC2F07A0B40", @"6E8CD562-A1DA-4E13-A45C-853DB56E0014" ); // Workflow Type
             RockMigrationHelper.AddBlockAttributeValue( "82929409-8551-413C-972A-98EDBC23F420", "2DF1D39B-DFC7-4FB2-B638-3D99C3C4F4DF", @"8F618315-F554-4751-AB7F-00CC5658120A" ); // Home Page
-            RockMigrationHelper.AddBlockAttributeValue( "BDD502FF-40D2-42E6-845E-95C49C3505B3", "C4204D6E-715E-4E3A-BA1B-949D20D26487", @"~/attendedcheckin/search" ); // New Location
-            RockMigrationHelper.AddBlockAttributeValue( "BDD502FF-40D2-42E6-845E-95C49C3505B3", "A7F99980-BED4-4A80-AB83-DDAB5C7D7AAD", @"120" ); // Idle Seconds
+            RockMigrationHelper.AddBlockAttributeValue( "BDD502FF-40D2-42E6-845E-95C49C3505B3", "2254B67B-9CB1-47DE-A63D-D0B56051ECD4", @"~/attendedcheckin/search" ); // New Location
+            RockMigrationHelper.AddBlockAttributeValue( "BDD502FF-40D2-42E6-845E-95C49C3505B3", "1CAC7B16-041A-4F40-8AEE-A39DFA076C14", @"300" ); // Idle Seconds
 
             // Page: Confirmation
             RockMigrationHelper.AddPage( "32A132A6-63A2-4840-B4A5-23D80994CCBD", "3BD6CFC1-0BF2-43C8-AD38-44E711D6ACE0", "Confirmation", "Confirmation screen for Attended Check-in", "BE996C9B-3DFE-407F-BD53-D6F58D85A035", "" ); // Site:Rock Attended Check-in
@@ -95,11 +93,9 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             RockMigrationHelper.AddBlockAttributeValue( "7CC68DD4-A6EF-4B67-9FEA-A144C479E058", "2A71729F-E7CA-4ACD-9996-A6A661A069FD", @"6E8CD562-A1DA-4E13-A45C-853DB56E0014" ); // Workflow Type
             RockMigrationHelper.AddBlockAttributeValue( "7CC68DD4-A6EF-4B67-9FEA-A144C479E058", "DEB23724-94F9-4164-BFAB-AD2DDE1F90ED", @"8F618315-F554-4751-AB7F-00CC5658120A" ); // Home Page
             RockMigrationHelper.AddBlockAttributeValue( "7CC68DD4-A6EF-4B67-9FEA-A144C479E058", "2D54A2C9-759C-45B6-8E23-42F39E134170", @"C87916FE-417E-4A11-8831-5CFA7678A228" ); // Activity Select Page
-            RockMigrationHelper.AddBlock( "BE996C9B-3DFE-407F-BD53-D6F58D85A035", "", "0DF27F26-691D-41F8-B0F7-987E4FEC375C", "Idle Redirect", "Main", "", "", 1, "FAEC5FCC-B850-4DA6-8844-715159D39BD5" );
-            RockMigrationHelper.AddBlockTypeAttribute( "0DF27F26-691D-41F8-B0F7-987E4FEC375C", "9C204CD0-1233-41C5-818A-C5DA439445AA", "New Location", "NewLocation", "~/attendedcheckin/search", "The new location URL to send user to after idle time", 0, @"", "C1D6355B-2FF5-4FBB-AE91-1F76B43E4DB4" );
-            RockMigrationHelper.AddBlockTypeAttribute( "0DF27F26-691D-41F8-B0F7-987E4FEC375C", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "Idle Seconds", "IdleSeconds", "", "How many seconds of idle time to wait before redirecting user", 0, @"300", "BB5EF303-E4B5-43F9-978C-DE7B3946CA7D" );
-            RockMigrationHelper.AddBlockAttributeValue( "FAEC5FCC-B850-4DA6-8844-715159D39BD5", "C1D6355B-2FF5-4FBB-AE91-1F76B43E4DB4", @"~/attendedcheckin/search" ); // New Location
-            RockMigrationHelper.AddBlockAttributeValue( "FAEC5FCC-B850-4DA6-8844-715159D39BD5", "BB5EF303-E4B5-43F9-978C-DE7B3946CA7D", @"300" ); // Idle Seconds
+            RockMigrationHelper.AddBlock( "BE996C9B-3DFE-407F-BD53-D6F58D85A035", "", "49FC4B38-741E-4B0B-B395-7C1929340D88", "Idle Redirect", "Main", "", "", 1, "FAEC5FCC-B850-4DA6-8844-715159D39BD5" );
+            RockMigrationHelper.AddBlockAttributeValue( "FAEC5FCC-B850-4DA6-8844-715159D39BD5", "2254B67B-9CB1-47DE-A63D-D0B56051ECD4", @"~/attendedcheckin/search" ); // New Location
+            RockMigrationHelper.AddBlockAttributeValue( "FAEC5FCC-B850-4DA6-8844-715159D39BD5", "1CAC7B16-041A-4F40-8AEE-A39DFA076C14", @"300" ); // Idle Seconds
 
             // Page: Activity Select
             RockMigrationHelper.AddPage( "32A132A6-63A2-4840-B4A5-23D80994CCBD", "3BD6CFC1-0BF2-43C8-AD38-44E711D6ACE0", "Activity Select", "Activity select for Attended Check-in", "C87916FE-417E-4A11-8831-5CFA7678A228", "" ); // Site:Rock Attended Check-in
@@ -114,11 +110,9 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             RockMigrationHelper.AddBlockAttributeValue( "8C8CBBE9-2502-4FEC-804D-C0DA13C07FA4", "39008E18-48C9-445F-B9D7-78334B76A7EE", @"BE996C9B-3DFE-407F-BD53-D6F58D85A035" ); // Next Page
             RockMigrationHelper.AddBlockAttributeValue( "8C8CBBE9-2502-4FEC-804D-C0DA13C07FA4", "BEC10B87-4B19-4CD5-8952-A4D59DDA3E9C", @"6E8CD562-A1DA-4E13-A45C-853DB56E0014" ); // Workflow Type
             RockMigrationHelper.AddBlockAttributeValue( "8C8CBBE9-2502-4FEC-804D-C0DA13C07FA4", "5046A353-D901-45BB-9981-9CC1B33550C6", @"8F618315-F554-4751-AB7F-00CC5658120A" ); // Home Page
-            RockMigrationHelper.AddBlock( "C87916FE-417E-4A11-8831-5CFA7678A228", "", "0DF27F26-691D-41F8-B0F7-987E4FEC375C", "Idle Redirect", "Main", "", "", 1, "31E6A1CC-2ABE-4ECC-B8DF-1FD2E8EBA203" );
-            RockMigrationHelper.AddBlockTypeAttribute( "0DF27F26-691D-41F8-B0F7-987E4FEC375C", "9C204CD0-1233-41C5-818A-C5DA439445AA", "New Location", "NewLocation", "~/attendedcheckin/search", "The new location URL to send user to after idle time", 0, @"", "02FB40A5-747B-441C-9825-2CA314DE6767" );
-            RockMigrationHelper.AddBlockTypeAttribute( "0DF27F26-691D-41F8-B0F7-987E4FEC375C", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "Idle Seconds", "IdleSeconds", "", "How many seconds of idle time to wait before redirecting user", 0, @"300", "AD90C10D-27B7-47C1-B07B-8074E94E4A5F" );
-            RockMigrationHelper.AddBlockAttributeValue( "31E6A1CC-2ABE-4ECC-B8DF-1FD2E8EBA203", "02FB40A5-747B-441C-9825-2CA314DE6767", @"~/attendedcheckin/search" ); // New Location
-            RockMigrationHelper.AddBlockAttributeValue( "31E6A1CC-2ABE-4ECC-B8DF-1FD2E8EBA203", "AD90C10D-27B7-47C1-B07B-8074E94E4A5F", @"300" ); // Idle Seconds
+            RockMigrationHelper.AddBlock( "C87916FE-417E-4A11-8831-5CFA7678A228", "", "49FC4B38-741E-4B0B-B395-7C1929340D88", "Idle Redirect", "Main", "", "", 1, "31E6A1CC-2ABE-4ECC-B8DF-1FD2E8EBA203" );
+            RockMigrationHelper.AddBlockAttributeValue( "31E6A1CC-2ABE-4ECC-B8DF-1FD2E8EBA203", "2254B67B-9CB1-47DE-A63D-D0B56051ECD4", @"~/attendedcheckin/search" ); // New Location
+            RockMigrationHelper.AddBlockAttributeValue( "31E6A1CC-2ABE-4ECC-B8DF-1FD2E8EBA203", "1CAC7B16-041A-4F40-8AEE-A39DFA076C14", @"300" ); // Idle Seconds
 
             // Custom workflow actions
             RockMigrationHelper.UpdateEntityType( "cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.FilterGroupsByGender", "Filter Groups By Gender", "cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.FilterGroupsByGender", false, true, "DC7DB1FD-8CC8-4AC4-B0A5-B5F85FF03540" );
