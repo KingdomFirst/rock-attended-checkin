@@ -103,56 +103,56 @@ namespace RockWeb.Blocks.CheckIn.Attended
             }
             else
             {
-                if ( !Page.IsPostBack )
+                SetHeader();
+                if (!Page.IsPostBack)
                 {
                     var personId = Request.QueryString["personId"].AsType<int?>();
-                    if ( personId > 0 )
+                    if (personId > 0)
                     {
-                        CheckInPerson person = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault()
-                            .People.Where( p => p.Person.Id == personId ).FirstOrDefault();
+                        CheckInPerson person = CurrentCheckInState.CheckIn.Families.Where(f => f.Selected).FirstOrDefault()
+                            .People.Where(p => p.Person.Id == personId).FirstOrDefault();
 
-                        if ( person != null && person.GroupTypes.Any() )
+                        if (person != null && person.GroupTypes.Any())
                         {
-                            lblPersonName.Text = person.Person.FullName;
                             ViewState["locationId"] = Request.QueryString["locationId"];
                             ViewState["scheduleId"] = Request.QueryString["scheduleId"];
-                            var selectedGroupType = person.GroupTypes.Where( gt => gt.Selected ).FirstOrDefault();
-                            if ( selectedGroupType != null )
+                            var selectedGroupType = person.GroupTypes.Where(gt => gt.Selected).FirstOrDefault();
+                            if (selectedGroupType != null)
                             {
                                 ViewState["groupTypeId"] = selectedGroupType.GroupType.Id.ToString();
                             }
 
-                            BindGroupTypes( person.GroupTypes );
-                            BindLocations( person.GroupTypes );
-                            BindSchedules( person.GroupTypes );
+                            BindGroupTypes(person.GroupTypes);
+                            BindLocations(person.GroupTypes);
+                            BindSchedules(person.GroupTypes);
                             BindSelectedGrid();
 
                             // look up check-in notes
                             var rockContext = new RockContext();
                             var personTypeId = new Person().TypeId;
-                            CheckInNoteTypeId = new NoteTypeService( rockContext ).Queryable()
-                                .Where( t => t.Name == "Check-In" && t.EntityTypeId == personTypeId )
-                                .Select( t => t.Id ).FirstOrDefault();
+                            CheckInNoteTypeId = new NoteTypeService(rockContext).Queryable()
+                                .Where(t => t.Name == "Check-In" && t.EntityTypeId == personTypeId)
+                                .Select(t => t.Id).FirstOrDefault();
 
-                            var checkInNote = new NoteService( rockContext )
-                                .GetByNoteTypeId( CheckInNoteTypeId )
-                                .Where( n => n.EntityId == personId )
+                            var checkInNote = new NoteService(rockContext)
+                                .GetByNoteTypeId(CheckInNoteTypeId)
+                                .Where(n => n.EntityId == personId)
                                 .FirstOrDefault();
 
-                            if ( checkInNote != null )
+                            if (checkInNote != null)
                             {
                                 tbNoteText.Text = checkInNote.Text;
                             }
 
-                            var allergyAttributeId = new AttributeService( rockContext )
-                                .GetByEntityTypeId( new Person().TypeId )
-                                .Where( a => a.Name.ToUpper() == "ALLERGY" ).FirstOrDefault().Id;
-                            LoadAttributeControl( allergyAttributeId, (int)personId );
+                            var allergyAttributeId = new AttributeService(rockContext)
+                                .GetByEntityTypeId(new Person().TypeId)
+                                .Where(a => a.Name.ToUpper() == "ALLERGY").FirstOrDefault().Id;
+                            LoadAttributeControl(allergyAttributeId, (int)personId);
                         }
                     }
                     else
                     {
-                        maWarning.Show( InvalidParameterError, ModalAlertType.Warning );
+                        maWarning.Show(InvalidParameterError, ModalAlertType.Warning);
                         GoBack();
                     }
                 }
@@ -169,6 +169,21 @@ namespace RockWeb.Blocks.CheckIn.Attended
         }
 
         #endregion
+
+        protected void SetHeader()
+        {
+            var personId = Request.QueryString["personId"].AsType<int?>();
+            if (personId > 0)
+            {
+                CheckInPerson person = CurrentCheckInState.CheckIn.Families.Where(f => f.Selected).FirstOrDefault()
+                    .People.Where(p => p.Person.Id == personId).FirstOrDefault();
+
+                if (person != null)
+                {
+                    lblPersonName.Text = person.Person.FullName;
+                }
+            }
+        }
 
         #region Edit Events
 
@@ -304,16 +319,19 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// <param name="e">The <see cref="System.Web.UI.WebControls.RepeaterItemEventArgs"/> instance containing the event data.</param>
         protected void rGroupType_ItemDataBound( object sender, RepeaterItemEventArgs e )
         {
-            var selectedGroupTypeId = ViewState["groupTypeId"].ToString().AsType<int?>();
-            if ( e.Item.ItemType == ListItemType.Item || e.Item.ItemType == ListItemType.AlternatingItem )
-            {
-                var groupType = (CheckInGroupType)e.Item.DataItem;
-                var lbGroupType = (LinkButton)e.Item.FindControl( "lbGroupType" );
-                lbGroupType.CommandArgument = groupType.GroupType.Id.ToString();
-                lbGroupType.Text = groupType.GroupType.Name;
-                if ( groupType.Selected && groupType.GroupType.Id == selectedGroupTypeId )
+            if ( ViewState["groupTypeId"] != null )
+            { 
+                var selectedGroupTypeId = ViewState["groupTypeId"].ToString().AsType<int?>();
+                if ( e.Item.ItemType == ListItemType.Item || e.Item.ItemType == ListItemType.AlternatingItem )
                 {
-                    lbGroupType.AddCssClass( "active" );
+                    var groupType = (CheckInGroupType)e.Item.DataItem;
+                    var lbGroupType = (LinkButton)e.Item.FindControl( "lbGroupType" );
+                    lbGroupType.CommandArgument = groupType.GroupType.Id.ToString();
+                    lbGroupType.Text = groupType.GroupType.Name;
+                    if ( groupType.Selected && groupType.GroupType.Id == selectedGroupTypeId )
+                    {
+                        lbGroupType.AddCssClass( "active" );
+                    }
                 }
             }
         }
@@ -577,43 +595,46 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// <param name="person">The person.</param>
         protected void BindLocations( List<CheckInGroupType> groupTypes )
         {
-            int groupTypeId = ViewState["groupTypeId"].ToString().AsType<int>();
-            int locationId = ViewState["locationId"].ToString().AsType<int>();
+            if ( ViewState["groupTypeId"] != null )
+            {
+                int groupTypeId = ViewState["groupTypeId"].ToString().AsType<int>();
+                int locationId = ViewState["locationId"].ToString().AsType<int>();
 
-            CheckInGroupType groupType = null;
-            if ( groupTypes.Any( gt => gt.GroupType.Id == groupTypeId ) )
-            {
-                groupType = groupTypes.Where( gt => gt.GroupType.Id == groupTypeId ).FirstOrDefault();
-            }
-            else
-            {
-                groupType = groupTypes.FirstOrDefault();
-            }
-
-            CheckInLocation location = null;
-            var locations = groupType.Groups.SelectMany( g => g.Locations ).ToList();
-            if ( locationId > 0 )
-            {
-                location = locations.Where( l => l.Location.Id == locationId ).FirstOrDefault();
-                var selectedLocationPlaceInList = locations.IndexOf( location ) + 1;
-                var pageSize = this.Pager.PageSize;
-                var pageToGoTo = selectedLocationPlaceInList / pageSize;
-                if ( selectedLocationPlaceInList % pageSize != 0 )
+                CheckInGroupType groupType = null;
+                if (groupTypes.Any(gt => gt.GroupType.Id == groupTypeId))
                 {
-                    pageToGoTo++;
+                    groupType = groupTypes.Where(gt => gt.GroupType.Id == groupTypeId).FirstOrDefault();
+                }
+                else
+                {
+                    groupType = groupTypes.FirstOrDefault();
                 }
 
-                this.Pager.SetPageProperties( ( pageToGoTo - 1 ) * this.Pager.PageSize, this.Pager.MaximumRows, false );
-            }
-            else
-            {
-                location = locations.FirstOrDefault();
-            }
+                CheckInLocation location = null;
+                var locations = groupType.Groups.SelectMany(g => g.Locations).ToList();
+                if (locationId > 0)
+                {
+                    location = locations.Where(l => l.Location.Id == locationId).FirstOrDefault();
+                    var selectedLocationPlaceInList = locations.IndexOf(location) + 1;
+                    var pageSize = this.Pager.PageSize;
+                    var pageToGoTo = selectedLocationPlaceInList / pageSize;
+                    if (selectedLocationPlaceInList % pageSize != 0)
+                    {
+                        pageToGoTo++;
+                    }
 
-            Session["locations"] = locations;
-            lvLocation.DataSource = locations;
-            lvLocation.DataBind();
-            pnlLocations.Update();
+                    this.Pager.SetPageProperties((pageToGoTo - 1) * this.Pager.PageSize, this.Pager.MaximumRows, false);
+                }
+                else
+                {
+                    location = locations.FirstOrDefault();
+                }
+
+                Session["locations"] = locations;
+                lvLocation.DataSource = locations;
+                lvLocation.DataBind();
+                pnlLocations.Update();
+            }
         }
 
         /// <summary>
@@ -622,34 +643,37 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// <param name="person">The person.</param>
         protected void BindSchedules( List<CheckInGroupType> groupTypes )
         {
-            int groupTypeId = ViewState["groupTypeId"].ToString().AsType<int>();
-            int locationId = ViewState["locationId"].ToString().AsType<int>();
+            if ( ViewState["groupTypeId"] != null )
+            {
+                int groupTypeId = ViewState["groupTypeId"].ToString().AsType<int>();
+                int locationId = ViewState["locationId"].ToString().AsType<int>();
 
-            CheckInGroupType groupType = null;
-            if ( groupTypes.Any( gt => gt.GroupType.Id == groupTypeId ) )
-            {
-                groupType = groupTypes.Where( gt => gt.GroupType.Id == groupTypeId ).FirstOrDefault();
-            }
-            else
-            {
-                groupType = groupTypes.FirstOrDefault();
-            }
+                CheckInGroupType groupType = null;
+                if (groupTypes.Any(gt => gt.GroupType.Id == groupTypeId))
+                {
+                    groupType = groupTypes.Where(gt => gt.GroupType.Id == groupTypeId).FirstOrDefault();
+                }
+                else
+                {
+                    groupType = groupTypes.FirstOrDefault();
+                }
 
-            CheckInLocation location = null;
-            var locations = groupType.Groups.SelectMany( g => g.Locations ).ToList();
-            if ( locationId > 0 )
-            {
-                location = locations.Where( l => l.Location.Id == locationId ).FirstOrDefault();
-            }
-            else
-            {
-                location = locations.FirstOrDefault();
-            }
+                CheckInLocation location = null;
+                var locations = groupType.Groups.SelectMany(g => g.Locations).ToList();
+                if (locationId > 0)
+                {
+                    location = locations.Where(l => l.Location.Id == locationId).FirstOrDefault();
+                }
+                else
+                {
+                    location = locations.FirstOrDefault();
+                }
 
-            getScheduleAttendance(location);
-            rSchedule.DataSource = location.Schedules.ToList();
-            rSchedule.DataBind();
-            pnlSchedules.Update();
+                getScheduleAttendance(location);
+                rSchedule.DataSource = location.Schedules.ToList();
+                rSchedule.DataBind();
+                pnlSchedules.Update();
+            }
         }
 
         /// <summary>
@@ -725,31 +749,39 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// </summary>
         private void GoNext()
         {
-            var personId = Request.QueryString["personId"].AsType<int?>();
-            if ( personId > 0 )
+            if (gSelectedGrid.Rows.Count > 0)
             {
-                var person = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault()
-                    .People.Where( p => p.Person.Id == personId ).FirstOrDefault();
+                var personId = Request.QueryString["personId"].AsType<int?>();
+                if (personId > 0)
+                {
+                    var person = CurrentCheckInState.CheckIn.Families.Where(f => f.Selected).FirstOrDefault()
+                        .People.Where(p => p.Person.Id == personId).FirstOrDefault();
 
-                var groupTypes = person.GroupTypes.ToList();
-                groupTypes.ForEach( gt => gt.PreSelected = gt.Selected );
+                    var groupTypes = person.GroupTypes.ToList();
+                    groupTypes.ForEach(gt => gt.PreSelected = gt.Selected);
 
-                var groups = groupTypes.SelectMany( gt => gt.Groups ).ToList();
-                groups.ForEach( g => g.PreSelected = g.Selected );
+                    var groups = groupTypes.SelectMany(gt => gt.Groups).ToList();
+                    groups.ForEach(g => g.PreSelected = g.Selected);
 
-                var locations = groups.SelectMany( g => g.Locations ).ToList();
-                locations.ForEach( l => l.PreSelected = l.Selected );
+                    var locations = groups.SelectMany(g => g.Locations).ToList();
+                    locations.ForEach(l => l.PreSelected = l.Selected);
 
-                var schedules = locations.SelectMany( l => l.Schedules ).ToList();
-                schedules.ForEach( s => s.PreSelected = s.Selected );
+                    var schedules = locations.SelectMany(l => l.Schedules).ToList();
+                    schedules.ForEach(s => s.PreSelected = s.Selected);
+                }
+                else
+                {
+                    maWarning.Show(InvalidParameterError, ModalAlertType.Warning);
+                }
+
+                SaveState();
+                NavigateToNextPage();
             }
             else
             {
-                maWarning.Show( InvalidParameterError, ModalAlertType.Warning );
+                string errorMsg = "<ul><li>" + "You must select an activity to continue. Otherwise, click the Back arrow." + "</li></ul>";
+                maWarning.Show(errorMsg, Rock.Web.UI.Controls.ModalAlertType.Warning);
             }
-
-            SaveState();
-            NavigateToNextPage();
         }
 
         /// <summary>
