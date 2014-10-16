@@ -143,7 +143,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 }
             }
 
-            gPersonList.DataSource = checkInList.OrderBy( c => c.Schedule ).ToList();
+            gPersonList.DataSource = checkInList.OrderBy( c => c.Name ).ThenBy( c => c.Schedule ).ToList();
             gPersonList.DataBind();
         }
 
