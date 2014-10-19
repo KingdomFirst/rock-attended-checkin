@@ -159,10 +159,27 @@ td.day, th.prev, th.next, th.today, th.datepicker-switch {
     cursor: pointer;
 }
 
-td.day:hover, th.prev:hover, th.next:hover, th.today:hover, th.datepicker-switch:hover {
+td.day:hover, th.prev:hover, th.next:hover, th.today:hover, th.datepicker-switch:hover, span.month:hover, span.year:hover {
     background-color: #eeeeee;
+}
+
+th.datepicker-switch {
+    text-align: center;
+}
+
+th.next {
+    text-align: right;
 }
 
 td.day {
     width: 14.2%
+}
+
+.datepicker-months, .datepicker-years {
+    max-width: 300px;
+}
+
+span.month, span.year {
+    float: left;
+    padding: 10px;
 }
