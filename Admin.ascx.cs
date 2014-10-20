@@ -84,25 +84,15 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 ", this.Page.ClientScript.GetPostBackEventReference( lbRefresh, "" ) );
                 phScript.Controls.Add( new LiteralControl( script ) );
 
-                if ( !CurrentKioskId.HasValue || UserBackedUp || CurrentGroupTypeIds == null )
-                {
-                    // #DEBUG, may be the local machine
-                    var kiosk = new DeviceService( new RockContext() ).Queryable().Where( d => d.Name == Environment.MachineName ).FirstOrDefault();
-                    if ( kiosk != null )
-                    {
-                        CurrentKioskId = kiosk.Id;
-                        BindGroupTypes();
-                    }
-                    else
-                    {
-                        maWarning.Show( "This device has not been set up for check-in.", ModalAlertType.Warning );
-                        lbOk.Visible = false;
-                        return;
-                    }
-                }
-                else
+                if ( CurrentKioskId.HasValue && !UserBackedUp && CurrentGroupTypeIds != null )
                 {
                     NavigateToNextPage();
+                }
+                else if ( !CurrentKioskId.HasValue )
+                {
+                    maWarning.Show( "This device has not been set up for check-in.", ModalAlertType.Warning );
+                    lbOk.Visible = false;
+                    return;
                 }
 
                 lbOk.Focus();
@@ -121,7 +111,9 @@ namespace RockWeb.Blocks.CheckIn.Attended
         {
             // match kiosk by REMOTE_ADDR (ip/name).
             var checkInDeviceTypeId = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.DEVICE_TYPE_CHECKIN_KIOSK ).Id;
-            var device = new DeviceService( new RockContext() ).GetByIPAddress( Request.ServerVariables["REMOTE_ADDR"], checkInDeviceTypeId, false );
+            var ipAddress = Request.ServerVariables["REMOTE_ADDR"];
+            var device = new DeviceService( new RockContext() ).GetByIPAddress( ipAddress, checkInDeviceTypeId, false );
+
             if ( device != null )
             {
                 ClearMobileCookie();
