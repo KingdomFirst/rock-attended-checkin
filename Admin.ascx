@@ -32,7 +32,7 @@
         <div class="row checkin-body">
             <div class="col-xs-4"></div>
             <div class="col-xs-4">
-                <h3>Checkin Type(s)</h3>
+                <asp:Label ID="lblHeader" runat="server"><h3>Checkin Type(s)</h3></asp:Label>
                 <asp:Repeater ID="repMinistry" runat="server" OnItemDataBound="repMinistry_ItemDataBound">
                     <ItemTemplate>
                         <asp:Button ID="lbMinistry" runat="server" data-id='<%# Eval("Id") %>' CommandArgument='<%# Eval("Id") %>' CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" Text='<%# Eval("Name") %>' />

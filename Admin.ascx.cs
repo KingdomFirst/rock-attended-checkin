@@ -92,6 +92,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 {
                     maWarning.Show( "This device has not been set up for check-in.", ModalAlertType.Warning );
                     lbOk.Visible = false;
+                    lblHeader.Visible = false;
                     return;
                 }
 
@@ -112,7 +113,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             // match kiosk by ip/name.
             var checkInDeviceTypeId = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.DEVICE_TYPE_CHECKIN_KIOSK ).Id;
             var ipAddress = Request.ServerVariables["LOCAL_ADDR"];
-            var device = new DeviceService( new RockContext() ).GetByIPAddress( ipAddress, checkInDeviceTypeId, true );
+            var device = new DeviceService( new RockContext() ).GetByIPAddress( ipAddress, checkInDeviceTypeId, false );
 
             if ( device != null )
             {
