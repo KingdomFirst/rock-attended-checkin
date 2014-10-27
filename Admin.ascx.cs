@@ -92,7 +92,6 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 {
                     maWarning.Show( "This device has not been set up for check-in.", ModalAlertType.Warning );
                     lbOk.Visible = false;
-                    lblHeader.Visible = false;
                     return;
                 }
 
@@ -111,15 +110,33 @@ namespace RockWeb.Blocks.CheckIn.Attended
         private void AttemptKioskMatchByIpOrName()
         {
             // match kiosk by ip/name.
+            string ipAddress;
+#if DEBUG
+            // debug mode, use the local IP
+            ipAddress = Request.ServerVariables["LOCAL_ADDR"];
+#else
+            // production mode, use the remote IP
+            ipAddress = Request.ServerVariables["REMOTE_ADDR"];
+#endif
+            bool skipDeviceNameLookup = true;
+
             var checkInDeviceTypeId = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.DEVICE_TYPE_CHECKIN_KIOSK ).Id;
-            var ipAddress = Request.ServerVariables["LOCAL_ADDR"];
-            var device = new DeviceService( new RockContext() ).GetByIPAddress( ipAddress, checkInDeviceTypeId, false );
+            var device = new DeviceService( new RockContext() ).GetByIPAddress( ipAddress, checkInDeviceTypeId, skipDeviceNameLookup );
+
+            var checkInDeviceTypeGuid = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.DEVICE_TYPE_CHECKIN_KIOSK ).Guid;
+            var deviceList = new DeviceService( new RockContext() ).GetByDeviceTypeGuid( checkInDeviceTypeGuid ).ToList();
+
+            lblInfo.Text = string.Format( "Device IP: {0} {1} Name: {2}", ipAddress, Environment.NewLine, System.Net.Dns.GetHostEntry( ipAddress ).HostName );
 
             if ( device != null )
             {
                 ClearMobileCookie();
                 CurrentKioskId = device.Id;
                 BindGroupTypes( hfGroupTypes.Value );
+            }
+            else
+            {
+                lblHeader.Visible = false;
             }
         }
 

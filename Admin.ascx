@@ -38,6 +38,7 @@
                         <asp:Button ID="lbMinistry" runat="server" data-id='<%# Eval("Id") %>' CommandArgument='<%# Eval("Id") %>' CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" Text='<%# Eval("Name") %>' />
                     </ItemTemplate>
                 </asp:Repeater>
+                <asp:Label ID="lblInfo" runat="server" />
             </div>
             <div class="col-xs-4"></div>
         </div>
