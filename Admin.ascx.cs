@@ -118,7 +118,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             // production mode, use the remote IP
             ipAddress = Request.ServerVariables["REMOTE_ADDR"];
 #endif
-            bool skipDeviceNameLookup = true;
+            bool skipDeviceNameLookup = false;
 
             var checkInDeviceTypeId = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.DEVICE_TYPE_CHECKIN_KIOSK ).Id;
             var device = new DeviceService( new RockContext() ).GetByIPAddress( ipAddress, checkInDeviceTypeId, skipDeviceNameLookup );
