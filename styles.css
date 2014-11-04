@@ -92,6 +92,13 @@ table td {
     position: relative;
 }
 
+.btn {
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .btn-primary .checkin-sub-title {
     width: 100%;
     white-space: nowrap;
