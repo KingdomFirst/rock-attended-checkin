@@ -33,11 +33,11 @@
                 <asp:UpdatePanel ID="pnlGroupTypes" runat="server" UpdateMode="Conditional">
                 <ContentTemplate>     
                     <h3>GroupType</h3>
-                    <asp:Repeater ID="rGroupType" runat="server" OnItemCommand="rGroupType_ItemCommand" OnItemDataBound="rGroupType_ItemDataBound">
+                    <asp:ListView ID="rGroupType" runat="server" OnItemCommand="rGroupType_ItemCommand" OnItemDataBound="rGroupType_ItemDataBound">
                         <ItemTemplate>
                             <asp:LinkButton ID="lbGroupType" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" CausesValidation="false" />
                         </ItemTemplate>
-                    </asp:Repeater>
+                    </asp:ListView>   
                 </ContentTemplate>
                 </asp:UpdatePanel>
             </div>
@@ -93,7 +93,7 @@
             </div>
         </div>
 
-        <div class="row checkin-footer">
+        <div class="row at-the-bottom">
            <div class="col-xs-3 col-xs-offset-9">
                 <asp:LinkButton ID="lbAddNote" runat="server" Text="Add a Note" CssClass="btn btn-primary btn-block btn-checkin-select" OnClick="lbAddNote_Click" CausesValidation="false" />
             </div>
@@ -107,13 +107,13 @@
                 <asp:HiddenField ID="hfOpenNotePanel" runat="server" />
 
                 <div class="checkin-header row">
-                    <div class="col-xs-2 checkin-actions">
+                    <div class="col-xs-3 checkin-actions">
                         <Rock:BootstrapButton ID="closeNotesModal" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbCloseNotes_Click" Text="Cancel" EnableViewState="false" />
                     </div>
-                    <div class="col-xs-8 text-center">
+                    <div class="col-xs-6 text-center">
                         <h3>Add Notes</h3>
                     </div>
-                    <div class="col-xs-2 checkin-actions text-right">
+                    <div class="col-xs-3 checkin-actions text-right">
                         <asp:LinkButton ID="lbAddNoteSave" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbAddNoteSave_Click" Text="Save" EnableViewState="false" />
                     </div>
                 </div>
