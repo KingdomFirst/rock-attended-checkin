@@ -80,9 +80,13 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                 ).ToList();
 
                                 // #TODO: Test the upper value of grade and age ranges
-                                var groupTypeMatchGrade = gradeFilter.Aggregate( ( x, y ) => Math.Abs( Convert.ToDouble( x.GradeRange.First() - person.Person.Grade ) )
-                                        < Math.Abs( Convert.ToDouble( y.GradeRange.First() - person.Person.Grade ) ) ? x : y )
-                                            .GroupType;
+                                Rock.CheckIn.CheckInGroupType groupTypeMatchGrade = null;
+                                if ( gradeFilter.Count > 0 )
+                                {
+                                    groupTypeMatchGrade = gradeFilter.Aggregate((x, y) => Math.Abs(Convert.ToDouble(x.GradeRange.First() - person.Person.Grade))
+                                            < Math.Abs(Convert.ToDouble(y.GradeRange.First() - person.Person.Grade)) ? x : y)
+                                                .GroupType;
+                                }
 
                                 // check grouptypes for an age range
                                 var ageFilter = person.GroupTypes.Where(
@@ -97,9 +101,13 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                                 .Select( av => av.AsType<double?>() )
                                         } ).ToList();
 
-                                var groupTypeMatchAge = ageFilter.Aggregate( ( x, y ) => Math.Abs( Convert.ToDouble( x.AgeRange.First() - person.Person.Age ) )
-                                        < Math.Abs( Convert.ToDouble( y.AgeRange.First() - person.Person.Age ) ) ? x : y )
-                                            .GroupType;
+                                Rock.CheckIn.CheckInGroupType groupTypeMatchAge = null;
+                                if (ageFilter.Count > 0)
+                                {
+                                    groupTypeMatchAge = ageFilter.Aggregate((x, y) => Math.Abs(Convert.ToDouble(x.AgeRange.First() - person.Person.Age))
+                                            < Math.Abs(Convert.ToDouble(y.AgeRange.First() - person.Person.Age)) ? x : y)
+                                                .GroupType;
+                                }
 
                                 groupType = groupTypeMatchGrade ?? groupTypeMatchAge;
                             }
