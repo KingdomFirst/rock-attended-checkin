@@ -111,15 +111,17 @@ namespace RockWeb.Blocks.CheckIn.Attended
         {
             // match kiosk by ip/name.
             string ipAddress;
+            bool skipDeviceNameLookup;
 #if DEBUG
             // debug mode, use the local IP
             ipAddress = Request.ServerVariables["LOCAL_ADDR"];
+            skipDeviceNameLookup = true;
 #else
             // production mode, use the remote IP
             ipAddress = Request.ServerVariables["REMOTE_ADDR"];
+            skipDeviceNameLookup = false;
 #endif
-            bool skipDeviceNameLookup = false;
-
+            
             var checkInDeviceTypeId = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.DEVICE_TYPE_CHECKIN_KIOSK ).Id;
             var device = new DeviceService( new RockContext() ).GetByIPAddress( ipAddress, checkInDeviceTypeId, skipDeviceNameLookup );
 
