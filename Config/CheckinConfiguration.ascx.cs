@@ -16,6 +16,7 @@
 //
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -23,16 +24,15 @@ using Rock;
 using Rock.Constants;
 using Rock.Data;
 using Rock.Model;
+using Rock.Security;
 using Rock.Web.Cache;
 using Rock.Web.UI;
 using Rock.Web.UI.Controls;
-using System.ComponentModel;
-using Rock.Security;
 
 namespace RockWeb.Blocks.CheckIn
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     [DisplayName( "Check-in Configuration" )]
     [Category( "Check-in" )]
@@ -161,7 +161,7 @@ namespace RockWeb.Blocks.CheckIn
             }
         }
 
-        #endregion
+        #endregion Control Methods
 
         #region ViewState and Dynamic Controls
 
@@ -518,7 +518,7 @@ namespace RockWeb.Blocks.CheckIn
             groupEditor.Parent.Controls.Remove( groupEditor );
         }
 
-        #endregion
+        #endregion ViewState and Dynamic Controls
 
         #region CheckinLabel Add/Delete
 
@@ -602,7 +602,7 @@ namespace RockWeb.Blocks.CheckIn
             pnlDetails.Visible = true;
         }
 
-        #endregion
+        #endregion CheckinLabel Add/Delete
 
         #region Location Add/Delete
 
@@ -675,7 +675,7 @@ namespace RockWeb.Blocks.CheckIn
             mdLocationPicker.Hide();
         }
 
-        #endregion
+        #endregion Location Add/Delete
 
         /// <summary>
         /// Handles the Click event of the btnSave control.
@@ -740,7 +740,7 @@ namespace RockWeb.Blocks.CheckIn
                 rockContext.SaveChanges();
 
                 // Add/Update grouptypes and groups that are in the UI
-                // Note:  We'll have to save all the groupTypes without changing the DB value of ChildGroupTypes, then come around again and save the ChildGroupTypes 
+                // Note:  We'll have to save all the groupTypes without changing the DB value of ChildGroupTypes, then come around again and save the ChildGroupTypes
                 // since the ChildGroupTypes may not exist in the database yet
                 foreach ( GroupType groupTypeUI in groupTypesToAddUpdate )
                 {
@@ -914,12 +914,39 @@ namespace RockWeb.Blocks.CheckIn
                 foreach ( var groupTypeUI in groupTypesToAddUpdate )
                 {
                     var groupTypeDB = groupTypeService.Get( groupTypeUI.Guid );
+                    
                     groupTypeDB.ChildGroupTypes = new List<GroupType>();
                     groupTypeDB.ChildGroupTypes.Clear();
                     foreach ( var childGroupTypeUI in groupTypeUI.ChildGroupTypes )
                     {
                         var childGroupTypeDB = groupTypeService.Get( childGroupTypeUI.Guid );
                         groupTypeDB.ChildGroupTypes.Add( childGroupTypeDB );
+                    }
+
+                    var associateGroup = groupTypeDB.Groups.FirstOrDefault();
+                    var parentGroupType = groupTypeDB.ParentGroupTypes.FirstOrDefault();
+                    if ( associateGroup == null )
+                    {
+                        // create a blank group for hierarchy purposes
+                        associateGroup = new Group();
+                        associateGroup.IsActive = true;
+                        associateGroup.IsSystem = false;
+                        associateGroup.IsSecurityRole = false;
+                        associateGroup.Name = groupTypeUI.Name;
+                        associateGroup.GroupTypeId = groupTypeDB.Id;
+                        associateGroup.Order = groupTypeDB.Order;
+                        // add some attribute here to hide it in the check-in config
+                        groupService.Add( associateGroup );
+                    }
+
+                    // set the group hierarchy for access in group viewer
+                    if ( associateGroup.ParentGroupId == null )
+                    {
+                        // this is always null the first time because the grouptype is new???
+                        if ( parentGroupType != null && parentGroupType.Groups.Any() )
+                        {
+                            associateGroup.ParentGroupId = parentGroupType.Groups.FirstOrDefault().Id;
+                        }
                     }
                 }
 
@@ -943,7 +970,7 @@ namespace RockWeb.Blocks.CheckIn
         {
             // limit to child group types that are not Templates
             int[] templateGroupTypes = new int[] {
-                DefinedValueCache.Read(Rock.SystemGuid.DefinedValue.GROUPTYPE_PURPOSE_CHECKIN_TEMPLATE).Id, 
+                DefinedValueCache.Read(Rock.SystemGuid.DefinedValue.GROUPTYPE_PURPOSE_CHECKIN_TEMPLATE).Id,
                 DefinedValueCache.Read(Rock.SystemGuid.DefinedValue.GROUPTYPE_PURPOSE_CHECKIN_FILTER).Id
             };
 
@@ -1055,7 +1082,7 @@ namespace RockWeb.Blocks.CheckIn
 
             // limit to child group types that are not Templates
             int[] templateGroupTypes = new int[] {
-                DefinedValueCache.Read(Rock.SystemGuid.DefinedValue.GROUPTYPE_PURPOSE_CHECKIN_TEMPLATE).Id, 
+                DefinedValueCache.Read(Rock.SystemGuid.DefinedValue.GROUPTYPE_PURPOSE_CHECKIN_TEMPLATE).Id,
                 DefinedValueCache.Read(Rock.SystemGuid.DefinedValue.GROUPTYPE_PURPOSE_CHECKIN_FILTER).Id
             };
 
