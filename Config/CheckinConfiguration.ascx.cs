@@ -29,14 +29,14 @@ using Rock.Web.Cache;
 using Rock.Web.UI;
 using Rock.Web.UI.Controls;
 
-namespace RockWeb.Blocks.CheckIn
+namespace RockWeb.Blocks.CheckIn.Attended.Config
 {
     /// <summary>
     ///
     /// </summary>
     [DisplayName( "Check-in Configuration" )]
-    [Category( "Check-in" )]
-    [Description( "Helps to configure the check-in workflow." )]
+    [Category( "Check-in > Attended" )]
+    [Description( "Attended Check-In Configuration Block" )]
     public partial class CheckinConfiguration : RockBlock, IDetailBlock
     {
         #region Control Methods
@@ -914,7 +914,7 @@ namespace RockWeb.Blocks.CheckIn
                 foreach ( var groupTypeUI in groupTypesToAddUpdate )
                 {
                     var groupTypeDB = groupTypeService.Get( groupTypeUI.Guid );
-                    
+
                     groupTypeDB.ChildGroupTypes = new List<GroupType>();
                     groupTypeDB.ChildGroupTypes.Clear();
                     foreach ( var childGroupTypeUI in groupTypeUI.ChildGroupTypes )

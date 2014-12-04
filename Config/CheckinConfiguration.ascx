@@ -1,12 +1,13 @@
-﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="CheckinConfiguration.ascx.cs" Inherits="RockWeb.Blocks.CheckIn.CheckinConfiguration" %>
+﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="CheckinConfiguration.ascx.cs" Inherits="RockWeb.Blocks.CheckIn.Attended.Config.CheckinConfiguration" %>
 
 <asp:UpdatePanel ID="upDetail" runat="server">
     <ContentTemplate>
-        
+
         <asp:Panel ID="pnlDetails" CssClass="panel panel-block" runat="server">
 
             <div class="panel-heading">
-                <h1 class="panel-title"><i class="fa fa-check-square-o"></i> <asp:Literal ID="lCheckinAreasTitle" runat="server" Text="Check-in Areas" /></h1>
+                <h1 class="panel-title"><i class="fa fa-check-square-o"></i>
+                    <asp:Literal ID="lCheckinAreasTitle" runat="server" Text="Check-in Areas" /></h1>
             </div>
             <div class="panel-body">
 
@@ -31,7 +32,6 @@
                 </div>
 
                 <Rock:ConfirmPageUnload ID="confirmExit" runat="server" ConfirmationMessage="Changes have been made to this check-in configuration that have not yet been saved." Enabled="false" />
-
             </div>
         </asp:Panel>
 
