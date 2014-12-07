@@ -29,15 +29,15 @@ using Rock.Web.Cache;
 using Rock.Web.UI;
 using Rock.Web.UI.Controls;
 
-namespace RockWeb.Blocks.CheckIn.Attended.Config
+namespace RockWeb.Blocks.CheckIn.Attended
 {
     /// <summary>
     ///
     /// </summary>
-    [DisplayName( "Check-in Configuration" )]
+    [DisplayName( "Area Configuration" )]
     [Category( "Check-in > Attended" )]
     [Description( "Attended Check-In Configuration Block" )]
-    public partial class CheckinConfiguration : RockBlock, IDetailBlock
+    public partial class AreaConfiguration : RockBlock, IDetailBlock
     {
         #region Control Methods
 
