@@ -745,7 +745,6 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 foreach ( GroupType groupTypeUI in groupTypesToAddUpdate )
                 {
                     GroupType groupTypeDB = groupTypeService.Get( groupTypeUI.Guid );
-
                     if ( groupTypeDB == null )
                     {
                         groupTypeDB = new GroupType();
@@ -874,6 +873,11 @@ namespace RockWeb.Blocks.CheckIn.Attended
 
                     // get GroupTypeId from database in case the groupType is new
                     groupDB.GroupTypeId = groupTypeService.Get( groupUI.GroupType.Guid ).Id;
+                    if ( groupUI.ParentGroup != null && groupDB.ParentGroup == null )
+                    {
+                        groupDB.ParentGroupId = groupService.Get( groupUI.ParentGroup.Guid ).Id;
+                    }
+
                     groupDB.Attributes = groupUI.Attributes;
                     groupDB.AttributeValues = groupUI.AttributeValues;
 
@@ -914,39 +918,12 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 foreach ( var groupTypeUI in groupTypesToAddUpdate )
                 {
                     var groupTypeDB = groupTypeService.Get( groupTypeUI.Guid );
-
                     groupTypeDB.ChildGroupTypes = new List<GroupType>();
                     groupTypeDB.ChildGroupTypes.Clear();
                     foreach ( var childGroupTypeUI in groupTypeUI.ChildGroupTypes )
                     {
                         var childGroupTypeDB = groupTypeService.Get( childGroupTypeUI.Guid );
                         groupTypeDB.ChildGroupTypes.Add( childGroupTypeDB );
-                    }
-
-                    var associateGroup = groupTypeDB.Groups.FirstOrDefault();
-                    var parentGroupType = groupTypeDB.ParentGroupTypes.FirstOrDefault();
-                    if ( associateGroup == null )
-                    {
-                        // create a blank group for hierarchy purposes
-                        associateGroup = new Group();
-                        associateGroup.IsActive = true;
-                        associateGroup.IsSystem = false;
-                        associateGroup.IsSecurityRole = false;
-                        associateGroup.Name = groupTypeUI.Name;
-                        associateGroup.GroupTypeId = groupTypeDB.Id;
-                        associateGroup.Order = groupTypeDB.Order;
-                        // add some attribute here to hide it in the check-in config
-                        groupService.Add( associateGroup );
-                    }
-
-                    // set the group hierarchy for access in group viewer
-                    if ( associateGroup.ParentGroupId == null )
-                    {
-                        // this is always null the first time because the grouptype is new???
-                        if ( parentGroupType != null && parentGroupType.Groups.Any() )
-                        {
-                            associateGroup.ParentGroupId = parentGroupType.Groups.FirstOrDefault().Id;
-                        }
                     }
                 }
 
@@ -1022,15 +999,44 @@ namespace RockWeb.Blocks.CheckIn.Attended
         {
             int groupTypeSortOrder = 0;
             int groupSortOrder = 0;
+            var parentGroup = groupTypeUI.Groups.FirstOrDefault();
             foreach ( var childGroupTypeUI in groupTypeUI.ChildGroupTypes )
             {
                 PopulateAddUpdateLists( groupTypesToAddUpdate, groupsToAddUpdate, childGroupTypeUI );
                 childGroupTypeUI.Order = groupTypeSortOrder++;
                 groupTypesToAddUpdate.Add( childGroupTypeUI );
-                foreach ( var groupUI in childGroupTypeUI.Groups )
+                if ( childGroupTypeUI.Groups.Any() )
                 {
-                    groupUI.Order = groupSortOrder++;
-                    groupsToAddUpdate.Add( groupUI );
+                    foreach ( var groupUI in childGroupTypeUI.Groups )
+                    {
+                        // set parent if child hierarchy not set
+                        if ( parentGroup != null && groupUI.ParentGroup == null )
+                        {
+                            groupUI.ParentGroup = new Group { Guid = parentGroup.Guid };
+                        }
+                        groupUI.Order = groupSortOrder++;
+                        groupsToAddUpdate.Add( groupUI );
+                    }
+                }
+                else
+                {
+                    // create a blank group for hierarchy purposes
+                    var childGroup = new Group();
+                    childGroup.IsActive = true;
+                    childGroup.IsSystem = false;
+                    childGroup.Guid = Guid.NewGuid();
+                    childGroup.IsSecurityRole = false;
+                    childGroup.Name = childGroupTypeUI.Name;
+                    childGroup.GroupTypeId = childGroupTypeUI.Id;
+                    childGroup.Order = childGroupTypeUI.Order;
+                    childGroup.GroupType = new GroupType { Guid = childGroupTypeUI.Guid };
+
+                    if ( parentGroup != null )
+                    {
+                        childGroup.ParentGroup = new Group { Guid = parentGroup.Guid };
+                    }
+
+                    groupsToAddUpdate.Add( childGroup );
                 }
             }
         }
