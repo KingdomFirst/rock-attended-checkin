@@ -40,7 +40,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
     [Description( "Attended Check-In Search block" )]
     [LinkedPage( "Admin Page" )]
     [BooleanField( "Show Key Pad", "Show the number key pad on the search screen", false )]
-    [IntegerField( "Minimum Text Length", "Minimum length for text searches (defaults to 4).", false, 4 )]
+    [IntegerField( "Minimum Text Length", "Minimum length for text searches (defaults to 1).", false, 1 )]
     [IntegerField( "Maximum Text Length", "Maximum length for text searches (defaults to 20).", false, 20 )]
     public partial class Search : CheckInBlock
     {
