@@ -733,15 +733,15 @@ namespace RockWeb.Blocks.CheckIn.Attended
                     {
                         if ( family.People.Where( f => f.FamilyMember ).Any() )
                         {
-                            var familyMembers = family.People.Where( f => f.FamilyMember ).ToList();
-                            familyMembers.ForEach( p => p.Selected = !p.ExcludedByFilter );
+                            var familyMembers = family.People.Where( f => f.FamilyMember && !f.ExcludedByFilter ).ToList();
+                            familyMembers.ForEach( p => p.Selected = true );
                             hfSelectedPerson.Value = string.Join( ",", familyMembers.Select( f => f.Person.Id ) ) + ",";
                             memberDataSource = familyMembers.OrderBy( p => p.Person.FullNameReversed ).ToList();
                         }
 
                         if ( family.People.Where( f => !f.FamilyMember ).Any() )
                         {
-                            var familyVisitors = family.People.Where( f => !f.FamilyMember ).ToList();
+                            var familyVisitors = family.People.Where( f => !f.FamilyMember && !f.ExcludedByFilter ).ToList();
                             hfSelectedVisitor.Value = string.Join( ",", familyVisitors.Select( f => f.Person.Id ) ) + ",";
                             visitorDataSource = familyVisitors.OrderBy( p => p.Person.FullNameReversed ).ToList();
                         }
