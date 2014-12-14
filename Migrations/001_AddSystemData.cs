@@ -132,24 +132,42 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             RockMigrationHelper.UpdateWorkflowActivityType( "6E8CD562-A1DA-4E13-A45C-853DB56E0014", true, "Person Search", "", false, 1, "6D8CC755-0140-439A-B5A3-97D2F7681697" ); // Attended Check-in:Person Search
             RockMigrationHelper.UpdateWorkflowActivityType( "6E8CD562-A1DA-4E13-A45C-853DB56E0014", true, "Activity Search", "", false, 2, "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD" ); // Attended Check-in:Activity Search
             RockMigrationHelper.UpdateWorkflowActivityType( "6E8CD562-A1DA-4E13-A45C-853DB56E0014", true, "Save Attendance", "", false, 3, "BF4E1CAA-25A3-4676-BCA2-FDE2C07E8210" ); // Attended Check-in:Save Attendance
-            RockMigrationHelper.UpdateWorkflowActionType( "B6FC7350-10E0-4255-873D-4B492B7D27FF", "Find Families", 0, "E2F172A8-88E5-4F84-9805-73164516F5FB", true, false, "", "", 1, "", "A7690077-CCB7-4AB2-A945-7BEE4861AF9E" ); // Attended Check-in:Family Search:Find Families
-            RockMigrationHelper.UpdateWorkflowActionType( "6D8CC755-0140-439A-B5A3-97D2F7681697", "Find Family Members", 0, "5794B18B-8F43-43B2-8D60-6C047AB096AF", true, false, "", "", 1, "", "62D775D6-0689-43F9-AA16-858B77FAB87C" ); // Attended Check-in:Person Search:Find Family Members
-            RockMigrationHelper.UpdateWorkflowActionType( "6D8CC755-0140-439A-B5A3-97D2F7681697", "Find Relationships", 1, "F43099A7-E872-439B-A750-351C741BCFEF", true, false, "", "", 1, "", "50019BF6-EF27-4F9B-A06F-6A185B5CBD39" ); // Attended Check-in:Person Search:Find Relationships
-            RockMigrationHelper.UpdateWorkflowActionType( "6D8CC755-0140-439A-B5A3-97D2F7681697", "Load Group Types", 2, "50D5D915-074A-41FB-9EA7-0DBE52141398", true, false, "", "", 1, "", "05DD1385-B984-4905-8EA2-3B35EAC35B99" ); // Attended Check-in:Person Search:Load Group Types
-            RockMigrationHelper.UpdateWorkflowActionType( "6D8CC755-0140-439A-B5A3-97D2F7681697", "Filter by Age", 3, "3A77A36E-D613-44F7-ACA1-34666A85CD07", true, false, "", "", 1, "", "8D47DC02-03ED-4ABF-88A8-F1DC0772CA2B" ); // Attended Check-in:Person Search:Filter by Age
-            RockMigrationHelper.UpdateWorkflowActionType( "6D8CC755-0140-439A-B5A3-97D2F7681697", "Remove Empty People", 4, "B8B72812-190E-4802-A63F-E693344754BD", true, false, "", "", 1, "", "1813C89A-623C-4234-91D4-3243CA68CD03" ); // Attended Check-in:Person Search:Remove Empty People
-            RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Load Groups", 0, "008402A8-3A6C-4CB6-A230-6AD532505EDC", true, false, "", "", 1, "", "9DFD5255-CC94-4B88-AE2E-2FC32F35D9D9" ); // Attended Check-in:Activity Search:Load Groups
-            RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Load Locations", 1, "4492E36A-77C8-4DC7-8128-570FAA161ADB", true, false, "", "", 1, "", "1F342433-CE63-4FB4-88CE-00A8306ECED8" ); // Attended Check-in:Activity Search:Load Locations
-            RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Load Schedules", 2, "24A7E196-B50B-4BD6-A347-07CFC5ABEF9E", true, false, "", "", 1, "", "5CD01782-54F7-405D-B857-73BDE9242761" ); // Attended Check-in:Activity Search:Load Schedules
-            RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Filter Active Locations", 3, "7BB371F9-A8DE-49D3-BEEA-C191F6C7D4A0", true, false, "", "", 1, "", "685CB9D2-EAA3-4322-81E3-289BFCAE15E7" ); // Attended Check-in:Activity Search:Filter Active Locations
-            RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Filter Groups By Gender", 4, "DC7DB1FD-8CC8-4AC4-B0A5-B5F85FF03540", true, false, "", "", 1, "", "0DDB5AF0-F27E-4F48-84E3-CFA902B537E3" ); // Attended Check-in:Activity Search:Filter Groups By Gender
-            RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Filter Groups By Ability Level", 5, "54BF0279-1FBB-4537-A933-2BAD48C43063", true, false, "", "", 1, "", "765E8CED-B9DF-46E4-B030-86417DAFD75F" ); // Attended Check-in:Activity Search:Filter Groups By Ability Level
-            RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Remove Empty Groups", 6, "698115D4-7B5E-48F3-BBB0-C53A20193169", true, false, "", "", 1, "", "9089B47B-B441-41DE-84A7-710F4E3E55EF" ); // Attended Check-in:Activity Search:Remove Empty Groups
-            RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Calculate Last Attended", 7, "A2216790-9699-4213-8EB2-DDDCA54F2C03", true, false, "", "", 1, "", "32CFAB16-629D-490C-A2C4-A95731BA5931" ); // Attended Check-in:Activity Search:Calculate Last Attended
-            RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Select By Last Attended", 8, "B4E27263-BB68-46DB-9876-D0E8C26449A3", true, false, "", "", 1, "", "3CD3A5B9-33CB-44DA-9D0F-04E7BCDA9B2B" ); // Attended Check-in:Activity Search:Select By Last Attended
-            RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Select By Best Fit", 9, "B1A855F8-7ED6-49AE-8EEA-D1DCB6C7E944", true, false, "", "", 1, "", "7D482C58-34CB-4414-9607-4BD01D0C217A" ); // Attended Check-in:Activity Search:Select By Best Fit
-            RockMigrationHelper.UpdateWorkflowActionType( "BF4E1CAA-25A3-4676-BCA2-FDE2C07E8210", "Save Attendance", 0, "50B2FEE6-DB7A-43C0-9DCF-19F61CD02BC6", true, false, "", "", 1, "", "93AF3357-7AE9-47AA-8B8B-C5351490E1ED" ); // Attended Check-in:Save Attendance:Save Attendance
-            RockMigrationHelper.UpdateWorkflowActionType( "BF4E1CAA-25A3-4676-BCA2-FDE2C07E8210", "Create Labels", 1, "8F348E7B-F9FD-4600-852D-477B13B0B4EE", true, false, "", "", 1, "", "BBE6E76D-6C8E-4B8E-931C-DD3CBE9619A4" ); // Attended Check-in:Save Attendance:Create Labels
+            // Attended Check-in:Family Search:Find Families
+            RockMigrationHelper.UpdateWorkflowActionType( "B6FC7350-10E0-4255-873D-4B492B7D27FF", "Find Families", 0, "E2F172A8-88E5-4F84-9805-73164516F5FB", true, false, "", "", 1, "", "A7690077-CCB7-4AB2-A945-7BEE4861AF9E" );
+            // Attended Check-in:Person Search:Find Family Members
+            RockMigrationHelper.UpdateWorkflowActionType( "6D8CC755-0140-439A-B5A3-97D2F7681697", "Find Family Members", 0, "5794B18B-8F43-43B2-8D60-6C047AB096AF", true, false, "", "", 1, "", "62D775D6-0689-43F9-AA16-858B77FAB87C" );
+            // Attended Check-in:Person Search:Find Relationships
+            RockMigrationHelper.UpdateWorkflowActionType( "6D8CC755-0140-439A-B5A3-97D2F7681697", "Find Relationships", 1, "F43099A7-E872-439B-A750-351C741BCFEF", true, false, "", "", 1, "", "50019BF6-EF27-4F9B-A06F-6A185B5CBD39" );
+            // Attended Check-in:Person Search:Load Group Types
+            RockMigrationHelper.UpdateWorkflowActionType( "6D8CC755-0140-439A-B5A3-97D2F7681697", "Load Group Types", 2, "50D5D915-074A-41FB-9EA7-0DBE52141398", true, false, "", "", 1, "", "05DD1385-B984-4905-8EA2-3B35EAC35B99" );
+            // Attended Check-in:Activity Search:Load Groups
+            RockMigrationHelper.UpdateWorkflowActionType( "6D8CC755-0140-439A-B5A3-97D2F7681697", "Load Groups", 3, "008402A8-3A6C-4CB6-A230-6AD532505EDC", true, false, "", "", 1, "", "9DFD5255-CC94-4B88-AE2E-2FC32F35D9D9" );
+            // Attended Check-in:Activity Search:Filter Groups By Age
+            RockMigrationHelper.UpdateWorkflowActionType( "6D8CC755-0140-439A-B5A3-97D2F7681697", "Filter Groups By Age", 4, "23F1E3FD-48AE-451F-9911-A5C7523A74B6", true, false, "", "", 1, "", "5F4CAF8E-AB49-409C-8831-845A51298A26" );
+            // Attended Check-in:Activity Search:Filter Groups By Gender
+            RockMigrationHelper.UpdateWorkflowActionType( "6D8CC755-0140-439A-B5A3-97D2F7681697", "Filter Groups By Gender", 5, "DC7DB1FD-8CC8-4AC4-B0A5-B5F85FF03540", true, false, "", "", 1, "", "0DDB5AF0-F27E-4F48-84E3-CFA902B537E3" );
+            // Attended Check-in:Activity Search:Filter Groups By Ability Level
+            RockMigrationHelper.UpdateWorkflowActionType( "6D8CC755-0140-439A-B5A3-97D2F7681697", "Filter Groups By Ability Level", 6, "54BF0279-1FBB-4537-A933-2BAD48C43063", true, false, "", "", 1, "", "765E8CED-B9DF-46E4-B030-86417DAFD75F" );
+            // Attended Check-in:Activity Search:Remove Empty Groups
+            RockMigrationHelper.UpdateWorkflowActionType( "6D8CC755-0140-439A-B5A3-97D2F7681697", "Remove Empty Groups", 7, "698115D4-7B5E-48F3-BBB0-C53A20193169", true, false, "", "", 1, "", "9089B47B-B441-41DE-84A7-710F4E3E55EF" );
+            // Attended Check-in:Person Search:Remove Empty People
+            RockMigrationHelper.UpdateWorkflowActionType( "6D8CC755-0140-439A-B5A3-97D2F7681697", "Remove Empty People", 8, "B8B72812-190E-4802-A63F-E693344754BD", true, false, "", "", 1, "", "1813C89A-623C-4234-91D4-3243CA68CD03" );
+            // Attended Check-in:Activity Search:Load Locations
+            RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Load Locations", 1, "4492E36A-77C8-4DC7-8128-570FAA161ADB", true, false, "", "", 1, "", "1F342433-CE63-4FB4-88CE-00A8306ECED8" );
+            // Attended Check-in:Activity Search:Load Schedules
+            RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Load Schedules", 2, "24A7E196-B50B-4BD6-A347-07CFC5ABEF9E", true, false, "", "", 1, "", "5CD01782-54F7-405D-B857-73BDE9242761" );
+            // Attended Check-in:Activity Search:Filter Active Locations
+            RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Filter Active Locations", 3, "7BB371F9-A8DE-49D3-BEEA-C191F6C7D4A0", true, false, "", "", 1, "", "685CB9D2-EAA3-4322-81E3-289BFCAE15E7" );
+            // Attended Check-in:Activity Search:Calculate Last Attended
+            RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Calculate Last Attended", 7, "A2216790-9699-4213-8EB2-DDDCA54F2C03", true, false, "", "", 1, "", "32CFAB16-629D-490C-A2C4-A95731BA5931" );
+            // Attended Check-in:Activity Search:Select By Last Attended
+            RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Select By Last Attended", 8, "B4E27263-BB68-46DB-9876-D0E8C26449A3", true, false, "", "", 1, "", "3CD3A5B9-33CB-44DA-9D0F-04E7BCDA9B2B" );
+            // Attended Check-in:Activity Search:Select By Best Fit
+            RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Select By Best Fit", 9, "B1A855F8-7ED6-49AE-8EEA-D1DCB6C7E944", true, false, "", "", 1, "", "7D482C58-34CB-4414-9607-4BD01D0C217A" );
+            // Attended Check-in:Save Attendance:Save Attendance
+            RockMigrationHelper.UpdateWorkflowActionType( "BF4E1CAA-25A3-4676-BCA2-FDE2C07E8210", "Save Attendance", 0, "50B2FEE6-DB7A-43C0-9DCF-19F61CD02BC6", true, false, "", "", 1, "", "93AF3357-7AE9-47AA-8B8B-C5351490E1ED" );
+            // Attended Check-in:Save Attendance:Create Labels
+            RockMigrationHelper.UpdateWorkflowActionType( "BF4E1CAA-25A3-4676-BCA2-FDE2C07E8210", "Create Labels", 1, "8F348E7B-F9FD-4600-852D-477B13B0B4EE", true, false, "", "", 1, "", "BBE6E76D-6C8E-4B8E-931C-DD3CBE9619A4" );
             RockMigrationHelper.AddActionTypeAttributeValue( "A7690077-CCB7-4AB2-A945-7BEE4861AF9E", "3404112D-3A97-4AE8-B699-07F62BD37D81", @"" ); // Attended Check-in:Family Search:Find Families:Order
             RockMigrationHelper.AddActionTypeAttributeValue( "A7690077-CCB7-4AB2-A945-7BEE4861AF9E", "1C6D8BD4-1A72-41E7-A9B5-AF37613058D8", @"False" ); // Attended Check-in:Family Search:Find Families:Active
             RockMigrationHelper.AddActionTypeAttributeValue( "62D775D6-0689-43F9-AA16-858B77FAB87C", "857A277E-6824-48FA-8E7A-9988AC4BCB13", @"" ); // Attended Check-in:Person Search:Find Family Members:Order
