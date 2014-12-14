@@ -168,10 +168,9 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbDone_Click( object sender, EventArgs e )
         {
-            CurrentCheckInState.CheckIn.SearchType = null;
-            CurrentCheckInState.CheckIn.SearchValue = string.Empty;
-            SaveState();
-            NavigateToNextPage();
+            // We want to save the attendance here, but we don't want to print any labels.
+            // You shouldn't have to print a label every time in order to move forward.
+            SaveAttendance();
         }
 
         /// <summary>
