@@ -97,6 +97,7 @@
     <Compile Include="Workflow\Action\CheckIn\FilterGroupsByGender.cs" />
     <Compile Include="Workflow\Action\CheckIn\RoomBalanceByGroup.cs" />
     <Compile Include="Workflow\Action\CheckIn\RoomBalanceByLocation.cs" />
+    <Compile Include="Workflow\Action\CheckIn\SaveAttendance.cs" />
     <Compile Include="Workflow\Action\CheckIn\SelectByBestFit.cs" />
     <Compile Include="Workflow\Action\CheckIn\SelectByLastAttended.cs" />
   </ItemGroup>
