@@ -94,7 +94,6 @@
     <Compile Include="Migrations\001_AddSystemData.cs" />
     <Compile Include="Migrations\002_ReplaceCheckinConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Workflow\Action\CheckIn\SelectFirstFamily.cs" />
     <Compile Include="Workflow\Action\CheckIn\FilterGroupsByGender.cs" />
     <Compile Include="Workflow\Action\CheckIn\RoomBalanceByGroup.cs" />
     <Compile Include="Workflow\Action\CheckIn\RoomBalanceByLocation.cs" />
