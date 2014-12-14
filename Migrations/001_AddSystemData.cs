@@ -148,8 +148,8 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             RockMigrationHelper.UpdateWorkflowActionType( "6D8CC755-0140-439A-B5A3-97D2F7681697", "Filter Groups By Gender", 5, "DC7DB1FD-8CC8-4AC4-B0A5-B5F85FF03540", true, false, "", "", 1, "", "0DDB5AF0-F27E-4F48-84E3-CFA902B537E3" );
             // Attended Check-in:Activity Search:Filter Groups By Ability Level
             RockMigrationHelper.UpdateWorkflowActionType( "6D8CC755-0140-439A-B5A3-97D2F7681697", "Filter Groups By Ability Level", 6, "54BF0279-1FBB-4537-A933-2BAD48C43063", true, false, "", "", 1, "", "765E8CED-B9DF-46E4-B030-86417DAFD75F" );
-            // Attended Check-in:Activity Search:Remove Empty Groups
-            RockMigrationHelper.UpdateWorkflowActionType( "6D8CC755-0140-439A-B5A3-97D2F7681697", "Remove Empty Groups", 7, "698115D4-7B5E-48F3-BBB0-C53A20193169", true, false, "", "", 1, "", "9089B47B-B441-41DE-84A7-710F4E3E55EF" );
+            // Attended Check-in:Activity Search:Remove Empty Group Types
+            RockMigrationHelper.UpdateWorkflowActionType( "6D8CC755-0140-439A-B5A3-97D2F7681697", "Remove Empty Group Types", 7, "E998B9A7-31C9-46F6-B91C-4E5C3F06C82F", true, false, "", "", 1, "", "9089B47B-B441-41DE-84A7-710F4E3E55EF" );
             // Attended Check-in:Person Search:Remove Empty People
             RockMigrationHelper.UpdateWorkflowActionType( "6D8CC755-0140-439A-B5A3-97D2F7681697", "Remove Empty People", 8, "B8B72812-190E-4802-A63F-E693344754BD", true, false, "", "", 1, "", "1813C89A-623C-4234-91D4-3243CA68CD03" );
             // Attended Check-in:Activity Search:Load Locations
