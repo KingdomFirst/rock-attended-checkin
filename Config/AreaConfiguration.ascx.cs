@@ -21,6 +21,7 @@ using System.Linq;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using Rock;
+using Rock.Attribute;
 using Rock.Constants;
 using Rock.Data;
 using Rock.Model;
@@ -37,6 +38,8 @@ namespace RockWeb.Blocks.CheckIn.Attended
     [DisplayName( "Area Configuration" )]
     [Category( "Check-in > Attended" )]
     [Description( "Attended Check-In Configuration Block" )]
+    [BooleanField( "Display Check-in Groups", "Should check-in groups be displayed in Group Viewer?", false, "Check-in" )]
+    [BooleanField( "Create Check-in Hierarchy", "Should empty check-in groups be created for hierarchy purposes?", false, "Check-in" )]
     public partial class AreaConfiguration : RockBlock, IDetailBlock
     {
         #region Control Methods
@@ -703,6 +706,9 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 groupTypeUIList.Add( groupType );
             }
 
+            bool displayCheckinGroups = bool.Parse( GetAttributeValue( "DisplayCheck-inGroups" ) ?? "false" );
+            bool createCheckinHierarchy = bool.Parse( GetAttributeValue( "CreateCheck-inHierarchy" ) ?? "false" );
+
             var groupTypeDBList = new List<GroupType>();
 
             var groupTypesToDelete = new List<GroupType>();
@@ -716,7 +722,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             parentGroupTypeUI.ChildGroupTypes = groupTypeUIList;
 
             PopulateDeleteLists( groupTypesToDelete, groupsToDelete, parentGroupTypeDB, parentGroupTypeUI );
-            PopulateAddUpdateLists( groupTypesToAddUpdate, groupsToAddUpdate, parentGroupTypeUI );
+            PopulateAddUpdateLists( groupTypesToAddUpdate, groupsToAddUpdate, parentGroupTypeUI, createCheckinHierarchy );
 
             int binaryFileFieldTypeID = FieldTypeCache.Read( Rock.SystemGuid.FieldType.BINARY_FILE.AsGuid() ).Id;
             int binaryFileTypeId = new BinaryFileTypeService( rockContext ).Get( new Guid( Rock.SystemGuid.BinaryFiletype.CHECKIN_LABEL ) ).Id;
@@ -751,8 +757,8 @@ namespace RockWeb.Blocks.CheckIn.Attended
                         groupTypeDB.Id = 0;
                         groupTypeDB.Guid = groupTypeUI.Guid;
                         groupTypeDB.IsSystem = false;
-                        groupTypeDB.ShowInNavigation = true;
-                        groupTypeDB.ShowInGroupList = true;
+                        groupTypeDB.ShowInNavigation = displayCheckinGroups;
+                        groupTypeDB.ShowInGroupList = displayCheckinGroups;
                         groupTypeDB.TakesAttendance = true;
                         groupTypeDB.AttendanceRule = AttendanceRule.None;
                         groupTypeDB.AttendancePrintTo = PrintTo.Default;
@@ -995,7 +1001,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// <param name="groupTypesToAddUpdate">The group types to add update.</param>
         /// <param name="groupsToAddUpdate">The groups to add update.</param>
         /// <param name="groupTypeUI">The group type UI.</param>
-        private static void PopulateAddUpdateLists( List<GroupType> groupTypesToAddUpdate, List<Group> groupsToAddUpdate, GroupType groupTypeUI )
+        private static void PopulateAddUpdateLists( List<GroupType> groupTypesToAddUpdate, List<Group> groupsToAddUpdate, GroupType groupTypeUI, bool createCheckinHierarchy = false )
         {
             int groupTypeSortOrder = 0;
             int groupSortOrder = 0;
@@ -1007,10 +1013,10 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 groupTypesToAddUpdate.Add( childGroupTypeUI );
                 if ( childGroupTypeUI.Groups.Any() )
                 {
+                    // set order and optional hierarchy for child groups
                     foreach ( var groupUI in childGroupTypeUI.Groups )
                     {
-                        // set parent if child hierarchy not set
-                        if ( parentGroup != null && groupUI.ParentGroup == null )
+                        if ( createCheckinHierarchy && parentGroup != null && groupUI.ParentGroup == null )
                         {
                             groupUI.ParentGroup = new Group { Guid = parentGroup.Guid };
                         }
@@ -1018,7 +1024,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                         groupsToAddUpdate.Add( groupUI );
                     }
                 }
-                else
+                else if ( createCheckinHierarchy )
                 {
                     // create a blank group for hierarchy purposes
                     var childGroup = new Group();
