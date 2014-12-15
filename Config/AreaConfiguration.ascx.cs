@@ -1008,7 +1008,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             var parentGroup = groupTypeUI.Groups.FirstOrDefault();
             foreach ( var childGroupTypeUI in groupTypeUI.ChildGroupTypes )
             {
-                PopulateAddUpdateLists( groupTypesToAddUpdate, groupsToAddUpdate, childGroupTypeUI );
+                PopulateAddUpdateLists( groupTypesToAddUpdate, groupsToAddUpdate, childGroupTypeUI, createCheckinHierarchy );
                 childGroupTypeUI.Order = groupTypeSortOrder++;
                 groupTypesToAddUpdate.Add( childGroupTypeUI );
                 if ( childGroupTypeUI.Groups.Any() )
