@@ -118,13 +118,29 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             RockMigrationHelper.UpdateEntityType( "cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.FilterGroupsByGender", "Filter Groups By Gender", "cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.FilterGroupsByGender", false, true, "DC7DB1FD-8CC8-4AC4-B0A5-B5F85FF03540" );
             RockMigrationHelper.UpdateEntityType( "cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByBestFit", "Select By Best Fit", "cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByBestFit", false, true, "B1A855F8-7ED6-49AE-8EEA-D1DCB6C7E944" );
             RockMigrationHelper.UpdateEntityType( "cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByLastAttended", "Select By Last Attended", "cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByLastAttended", false, true, "B4E27263-BB68-46DB-9876-D0E8C26449A3" );
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "DC7DB1FD-8CC8-4AC4-B0A5-B5F85FF03540", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Active", "Active", "Should Service be used?", 0, @"False", "1EFECBBD-0F94-4BFF-BE4D-C5B90082746D" ); // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.FilterGroupsByGender:Active
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "DC7DB1FD-8CC8-4AC4-B0A5-B5F85FF03540", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Remove", "Remove", "Select 'Yes' if groups should be be removed.  Select 'No' if they should just be marked as excluded.", 0, @"True", "C908BE27-C2C9-4880-A755-D9983EEFE7E8" ); // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.FilterGroupsByGender:Remove
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "DC7DB1FD-8CC8-4AC4-B0A5-B5F85FF03540", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "Order", "Order", "The order that this service should be used (priority)", 0, @"", "AA84866B-F294-4209-890A-0901DE7C1B15" ); // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.FilterGroupsByGender:Order
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "B1A855F8-7ED6-49AE-8EEA-D1DCB6C7E944", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Active", "Active", "Should Service be used?", 0, @"False", "83F299E7-F2C9-4F0A-BA51-23D6CD0F9433" ); // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByBestFit:Active
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "B1A855F8-7ED6-49AE-8EEA-D1DCB6C7E944", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "Order", "Order", "The order that this service should be used (priority)", 0, @"", "C599F69C-7295-4F82-A9A2-C769DBAF8765" ); // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByBestFit:Order
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "B4E27263-BB68-46DB-9876-D0E8C26449A3", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Active", "Active", "Should Service be used?", 0, @"False", "8A1DBF48-1BF8-4EB8-9CDD-2D3773DD64EA" ); // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByLastAttended:Active
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "B4E27263-BB68-46DB-9876-D0E8C26449A3", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "Order", "Order", "The order that this service should be used (priority)", 0, @"", "99840778-A814-4826-A976-46CC01CC2335" ); // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByLastAttended:Order
+
+            // Set attribute defaults
+            // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.FilterGroupsByAge:Order
+            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "23F1E3FD-48AE-451F-9911-A5C7523A74B6", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "Order", "Order", "The order that this service should be used (priority)", 0, @"", "554108CF-31A1-47C0-A184-18B4A881D7FD" );
+            // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.FilterGroupsByAge:Active
+            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "23F1E3FD-48AE-451F-9911-A5C7523A74B6", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Active", "Active", "Should Service be used?", 0, @"False", "6F98731B-1C17-49F0-8B5C-1C7DBDB08A07" );
+            // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.FilterGroupsByAge:Remove
+            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "23F1E3FD-48AE-451F-9911-A5C7523A74B6", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Remove", "Remove", "Select 'Yes' if groups should be be removed.  Select 'No' if they should just be marked as excluded.", 0, @"False", "F05781E2-3517-4D20-A3BB-DA56CA025F25" );
+
+            // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.FilterGroupsByGender:Active
+            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "DC7DB1FD-8CC8-4AC4-B0A5-B5F85FF03540", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Active", "Active", "Should Service be used?", 0, @"False", "1EFECBBD-0F94-4BFF-BE4D-C5B90082746D" );
+            // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.FilterGroupsByGender:Remove
+            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "DC7DB1FD-8CC8-4AC4-B0A5-B5F85FF03540", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Remove", "Remove", "Select 'Yes' if groups should be be removed.  Select 'No' if they should just be marked as excluded.", 0, @"False", "C908BE27-C2C9-4880-A755-D9983EEFE7E8" );
+            // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.FilterGroupsByGender:Order
+            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "DC7DB1FD-8CC8-4AC4-B0A5-B5F85FF03540", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "Order", "Order", "The order that this service should be used (priority)", 0, @"", "AA84866B-F294-4209-890A-0901DE7C1B15" );
+            // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByBestFit:Active
+            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "B1A855F8-7ED6-49AE-8EEA-D1DCB6C7E944", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Active", "Active", "Should Service be used?", 0, @"False", "83F299E7-F2C9-4F0A-BA51-23D6CD0F9433" );
+            // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByBestFit:Order
+            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "B1A855F8-7ED6-49AE-8EEA-D1DCB6C7E944", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "Order", "Order", "The order that this service should be used (priority)", 0, @"", "C599F69C-7295-4F82-A9A2-C769DBAF8765" );
+            // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByLastAttended:Active
+            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "B4E27263-BB68-46DB-9876-D0E8C26449A3", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Active", "Active", "Should Service be used?", 0, @"False", "8A1DBF48-1BF8-4EB8-9CDD-2D3773DD64EA" );
+            // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByLastAttended:Order
+            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "B4E27263-BB68-46DB-9876-D0E8C26449A3", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "Order", "Order", "The order that this service should be used (priority)", 0, @"", "99840778-A814-4826-A976-46CC01CC2335" );
 
             // Attended Workflow Type
             RockMigrationHelper.UpdateWorkflowType( false, true, "Attended Check-in", "Workflow for managing attended check-in", "8F8B272D-D351-485E-86D6-3EE5B7C84D99", "Check-in", "fa fa-list-ol", 0, false, 3, "6E8CD562-A1DA-4E13-A45C-853DB56E0014" ); // Attended Check-in
@@ -194,12 +210,12 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             RockMigrationHelper.AddActionTypeAttributeValue( "05DD1385-B984-4905-8EA2-3B35EAC35B99", "1F4BD3F6-C528-4160-8478-825C3B8AC85D", @"" );
             // Attended Check-in:Person Search:Load Group Types:Active
             RockMigrationHelper.AddActionTypeAttributeValue( "05DD1385-B984-4905-8EA2-3B35EAC35B99", "1C7CD28E-ACC5-4B88-BC05-E02D72919305", @"False" );
-            // Attended Check-in:Person Search:Filter by Age:Order
-            RockMigrationHelper.AddActionTypeAttributeValue( "8D47DC02-03ED-4ABF-88A8-F1DC0772CA2B", "497F8DDB-345E-404E-9B5D-CE555EB9A572", @"" );
-            // Attended Check-in:Person Search:Filter by Age:Active
-            RockMigrationHelper.AddActionTypeAttributeValue( "8D47DC02-03ED-4ABF-88A8-F1DC0772CA2B", "161E6748-85AE-49D8-B5BA-8135F27232FB", @"False" );
-            // Attended Check-in:Person Search:Filter by Age:Remove
-            RockMigrationHelper.AddActionTypeAttributeValue( "8D47DC02-03ED-4ABF-88A8-F1DC0772CA2B", "DFFC0499-A352-40F5-9C49-143FAC0E1475", @"False" );
+            // Attended Check-in:Person Search:Filter Groups by Age:Order
+            RockMigrationHelper.AddActionTypeAttributeValue( "5F4CAF8E-AB49-409C-8831-845A51298A26", "554108CF-31A1-47C0-A184-18B4A881D7FD", @"" );
+            // Attended Check-in:Person Search:Filter Groups by Age:Active
+            RockMigrationHelper.AddActionTypeAttributeValue( "5F4CAF8E-AB49-409C-8831-845A51298A26", "6F98731B-1C17-49F0-8B5C-1C7DBDB08A07", @"False" );
+            // Attended Check-in:Person Search:Filter Groups by Age:Remove
+            RockMigrationHelper.AddActionTypeAttributeValue( "5F4CAF8E-AB49-409C-8831-845A51298A26", "F05781E2-3517-4D20-A3BB-DA56CA025F25", @"False" );
             // Attended Check-in:Person Search:Remove Empty People:Order
             RockMigrationHelper.AddActionTypeAttributeValue( "1813C89A-623C-4234-91D4-3243CA68CD03", "CFDAD883-5FAA-4EC6-B308-30BBB2EFAA94", @"" );
             // Attended Check-in:Person Search:Remove Empty People:Active
@@ -227,7 +243,7 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             // Attended Check-in:Activity Search:Filter Active Locations:Active
             RockMigrationHelper.AddActionTypeAttributeValue( "685CB9D2-EAA3-4322-81E3-289BFCAE15E7", "D6BCB113-0699-4D58-8002-BC919CB4BA04", @"False" );
             // Attended Check-in:Activity Search:Filter Active Locations:Remove
-            RockMigrationHelper.AddActionTypeAttributeValue( "685CB9D2-EAA3-4322-81E3-289BFCAE15E7", "885D28C5-A395-4A05-AEFB-6131498BDF12", @"False" );
+            RockMigrationHelper.AddActionTypeAttributeValue( "685CB9D2-EAA3-4322-81E3-289BFCAE15E7", "885D28C5-A395-4A05-AEFB-6131498BDF12", @"True" );
             // Attended Check-in:Activity Search:Filter Groups By Gender:Remove
             RockMigrationHelper.AddActionTypeAttributeValue( "0DDB5AF0-F27E-4F48-84E3-CFA902B537E3", "C908BE27-C2C9-4880-A755-D9983EEFE7E8", @"False" );
             // Attended Check-in:Activity Search:Filter Groups By Gender:Order
@@ -239,7 +255,7 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             // Attended Check-in:Activity Search:Filter Groups By Ability Level:Active
             RockMigrationHelper.AddActionTypeAttributeValue( "765E8CED-B9DF-46E4-B030-86417DAFD75F", "3F841ECB-9506-48F2-A89B-8C52C36D02E3", @"False" );
             // Attended Check-in:Activity Search:Filter Groups By Ability Level:Remove
-            RockMigrationHelper.AddActionTypeAttributeValue( "765E8CED-B9DF-46E4-B030-86417DAFD75F", "2FBA7E72-3EC1-4C77-83D8-71DF53E113C4", @"True" );
+            RockMigrationHelper.AddActionTypeAttributeValue( "765E8CED-B9DF-46E4-B030-86417DAFD75F", "2FBA7E72-3EC1-4C77-83D8-71DF53E113C4", @"False" );
             // Attended Check-in:Activity Search:Remove Empty Groups:Order
             RockMigrationHelper.AddActionTypeAttributeValue( "9089B47B-B441-41DE-84A7-710F4E3E55EF", "041E4A2B-90C6-4242-A7F1-ED07D9B348F2", @"" );
             // Attended Check-in:Activity Search:Remove Empty Groups:Active
