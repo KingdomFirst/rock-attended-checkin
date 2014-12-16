@@ -89,9 +89,9 @@ namespace RockWeb.Blocks.CheckIn.Attended
                     actions.Visible = false;
                     divNothingFound.Visible = true;
                     divNothingFound.InnerText = nothingFoundText;
-                    lbAddPerson.Visible = showAddButtons;
+                    lbAddFamilyMember.Visible = showAddButtons;
                     lbAddVisitor.Visible = showAddButtons;
-                    lbAddFamily.Visible = showAddButtons;
+                    lbNewFamily.Visible = showAddButtons;
                 }
 
                 rGridPersonResults.PageSize = 4;
@@ -99,23 +99,23 @@ namespace RockWeb.Blocks.CheckIn.Attended
         }
 
         /// <summary>
-        /// Handles the Click event of the lbBack control.
+        /// Handles the Click event of the lbClosePerson control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
-        protected void lbCloseAddPerson_Click( object sender, EventArgs e )
+        protected void lbClosePerson_Click( object sender, EventArgs e )
         {
-            ShowOrHideAddModal( "add-person-modal", false );
+            ShowOrHideModal( "add-person-modal", false );
         }
 
         /// <summary>
-        /// Handles the Click event of the lbCloseAddFamily control.
+        /// Handles the Click event of the lbCloseFamily control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
-        protected void lbCloseAddFamily_Click( object sender, EventArgs e )
+        protected void lbCloseFamily_Click( object sender, EventArgs e )
         {
-            ShowOrHideAddModal( "add-family-modal", false );
+            ShowOrHideModal( "new-family-modal", false );
         }
 
         /// <summary>
@@ -236,11 +236,11 @@ namespace RockWeb.Blocks.CheckIn.Attended
         }
 
         /// <summary>
-        /// Handles the ItemDataBound event of the lvAddFamily control.
+        /// Handles the ItemDataBound event of the lvNewFamily control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="ListViewItemEventArgs"/> instance containing the event data.</param>
-        protected void lvAddFamily_ItemDataBound( object sender, ListViewItemEventArgs e )
+        protected void lvNewFamily_ItemDataBound( object sender, ListViewItemEventArgs e )
         {
             var tbFirstName = ( RockTextBox ) e.Item.FindControl( "tbFirstName" );
             var tbLastName = ( RockTextBox ) e.Item.FindControl( "tbLastName" );
@@ -364,18 +364,6 @@ namespace RockWeb.Blocks.CheckIn.Attended
         #region Add People Events
 
         /// <summary>
-        /// Handles the Click event of the lbAddPerson control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
-        protected void lbAddPerson_Click( object sender, EventArgs e )
-        {
-            lblAddPersonHeader.Text = "Add Person";
-            personVisitorType.Value = "Person";
-            SetAddPersonFields();
-        }
-
-        /// <summary>
         /// Handles the Click event of the lbAddVisitor control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
@@ -383,7 +371,19 @@ namespace RockWeb.Blocks.CheckIn.Attended
         protected void lbAddVisitor_Click( object sender, EventArgs e )
         {
             lblAddPersonHeader.Text = "Add Visitor";
-            personVisitorType.Value = "Visitor";
+            newPersonType.Value = "Visitor";
+            SetAddPersonFields();
+        }
+
+        /// <summary>
+        /// Handles the Click event of the lbAddFamilyMember control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        protected void lbAddFamilyMember_Click( object sender, EventArgs e )
+        {
+            lblAddPersonHeader.Text = "Add Family Member";
+            newPersonType.Value = "Person";
             SetAddPersonFields();
         }
 
@@ -397,7 +397,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             if ( string.IsNullOrEmpty( tbFirstNameSearch.Text ) || string.IsNullOrEmpty( tbLastNameSearch.Text ) || string.IsNullOrEmpty( dpDOBSearch.Text ) || ddlGenderSearch.SelectedValueAsInt() == 0 )
             {
                 Page.Validate( "Person" );
-                ShowOrHideAddModal( "add-person-modal", true );
+                ShowOrHideModal( "add-person-modal", true );
             }
             else
             {
@@ -415,7 +415,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 checkInPerson.Person = CreatePerson( tbFirstNameSearch.Text, tbLastNameSearch.Text, dpDOBSearch.SelectedDate, ( int ) ddlGenderSearch.SelectedValueAsEnum<Gender>(),
                     ddlAbilitySearch.SelectedValue, ddlAbilitySearch.SelectedItem.Attributes["optiongroup"] );
 
-                if ( personVisitorType.Value != "Visitor" )
+                if ( newPersonType.Value != "Visitor" )
                 {   // Family Member
                     var groupMember = AddGroupMember( checkInFamily.Group.Id, checkInPerson.Person );
                     checkInPerson.FamilyMember = true;
@@ -440,23 +440,23 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 dpDOBSearch.Required = false;
 
                 ProcessFamily();
-                ShowOrHideAddModal( "add-person-modal", false );
+                ShowOrHideModal( "add-person-modal", false );
             }
         }
 
         /// <summary>
-        /// Handles the PagePropertiesChanging event of the lvAddFamily control.
+        /// Handles the PagePropertiesChanging event of the lvNewFamily control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="PagePropertiesChangingEventArgs"/> instance containing the event data.</param>
-        protected void lvAddFamily_PagePropertiesChanging( object sender, PagePropertiesChangingEventArgs e )
+        protected void lvNewFamily_PagePropertiesChanging( object sender, PagePropertiesChangingEventArgs e )
         {
             var newFamilyList = new List<NewPerson>();
             if ( ViewState["newFamily"] != null )
             {
                 newFamilyList = ( List<NewPerson> ) ViewState["newFamily"];
                 int personOffset = 0;
-                foreach ( ListViewItem item in lvAddFamily.Items )
+                foreach ( ListViewItem item in lvNewFamily.Items )
                 {
                     var rowPerson = new NewPerson();
                     rowPerson.FirstName = ( ( TextBox ) item.FindControl( "tbFirstName" ) ).Text;
@@ -477,14 +477,14 @@ namespace RockWeb.Blocks.CheckIn.Attended
             }
 
             ViewState["newFamily"] = newFamilyList;
-            dpAddFamily.SetPageProperties( e.StartRowIndex, e.MaximumRows, false );
-            lvAddFamily.DataSource = newFamilyList;
-            lvAddFamily.DataBind();
-            ShowOrHideAddModal( "add-family-modal", true );
+            dpNewFamily.SetPageProperties( e.StartRowIndex, e.MaximumRows, false );
+            lvNewFamily.DataSource = newFamilyList;
+            lvNewFamily.DataBind();
+            ShowOrHideModal( "new-family-modal", true );
         }
 
         /// <summary>
-        /// Handles the Click event of the lbAddPersonSearch control.
+        /// Handles the Click event of the lbPersonSearch control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
@@ -495,27 +495,27 @@ namespace RockWeb.Blocks.CheckIn.Attended
             rGridPersonResults.Visible = true;
             rGridPersonResults.PageSize = 4;
             BindPersonGrid();
-            ShowOrHideAddModal( "add-person-modal", true );
+            ShowOrHideModal( "add-person-modal", true );
         }
 
         /// <summary>
-        /// Handles the Click event of the lbAddFamily control.
+        /// Handles the Click event of the lbNewFamily control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
-        protected void lbAddFamily_Click( object sender, EventArgs e )
+        protected void lbNewFamily_Click( object sender, EventArgs e )
         {
             var newFamilyList = new List<NewPerson>();
             newFamilyList.AddRange( Enumerable.Repeat( new NewPerson(), 10 ) );
             ViewState["newFamily"] = newFamilyList;
-            lvAddFamily.DataSource = newFamilyList;
-            lvAddFamily.DataBind();
+            lvNewFamily.DataSource = newFamilyList;
+            lvNewFamily.DataBind();
 
-            ShowOrHideAddModal( "add-family-modal", true );
+            ShowOrHideModal( "new-family-modal", true );
         }
 
         /// <summary>
-        /// Handles the Click event of the lbAddFamilySave control.
+        /// Handles the Click event of the lbSaveFamily control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
@@ -527,7 +527,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             NewPerson newPerson;
 
             // add the new people
-            foreach ( ListViewItem item in lvAddFamily.Items )
+            foreach ( ListViewItem item in lvNewFamily.Items )
             {
                 newPerson = new NewPerson();
                 newPerson.FirstName = ( ( TextBox ) item.FindControl( "tbFirstName" ) ).Text;
@@ -589,12 +589,11 @@ namespace RockWeb.Blocks.CheckIn.Attended
                     var isPersonInFamily = family.People.Any( p => p.Person.Id == checkInPerson.Person.Id );
                     if ( !isPersonInFamily )
                     {
-                        if ( personVisitorType.Value != "Visitor" )
+                        if ( newPersonType.Value != "Visitor" )
                         {
                             // TODO: DT: Is this right?  Not sure this is the best way to set family id
                             var groupMember = groupMemberService.GetByPersonId( personId ).FirstOrDefault();
                             groupMember.GroupId = family.Group.Id;
-
                             rockContext.SaveChanges();
 
                             checkInPerson.FamilyMember = true;
@@ -606,12 +605,13 @@ namespace RockWeb.Blocks.CheckIn.Attended
                             checkInPerson.FamilyMember = false;
                             hfSelectedVisitor.Value += personId + ",";
                         }
+
                         checkInPerson.Selected = true;
                         family.People.Add( checkInPerson );
                         ProcessFamily();
                     }
 
-                    ShowOrHideAddModal( "add-person-modal", false );
+                    ShowOrHideModal( "add-person-modal", false );
                 }
                 else
                 {
@@ -621,7 +621,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             }
             else
             {
-                ShowOrHideAddModal( "add-person-modal", true );
+                ShowOrHideModal( "add-person-modal", true );
                 BindPersonGrid();
             }
         }
@@ -804,10 +804,15 @@ namespace RockWeb.Blocks.CheckIn.Attended
             ddlGenderSearch.Required = true;
             dpDOBSearch.Required = true;
 
-            ShowOrHideAddModal( "add-person-modal", true );
+            ShowOrHideModal( "add-person-modal", true );
         }
 
-        protected void ShowOrHideAddModal( string elementId, bool doShow )
+        /// <summary>
+        /// Shows or hides the modal.
+        /// </summary>
+        /// <param name="elementId">The element identifier.</param>
+        /// <param name="doShow">if set to <c>true</c> [do show].</param>
+        protected void ShowOrHideModal( string elementId, bool doShow )
         {
             var js = "$('.modal-backdrop').remove();";
 
