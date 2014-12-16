@@ -108,11 +108,21 @@ namespace RockWeb.Blocks.CheckIn.Attended
             ShowOrHideAddModal( "add-person-modal", false );
         }
 
+        /// <summary>
+        /// Handles the Click event of the lbCloseAddFamily control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbCloseAddFamily_Click( object sender, EventArgs e )
         {
             ShowOrHideAddModal( "add-family-modal", false );
         }
 
+        /// <summary>
+        /// Handles the Click event of the lbBack control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbBack_Click( object sender, EventArgs e )
         {
             if ( CurrentCheckInState != null && CurrentCheckInState.CheckIn != null )
@@ -385,9 +395,8 @@ namespace RockWeb.Blocks.CheckIn.Attended
         protected void lbSavePerson_Click( object sender, EventArgs e )
         {
             if ( string.IsNullOrEmpty( tbFirstNameSearch.Text ) || string.IsNullOrEmpty( tbLastNameSearch.Text ) || string.IsNullOrEmpty( dpDOBSearch.Text ) || ddlGenderSearch.SelectedValueAsInt() == 0 )
-            {   // modal takes care of the validation
+            {   
                 Page.Validate( "Person" );
-                //mpeAddPerson.Show();
                 ShowOrHideAddModal( "add-person-modal", true );
             }
             else
@@ -431,7 +440,6 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 dpDOBSearch.Required = false;
 
                 ProcessFamily();
-
                 ShowOrHideAddModal( "add-person-modal", false );
             }
         }
@@ -472,7 +480,6 @@ namespace RockWeb.Blocks.CheckIn.Attended
             dpAddFamily.SetPageProperties( e.StartRowIndex, e.MaximumRows, false );
             lvAddFamily.DataSource = newFamilyList;
             lvAddFamily.DataBind();
-            //mpeAddFamily.Show();
             ShowOrHideAddModal( "add-family-modal", true );
         }
 
@@ -488,7 +495,6 @@ namespace RockWeb.Blocks.CheckIn.Attended
             rGridPersonResults.Visible = true;
             rGridPersonResults.PageSize = 4;
             BindPersonGrid();
-            //mpeAddPerson.Show();
             ShowOrHideAddModal( "add-person-modal", true );
         }
 
@@ -505,7 +511,6 @@ namespace RockWeb.Blocks.CheckIn.Attended
             lvAddFamily.DataSource = newFamilyList;
             lvAddFamily.DataBind();
 
-            //mpeAddFamily.Show();
             ShowOrHideAddModal( "add-family-modal", true );
         }
 
@@ -606,7 +611,6 @@ namespace RockWeb.Blocks.CheckIn.Attended
                         ProcessFamily();
                     }
 
-                    //mpeAddPerson.Hide();
                     ShowOrHideAddModal( "add-person-modal", false );
                 }
                 else
@@ -617,7 +621,6 @@ namespace RockWeb.Blocks.CheckIn.Attended
             }
             else
             {
-                //mpeAddPerson.Show();
                 ShowOrHideAddModal( "add-person-modal", true );
                 BindPersonGrid();
             }
@@ -801,7 +804,6 @@ namespace RockWeb.Blocks.CheckIn.Attended
             ddlGenderSearch.Required = true;
             dpDOBSearch.Required = true;
 
-            //mpeAddPerson.Show();
             ShowOrHideAddModal( "add-person-modal", true );
         }
 
