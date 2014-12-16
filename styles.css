@@ -1,4 +1,8 @@
-﻿body {
+﻿tfoot {
+    display: none;
+}
+
+body {
     background-size: cover !important;
 }
 
@@ -32,7 +36,7 @@
     margin-top: 5px;
 }
 
-.grid {
+.grid, .grid-table {
     overflow-y: auto;
     margin-bottom: 20px;
     border-radius: 10px;
