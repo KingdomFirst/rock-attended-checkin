@@ -21,6 +21,7 @@ using System.ComponentModel.Composition;
 using System.Linq;
 
 using Rock;
+using Rock.Attribute;
 using Rock.CheckIn;
 using Rock.Data;
 using Rock.Model;
@@ -35,6 +36,8 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
     [Description( "Selects the grouptype, group, location and schedule for each person based on their best fit." )]
     [Export( typeof( ActionComponent ) )]
     [ExportMetadata( "ComponentName", "Select By Best Fit" )]
+    [BooleanField( "Room Balance By Group", "Select the group with the least number of current people.", false )]
+    [BooleanField( "Room Balance By Location", "Select the location with the least number of current people.", false )]
     public class SelectByBestFit : CheckInActionComponent
     {
         /// <summary>
@@ -48,6 +51,9 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
         /// <exception cref="System.NotImplementedException"></exception>
         public override bool Execute( RockContext rockContext, Rock.Model.WorkflowAction action, Object entity, out List<string> errorMessages )
         {
+            bool roomBalanceByGroup = bool.Parse( GetAttributeValue( action, "RoomBalanceByGroup" ) ?? "false" );
+            bool roomBalanceByLocation = bool.Parse( GetAttributeValue( action, "RoomBalanceByLocation" ) ?? "false" );
+
             var checkInState = GetCheckInState( entity, out errorMessages );
             if ( checkInState != null )
             {
@@ -65,7 +71,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                             if ( validGroupTypes.Count() == 1 || validGroupTypes.Any( gt => gt.Selected ) )
                             {
                                 bestGroupType = validGroupTypes.OrderByDescending( gt => gt.Selected ).FirstOrDefault();
-                                validGroups = bestGroupType.Groups;
+                                validGroups = bestGroupType.Groups.Where( g => !g.ExcludedByFilter ).ToList();
                             }
                             else
                             {
@@ -79,10 +85,21 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                 if ( validGroups.Count() == 1 || validGroups.Any( g => g.Selected ) )
                                 {
                                     bestGroup = validGroups.OrderByDescending( g => g.Selected ).FirstOrDefault();
-                                    validLocations = bestGroup.Locations;
+                                    validLocations = bestGroup.Locations.Where( l => !l.ExcludedByFilter ).ToList();
                                 }
                                 else
                                 {
+                                    CheckInGroup closestAbilityGroup = null;
+                                    // TODO: Get rid of LoadAttributes call when FilterGroupsByAbilityLevel does it for us so we can reduce DB calls
+                                    person.Person.LoadAttributes();
+                                    var personsAbility = person.Person.GetAttributeValue( "AbilityLevel" );
+
+                                    if ( personsAbility != null )
+                                    {
+                                        // check groups for a ability
+                                        closestAbilityGroup = validGroups.Where( g => g.Group.Attributes.ContainsKey( "AbilityLevel" ) && g.Group.GetAttributeValue( "AbilityLevel" ) == personsAbility ).FirstOrDefault();
+                                    }
+
                                     CheckInGroup closestGradeGroup = null;
                                     if ( person.Person.Grade != null )
                                     {
@@ -129,7 +146,15 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         }
                                     }
 
-                                    bestGroup = closestGradeGroup ?? closestAgeGroup ?? validGroups.FirstOrDefault();
+                                    if ( roomBalanceByGroup )
+                                    {
+                                        bestGroup = validGroups.OrderBy( g => g.Locations.Select( l => l.CurrentCount ).Sum() ).FirstOrDefault();
+                                    }
+                                    else
+                                    {
+                                        bestGroup = closestAbilityGroup ?? closestGradeGroup ?? closestAgeGroup ?? validGroups.FirstOrDefault();
+                                    }
+
                                     validLocations = bestGroup.Locations.Where( l => !l.ExcludedByFilter ).ToList();
                                 }
 
@@ -144,8 +169,17 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     }
                                     else
                                     {
-                                        bestLocation = validLocations.FirstOrDefault( l => l.Schedules.Any( s => !s.ExcludedByFilter && s.Schedule.IsCheckInActive ) );
-                                        validSchedules = validLocations.SelectMany( l => l.Schedules.Where( s => !s.ExcludedByFilter && s.Schedule.IsCheckInActive ) ).ToList();
+                                        if ( roomBalanceByLocation )
+                                        {
+                                            bestLocation = validLocations.Where( l => l.Schedules.Any( s => !s.ExcludedByFilter && s.Schedule.IsCheckInActive ) )
+                                                .OrderBy( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).FirstOrDefault();
+                                            validSchedules = bestLocation.Schedules.Where( s => !s.ExcludedByFilter && s.Schedule.IsCheckInActive ).ToList();
+                                        }
+                                        else
+                                        {
+                                            bestLocation = validLocations.FirstOrDefault( l => l.Schedules.Any( s => !s.ExcludedByFilter && s.Schedule.IsCheckInActive ) );
+                                            validSchedules = validLocations.SelectMany( l => l.Schedules.Where( s => !s.ExcludedByFilter && s.Schedule.IsCheckInActive ) ).ToList();
+                                        }
                                     }
 
                                     if ( validSchedules.Any() )
