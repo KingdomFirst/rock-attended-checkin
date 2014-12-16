@@ -30,11 +30,11 @@ namespace Rock.Workflow.Action.CheckIn
     /// <summary>
     /// Saves the selected check-in data as attendance
     /// </summary>
-    [Description("Saves the selected check-in data as attendance")]
-    [Export(typeof(ActionComponent))]
+    [Description( "Saves the selected check-in data as attendance" )]
+    [Export( typeof( ActionComponent ) )]
     [ExportMetadata( "ComponentName", "Save Attendance" )]
     [IntegerField( "Security Code Length", "The number of characters to use for the security code.", true, 3 )]
-    [BooleanField( "Reuse Code For Family", "By default a unique security code is created for each person in the family.  Select this option to use one security code for the entire family." )]    
+    [BooleanField( "Reuse Code For Family", "By default a unique security code is created for each person.  Select this option to use one security code per family.", false )]
     public class SaveAttendance : CheckInActionComponent
     {
         /// <summary>
@@ -54,7 +54,7 @@ namespace Rock.Workflow.Action.CheckIn
                 string securityCode = "";
                 int securityCodeId = 0;
                 bool reuseCodeForFamily = false;
-                if (bool.TryParse(GetAttributeValue(action, "ReuseCodeForFamily"), out reuseCodeForFamily) && reuseCodeForFamily)
+                if ( bool.TryParse( GetAttributeValue( action, "ReuseCodeForFamily" ), out reuseCodeForFamily ) && reuseCodeForFamily )
                 {
                     reuseCodeForFamily = true;
                 }
@@ -70,19 +70,19 @@ namespace Rock.Workflow.Action.CheckIn
                 var attendanceCodeService = new AttendanceCodeService( rockContext );
                 var attendanceService = new AttendanceService( rockContext );
                 var groupMemberService = new GroupMemberService( rockContext );
-                var personAliasService = new PersonAliasService(rockContext);
+                var personAliasService = new PersonAliasService( rockContext );
 
                 foreach ( var family in checkInState.CheckIn.Families.Where( f => f.Selected ) )
                 {
                     foreach ( var person in family.People.Where( p => p.Selected ) )
                     {
-                        if (reuseCodeForFamily && securityCode != "")
+                        if ( reuseCodeForFamily && securityCode != "" )
                         {
                             person.SecurityCode = securityCode;
                         }
                         else
                         {
-                            var attendanceCode = AttendanceCodeService.GetNew(securityCodeLength);
+                            var attendanceCode = AttendanceCodeService.GetNew( securityCodeLength );
                             person.SecurityCode = attendanceCode.Code;
                             securityCode = attendanceCode.Code;
                             securityCodeId = attendanceCode.Id;
@@ -146,7 +146,6 @@ namespace Rock.Workflow.Action.CheckIn
             }
 
             return false;
-
         }
     }
 }

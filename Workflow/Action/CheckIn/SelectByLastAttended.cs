@@ -20,6 +20,7 @@ using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Linq;
 
+using Rock.Attribute;
 using Rock.Data;
 using Rock.Workflow;
 using Rock.Workflow.Action.CheckIn;
@@ -32,6 +33,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
     [Description( "Selects the grouptype, group, location and schedule for each person based on what they last checked into." )]
     [Export( typeof( ActionComponent ) )]
     [ExportMetadata( "ComponentName", "Select By Last Attended" )]
+    [IntegerField( "Number Of Services", "The maximum number of services to select.", true, 1 )]
     public class SelectByLastAttended : CheckInActionComponent
     {
         /// <summary>
@@ -79,7 +81,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     }
                                 }
                             }
-                        }                        
+                        }
                     }
                 }
 
