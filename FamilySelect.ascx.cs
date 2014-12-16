@@ -885,7 +885,18 @@ namespace RockWeb.Blocks.CheckIn.Attended
             ps.Add( person );
             rockContext.SaveChanges();
 
-            if ( !string.IsNullOrWhiteSpace( ability ) && abilityGroup == "Ability" )
+            // Every person should have an alias record with same id.  If it's missing, create it
+            if (!person.Aliases.Any(a => a.AliasPersonId == person.Id))
+            {
+                var thisPerson = ps.Get(person.Id);
+                if (thisPerson != null)
+                {
+                    thisPerson.Aliases.Add(new PersonAlias { AliasPersonId = thisPerson.Id, AliasPersonGuid = thisPerson.Guid });
+                    rockContext.SaveChanges();
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(ability) && abilityGroup == "Ability")
             {
                 rockContext = new RockContext();
                 Person p = new PersonService( rockContext ).Get( person.Id );
