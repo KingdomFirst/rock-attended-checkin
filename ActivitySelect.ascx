@@ -27,53 +27,9 @@
                 </Rock:BootstrapButton>
             </div>
         </div>
-                
-        <div class="row checkin-body">
-            <div class="col-xs-3">
-                <asp:UpdatePanel ID="pnlGroupTypes" runat="server" UpdateMode="Conditional">
-                <ContentTemplate>     
-                    <h3>GroupType</h3>
-                    <asp:ListView ID="rGroupType" runat="server" OnItemCommand="rGroupType_ItemCommand" OnItemDataBound="rGroupType_ItemDataBound">
-                        <ItemTemplate>
-                            <asp:LinkButton ID="lbGroupType" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" CausesValidation="false" />
-                        </ItemTemplate>
-                    </asp:ListView>   
-                </ContentTemplate>
-                </asp:UpdatePanel>
-            </div>
 
-            <div class="col-xs-3">
-                <asp:UpdatePanel ID="pnlLocations" runat="server" UpdateMode="Conditional">
-                <ContentTemplate>                        
-                    <h3>Location</h3>
-                    <asp:ListView ID="lvLocation" runat="server" OnPagePropertiesChanging="lvLocation_PagePropertiesChanging" OnItemCommand="lvLocation_ItemCommand" OnItemDataBound="lvLocation_ItemDataBound">
-                        <ItemTemplate>
-                            <asp:LinkButton ID="lbLocation" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" ></asp:LinkButton>
-                        </ItemTemplate>
-                    </asp:ListView>
-                    <asp:DataPager ID="Pager" runat="server" PageSize="5" PagedControlID="lvLocation">
-                        <Fields>
-                            <asp:NextPreviousPagerField ButtonType="Button" ButtonCssClass="pagination btn btn-primary btn-checkin-select" />
-                        </Fields>
-                    </asp:DataPager>                
-                </ContentTemplate>
-                </asp:UpdatePanel>
-            </div>
-
-            <div class="col-xs-3">
-                <asp:UpdatePanel ID="pnlSchedules" runat="server" UpdateMode="Conditional">
-                <ContentTemplate>        
-                    <h3>Schedule</h3>
-                    <asp:Repeater ID="rSchedule" runat="server" OnItemCommand="rSchedule_ItemCommand" OnItemDataBound="rSchedule_ItemDataBound">
-                        <ItemTemplate>
-                            <asp:LinkButton ID="lbSchedule" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" CausesValidation="false" />
-                        </ItemTemplate>
-                    </asp:Repeater>
-                </ContentTemplate>
-                </asp:UpdatePanel>
-            </div>
-
-            <div class="col-xs-3 selected-grid">
+        <div class="row">
+            <div class="col-xs-12 selected-grid">
                 <h3>Selected</h3>
                 <asp:UpdatePanel ID="pnlSelected" runat="server" UpdateMode="Conditional">
                 <ContentTemplate> 
@@ -91,6 +47,52 @@
                 </ContentTemplate>
                 </asp:UpdatePanel>
             </div>
+        </div>
+                
+        <div class="row checkin-body">
+            <div class="col-xs-4">
+                <asp:UpdatePanel ID="pnlGroupTypes" runat="server" UpdateMode="Conditional">
+                <ContentTemplate>     
+                    <h3>GroupType</h3>
+                    <asp:ListView ID="rGroupType" runat="server" OnItemCommand="rGroupType_ItemCommand" OnItemDataBound="rGroupType_ItemDataBound">
+                        <ItemTemplate>
+                            <asp:LinkButton ID="lbGroupType" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" CausesValidation="false" />
+                        </ItemTemplate>
+                    </asp:ListView>   
+                </ContentTemplate>
+                </asp:UpdatePanel>
+            </div>
+
+            <div class="col-xs-4">
+                <asp:UpdatePanel ID="pnlLocations" runat="server" UpdateMode="Conditional">
+                <ContentTemplate>                        
+                    <h3>Location</h3>
+                    <asp:ListView ID="lvLocation" runat="server" OnPagePropertiesChanging="lvLocation_PagePropertiesChanging" OnItemCommand="lvLocation_ItemCommand" OnItemDataBound="lvLocation_ItemDataBound">
+                        <ItemTemplate>
+                            <asp:LinkButton ID="lbLocation" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" ></asp:LinkButton>
+                        </ItemTemplate>
+                    </asp:ListView>
+                    <asp:DataPager ID="Pager" runat="server" PageSize="3" PagedControlID="lvLocation">
+                        <Fields>
+                            <asp:NextPreviousPagerField ButtonType="Button" ButtonCssClass="pagination btn btn-primary btn-checkin-select" />
+                        </Fields>
+                    </asp:DataPager>                
+                </ContentTemplate>
+                </asp:UpdatePanel>
+            </div>
+
+            <div class="col-xs-4">
+                <asp:UpdatePanel ID="pnlSchedules" runat="server" UpdateMode="Conditional">
+                <ContentTemplate>        
+                    <h3>Schedule</h3>
+                    <asp:Repeater ID="rSchedule" runat="server" OnItemCommand="rSchedule_ItemCommand" OnItemDataBound="rSchedule_ItemDataBound">
+                        <ItemTemplate>
+                            <asp:LinkButton ID="lbSchedule" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" CausesValidation="false" />
+                        </ItemTemplate>
+                    </asp:Repeater>
+                </ContentTemplate>
+                </asp:UpdatePanel>
+            </div>            
         </div>
 
         <div class="row at-the-bottom">
