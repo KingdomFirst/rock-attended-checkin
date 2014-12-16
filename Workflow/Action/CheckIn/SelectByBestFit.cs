@@ -57,133 +57,119 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                     foreach ( var person in family.People.Where( f => f.Selected ) )
                     {
                         char[] delimiter = { ',' };
-                        if ( person.GroupTypes.Any() )
+                        var validGroupTypes = person.GroupTypes.Where( gt => !gt.ExcludedByFilter );
+                        if ( validGroupTypes.Any() )
                         {
-                            CheckInGroupType groupType;
-                            if ( person.GroupTypes.Count > 1 )
+                            List<CheckInGroup> validGroups;
+                            CheckInGroupType bestGroupType = null;
+                            if ( validGroupTypes.Count() == 1 || validGroupTypes.Any( gt => gt.Selected ) )
                             {
-                                // check grouptypes for a grade range
-                                var gradeFilter = person.GroupTypes.Where(
-                                    gt => gt.Groups.Any(
-                                        g => g.Group.Attributes.ContainsKey( "GradeRange" )
-                                    )
-                                ).Select( gt =>
-                                    new
-                                    {
-                                        GroupType = gt,
-                                        GradeRange = gt.Groups.First(
-                                            g => g.Group.Attributes.ContainsKey( "GradeRange" )
-                                        ).Group.GetAttributeValue( "GradeRange" ).Split(
-                                            delimiter, StringSplitOptions.None
-                                        ).Select( av => av.AsType<int?>() )
-                                    }
-                                ).ToList();
-
-                                // #TODO: Test the upper value of grade and age ranges
-                                Rock.CheckIn.CheckInGroupType groupTypeMatchGrade = null;
-                                if ( gradeFilter.Count > 0 )
-                                {
-                                    groupTypeMatchGrade = gradeFilter.Aggregate((x, y) => Math.Abs(Convert.ToDouble(x.GradeRange.First() - person.Person.Grade))
-                                            < Math.Abs(Convert.ToDouble(y.GradeRange.First() - person.Person.Grade)) ? x : y)
-                                                .GroupType;
-                                }
-
-                                // check grouptypes for an age range
-                                var ageFilter = person.GroupTypes.Where(
-                                    gt => gt.Groups.Any(
-                                        g => g.Group.Attributes.ContainsKey( "AgeRange" )
-                                    )
-                                ).Select( g =>
-                                        new
-                                        {
-                                            GroupType = g,
-                                            AgeRange = g.Groups.First( gr => gr.Group.Attributes.ContainsKey( "AgeRange" ) ).Group.GetAttributeValue( "AgeRange" ).Split( delimiter, StringSplitOptions.None )
-                                                .Select( av => av.AsType<double?>() )
-                                        } ).ToList();
-
-                                Rock.CheckIn.CheckInGroupType groupTypeMatchAge = null;
-                                if (ageFilter.Count > 0)
-                                {
-                                    groupTypeMatchAge = ageFilter.Aggregate((x, y) => Math.Abs(Convert.ToDouble(x.AgeRange.First() - person.Person.Age))
-                                            < Math.Abs(Convert.ToDouble(y.AgeRange.First() - person.Person.Age)) ? x : y)
-                                                .GroupType;
-                                }
-
-                                groupType = groupTypeMatchGrade ?? groupTypeMatchAge;
+                                bestGroupType = validGroupTypes.OrderByDescending( gt => gt.Selected ).FirstOrDefault();
+                                validGroups = bestGroupType.Groups;
                             }
                             else
-                            {   // only one grouptype is available
-                                groupType = person.GroupTypes.FirstOrDefault();
+                            {
+                                validGroups = validGroupTypes.SelectMany( gt => gt.Groups.Where( g => !g.ExcludedByFilter ) ).ToList();
                             }
 
-                            if ( groupType != null && groupType.Groups.Any() )
+                            if ( validGroups.Any() )
                             {
-                                groupType.PreSelected = true;
-                                groupType.Selected = true;
-
-                                var group = groupType.Groups.Where( g => g.Selected ).FirstOrDefault();
-                                if ( group == null && groupType.Groups.Any() )
+                                CheckInGroup bestGroup = null;
+                                List<CheckInLocation> validLocations;
+                                if ( validGroups.Count() == 1 || validGroups.Any( g => g.Selected ) )
                                 {
-                                    //  check groups by grade
-                                    var gradeGroups = groupType.Groups.Where( g => g.Group.Attributes.ContainsKey( "GradeRange" ) ).Select( g =>
-                                        new
-                                        {
-                                            Group = g,
-                                            GradeRange = g.Group.GetAttributeValue( "GradeRange" ).Split( delimiter, StringSplitOptions.None )
-                                                .Select( av => av.AsType<int?>() )
-                                        } ).ToList();
-
-                                    CheckInGroup groupMatchGrade = null;
-                                    if ( gradeGroups.Count > 0 )
+                                    bestGroup = validGroups.OrderByDescending( g => g.Selected ).FirstOrDefault();
+                                    validLocations = bestGroup.Locations;
+                                }
+                                else
+                                {
+                                    CheckInGroup closestGradeGroup = null;
+                                    if ( person.Person.Grade != null )
                                     {
-                                        groupMatchGrade = gradeGroups.Aggregate( ( x, y ) => Math.Abs( Convert.ToDouble( x.GradeRange.First() - person.Person.Grade ) )
-                                                < Math.Abs( Convert.ToDouble( y.GradeRange.First() - person.Person.Grade ) ) ? x : y )
-                                                    .Group;
+                                        // check groups for a grade range
+                                        var gradeFilteredGroups = validGroups.Where( g => g.Group.Attributes.ContainsKey( "GradeRange" ) )
+                                            .Select( g => new
+                                            {
+                                                Group = g,
+                                                GradeRange = g.Group.GetAttributeValue( "GradeRange" )
+                                                    .Split( delimiter, StringSplitOptions.None )
+                                                    .Select( av => av.AsType<decimal>() )
+                                            }
+                                            ).ToList();
+
+                                        if ( gradeFilteredGroups.Count > 0 )
+                                        {
+                                            decimal grade = (decimal)person.Person.Grade;
+                                            closestGradeGroup = gradeFilteredGroups.Aggregate( ( x, y ) =>
+                                                Math.Abs( x.GradeRange.First() - grade ) < Math.Abs( y.GradeRange.First() - grade ) ? x : y )
+                                                .Group;
+                                        }
                                     }
 
-                                    // check groups by age
-                                    var ageGroups = groupType.Groups.Where( g => g.Group.Attributes.ContainsKey( "AgeRange" ) ).Select( g =>
-                                        new
-                                        {
-                                            Group = g,
-                                            AgeRange = g.Group.GetAttributeValue( "AgeRange" ).Split( delimiter, StringSplitOptions.None )
-                                                .Select( av => av.AsType<double?>() )
-                                        } ).ToList();
-
-                                    CheckInGroup groupMatchAge = null;
-                                    if ( ageGroups.Count > 0 )
+                                    CheckInGroup closestAgeGroup = null;
+                                    if ( person.Person.Age != null )
                                     {
-                                        groupMatchAge = ageGroups.Aggregate( ( x, y ) => Math.Abs( Convert.ToDouble( x.AgeRange.First() - person.Person.Age ) )
-                                                < Math.Abs( Convert.ToDouble( y.AgeRange.First() - person.Person.Age ) ) ? x : y )
-                                                    .Group;
+                                        // check groups for an age range
+                                        var ageFilteredGroups = validGroups.Where( g => g.Group.Attributes.ContainsKey( "AgeRange" ) )
+                                            .Select( g => new
+                                            {
+                                                Group = g,
+                                                AgeRange = g.Group.GetAttributeValue( "AgeRange" )
+                                                    .Split( delimiter, StringSplitOptions.None )
+                                                    .Select( av => av.AsType<decimal>() )
+                                            }
+                                            ).ToList();
+
+                                        if ( ageFilteredGroups.Count > 0 )
+                                        {
+                                            decimal age = (decimal)person.Person.AgePrecise;
+                                            closestAgeGroup = ageFilteredGroups.Aggregate( ( x, y ) =>
+                                                Math.Abs( x.AgeRange.First() - age ) < Math.Abs( y.AgeRange.First() - age ) ? x : y )
+                                                .Group;
+                                        }
                                     }
 
-                                    group = groupMatchGrade ?? groupMatchAge ?? groupType.Groups.FirstOrDefault();
+                                    bestGroup = closestGradeGroup ?? closestAgeGroup ?? validGroups.FirstOrDefault();
+                                    validLocations = bestGroup.Locations.Where( l => !l.ExcludedByFilter ).ToList();
                                 }
 
-                                if ( group != null && group.Locations.Any() )
+                                if ( validLocations.Any() )
                                 {
-                                    group.PreSelected = true;
-                                    group.Selected = true;
-                                    var location = group.Locations.Where( l => l.Selected ).FirstOrDefault();
-                                    if ( location == null )
+                                    CheckInLocation bestLocation = null;
+                                    List<CheckInSchedule> validSchedules;
+                                    if ( validLocations.Count() == 1 || validLocations.Any( g => g.Selected ) )
                                     {
-                                        // this works when a group is only meeting at one location per campus
-                                        int primaryGroupLocationId = new GroupLocationService( rockContext ).Queryable().Where( gl => gl.GroupId == group.Group.Id )
-                                            .Select( gl => gl.LocationId ).ToList().FirstOrDefault();
-                                        location = group.Locations.Where( l => l.Location.Id == primaryGroupLocationId ).FirstOrDefault();
+                                        bestLocation = validLocations.OrderByDescending( g => g.Selected ).FirstOrDefault();
+                                        validSchedules = bestLocation.Schedules.Where( l => !l.ExcludedByFilter ).ToList();
+                                    }
+                                    else
+                                    {
+                                        bestLocation = validLocations.FirstOrDefault( l => l.Schedules.Any( s => !s.ExcludedByFilter && s.Schedule.IsCheckInActive ) );
+                                        validSchedules = validLocations.SelectMany( l => l.Schedules.Where( s => !s.ExcludedByFilter && s.Schedule.IsCheckInActive ) ).ToList();
                                     }
 
-                                    if ( location != null && location.Schedules.Any() )
+                                    if ( validSchedules.Any() )
                                     {
-                                        location.PreSelected = true;
-                                        location.Selected = true;
-                                        var schedule = location.Schedules.Where( s => s.Selected ).FirstOrDefault();
-                                        if ( schedule == null )
+                                        var bestSchedule = validSchedules.OrderByDescending( s => s.Selected ).FirstOrDefault();
+                                        bestSchedule.Selected = true;
+                                        bestSchedule.PreSelected = true;
+
+                                        if ( bestLocation != null )
                                         {
-                                            schedule = location.Schedules.FirstOrDefault();
-                                            schedule.PreSelected = true;
-                                            schedule.Selected = true;
+                                            bestLocation.PreSelected = true;
+                                            bestLocation.Selected = true;
+
+                                            if ( bestGroup != null )
+                                            {
+                                                bestGroup.PreSelected = true;
+                                                bestGroup.Selected = true;
+
+                                                if ( bestGroupType != null )
+                                                {
+                                                    bestGroupType.Selected = true;
+                                                    bestGroupType.PreSelected = true;
+                                                }
+                                            }
                                         }
                                     }
                                 }
