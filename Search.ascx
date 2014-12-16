@@ -57,9 +57,9 @@
                 </div>
                 <div class="col-xs-3"></div>
             </div>
-            <div class="row checkin-footer">
+            <div class="row checkin-footer at-the-bottom">
                 <div class="col-xs-3">
-                    <Rock:BootstrapButton ID="lbAdmin" runat="server" CssClass="btn btn-primary" OnClick="lbAdmin_Click" EnableViewState="false" />
+                    <Rock:BootstrapButton ID="lbAdmin" runat="server" CssClass="btn btn-primary" OnClick="lbAdmin_Click" EnableViewState="false" Visible="false" />
                 </div>
             </div>
         </asp:Panel>
