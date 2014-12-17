@@ -1032,7 +1032,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             {
                 var knownRelationshipGroupType = GroupTypeCache.Read( new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_KNOWN_RELATIONSHIPS_OWNER ) );
                 var canCheckInRole = knownRelationshipGroupType.Roles.FirstOrDefault( r =>
-                        r.Guid.Equals( new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_KNOWN_RELATIONSHIPS_CAN_CHECK_IN ) );
+                        r.Guid == new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_KNOWN_RELATIONSHIPS_CAN_CHECK_IN ) );
 
                 if ( canCheckInRole != null )
                 {
