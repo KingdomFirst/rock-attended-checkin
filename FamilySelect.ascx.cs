@@ -177,7 +177,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             }
         }
 
-        #endregion
+        #endregion Control Methods
 
         #region Load Methods
 
@@ -190,9 +190,9 @@ namespace RockWeb.Blocks.CheckIn.Attended
         {
             if ( e.Item.ItemType == ListViewItemType.DataItem )
             {
-                if ( ( (CheckInFamily)e.Item.DataItem ).Selected )
+                if ( ( ( CheckInFamily ) e.Item.DataItem ).Selected )
                 {
-                    ( (LinkButton)e.Item.FindControl( "lbSelectFamily" ) ).AddCssClass( "active" );
+                    ( ( LinkButton ) e.Item.FindControl( "lbSelectFamily" ) ).AddCssClass( "active" );
                 }
             }
         }
@@ -206,10 +206,10 @@ namespace RockWeb.Blocks.CheckIn.Attended
         {
             if ( e.Item.ItemType == ListViewItemType.DataItem )
             {
-                var person = (CheckInPerson)e.Item.DataItem;
+                var person = ( CheckInPerson ) e.Item.DataItem;
                 if ( person.Selected )
                 {
-                    var lbSelectPerson = (LinkButton)e.Item.FindControl( "lbSelectPerson" );
+                    var lbSelectPerson = ( LinkButton ) e.Item.FindControl( "lbSelectPerson" );
                     lbSelectPerson.AddCssClass( "active" );
                     lbSelectPerson.CommandArgument = person.Person.Id.ToString();
                 }
@@ -225,10 +225,10 @@ namespace RockWeb.Blocks.CheckIn.Attended
         {
             if ( e.Item.ItemType == ListViewItemType.DataItem )
             {
-                var person = (CheckInPerson)e.Item.DataItem;
+                var person = ( CheckInPerson ) e.Item.DataItem;
                 if ( person.Selected )
                 {
-                    var lbSelectVisitor = (LinkButton)e.Item.FindControl( "lbSelectVisitor" );
+                    var lbSelectVisitor = ( LinkButton ) e.Item.FindControl( "lbSelectVisitor" );
                     lbSelectVisitor.AddCssClass( "active" );
                     lbSelectVisitor.CommandArgument = person.Person.Id.ToString();
                 }
@@ -242,15 +242,15 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// <param name="e">The <see cref="ListViewItemEventArgs"/> instance containing the event data.</param>
         protected void lvAddFamily_ItemDataBound( object sender, ListViewItemEventArgs e )
         {
-            var tbFirstName = (RockTextBox)e.Item.FindControl( "tbFirstName" );
-            var tbLastName = (RockTextBox)e.Item.FindControl( "tbLastName" );
-            var dpBirthDate = (DatePicker)e.Item.FindControl( "dpBirthDate" );
-            var ddlGender = (RockDropDownList)e.Item.FindControl( "ddlGender" );
+            var tbFirstName = ( RockTextBox ) e.Item.FindControl( "tbFirstName" );
+            var tbLastName = ( RockTextBox ) e.Item.FindControl( "tbLastName" );
+            var dpBirthDate = ( DatePicker ) e.Item.FindControl( "dpBirthDate" );
+            var ddlGender = ( RockDropDownList ) e.Item.FindControl( "ddlGender" );
             ddlGender.BindToEnum<Gender>();
-            BindAbilityGrade( (RockDropDownList)e.Item.FindControl( "ddlAbilityGrade" ) );
+            BindAbilityGrade( ( RockDropDownList ) e.Item.FindControl( "ddlAbilityGrade" ) );
         }
 
-        #endregion
+        #endregion Load Methods
 
         #region Select People Events
 
@@ -266,13 +266,13 @@ namespace RockWeb.Blocks.CheckIn.Attended
 
             foreach ( ListViewDataItem li in lvFamily.Items )
             {
-                ( (LinkButton)li.FindControl( "lbSelectFamily" ) ).RemoveCssClass( "active" );
+                ( ( LinkButton ) li.FindControl( "lbSelectFamily" ) ).RemoveCssClass( "active" );
             }
 
             if ( !family.Selected )
             {
                 CurrentCheckInState.CheckIn.Families.ForEach( f => f.Selected = false );
-                ( (LinkButton)e.Item.FindControl( "lbSelectFamily" ) ).AddCssClass( "active" );
+                ( ( LinkButton ) e.Item.FindControl( "lbSelectFamily" ) ).AddCssClass( "active" );
                 family.Selected = true;
                 ProcessFamily();
             }
@@ -359,7 +359,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             pnlVisitor.Update();
         }
 
-        #endregion
+        #endregion Select People Events
 
         #region Add People Events
 
@@ -395,7 +395,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
         protected void lbSavePerson_Click( object sender, EventArgs e )
         {
             if ( string.IsNullOrEmpty( tbFirstNameSearch.Text ) || string.IsNullOrEmpty( tbLastNameSearch.Text ) || string.IsNullOrEmpty( dpDOBSearch.Text ) || ddlGenderSearch.SelectedValueAsInt() == 0 )
-            {   
+            {
                 Page.Validate( "Person" );
                 ShowOrHideAddModal( "add-person-modal", true );
             }
@@ -412,7 +412,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 }
 
                 var checkInPerson = new CheckInPerson();
-                checkInPerson.Person = CreatePerson( tbFirstNameSearch.Text, tbLastNameSearch.Text, dpDOBSearch.SelectedDate, (int)ddlGenderSearch.SelectedValueAsEnum<Gender>(),
+                checkInPerson.Person = CreatePerson( tbFirstNameSearch.Text, tbLastNameSearch.Text, dpDOBSearch.SelectedDate, ( int ) ddlGenderSearch.SelectedValueAsEnum<Gender>(),
                     ddlAbilitySearch.SelectedValue, ddlAbilitySearch.SelectedItem.Attributes["optiongroup"] );
 
                 if ( personVisitorType.Value != "Visitor" )
@@ -454,17 +454,17 @@ namespace RockWeb.Blocks.CheckIn.Attended
             var newFamilyList = new List<NewPerson>();
             if ( ViewState["newFamily"] != null )
             {
-                newFamilyList = (List<NewPerson>)ViewState["newFamily"];
+                newFamilyList = ( List<NewPerson> ) ViewState["newFamily"];
                 int personOffset = 0;
                 foreach ( ListViewItem item in lvAddFamily.Items )
                 {
                     var rowPerson = new NewPerson();
-                    rowPerson.FirstName = ( (TextBox)item.FindControl( "tbFirstName" ) ).Text;
-                    rowPerson.LastName = ( (TextBox)item.FindControl( "tbLastName" ) ).Text;
-                    rowPerson.BirthDate = ( (DatePicker)item.FindControl( "dpBirthDate" ) ).SelectedDate;
-                    rowPerson.Gender = ( (RockDropDownList)item.FindControl( "ddlGender" ) ).SelectedValueAsEnum<Gender>();
-                    rowPerson.Ability = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedValue;
-                    rowPerson.AbilityGroup = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedItem.Attributes["optiongroup"];
+                    rowPerson.FirstName = ( ( TextBox ) item.FindControl( "tbFirstName" ) ).Text;
+                    rowPerson.LastName = ( ( TextBox ) item.FindControl( "tbLastName" ) ).Text;
+                    rowPerson.BirthDate = ( ( DatePicker ) item.FindControl( "dpBirthDate" ) ).SelectedDate;
+                    rowPerson.Gender = ( ( RockDropDownList ) item.FindControl( "ddlGender" ) ).SelectedValueAsEnum<Gender>();
+                    rowPerson.Ability = ( ( RockDropDownList ) item.FindControl( "ddlAbilityGrade" ) ).SelectedValue;
+                    rowPerson.AbilityGroup = ( ( RockDropDownList ) item.FindControl( "ddlAbilityGrade" ) ).SelectedItem.Attributes["optiongroup"];
                     newFamilyList[System.Math.Abs( e.StartRowIndex - e.MaximumRows ) + personOffset] = rowPerson;
                     personOffset++;
 
@@ -521,7 +521,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbSaveFamily_Click( object sender, EventArgs e )
         {
-            var newFamilyList = (List<NewPerson>)ViewState["newFamily"];
+            var newFamilyList = ( List<NewPerson> ) ViewState["newFamily"];
             var checkInFamily = new CheckInFamily();
             CheckInPerson checkInPerson;
             NewPerson newPerson;
@@ -530,12 +530,12 @@ namespace RockWeb.Blocks.CheckIn.Attended
             foreach ( ListViewItem item in lvAddFamily.Items )
             {
                 newPerson = new NewPerson();
-                newPerson.FirstName = ( (TextBox)item.FindControl( "tbFirstName" ) ).Text;
-                newPerson.LastName = ( (TextBox)item.FindControl( "tbLastName" ) ).Text;
-                newPerson.BirthDate = ( (DatePicker)item.FindControl( "dpBirthDate" ) ).SelectedDate;
-                newPerson.Gender = ( (RockDropDownList)item.FindControl( "ddlGender" ) ).SelectedValueAsEnum<Gender>();
-                newPerson.Ability = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedValue;
-                newPerson.AbilityGroup = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedItem.Attributes["optiongroup"];
+                newPerson.FirstName = ( ( TextBox ) item.FindControl( "tbFirstName" ) ).Text;
+                newPerson.LastName = ( ( TextBox ) item.FindControl( "tbLastName" ) ).Text;
+                newPerson.BirthDate = ( ( DatePicker ) item.FindControl( "dpBirthDate" ) ).SelectedDate;
+                newPerson.Gender = ( ( RockDropDownList ) item.FindControl( "ddlGender" ) ).SelectedValueAsEnum<Gender>();
+                newPerson.Ability = ( ( RockDropDownList ) item.FindControl( "ddlAbilityGrade" ) ).SelectedValue;
+                newPerson.AbilityGroup = ( ( RockDropDownList ) item.FindControl( "ddlAbilityGrade" ) ).SelectedItem.Attributes["optiongroup"];
                 newFamilyList.Add( newPerson );
             }
 
@@ -545,7 +545,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             // create people and add to checkin
             foreach ( NewPerson np in newFamilyList.Where( np => np.IsValid() ) )
             {
-                var person = CreatePerson( np.FirstName, np.LastName, np.BirthDate, (int)np.Gender, np.Ability, np.AbilityGroup );
+                var person = CreatePerson( np.FirstName, np.LastName, np.BirthDate, ( int ) np.Gender, np.Ability, np.AbilityGroup );
                 var groupMember = AddGroupMember( familyGroup.Id, person );
                 familyGroup.Members.Add( groupMember );
                 checkInPerson = new CheckInPerson();
@@ -636,7 +636,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             BindPersonGrid();
         }
 
-        #endregion
+        #endregion Add People Events
 
         #region Internal Methods
 
@@ -687,9 +687,9 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 if ( optionGroup.Equals( "Grade" ) )
                 {
                     var grade = ddlAbilitySearch.SelectedValueAsEnum<GradeLevel>();
-                    if ( (int)grade <= 12 )
+                    if ( ( int ) grade <= 12 )
                     {
-                        peopleList = peopleList.Where( p => p.Grade == (int)grade ).ToList();
+                        peopleList = peopleList.Where( p => p.Grade == ( int ) grade ).ToList();
                     }
                 }
                 else if ( optionGroup.Equals( "Ability" ) )
@@ -709,7 +709,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 p.Age,
                 p.Gender,
                 Attribute = p.Grade.HasValue
-                    ? ( (GradeLevel)p.Grade ).GetDescription()
+                    ? ( ( GradeLevel ) p.Grade ).GetDescription()
                     : abilityLevelValues.Where( dv => dv.Guid.ToString()
                         .Equals( p.GetAttributeValue( "AbilityLevel" ), StringComparison.OrdinalIgnoreCase ) )
                         .Select( dv => dv.Value ).FirstOrDefault()
@@ -846,7 +846,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 }
             }
 
-            var gradeList = Enum.GetValues( typeof( GradeLevel ) ).Cast<GradeLevel>().OrderBy( gl => (int)gl )
+            var gradeList = Enum.GetValues( typeof( GradeLevel ) ).Cast<GradeLevel>().OrderBy( gl => ( int ) gl )
                 .Select( g => new ListItem( g.GetDescription(), g.ConvertToString() ) ).ToList();
             foreach ( var grade in gradeList )
             {
@@ -872,12 +872,12 @@ namespace RockWeb.Blocks.CheckIn.Attended
 
             if ( gender != null )
             {
-                person.Gender = (Gender)gender;
+                person.Gender = ( Gender ) gender;
             }
 
             if ( !string.IsNullOrWhiteSpace( ability ) && abilityGroup == "Grade" )
             {
-                person.Grade = (int)ability.ConvertToEnum<GradeLevel>();
+                person.Grade = ( int ) ability.ConvertToEnum<GradeLevel>();
             }
 
             var rockContext = new RockContext();
@@ -886,17 +886,17 @@ namespace RockWeb.Blocks.CheckIn.Attended
             rockContext.SaveChanges();
 
             // Every person should have an alias record with same id.  If it's missing, create it
-            if (!person.Aliases.Any(a => a.AliasPersonId == person.Id))
+            if ( !person.Aliases.Any( a => a.AliasPersonId == person.Id ) )
             {
-                var thisPerson = ps.Get(person.Id);
-                if (thisPerson != null)
+                var thisPerson = ps.Get( person.Id );
+                if ( thisPerson != null )
                 {
-                    thisPerson.Aliases.Add(new PersonAlias { AliasPersonId = thisPerson.Id, AliasPersonGuid = thisPerson.Guid });
+                    thisPerson.Aliases.Add( new PersonAlias { AliasPersonId = thisPerson.Id, AliasPersonGuid = thisPerson.Guid } );
                     rockContext.SaveChanges();
                 }
             }
 
-            if (!string.IsNullOrWhiteSpace(ability) && abilityGroup == "Ability")
+            if ( !string.IsNullOrWhiteSpace( ability ) && abilityGroup == "Ability" )
             {
                 rockContext = new RockContext();
                 Person p = new PersonService( rockContext ).Get( person.Id );
@@ -980,39 +980,102 @@ namespace RockWeb.Blocks.CheckIn.Attended
 
             foreach ( var familyMember in family.People )
             {
-                var group = groupMemberService.Queryable()
-                .Where( m =>
-                    m.PersonId == familyMember.Person.Id &&
-                    m.GroupRoleId == ownerRoleId )
-                .Select( m => m.Group )
-                .FirstOrDefault();
-
-                if ( group == null )
+                if ( familyMember.FamilyMember )
                 {
-                    var role = new GroupTypeRoleService( rockContext ).Get( ownerRoleId );
-                    if ( role != null && role.GroupTypeId.HasValue )
+                    var group = groupMemberService.Queryable()
+                    .Where( m =>
+                        m.PersonId == familyMember.Person.Id &&
+                        m.GroupRoleId == ownerRoleId )
+                    .Select( m => m.Group )
+                    .FirstOrDefault();
+
+                    if ( group == null )
                     {
-                        var groupMember = new GroupMember();
-                        groupMember.PersonId = familyMember.Person.Id;
-                        groupMember.GroupRoleId = role.Id;
+                        var role = new GroupTypeRoleService( rockContext ).Get( ownerRoleId );
+                        if ( role != null && role.GroupTypeId.HasValue )
+                        {
+                            var groupMember = new GroupMember();
+                            groupMember.PersonId = familyMember.Person.Id;
+                            groupMember.GroupRoleId = role.Id;
 
-                        group = new Group();
-                        group.Name = role.GroupType.Name;
-                        group.GroupTypeId = role.GroupTypeId.Value;
-                        group.Members.Add( groupMember );
+                            group = new Group();
+                            group.Name = role.GroupType.Name;
+                            group.GroupTypeId = role.GroupTypeId.Value;
+                            group.Members.Add( groupMember );
 
-                        groupService.Add( group );
+                            groupService.Add( group );
+                        }
                     }
-                }
 
-                // add the visitor to this group with CanCheckIn
-                Person.CreateCheckinRelationship( familyMember.Person.Id, personId, CurrentPersonAlias );
+                    // add the visitor to this group with CanCheckIn
+                    // TODO: SET THIS BACK TO THE CALL BELOW WHEN THE 1.2 UPDATE IS RELEASED
+                    // Person.CreateCheckinRelationship( familyMember.Person.Id, personId, CurrentPersonAlias );
+                    CreateCheckinRelationship( familyMember.Person.Id, personId, CurrentPersonAlias );
+                }
             }
 
             rockContext.SaveChanges();
         }
 
-        #endregion
+        // TODO: REMOVE THIS WHEN THE 1.2 UPDATE IS RELEASED
+        /// <summary>
+        /// Adds the related person to the selected person's known relationships with a role of 'Can check in' which
+        /// is typically configured to allow check-in.  If an inverse relationship is configured for 'Can check in'
+        /// (i.e. 'Allow check in by'), that relationship will also be created.
+        /// </summary>
+        /// <param name="personId">A <see cref="System.Int32"/> representing the Id of the Person.</param>
+        /// <param name="relatedPersonId">A <see cref="System.Int32"/> representing the Id of the related Person.</param>
+        /// <param name="currentPersonAlias">A <see cref="Rock.Model.PersonAlias"/> representing the Person who is logged in.</param>
+        public static void CreateCheckinRelationship( int personId, int relatedPersonId, PersonAlias currentPersonAlias )
+        {
+            var rockContext = new RockContext();
+
+            var groupMemberService = new GroupMemberService( rockContext );
+            var knownRelationshipGroup = groupMemberService.Queryable()
+                .Where( m =>
+                    m.PersonId == personId &&
+                    m.GroupRole.Guid.Equals( new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_KNOWN_RELATIONSHIPS_OWNER ) ) )
+                .Select( m => m.Group )
+                .FirstOrDefault();
+
+            if ( knownRelationshipGroup != null )
+            {
+                int? canCheckInRoleId = new GroupTypeRoleService( rockContext ).Queryable()
+                    .Where( r =>
+                        r.Guid.Equals( new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_KNOWN_RELATIONSHIPS_CAN_CHECK_IN ) ) )
+                    .Select( r => r.Id )
+                    .FirstOrDefault();
+                if ( canCheckInRoleId.HasValue )
+                {
+                    var canCheckInMember = groupMemberService.Queryable()
+                        .FirstOrDefault( m =>
+                            m.GroupId == knownRelationshipGroup.Id &&
+                            m.PersonId == relatedPersonId &&
+                            m.GroupRoleId == canCheckInRoleId.Value );
+
+                    if ( canCheckInMember == null )
+                    {
+                        canCheckInMember = new GroupMember();
+                        canCheckInMember.GroupId = knownRelationshipGroup.Id;
+                        canCheckInMember.PersonId = relatedPersonId;
+                        canCheckInMember.GroupRoleId = canCheckInRoleId.Value;
+                        groupMemberService.Add( canCheckInMember );
+                        rockContext.SaveChanges();
+                    }
+
+                    var inverseGroupMember = groupMemberService.GetInverseRelationship( canCheckInMember, true, currentPersonAlias );
+                    if ( inverseGroupMember != null )
+                    {
+                        groupMemberService.Add( inverseGroupMember );
+                        rockContext.SaveChanges();
+                    }
+
+                    rockContext.SaveChanges();
+                }
+            }
+        }
+
+        #endregion Internal Methods
 
         #region NewPerson Class
 
@@ -1051,6 +1114,6 @@ namespace RockWeb.Blocks.CheckIn.Attended
             }
         }
 
-        #endregion
+        #endregion NewPerson Class
     }
 }
