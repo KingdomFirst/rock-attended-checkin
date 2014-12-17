@@ -577,7 +577,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             if ( e.CommandName == "Add" )
             {
                 var rockContext = new RockContext();
-                GroupMemberService groupMemberService = new GroupMemberService( rockContext );
+                var groupMemberService = new GroupMemberService( rockContext );
                 int index = int.Parse( e.CommandArgument.ToString() );
                 int personId = int.Parse( rGridPersonResults.DataKeys[index].Value.ToString() );
 
@@ -868,12 +868,16 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// <param name="DOB">The DOB.</param>
         /// <param name="gender">The gender</param>
         /// <param name="attribute">The attribute.</param>
-        protected Person CreatePerson( string firstName, string lastName, DateTime? dob, int? gender, string ability, string abilityGroup )
+        protected Person CreatePerson( string firstName, string lastName, DateTime? DOB, int? gender, string ability, string abilityGroup )
         {
+            var rockContext = new RockContext();
+            var personService = new PersonService( rockContext );
+
             Person person = new Person();
             person.FirstName = firstName;
             person.LastName = lastName;
-            person.BirthDate = dob;
+            person.BirthDate = DOB;
+            personService.Add( person );
 
             if ( gender != null )
             {
@@ -885,32 +889,19 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 person.Grade = ( int ) ability.ConvertToEnum<GradeLevel>();
             }
 
-            var rockContext = new RockContext();
-            PersonService ps = new PersonService( rockContext );
-            ps.Add( person );
             rockContext.SaveChanges();
 
-            // Every person should have an alias record with same id.  If it's missing, create it
-            if ( !person.Aliases.Any( a => a.AliasPersonId == person.Id ) )
+            // Every person should have an alias record pointing to the original person
+            if ( person.Aliases.Count < 1 )
             {
-                var thisPerson = ps.Get( person.Id );
-                if ( thisPerson != null )
-                {
-                    thisPerson.Aliases.Add( new PersonAlias { AliasPersonId = thisPerson.Id, AliasPersonGuid = thisPerson.Guid } );
-                    rockContext.SaveChanges();
-                }
+                person.Aliases.Add( new PersonAlias { AliasPersonId = person.Id, AliasPersonGuid = person.Guid } );
             }
 
             if ( !string.IsNullOrWhiteSpace( ability ) && abilityGroup == "Ability" )
             {
-                rockContext = new RockContext();
-                Person p = new PersonService( rockContext ).Get( person.Id );
-                if ( p != null )
-                {
-                    p.LoadAttributes( rockContext );
-                    p.SetAttributeValue( "AbilityLevel", ability );
-                    p.SaveAttributeValues();
-                }
+                person.LoadAttributes( rockContext );
+                person.SetAttributeValue( "AbilityLevel", ability );
+                person.SaveAttributeValues( rockContext );
             }
 
             return person;
@@ -931,8 +922,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             familyGroup.IsActive = true;
 
             var rockContext = new RockContext();
-            var gs = new GroupService( rockContext );
-            gs.Add( familyGroup );
+            new GroupService( rockContext ).Add( familyGroup );
             rockContext.SaveChanges();
 
             return familyGroup;
@@ -947,22 +937,22 @@ namespace RockWeb.Blocks.CheckIn.Attended
         protected GroupMember AddGroupMember( int familyGroupId, Person person )
         {
             var rockContext = new RockContext();
+            var groupRoleService = new GroupTypeRoleService( rockContext );
 
-            GroupMember groupMember = new GroupMember();
+            var groupMember = new GroupMember();
             groupMember.IsSystem = false;
             groupMember.GroupId = familyGroupId;
             groupMember.PersonId = person.Id;
             if ( person.Age >= 18 )
             {
-                groupMember.GroupRoleId = new GroupTypeRoleService( rockContext ).Get( new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_FAMILY_MEMBER_ADULT ) ).Id;
+                groupMember.GroupRoleId = groupRoleService.Get( new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_FAMILY_MEMBER_ADULT ) ).Id;
             }
             else
             {
-                groupMember.GroupRoleId = new GroupTypeRoleService( rockContext ).Get( new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_FAMILY_MEMBER_CHILD ) ).Id;
+                groupMember.GroupRoleId = groupRoleService.Get( new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_FAMILY_MEMBER_CHILD ) ).Id;
             }
 
-            GroupMemberService groupMemberService = new GroupMemberService( rockContext );
-            groupMemberService.Add( groupMember );
+            new GroupMemberService( rockContext ).Add( groupMember );
             rockContext.SaveChanges();
 
             return groupMember;
@@ -980,8 +970,8 @@ namespace RockWeb.Blocks.CheckIn.Attended
             var groupMemberService = new GroupMemberService( rockContext );
             var groupRoleService = new GroupTypeRoleService( rockContext );
 
-            int ownerRoleId = groupRoleService.Get( new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_KNOWN_RELATIONSHIPS_OWNER ) ).Id;
-            int canCheckInId = groupRoleService.Get( new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_KNOWN_RELATIONSHIPS_CAN_CHECK_IN ) ).Id;
+            var ownerRole = groupRoleService.Get( new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_KNOWN_RELATIONSHIPS_OWNER ) );
+            var canCheckIn = groupRoleService.Get( new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_KNOWN_RELATIONSHIPS_CAN_CHECK_IN ) );
 
             foreach ( var familyMember in family.People )
             {

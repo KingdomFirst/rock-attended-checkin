@@ -127,7 +127,7 @@
             </div>
         </asp:Panel>
 
-        <div class="modal fade" id="add-person-modal" role="dialog">
+        <div class="modal" id="add-person-modal" role="dialog">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <asp:HiddenField ID="hfOpenPersonPanel" runat="server" />
@@ -205,7 +205,7 @@
             </div>
         </div>
 
-        <div class="modal fade" id="new-family-modal" role="dialog">
+        <div class="modal" id="new-family-modal" role="dialog">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <asp:HiddenField ID="hfOpenFamilyPanel" runat="server" />
