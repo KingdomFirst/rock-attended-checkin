@@ -937,7 +937,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
         protected GroupMember AddGroupMember( int familyGroupId, Person person )
         {
             var rockContext = new RockContext();
-            var groupRoleService = new GroupTypeRoleService( rockContext );
+            var familyGroupType = GroupTypeCache.GetFamilyGroupType();
 
             var groupMember = new GroupMember();
             groupMember.IsSystem = false;
@@ -945,11 +945,11 @@ namespace RockWeb.Blocks.CheckIn.Attended
             groupMember.PersonId = person.Id;
             if ( person.Age >= 18 )
             {
-                groupMember.GroupRoleId = groupRoleService.Get( new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_FAMILY_MEMBER_ADULT ) ).Id;
+                groupMember.GroupRoleId = familyGroupType.Roles.FirstOrDefault( r => r.Guid == new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_FAMILY_MEMBER_ADULT ) ).Id;
             }
             else
             {
-                groupMember.GroupRoleId = groupRoleService.Get( new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_FAMILY_MEMBER_CHILD ) ).Id;
+                groupMember.GroupRoleId = familyGroupType.Roles.FirstOrDefault( r => r.Guid == new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_FAMILY_MEMBER_CHILD ) ).Id;
             }
 
             new GroupMemberService( rockContext ).Add( groupMember );
@@ -968,10 +968,10 @@ namespace RockWeb.Blocks.CheckIn.Attended
             var rockContext = new RockContext();
             var groupService = new GroupService( rockContext );
             var groupMemberService = new GroupMemberService( rockContext );
-            var groupRoleService = new GroupTypeRoleService( rockContext );
 
-            var ownerRole = groupRoleService.Get( new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_KNOWN_RELATIONSHIPS_OWNER ) );
-            var canCheckIn = groupRoleService.Get( new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_KNOWN_RELATIONSHIPS_CAN_CHECK_IN ) );
+            var knownRelationshipGroupType = GroupTypeCache.Read( Rock.SystemGuid.GroupType.GROUPTYPE_KNOWN_RELATIONSHIPS );
+            var ownerRole = knownRelationshipGroupType.Roles.FirstOrDefault( r => r.Guid == new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_KNOWN_RELATIONSHIPS_OWNER ) );
+            var canCheckIn = knownRelationshipGroupType.Roles.FirstOrDefault( r => r.Guid == new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_KNOWN_RELATIONSHIPS_CAN_CHECK_IN ) );
 
             foreach ( var familyMember in family.People )
             {
@@ -984,15 +984,15 @@ namespace RockWeb.Blocks.CheckIn.Attended
                     .Select( m => m.Group )
                     .FirstOrDefault();
 
-                    if ( group == null && ownerRole != null && ownerRole.GroupTypeId.HasValue )
+                    if ( group == null && ownerRole != null )
                     {
                         var groupMember = new GroupMember();
                         groupMember.PersonId = familyMember.Person.Id;
                         groupMember.GroupRoleId = ownerRole.Id;
 
                         group = new Group();
-                        group.Name = ownerRole.GroupType.Name;
-                        group.GroupTypeId = ownerRole.GroupTypeId.Value;
+                        group.Name = knownRelationshipGroupType.Name;
+                        group.GroupTypeId = knownRelationshipGroupType.Id;
                         group.Members.Add( groupMember );
 
                         groupService.Add( group );
@@ -1030,25 +1030,24 @@ namespace RockWeb.Blocks.CheckIn.Attended
 
             if ( knownRelationshipGroup != null )
             {
-                int? canCheckInRoleId = new GroupTypeRoleService( rockContext ).Queryable()
-                    .Where( r =>
-                        r.Guid.Equals( new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_KNOWN_RELATIONSHIPS_CAN_CHECK_IN ) ) )
-                    .Select( r => r.Id )
-                    .FirstOrDefault();
-                if ( canCheckInRoleId.HasValue )
+                var knownRelationshipGroupType = GroupTypeCache.Read( new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_KNOWN_RELATIONSHIPS_OWNER ) );
+                var canCheckInRole = knownRelationshipGroupType.Roles.FirstOrDefault( r =>
+                        r.Guid.Equals( new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_KNOWN_RELATIONSHIPS_CAN_CHECK_IN ) );
+
+                if ( canCheckInRole != null )
                 {
                     var canCheckInMember = groupMemberService.Queryable()
                         .FirstOrDefault( m =>
                             m.GroupId == knownRelationshipGroup.Id &&
                             m.PersonId == relatedPersonId &&
-                            m.GroupRoleId == canCheckInRoleId.Value );
+                            m.GroupRoleId == canCheckInRole.Id );
 
                     if ( canCheckInMember == null )
                     {
                         canCheckInMember = new GroupMember();
                         canCheckInMember.GroupId = knownRelationshipGroup.Id;
                         canCheckInMember.PersonId = relatedPersonId;
-                        canCheckInMember.GroupRoleId = canCheckInRoleId.Value;
+                        canCheckInMember.GroupRoleId = canCheckInRole.Id;
                         groupMemberService.Add( canCheckInMember );
                         rockContext.SaveChanges();
                     }
@@ -1059,8 +1058,6 @@ namespace RockWeb.Blocks.CheckIn.Attended
                         groupMemberService.Add( inverseGroupMember );
                         rockContext.SaveChanges();
                     }
-
-                    //rockContext.SaveChanges();
                 }
             }
         }
