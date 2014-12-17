@@ -827,7 +827,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// </summary>
         /// <param name="location"></param>
         /// <returns></returns>
-        protected string getLocationAttendance( CheckInLocation location )
+        protected string GetLocationAttendance( CheckInLocation location )
         {
             var attendanceCount = "";
             var rockContext = new RockContext();
@@ -843,7 +843,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// Gets the attendance count for all of the schedules for a location. This will show on the schedule buttons.
         /// </summary>
         /// <param name="location"></param>
-        protected void getScheduleAttendance( CheckInLocation location )
+        protected void GetScheduleAttendance( CheckInLocation location )
         {
             var rockContext = new RockContext();
             var attendanceService = new AttendanceService( rockContext );
