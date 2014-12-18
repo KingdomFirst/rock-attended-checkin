@@ -26,6 +26,7 @@ using Rock.Data;
 using Rock.Model;
 using Rock.Workflow;
 using Rock.Workflow.Action.CheckIn;
+
 namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
 {
     /// <summary>
@@ -34,7 +35,6 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
     [Description( "Removes (or excludes) the groups from each family member that are not specific to their gender." )]
     [Export( typeof( ActionComponent ) )]
     [ExportMetadata( "ComponentName", "Filter Groups By Gender" )]
-
     [BooleanField( "Remove", "Select 'Yes' if groups should be be removed.  Select 'No' if they should just be marked as excluded.", true )]
     public class FilterGroupsByGender : CheckInActionComponent
     {
@@ -57,7 +57,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                 {
                     var remove = GetAttributeValue( action, "Remove" ).AsBoolean();
 
-                    foreach ( var person in family.People.Where( p => p.Selected ) )
+                    foreach ( var person in family.People )
                     {
                         string personsGender = person.Person.Gender.ToString( "d" );
 
@@ -79,7 +79,6 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                 }
                             }
                         }
-                        
                     }
                 }
 
