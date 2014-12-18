@@ -148,7 +148,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
 
                                     if ( roomBalanceByGroup )
                                     {
-                                        bestGroup = validGroups.OrderBy( g => g.Locations.Select( l => l.CurrentCount ).Sum() ).FirstOrDefault();
+                                        bestGroup = validGroups.OrderBy( g => g.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum() ).FirstOrDefault();
                                     }
                                     else
                                     {
