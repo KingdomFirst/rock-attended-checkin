@@ -677,10 +677,14 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 people = people.Where( p => p.Gender == gender );
             }
 
-            // get the list of people so we can filter by grade and ability level
+            // Get the list of people so we can filter by grade and ability level
             var peopleList = people.OrderBy( p => p.LastName ).ThenBy( p => p.FirstName ).ToList();
+
+            // Load abilities so we can see them in the result grid
             var abilityLevelValues = DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_ABILITY_LEVEL_TYPE ) ).DefinedValues;
             peopleList.ForEach( p => p.LoadAttributes() );
+
+            // Set a filter if an ability/grade was selected
             if ( ddlAbilitySearch.SelectedIndex != 0 )
             {
                 var optionGroup = ddlAbilitySearch.SelectedItem.Attributes["optiongroup"];
