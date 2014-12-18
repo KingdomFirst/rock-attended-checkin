@@ -423,29 +423,33 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 currentPerson.Person.NickName = tbNickname.Text.Length > 0 ? tbNickname.Text : tbFirstName.Text;
 
                 var gradeAbility = ddlAbility.SelectedValue;
-                var isBlank = gradeAbility == Rock.Constants.None.Id.ToString();
-                Guid abilityGuid;
-                GradeLevel gradeLevel;
-
-                if ( !isBlank && Guid.TryParse( gradeAbility, out abilityGuid ) )
+                if ( gradeAbility != Rock.Constants.None.Id.ToString() )
                 {
-                    person.SetAttributeValue( "AbilityLevel", abilityGuid.ToString() );
-                    currentPerson.Person.SetAttributeValue( "AbilityLevel", abilityGuid.ToString() );
+                    Guid abilityGuid;
+                    GradeLevel gradeLevel;
 
-                    person.Grade = null;
-                    currentPerson.Person.Grade = null;
+                    // Selected ability level
+                    if ( Guid.TryParse( gradeAbility, out abilityGuid ) )
+                    {
+                        person.SetAttributeValue( "AbilityLevel", abilityGuid.ToString() );
+                        currentPerson.Person.SetAttributeValue( "AbilityLevel", abilityGuid.ToString() );
 
-                    person.SaveAttributeValues();
-                }
-                else if ( !isBlank && Enum.TryParse<GradeLevel>( gradeAbility, out gradeLevel ) )
-                {
-                    person.Grade = (int)gradeLevel;
-                    currentPerson.Person.Grade = (int)gradeLevel;
+                        person.Grade = null;
+                        currentPerson.Person.Grade = null;
 
-                    person.Attributes.Remove( "AbilityLevel" );
-                    currentPerson.Person.Attributes.Remove( "AbilityLevel" );
+                        person.SaveAttributeValues();
+                    }
+                    // Selected a grade
+                    else if ( Enum.TryParse<GradeLevel>( gradeAbility, out gradeLevel ) )
+                    {
+                        person.Grade = (int)gradeLevel;
+                        currentPerson.Person.Grade = (int)gradeLevel;
 
-                    person.SaveAttributeValues();
+                        person.Attributes.Remove( "AbilityLevel" );
+                        currentPerson.Person.Attributes.Remove( "AbilityLevel" );
+
+                        person.SaveAttributeValues();
+                    }
                 }
 
                 newContext.SaveChanges();
