@@ -94,8 +94,11 @@
         </div>
 
         <div class="row at-the-bottom">
-           <div class="col-xs-3 col-xs-offset-9">
-                <asp:LinkButton ID="lbAddNote" runat="server" Text="Add a Note" CssClass="btn btn-primary btn-block btn-checkin-select" OnClick="lbAddNote_Click" CausesValidation="false" />
+            <div class="col-xs-3 col-xs-offset-6">
+                <asp:LinkButton ID="lbEditInfo" runat="server" Text="Edit Info" CssClass="btn btn-primary btn-block btn-checkin-select" OnClick="lbEditInfo_Click" CausesValidation="false" />
+            </div>
+            <div class="col-xs-3">
+                <asp:LinkButton ID="lbAddNote" runat="server" Text="Add Note" CssClass="btn btn-primary btn-block btn-checkin-select" OnClick="lbAddNote_Click" CausesValidation="false" />
             </div>
         </div>
 
@@ -133,6 +136,48 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="edit-info-modal" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <div class="row checkin-header">
+                    <div class="col-xs-3 checkin-actions">
+                        <Rock:BootstrapButton ID="lbCloseEditInfo" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbCloseEditInfo_Click" Text="Cancel" EnableViewState="false" />
+                    </div>
+
+                    <div class="col-xs-6 text-center">
+                        <h2>Edit Info</h2>
+                    </div>
+
+                    <div class="col-xs-3 checkin-actions text-right">
+                        <Rock:BootstrapButton ID="lbSaveEditInfo" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbSaveEditInfo_Click" Text="Save" EnableViewState="false" ValidationGroup="Family" />
+                    </div>
+                </div>        
+    
+                <div class="checkin-body">
+                    <div class="row">               
+                        <div class="col-xs-2">
+                            <Rock:RockTextBox ID="tbFirstName" runat="server" CssClass="col-xs-12" Label="First Name" ValidationGroup="Person" />
+                        </div>
+                        <div class="col-xs-2">
+                            <Rock:RockTextBox ID="tbNickname" runat="server" ValidationGroup="Person" CssClass="col-xs-12" Label="Nickname" />
+                        </div>
+                        <div class="col-xs-2">
+                            <Rock:RockTextBox ID="tbLastName" runat="server" CssClass="col-xs-12" Label="Last Name" ValidationGroup="Person" />
+                        </div>
+                        <div class="col-xs-3">
+                            <Rock:DatePicker ID="dpDOB" runat="server" Label="DOB" ValidationGroup="Person" CssClass="date-picker" />
+                        </div>                        
+                        <div class="col-xs-3">
+                            <Rock:RockDropDownList ID="ddlAbility" runat="server" CssClass="col-xs-12" Label="Ability/Grade" />
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>

@@ -22,6 +22,7 @@ using System.Runtime.InteropServices;
 using System.Web.UI;
 using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
+using cc.newspring.AttendedCheckIn.Utility;
 using Rock;
 using Rock.Attribute;
 using Rock.CheckIn;
@@ -40,7 +41,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
     [Description( "Attended Check-In Family Select Block" )]
     [BooleanField( "Enable Add Buttons", "Show the add people/visitor/family buttons on the family select page?", true )]
     [TextField( "Not Found Text", "What text should display when the nothing is found?", true, "Please add them using one of the buttons on the right" )]
-    [IntegerField( "Minimum Text Length", "Minimum length for text searches (defaults to 4).", false, 4 )]
+    [IntegerField( "Minimum Text Length", "Minimum length for text searches (defaults to 1).", false, 1 )]
     [IntegerField( "Maximum Text Length", "Maximum length for text searches (defaults to 20).", false, 20 )]
     public partial class FamilySelect : CheckInBlock
     {
@@ -247,7 +248,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             var dpBirthDate = (DatePicker)e.Item.FindControl( "dpBirthDate" );
             var ddlGender = (RockDropDownList)e.Item.FindControl( "ddlGender" );
             ddlGender.BindToEnum<Gender>();
-            BindAbilityGrade( (RockDropDownList)e.Item.FindControl( "ddlAbilityGrade" ) );
+            ( (RockDropDownList)e.Item.FindControl( "ddlAbilityGrade" ) ).LoadAbilityAndGradeItems();
         }
 
         #endregion Load Methods
@@ -798,7 +799,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
         {
             ddlGenderSearch.BindToEnum<Gender>();
             ddlGenderSearch.SelectedIndex = 0;
-            BindAbilityGrade( ddlAbilitySearch );
+            ddlAbilitySearch.LoadAbilityAndGradeItems();
             ddlAbilitySearch.SelectedIndex = 0;
             rGridPersonResults.Visible = false;
             lbSavePerson.Visible = false;
@@ -832,36 +833,6 @@ namespace RockWeb.Blocks.CheckIn.Attended
             }
 
             ScriptManager.RegisterStartupScript( Page, Page.GetType(), DateTime.Now.ToString(), js, true );
-        }
-
-        /// <summary>
-        /// Binds the dropdown to a list of ability levels and grades.
-        /// </summary>
-        /// <returns>List Items</returns>
-        protected void BindAbilityGrade( DropDownList thisDDL )
-        {
-            thisDDL.Items.Clear();
-            thisDDL.DataTextField = "Text";
-            thisDDL.DataValueField = "Value";
-            thisDDL.Items.Add( new ListItem( Rock.Constants.None.Text, Rock.Constants.None.Id.ToString() ) );
-
-            var dtAbility = DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_ABILITY_LEVEL_TYPE ) );
-            if ( dtAbility != null && dtAbility.DefinedValues.Count > 0 )
-            {
-                foreach ( var ability in dtAbility.DefinedValues.Select( dv => new ListItem( dv.Value, dv.Guid.ToString() ) ).ToList() )
-                {
-                    ability.Attributes.Add( "optiongroup", "Ability" );
-                    thisDDL.Items.Add( ability );
-                }
-            }
-
-            var gradeList = Enum.GetValues( typeof( GradeLevel ) ).Cast<GradeLevel>().OrderBy( gl => (int)gl )
-                .Select( g => new ListItem( g.GetDescription(), g.ConvertToString() ) ).ToList();
-            foreach ( var grade in gradeList )
-            {
-                grade.Attributes.Add( "optiongroup", "Grade" );
-                thisDDL.Items.Add( grade );
-            }
         }
 
         /// <summary>
