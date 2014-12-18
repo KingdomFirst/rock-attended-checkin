@@ -940,14 +940,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// <returns></returns>
         protected string GetLocationAttendance( CheckInLocation location )
         {
-            var attendanceCount = "";
-            var rockContext = new RockContext();
-            var attendanceService = new AttendanceService( rockContext );
-            var attendanceQuery = attendanceService.GetByDateAndLocation( DateTime.Now, location.Location.Id );
-            var firstScheduleId = location.Schedules.FirstOrDefault().Schedule.Id;
-            attendanceQuery = attendanceQuery.Where( l => l.ScheduleId == firstScheduleId );
-            attendanceCount = attendanceQuery.Count().ToString();
-            return attendanceCount;
+            return KioskLocationAttendance.Read( location.Location.Id ).CurrentCount.ToString();
         }
 
         /// <summary>
