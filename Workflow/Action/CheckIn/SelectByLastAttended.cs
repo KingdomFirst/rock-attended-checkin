@@ -21,6 +21,7 @@ using System.ComponentModel.Composition;
 using System.Linq;
 
 using Rock.Attribute;
+using Rock.CheckIn;
 using Rock.Data;
 using Rock.Workflow;
 using Rock.Workflow.Action.CheckIn;
@@ -57,22 +58,25 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                     {
                         if ( person.LastCheckIn != null )
                         {
-                            var groupType = person.GroupTypes.Where( g => g.LastCheckIn == person.LastCheckIn ).FirstOrDefault();
+                            var groupType = person.GroupTypes.FirstOrDefault( gt => gt.Selected || gt.LastCheckIn == person.LastCheckIn );
                             if ( groupType != null )
                             {
                                 groupType.PreSelected = true;
                                 groupType.Selected = true;
-                                var group = groupType.Groups.Where( g => g.LastCheckIn == person.LastCheckIn ).FirstOrDefault();
+
+                                var group = groupType.Groups.FirstOrDefault( g => g.Selected || g.LastCheckIn == person.LastCheckIn );
                                 if ( group != null )
                                 {
                                     group.PreSelected = true;
                                     group.Selected = true;
-                                    var location = group.Locations.Where( l => l.LastCheckIn == person.LastCheckIn ).FirstOrDefault();
+
+                                    var location = group.Locations.FirstOrDefault( l => l.Selected || l.LastCheckIn == person.LastCheckIn );
                                     if ( location != null )
                                     {
                                         location.PreSelected = true;
                                         location.Selected = true;
-                                        var schedule = location.Schedules.Where( s => s.LastCheckIn == person.LastCheckIn ).FirstOrDefault();
+
+                                        var schedule = location.Schedules.FirstOrDefault( s => s.Selected || s.LastCheckIn == person.LastCheckIn );
                                         if ( schedule != null )
                                         {
                                             schedule.PreSelected = true;
