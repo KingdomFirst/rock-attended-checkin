@@ -397,6 +397,13 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbSaveEditInfo_Click( object sender, EventArgs e )
         {
+            if ( string.IsNullOrEmpty( tbFirstName.Text ) || string.IsNullOrEmpty( tbLastName.Text ) || string.IsNullOrEmpty( dpDOB.Text ) )
+            {
+                Page.Validate( "Person" );
+                ShowOrHideAddModal( "edit-info-modal", true );
+                return;
+            }
+
             var currentPerson = GetPerson();
 
             var changes = currentPerson.Person.FirstName == tbFirstName.Text;
@@ -828,7 +835,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
         }
 
         /// <summary>
-        /// Resets the edit information.
+        /// Resets the edit info modal.
         /// </summary>
         private void ResetEditInfo()
         {
@@ -839,6 +846,10 @@ namespace RockWeb.Blocks.CheckIn.Attended
             tbLastName.Text = person.Person.LastName;
             tbNickname.Text = person.Person.NickName;
             dpDOB.SelectedDate = person.Person.BirthDate;
+
+            tbFirstName.Required = true;
+            tbLastName.Required = true;
+            dpDOB.Required = true;
 
             if ( person.Person.Grade.HasValue )
             {
