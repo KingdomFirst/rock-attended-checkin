@@ -70,7 +70,7 @@ namespace cc.newspring.AttendedCheckIn.Utility
             thisDDL.Items.Clear();
             thisDDL.DataTextField = "Text";
             thisDDL.DataValueField = "Value";
-            thisDDL.Items.Add( new ListItem( Rock.Constants.None.Text, Rock.Constants.None.Id.ToString() ) );
+            thisDDL.Items.Add( new ListItem( Rock.Constants.None.Text, Rock.Constants.None.IdValue ) );
 
             thisDDL.LoadItems( GetAbilityListItems(), "Ability" );
             thisDDL.LoadItems( GetGradeListItems(), "Grade" );
