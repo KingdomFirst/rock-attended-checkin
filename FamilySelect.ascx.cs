@@ -686,22 +686,18 @@ namespace RockWeb.Blocks.CheckIn.Attended
             peopleList.ForEach( p => p.LoadAttributes() );
 
             // Set a filter if an ability/grade was selected
-            if ( ddlAbilitySearch.SelectedIndex != 0 )
+            var optionGroup = ddlAbilitySearch.SelectedItem.Attributes["optiongroup"];
+            if ( !string.IsNullOrEmpty( optionGroup ) )
             {
-                var optionGroup = ddlAbilitySearch.SelectedItem.Attributes["optiongroup"];
-                if ( optionGroup.Equals( "Grade" ) )
+                if ( optionGroup.Equals( "Ability" ) )
+                {
+                    peopleList = peopleList.Where( p => p.Attributes.ContainsKey( "AbilityLevel" )
+                        && p.GetAttributeValue( "AbilityLevel" ) == ddlAbilitySearch.SelectedValue ).ToList();
+                }
+                else if ( optionGroup.Equals( "Grade" ) )
                 {
                     var grade = ddlAbilitySearch.SelectedValueAsEnum<GradeLevel>();
-                    if ( (int)grade <= 12 )
-                    {
-                        peopleList = peopleList.Where( p => p.Grade == (int)grade ).ToList();
-                    }
-                }
-                else if ( optionGroup.Equals( "Ability" ) )
-                {
-                    var abilityLevelGuid = ddlAbilitySearch.SelectedValue;
-                    peopleList = peopleList.Where( p => p.Attributes.ContainsKey( "AbilityLevel" )
-                        && p.GetAttributeValue( "AbilityLevel" ) == abilityLevelGuid ).ToList();
+                    peopleList = peopleList.Where( p => p.Grade == (int?)grade ).ToList();
                 }
             }
 
