@@ -447,8 +447,8 @@ namespace RockWeb.Blocks.CheckIn.Attended
                     else if ( optionGroup == "Grade" )
                     {
                         var grade = ddlAbility.SelectedValueAsEnum<GradeLevel>();
-                        person.Grade = (int)grade;
-                        currentPerson.Person.Grade = (int)grade;
+                        person.Grade = (int?)grade;
+                        currentPerson.Person.Grade = (int?)grade;
 
                         person.Attributes.Remove( "AbilityLevel" );
                         currentPerson.Person.Attributes.Remove( "AbilityLevel" );

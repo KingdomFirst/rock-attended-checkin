@@ -413,7 +413,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 }
 
                 var checkInPerson = new CheckInPerson();
-                checkInPerson.Person = CreatePerson( tbFirstNameSearch.Text, tbLastNameSearch.Text, dpDOBSearch.SelectedDate, (int)ddlGenderSearch.SelectedValueAsEnum<Gender>(),
+                checkInPerson.Person = CreatePerson( tbFirstNameSearch.Text, tbLastNameSearch.Text, dpDOBSearch.SelectedDate, (int?)ddlGenderSearch.SelectedValueAsEnum<Gender>(),
                     ddlAbilitySearch.SelectedValue, ddlAbilitySearch.SelectedItem.Attributes["optiongroup"] );
 
                 if ( newPersonType.Value != "Visitor" )
@@ -546,7 +546,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             // create people and add to checkin
             foreach ( NewPerson np in newFamilyList.Where( np => np.IsValid() ) )
             {
-                var person = CreatePerson( np.FirstName, np.LastName, np.BirthDate, (int)np.Gender, np.Ability, np.AbilityGroup );
+                var person = CreatePerson( np.FirstName, np.LastName, np.BirthDate, (int?)np.Gender, np.Ability, np.AbilityGroup );
                 var groupMember = AddGroupMember( familyGroup.Id, person );
                 familyGroup.Members.Add( groupMember );
                 checkInPerson = new CheckInPerson();
@@ -745,8 +745,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
 
                         if ( family.People.Where( f => !f.FamilyMember ).Any() )
                         {
-                            var familyVisitors = family.People.Where( f => !f.FamilyMember && !f.ExcludedByFilter ).ToList();
-                            hfSelectedVisitor.Value = string.Join( ",", familyVisitors.Select( f => f.Person.Id ) ) + ",";
+                            var familyVisitors = family.People.Where( f => !f.FamilyMember && !f.ExcludedByFilter ).ToList();                            
                             visitorDataSource = familyVisitors.OrderBy( p => p.Person.FullNameReversed ).ToList();
                         }
                     }
@@ -857,7 +856,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
 
             if ( !string.IsNullOrWhiteSpace( ability ) && abilityGroup == "Grade" )
             {
-                person.Grade = (int)ability.ConvertToEnum<GradeLevel>();
+                person.Grade = (int?)ability.ConvertToEnum<GradeLevel>();
             }
 
             rockContext.SaveChanges();

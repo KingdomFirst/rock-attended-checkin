@@ -147,7 +147,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             gPersonList.DataBind();
         }
 
-        #endregion
+        #endregion Control Methods
 
         #region Edit Events
 
@@ -284,7 +284,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             BindGrid();
         }
 
-        #endregion
+        #endregion Edit Events
 
         #region Internal Methods
 
@@ -450,6 +450,6 @@ namespace RockWeb.Blocks.CheckIn.Attended
             ScriptManager.RegisterStartupScript( this, this.GetType(), "addLabelScript", script, true );
         }
 
-        #endregion
+        #endregion Internal Methods
     }
 }
