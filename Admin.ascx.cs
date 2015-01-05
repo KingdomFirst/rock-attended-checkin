@@ -121,7 +121,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             ipAddress = Request.ServerVariables["REMOTE_ADDR"];
             skipDeviceNameLookup = false;
 #endif
-
+            
             var checkInDeviceTypeId = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.DEVICE_TYPE_CHECKIN_KIOSK ).Id;
             var device = new DeviceService( new RockContext() ).GetByIPAddress( ipAddress, checkInDeviceTypeId, skipDeviceNameLookup );
 
@@ -142,7 +142,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             }
         }
 
-        #endregion Control Methods
+        #endregion
 
         #region Events
 
@@ -183,7 +183,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             NavigateToNextPage();
         }
 
-        #endregion Events
+        #endregion
 
         #region GeoLocation related
 
@@ -287,7 +287,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             return kiosk;
         }
 
-        #endregion GeoLocation related
+        #endregion
 
         #region Storage Methods
 
@@ -324,7 +324,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             Response.Cookies.Set( isMobileCookie );
         }
 
-        #endregion Storage Methods
+        #endregion
 
         #region Internal Methods
 
@@ -413,6 +413,6 @@ namespace RockWeb.Blocks.CheckIn.Attended
             }
         }
 
-        #endregion Internal Methods
+        #endregion
     }
 }
