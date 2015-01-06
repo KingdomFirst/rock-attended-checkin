@@ -20,8 +20,6 @@ using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Linq;
 
-using Rock.Attribute;
-using Rock.CheckIn;
 using Rock.Data;
 using Rock.Model;
 using Rock.Workflow;
@@ -62,16 +60,14 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
             {
                 foreach ( var person in family.People.Where( p => p.Selected ) )
                 {
-                    var x = 0;
-
                     var personGroupTypeIds = person.GroupTypes.Select( gt => gt.GroupType.Id );
 
                     var personAttendances = attendanceService.Queryable()
-                            .Where( a =>
-                                a.PersonAlias.PersonId == person.Person.Id &&
-                                personGroupTypeIds.Contains( a.Group.GroupTypeId ) &&
-                                a.StartDateTime >= sixMonthsAgo
-                            );
+                        .Where( a =>
+                            a.PersonAlias.PersonId == person.Person.Id &&
+                            personGroupTypeIds.Contains( a.Group.GroupTypeId ) &&
+                            a.StartDateTime >= sixMonthsAgo
+                        );
 
                     if ( personAttendances.Any() )
                     {
@@ -80,10 +76,6 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
 
                         foreach ( var groupType in person.GroupTypes )
                         {
-                            var lastDateGroupAttendances = lastDateAttendances.Where( a =>
-                                    a.Group.GroupTypeId == groupType.GroupType.Id
-                                );
-
                             foreach ( var groupAttendance in lastDateAttendances.Where( a => a.Group.GroupTypeId == groupType.GroupType.Id ) )
                             {
                                 var group = groupType.Groups.FirstOrDefault( g => g.Group.Id == groupAttendance.GroupId );
