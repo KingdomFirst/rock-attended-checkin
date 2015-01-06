@@ -315,14 +315,14 @@ namespace RockWeb.Blocks.CheckIn.Attended
             var selectedPerson = CurrentCheckInState.CheckIn.Families
                 .Where( f => f.Selected ).FirstOrDefault()
                 .People.Where( p => p.Person.Id == personId ).FirstOrDefault();
-            var selectedGroupTypes = selectedPerson.GroupTypes
-                .Where( gt => gt.Selected && gt.Groups.Any( g => g.Selected
+            var selectedGroupType = selectedPerson.GroupTypes
+                .FirstOrDefault( gt => gt.Selected && gt.Groups.Any( g => g.Selected
                     && g.Locations.Any( l => l.Location.Id == locationId
-                        && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) ) ) ).ToList();
+                        && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) ) ) );
 
-            foreach ( var groupType in selectedGroupTypes )
+            if ( selectedGroupType != null )
             {
-                var printFromClient = groupType.Labels.Where( l => l.PrintFrom == Rock.Model.PrintFrom.Client );
+                var printFromClient = selectedGroupType.Labels.Where( l => l.PrintFrom == Rock.Model.PrintFrom.Client );
                 if ( printFromClient.Any() )
                 {
                     var urlRoot = string.Format( "{0}://{1}", Request.Url.Scheme, Request.Url.Authority );
@@ -330,7 +330,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                     AddLabelScript( printFromClient.ToJson() );
                 }
 
-                var printFromServer = groupType.Labels.Where( l => l.PrintFrom == Rock.Model.PrintFrom.Server );
+                var printFromServer = selectedGroupType.Labels.Where( l => l.PrintFrom == Rock.Model.PrintFrom.Server );
                 if ( printFromServer.Any() )
                 {
                     Socket socket = null;
