@@ -1,4 +1,4 @@
-﻿// <copyright>
+﻿﻿// <copyright>
 // Copyright 2013 by the Spark Development Network
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -321,7 +321,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             }
 
             foreach ( var childGroupType in groupType.ChildGroupTypes
-                .Where( t => t.Id != groupType.Id )
+                .Where( t => t.Guid != groupType.Guid )
                 .OrderBy( a => a.Order )
                 .ThenBy( a => a.Name ) )
             {
@@ -725,7 +725,6 @@ namespace RockWeb.Blocks.CheckIn.Attended
             PopulateAddUpdateLists( groupTypesToAddUpdate, groupsToAddUpdate, parentGroupTypeUI, createCheckinHierarchy );
 
             int binaryFileFieldTypeID = FieldTypeCache.Read( Rock.SystemGuid.FieldType.BINARY_FILE.AsGuid() ).Id;
-            int binaryFileTypeId = new BinaryFileTypeService( rockContext ).Get( new Guid( Rock.SystemGuid.BinaryFiletype.CHECKIN_LABEL ) ).Id;
 
             rockContext.WrapTransaction( () =>
             {
@@ -795,7 +794,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
 
                     rockContext.SaveChanges();
 
-                    groupTypeDB.SaveAttributeValues();
+                    groupTypeDB.SaveAttributeValues( rockContext );
 
                     // get fresh from database to make sure we have Id so we can update the CheckinLabel Attributes
                     groupTypeDB = groupTypeService.Get( groupTypeDB.Guid );
@@ -819,7 +818,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                     foreach ( var checkinLabelAttributeInfo in GroupTypeCheckinLabelAttributesState[groupTypeUI.Guid] )
                     {
                         var attribute = new Rock.Model.Attribute();
-                        attribute.AttributeQualifiers.Add( new AttributeQualifier { Key = "binaryFileType", Value = binaryFileTypeId.ToString() } );
+                        attribute.AttributeQualifiers.Add( new AttributeQualifier { Key = "binaryFileType", Value = Rock.SystemGuid.BinaryFiletype.CHECKIN_LABEL } );
                         attribute.Guid = Guid.NewGuid();
                         attribute.FieldTypeId = binaryFileFieldTypeID;
                         attribute.EntityTypeId = EntityTypeCache.GetId( typeof( GroupType ) );
