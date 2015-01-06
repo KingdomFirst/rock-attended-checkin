@@ -19,7 +19,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.Linq;
-
+using Rock;
+using Rock.Attribute;
+using Rock.CheckIn;
 using Rock.Data;
 using Rock.Model;
 using Rock.Workflow;
@@ -33,6 +35,8 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
     [Description( "Select multiple services this person last checked into" )]
     [Export( typeof( ActionComponent ) )]
     [ExportMetadata( "ComponentName", "Select By Multiple Services Attended" )]
+    [BooleanField( "Room Balance By Group", "Select the group with the least number of current people. Best for groups having a 1:1 ratio with locations.", false )]
+    [BooleanField( "Room Balance By Location", "Select the location with the least number of current people. Best for groups having 1 to many ratio with locations.", false )]
     public class SelectByMultipleAttended : CheckInActionComponent
     {
         /// <summary>
@@ -46,6 +50,8 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
         /// <exception cref="System.NotImplementedException"></exception>
         public override bool Execute( RockContext rockContext, Rock.Model.WorkflowAction action, Object entity, out List<string> errorMessages )
         {
+            bool roomBalanceByGroup = bool.Parse( GetAttributeValue( action, "RoomBalanceByGroup" ) ?? "false" );
+            bool roomBalanceByLocation = bool.Parse( GetAttributeValue( action, "RoomBalanceByLocation" ) ?? "false" );
             var checkInState = GetCheckInState( entity, out errorMessages );
 
             if ( checkInState == null )
@@ -74,15 +80,44 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                         var lastDate = personAttendances.Max( a => a.StartDateTime ).Date;
                         var lastDateAttendances = personAttendances.Where( a => a.StartDateTime >= lastDate );
 
-                        foreach ( var groupType in person.GroupTypes )
+                        foreach ( var groupAttendance in lastDateAttendances )
                         {
-                            foreach ( var groupAttendance in lastDateAttendances.Where( a => a.Group.GroupTypeId == groupType.GroupType.Id ) )
+                            var groupType = person.GroupTypes.FirstOrDefault( t => t.GroupType.Id == groupAttendance.Group.GroupTypeId );
+
+                            if ( groupType != null )
                             {
-                                var group = groupType.Groups.FirstOrDefault( g => g.Group.Id == groupAttendance.GroupId );
+                                CheckInGroup group = null;
+
+                                if ( groupType.Groups.Count == 1 )
+                                {
+                                    group = groupType.Groups.FirstOrDefault();
+                                }
+                                else if ( roomBalanceByGroup )
+                                {
+                                    group = groupType.Groups.OrderBy( g => g.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum() ).FirstOrDefault();
+                                }
+                                else
+                                {
+                                    group = groupType.Groups.FirstOrDefault( g => g.Group.Id == groupAttendance.GroupId );
+                                }
 
                                 if ( group != null )
                                 {
-                                    var location = group.Locations.FirstOrDefault( l => l.Location.Id == groupAttendance.LocationId );
+                                    CheckInLocation location = null;
+
+                                    if ( group.Locations.Count == 1 )
+                                    {
+                                        location = group.Locations.FirstOrDefault();
+                                    }
+                                    else if ( roomBalanceByLocation )
+                                    {
+                                        location = group.Locations.Where( l => l.Schedules.Any( s => !s.ExcludedByFilter && s.Schedule.IsCheckInActive ) )
+                                                .OrderBy( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).FirstOrDefault();
+                                    }
+                                    else
+                                    {
+                                        location = group.Locations.FirstOrDefault( l => l.Location.Id == groupAttendance.LocationId );
+                                    }
 
                                     if ( location != null )
                                     {
