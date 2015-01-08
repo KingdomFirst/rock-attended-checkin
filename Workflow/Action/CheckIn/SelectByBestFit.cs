@@ -36,8 +36,8 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
     [Description( "Selects the grouptype, group, location and schedule for each person based on their best fit." )]
     [Export( typeof( ActionComponent ) )]
     [ExportMetadata( "ComponentName", "Select By Best Fit" )]
-    [BooleanField( "Room Balance By Group", "Select the group with the least number of current people.", false )]
-    [BooleanField( "Room Balance By Location", "Select the location with the least number of current people.", false )]
+    [BooleanField( "Room Balance By Group", "Select the group with the least number of current people. Best for groups having a 1:1 ratio with locations.", false )]
+    [BooleanField( "Room Balance By Location", "Select the location with the least number of current people. Best for groups having 1 to many ratio with locations.", false )]
     public class SelectByBestFit : CheckInActionComponent
     {
         /// <summary>

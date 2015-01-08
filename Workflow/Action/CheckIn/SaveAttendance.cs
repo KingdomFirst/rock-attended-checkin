@@ -127,7 +127,6 @@ namespace Rock.Workflow.Action.CheckIn
                                             }
                                         }
 
-                                        // attendance.AttendanceCodeId = attendanceCode.Id;
                                         attendance.AttendanceCodeId = securityCodeId;
                                         attendance.StartDateTime = startDateTime;
                                         attendance.EndDateTime = null;
