@@ -592,7 +592,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                     {
                         if ( newPersonType.Value != "Visitor" )
                         {
-                            // TODO: DT: Is this right?  Not sure this is the best way to set family id
+                            // TODO: Not sure this is the best way to set family id
                             var groupMember = groupMemberService.GetByPersonId( personId ).FirstOrDefault();
                             groupMember.GroupId = family.Group.Id;
                             rockContext.SaveChanges();
@@ -745,7 +745,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
 
                         if ( family.People.Where( f => !f.FamilyMember ).Any() )
                         {
-                            var familyVisitors = family.People.Where( f => !f.FamilyMember && !f.ExcludedByFilter ).ToList();                            
+                            var familyVisitors = family.People.Where( f => !f.FamilyMember && !f.ExcludedByFilter ).ToList();
                             visitorDataSource = familyVisitors.OrderBy( p => p.Person.FullNameReversed ).ToList();
                         }
                     }
@@ -969,67 +969,11 @@ namespace RockWeb.Blocks.CheckIn.Attended
                     }
 
                     // add the visitor to this group with CanCheckIn
-                    // TODO: SET THIS BACK TO THE CALL BELOW WHEN THE 1.2 UPDATE IS RELEASED
-                    // Person.CreateCheckinRelationship( familyMember.Person.Id, personId, CurrentPersonAlias );
-                    CreateCheckinRelationship( familyMember.Person.Id, personId, CurrentPersonAlias );
+                    Person.CreateCheckinRelationship( familyMember.Person.Id, personId, CurrentPersonAlias );
                 }
             }
 
             rockContext.SaveChanges();
-        }
-
-        // TODO: REMOVE THIS WHEN THE 1.2 UPDATE IS RELEASED
-        /// <summary>
-        /// Adds the related person to the selected person's known relationships with a role of 'Can check in' which
-        /// is typically configured to allow check-in.  If an inverse relationship is configured for 'Can check in'
-        /// (i.e. 'Allow check in by'), that relationship will also be created.
-        /// </summary>
-        /// <param name="personId">A <see cref="System.Int32"/> representing the Id of the Person.</param>
-        /// <param name="relatedPersonId">A <see cref="System.Int32"/> representing the Id of the related Person.</param>
-        /// <param name="currentPersonAlias">A <see cref="Rock.Model.PersonAlias"/> representing the Person who is logged in.</param>
-        public static void CreateCheckinRelationship( int personId, int relatedPersonId, PersonAlias currentPersonAlias )
-        {
-            var rockContext = new RockContext();
-            var groupMemberService = new GroupMemberService( rockContext );
-            var knownRelationshipGroup = groupMemberService.Queryable()
-                .Where( m =>
-                    m.PersonId == personId &&
-                    m.GroupRole.Guid.Equals( new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_KNOWN_RELATIONSHIPS_OWNER ) ) )
-                .Select( m => m.Group )
-                .FirstOrDefault();
-
-            if ( knownRelationshipGroup != null )
-            {
-                var knownRelationshipGroupType = GroupTypeCache.Read( new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_KNOWN_RELATIONSHIPS_OWNER ) );
-                var canCheckInRole = knownRelationshipGroupType.Roles.FirstOrDefault( r =>
-                        r.Guid == new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_KNOWN_RELATIONSHIPS_CAN_CHECK_IN ) );
-
-                if ( canCheckInRole != null )
-                {
-                    var canCheckInMember = groupMemberService.Queryable()
-                        .FirstOrDefault( m =>
-                            m.GroupId == knownRelationshipGroup.Id &&
-                            m.PersonId == relatedPersonId &&
-                            m.GroupRoleId == canCheckInRole.Id );
-
-                    if ( canCheckInMember == null )
-                    {
-                        canCheckInMember = new GroupMember();
-                        canCheckInMember.GroupId = knownRelationshipGroup.Id;
-                        canCheckInMember.PersonId = relatedPersonId;
-                        canCheckInMember.GroupRoleId = canCheckInRole.Id;
-                        groupMemberService.Add( canCheckInMember );
-                        rockContext.SaveChanges();
-                    }
-
-                    var inverseGroupMember = groupMemberService.GetInverseRelationship( canCheckInMember, true, currentPersonAlias );
-                    if ( inverseGroupMember != null )
-                    {
-                        groupMemberService.Add( inverseGroupMember );
-                        rockContext.SaveChanges();
-                    }
-                }
-            }
         }
 
         #endregion Internal Methods
