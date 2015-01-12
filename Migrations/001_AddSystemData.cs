@@ -25,7 +25,7 @@ using Rock.Plugin;
 
 namespace cc.newspring.AttendedCheckIn.Migrations
 {
-    [MigrationNumber( 1, "1.0.11" )]
+    [MigrationNumber( 1, "1.2.0" )]
     public class AddSystemData : Migration
     {
         /// <summary>
@@ -135,6 +135,7 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             RockMigrationHelper.UpdateEntityType( "cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.FilterGroupsByGender", "Filter Groups By Gender", "cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.FilterGroupsByGender", false, true, "DC7DB1FD-8CC8-4AC4-B0A5-B5F85FF03540" );
             RockMigrationHelper.UpdateEntityType( "cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByBestFit", "Select By Best Fit", "cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByBestFit", false, true, "B1A855F8-7ED6-49AE-8EEA-D1DCB6C7E944" );
             RockMigrationHelper.UpdateEntityType( "cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByLastAttended", "Select By Last Attended", "cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByLastAttended", false, true, "B4E27263-BB68-46DB-9876-D0E8C26449A3" );
+            RockMigrationHelper.UpdateEntityType( "cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByMultipleAttended", "Select By Multiple Attended", "cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByMultipleAttended", false, true, "DDC2D0CA-28A9-420B-9915-B3831DE75DAC" );
 
             // Set attribute defaults
             // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.FilterGroupsByAge:Order
@@ -158,6 +159,10 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "B4E27263-BB68-46DB-9876-D0E8C26449A3", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Active", "Active", "Should Service be used?", 0, @"False", "8A1DBF48-1BF8-4EB8-9CDD-2D3773DD64EA" );
             // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByLastAttended:Order
             RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "B4E27263-BB68-46DB-9876-D0E8C26449A3", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "Order", "Order", "The order that this service should be used (priority)", 0, @"", "99840778-A814-4826-A976-46CC01CC2335" );
+            // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByMultipleAttended:Active
+            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "DDC2D0CA-28A9-420B-9915-B3831DE75DAC", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Active", "Active", "Should Service be used?", 0, @"False", "85BB0E2E-A8DE-4991-B92C-D6378F60001D" );
+            // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByMultipleAttended:Order
+            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "DDC2D0CA-28A9-420B-9915-B3831DE75DAC", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "Order", "Order", "The order that this service should be used (priority)", 0, @"", "7237CFF5-BC59-4C2C-8314-F690038D93F8" );
 
             // Attended Workflow Type
             RockMigrationHelper.UpdateWorkflowType( false, true, "Attended Check-in", "Workflow for managing attended check-in", "8F8B272D-D351-485E-86D6-3EE5B7C84D99", "Check-in", "fa fa-list-ol", 0, false, 3, "6E8CD562-A1DA-4E13-A45C-853DB56E0014" ); // Attended Check-in
@@ -165,6 +170,7 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             RockMigrationHelper.UpdateWorkflowActivityType( "6E8CD562-A1DA-4E13-A45C-853DB56E0014", true, "Person Search", "", false, 1, "6D8CC755-0140-439A-B5A3-97D2F7681697" ); // Attended Check-in:Person Search
             RockMigrationHelper.UpdateWorkflowActivityType( "6E8CD562-A1DA-4E13-A45C-853DB56E0014", true, "Activity Search", "", false, 2, "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD" ); // Attended Check-in:Activity Search
             RockMigrationHelper.UpdateWorkflowActivityType( "6E8CD562-A1DA-4E13-A45C-853DB56E0014", true, "Save Attendance", "", false, 3, "BF4E1CAA-25A3-4676-BCA2-FDE2C07E8210" ); // Attended Check-in:Save Attendance
+            RockMigrationHelper.UpdateWorkflowActivityType( "6E8CD562-A1DA-4E13-A45C-853DB56E0014", true, "Create Labels", "", false, 4, "21245E72-E914-4581-972E-06DD171DCE6A" ); // Attended Check-in:Create Labels
 
             // Family Search
             // Attended Check-in:Family Search:Find Families
@@ -193,22 +199,21 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             // Activity Search
             // Attended Check-in:Activity Search:Load Locations
             RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Load Locations", 1, "4492E36A-77C8-4DC7-8128-570FAA161ADB", true, false, "", "", 1, "", "1F342433-CE63-4FB4-88CE-00A8306ECED8" );
-            // Attended Check-in:Activity Search:Load Schedules
-            RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Load Schedules", 2, "24A7E196-B50B-4BD6-A347-07CFC5ABEF9E", true, false, "", "", 1, "", "5CD01782-54F7-405D-B857-73BDE9242761" );
             // Attended Check-in:Activity Search:Filter Active Locations
-            RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Filter Active Locations", 3, "7BB371F9-A8DE-49D3-BEEA-C191F6C7D4A0", true, false, "", "", 1, "", "685CB9D2-EAA3-4322-81E3-289BFCAE15E7" );
-            // Attended Check-in:Activity Search:Calculate Last Attended
-            RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Calculate Last Attended", 7, "A2216790-9699-4213-8EB2-DDDCA54F2C03", true, false, "", "", 1, "", "32CFAB16-629D-490C-A2C4-A95731BA5931" );
-            // Attended Check-in:Activity Search:Select By Last Attended
-            RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Select By Last Attended", 8, "B4E27263-BB68-46DB-9876-D0E8C26449A3", true, false, "", "", 1, "", "3CD3A5B9-33CB-44DA-9D0F-04E7BCDA9B2B" );
+            RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Filter Active Locations", 2, "7BB371F9-A8DE-49D3-BEEA-C191F6C7D4A0", true, false, "", "", 1, "", "685CB9D2-EAA3-4322-81E3-289BFCAE15E7" );
+            // Attended Check-in:Activity Search:Load Schedules
+            RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Load Schedules", 3, "24A7E196-B50B-4BD6-A347-07CFC5ABEF9E", true, false, "", "", 1, "", "5CD01782-54F7-405D-B857-73BDE9242761" );
+            // Attended Check-in:Activity Search:Select By Multiple Attended
+            RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Select By Multiple Attended", 4, "DDC2D0CA-28A9-420B-9915-B3831DE75DAC", true, false, "", "", 1, "", "32CFAB16-629D-490C-A2C4-A95731BA5931" );
             // Attended Check-in:Activity Search:Select By Best Fit
-            RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Select By Best Fit", 9, "B1A855F8-7ED6-49AE-8EEA-D1DCB6C7E944", true, false, "", "", 1, "", "7D482C58-34CB-4414-9607-4BD01D0C217A" );
+            RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Select By Best Fit", 5, "B1A855F8-7ED6-49AE-8EEA-D1DCB6C7E944", true, false, "", "", 1, "", "7D482C58-34CB-4414-9607-4BD01D0C217A" );
 
             // Save Attendance
             // Attended Check-in:Save Attendance:Save Attendance
             RockMigrationHelper.UpdateWorkflowActionType( "BF4E1CAA-25A3-4676-BCA2-FDE2C07E8210", "Save Attendance", 0, "50B2FEE6-DB7A-43C0-9DCF-19F61CD02BC6", true, false, "", "", 1, "", "93AF3357-7AE9-47AA-8B8B-C5351490E1ED" );
+
             // Attended Check-in:Save Attendance:Create Labels
-            RockMigrationHelper.UpdateWorkflowActionType( "BF4E1CAA-25A3-4676-BCA2-FDE2C07E8210", "Create Labels", 1, "8F348E7B-F9FD-4600-852D-477B13B0B4EE", true, false, "", "", 1, "", "BBE6E76D-6C8E-4B8E-931C-DD3CBE9619A4" );
+            RockMigrationHelper.UpdateWorkflowActionType( "21245E72-E914-4581-972E-06DD171DCE6A", "Create Labels", 0, "8F348E7B-F9FD-4600-852D-477B13B0B4EE", true, false, "", "", 1, "", "BBE6E76D-6C8E-4B8E-931C-DD3CBE9619A4" );
 
             // Set attribute values
             // Attended Check-in:Family Search:Find Families:Order
