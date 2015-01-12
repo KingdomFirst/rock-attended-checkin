@@ -51,8 +51,7 @@ namespace Rock.Workflow.Action.CheckIn
             var checkInState = GetCheckInState( entity, out errorMessages );
             if ( checkInState != null )
             {
-                string securityCode = "";
-                int securityCodeId = 0;
+                AttendanceCode attendanceCode = null;
                 bool reuseCodeForFamily = false;
                 if ( bool.TryParse( GetAttributeValue( action, "ReuseCodeForFamily" ), out reuseCodeForFamily ) && reuseCodeForFamily )
                 {
@@ -76,16 +75,14 @@ namespace Rock.Workflow.Action.CheckIn
                 {
                     foreach ( var person in family.People.Where( p => p.Selected ) )
                     {
-                        if ( reuseCodeForFamily && securityCode != "" )
+                        if ( reuseCodeForFamily && attendanceCode != null )
                         {
-                            person.SecurityCode = securityCode;
+                            person.SecurityCode = attendanceCode.Code;
                         }
                         else
                         {
-                            var attendanceCode = AttendanceCodeService.GetNew( securityCodeLength );
+                            attendanceCode = AttendanceCodeService.GetNew( securityCodeLength );
                             person.SecurityCode = attendanceCode.Code;
-                            securityCode = attendanceCode.Code;
-                            securityCodeId = attendanceCode.Id;
                         }
 
                         foreach ( var groupType in person.GroupTypes.Where( g => g.Selected ) )
@@ -127,7 +124,7 @@ namespace Rock.Workflow.Action.CheckIn
                                             }
                                         }
 
-                                        attendance.AttendanceCodeId = securityCodeId;
+                                        attendance.AttendanceCodeId = attendanceCode.Id;
                                         attendance.StartDateTime = startDateTime;
                                         attendance.EndDateTime = null;
                                         attendance.DidAttend = true;
