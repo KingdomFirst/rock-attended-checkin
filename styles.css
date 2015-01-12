@@ -17,10 +17,10 @@ body {
     border-radius: 10px;
 }
 
-*:not(.modal-content) > .checkin-header h1 {
-    margin-bottom: 0;
-    margin-top: 10px;
-}
+    *:not(.modal-content) > .checkin-header h1 {
+        margin-bottom: 0;
+        margin-top: 10px;
+    }
 
 .modal-content .checkin-header {
     border-bottom: 1px solid #222222;
@@ -31,10 +31,10 @@ body {
     padding: 20px;
 }
 
-.checkin-header input {
-    width: 100%;
-    margin-top: 5px;
-}
+    .checkin-header input {
+        width: 100%;
+        margin-top: 5px;
+    }
 
 .grid, .grid-table {
     overflow-y: auto;
@@ -57,6 +57,10 @@ table td {
     text-align: left;
 }
 
+.cozy table > tbody > tr td {
+    padding: 10px 8px;
+}
+
 .three-col-with-controls td:nth-child(3) ~ td {
     width: 100px;
 }
@@ -65,9 +69,9 @@ table td {
     background-color: rgba(255,255,255,0.8);
 }
 
-.modal-content table thead a {
-    color: #000000;
-}
+    .modal-content table thead a {
+        color: #000000;
+    }
 
 .modal-content .checkin-body > .row:not(:first-of-type) {
     margin-bottom: 10px;
@@ -123,9 +127,9 @@ table td {
     padding-right: 0;
 }
 
-.btn.pagination:last-of-type {
-    float: right;
-}
+    .btn.pagination:last-of-type {
+        float: right;
+    }
 
 .modal-content {
     padding: 20px;
@@ -171,9 +175,9 @@ td.day, th.prev, th.next, th.today, th.datepicker-switch {
     cursor: pointer;
 }
 
-td.day:hover, th.prev:hover, th.next:hover, th.today:hover, th.datepicker-switch:hover, span.month:hover, span.year:hover {
-    background-color: #eeeeee;
-}
+    td.day:hover, th.prev:hover, th.next:hover, th.today:hover, th.datepicker-switch:hover, span.month:hover, span.year:hover {
+        background-color: #eeeeee;
+    }
 
 th.datepicker-switch {
     text-align: center;
@@ -184,7 +188,7 @@ th.next {
 }
 
 td.day {
-    width: 14.2%
+    width: 14.2%;
 }
 
 .datepicker-months, .datepicker-years {
