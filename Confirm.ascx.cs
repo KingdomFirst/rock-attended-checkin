@@ -40,7 +40,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
     [Category( "Check-in > Attended" )]
     [Description( "Attended Check-In Confirmation Block" )]
     [LinkedPage( "Activity Select Page" )]
-    [BooleanField( "Print Individual Labels", "Select this option to print one label per group, location, & schedule.", false )]
+    [BooleanField( "Print Individual Labels", "Select this option to print one label per person's group, location, & schedule.", false )]
     public partial class Confirm : CheckInBlock
     {
         /// <summary>
@@ -298,7 +298,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 maWarning.Show( errorMsg, Rock.Web.UI.Controls.ModalAlertType.Warning );
             }
 
-            return errors.Any();
+            return !errors.Any();
         }
 
         /// <summary>
@@ -309,61 +309,61 @@ namespace RockWeb.Blocks.CheckIn.Attended
         private void ProcessLabels( DataKeyArray labelKeyArray )
         {
             // Make sure we can save the attendance and get an attendance code
-            if ( !SaveAttendance() )
+            if ( SaveAttendance() )
             {
-                return;
-            }
-
-            bool printIndividualLabels = bool.Parse( GetAttributeValue( "PrintIndividualLabels" ) ?? "false" );
-            if ( !printIndividualLabels )
-            {
-                PrintLabels();
-            }
-            else
-            {
-                // labelKeyArray has all the labels to be printed, whether single or multiple people are checking in
-                foreach ( DataKey dataKey in labelKeyArray )
+                bool printIndividualLabels = bool.Parse( GetAttributeValue( "PrintIndividualLabels" ) ?? "false" );
+                if ( !printIndividualLabels )
                 {
-                    var personId = Convert.ToInt32( dataKey["PersonId"] );
-                    var locationId = Convert.ToInt32( dataKey["LocationId"] );
-                    var scheduleId = Convert.ToInt32( dataKey["ScheduleId"] );
-
-                    var selectedPerson = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected )
-                        .People.FirstOrDefault( p => p.Person.Id == personId && p.Selected );
-
-                    // unselect other people
-                    CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).SelectMany( f => f.People ).ToList().ForEach( p => p.Selected = false );
-
-                    // unselect grouptypes
-                    selectedPerson.GroupTypes.ForEach( gt => gt.Selected = false );
-
-                    // unselect groups
-                    selectedPerson.GroupTypes.SelectMany( gt => gt.Groups ).ToList().ForEach( g => g.Selected = false );
-
-                    // unselect locations
-                    selectedPerson.GroupTypes.SelectMany( gt => gt.Groups.SelectMany( g => g.Locations ) ).ToList().ForEach( l => l.Selected = false );
-
-                    // unselect schedules
-                    selectedPerson.GroupTypes.SelectMany( gt => gt.Groups.SelectMany( g => g.Locations.SelectMany( l => l.Schedules ) ) ).ToList()
-                        .ForEach( s => s.Selected = false );
-
-                    // set only the current label selection
-                    var selectedGroupType = selectedPerson.GroupTypes.FirstOrDefault( gt =>
-                        gt.Groups.Any( g => g.Locations.Any( l => l.Location.Id == locationId
-                            && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) ) ) );
-                    var selectedGroup = selectedGroupType.Groups.FirstOrDefault( g => g.Locations.Any( l =>
-                        l.Location.Id == locationId && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) ) );
-                    var selectedLocation = selectedGroup.Locations.FirstOrDefault( l => l.Location.Id == locationId
-                            && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) );
-                    var selectedSchedule = selectedLocation.Schedules.FirstOrDefault( s => s.Schedule.Id == scheduleId );
-
-                    selectedPerson.Selected = true;
-                    selectedGroupType.Selected = true;
-                    selectedGroup.Selected = true;
-                    selectedLocation.Selected = true;
-                    selectedSchedule.Selected = true;
-
+                    // separate labels by person and that's it
                     PrintLabels();
+                }
+                else
+                {
+                    // labelKeyArray has all the labels to be printed, whether single or multiple people are checking in
+                    foreach ( DataKey dataKey in labelKeyArray )
+                    {
+                        var personId = Convert.ToInt32( dataKey["PersonId"] );
+                        var locationId = Convert.ToInt32( dataKey["LocationId"] );
+                        var scheduleId = Convert.ToInt32( dataKey["ScheduleId"] );
+
+                        // mark the person whose label is being printed
+                        var selectedPerson = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected )
+                            .People.FirstOrDefault( p => p.Person.Id == personId && p.Selected );
+
+                        // unselect other people
+                        CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).SelectMany( f => f.People ).ToList().ForEach( p => p.Selected = false );
+
+                        // unselect grouptypes
+                        selectedPerson.GroupTypes.ForEach( gt => gt.Selected = false );
+
+                        // unselect groups
+                        selectedPerson.GroupTypes.SelectMany( gt => gt.Groups ).ToList().ForEach( g => g.Selected = false );
+
+                        // unselect locations
+                        selectedPerson.GroupTypes.SelectMany( gt => gt.Groups.SelectMany( g => g.Locations ) ).ToList().ForEach( l => l.Selected = false );
+
+                        // unselect schedules
+                        selectedPerson.GroupTypes.SelectMany( gt => gt.Groups.SelectMany( g => g.Locations.SelectMany( l => l.Schedules ) ) ).ToList()
+                            .ForEach( s => s.Selected = false );
+
+                        // set only the current label selection
+                        var selectedGroupType = selectedPerson.GroupTypes.FirstOrDefault( gt =>
+                            gt.Groups.Any( g => g.Locations.Any( l => l.Location.Id == locationId
+                                && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) ) ) );
+                        var selectedGroup = selectedGroupType.Groups.FirstOrDefault( g => g.Locations.Any( l =>
+                            l.Location.Id == locationId && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) ) );
+                        var selectedLocation = selectedGroup.Locations.FirstOrDefault( l => l.Location.Id == locationId
+                                && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) );
+                        var selectedSchedule = selectedLocation.Schedules.FirstOrDefault( s => s.Schedule.Id == scheduleId );
+
+                        selectedPerson.Selected = true;
+                        selectedGroupType.Selected = true;
+                        selectedGroup.Selected = true;
+                        selectedLocation.Selected = true;
+                        selectedSchedule.Selected = true;
+
+                        PrintLabels();
+                    }
                 }
             }
         }
