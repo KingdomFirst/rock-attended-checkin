@@ -282,14 +282,10 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             RockMigrationHelper.AddActionTypeAttributeValue( "9089B47B-B441-41DE-84A7-710F4E3E55EF", "041E4A2B-90C6-4242-A7F1-ED07D9B348F2", @"" );
             // Attended Check-in:Activity Search:Remove Empty Groups:Active
             RockMigrationHelper.AddActionTypeAttributeValue( "9089B47B-B441-41DE-84A7-710F4E3E55EF", "05C329B0-3794-42BD-9467-8F3FF95D7882", @"False" );
-            // Attended Check-in:Activity Search:Calculate Last Attended:Order
-            RockMigrationHelper.AddActionTypeAttributeValue( "32CFAB16-629D-490C-A2C4-A95731BA5931", "EA5AE300-CC75-4DD1-ADCF-BEAAF71B0F4F", @"" );
-            // Attended Check-in:Activity Search:Calculate Last Attended:Active
-            RockMigrationHelper.AddActionTypeAttributeValue( "32CFAB16-629D-490C-A2C4-A95731BA5931", "21440E98-D3E9-427E-AB13-65C75D61EA22", @"False" );
-            // Attended Check-in:Activity Search:Select By Last Attended:Order
-            RockMigrationHelper.AddActionTypeAttributeValue( "3CD3A5B9-33CB-44DA-9D0F-04E7BCDA9B2B", "99840778-A814-4826-A976-46CC01CC2335", @"" );
-            // Attended Check-in:Activity Search:Select By Last Attended:Active
-            RockMigrationHelper.AddActionTypeAttributeValue( "3CD3A5B9-33CB-44DA-9D0F-04E7BCDA9B2B", "8A1DBF48-1BF8-4EB8-9CDD-2D3773DD64EA", @"False" );
+            // Attended Check-in:Activity Search:Select By Multiple Attended:Order
+            RockMigrationHelper.AddActionTypeAttributeValue( "32CFAB16-629D-490C-A2C4-A95731BA5931", "99840778-A814-4826-A976-46CC01CC2335", @"" );
+            // Attended Check-in:Activity Search:Select By Multiple Attended:Active
+            RockMigrationHelper.AddActionTypeAttributeValue( "32CFAB16-629D-490C-A2C4-A95731BA5931", "8A1DBF48-1BF8-4EB8-9CDD-2D3773DD64EA", @"False" );
             // Attended Check-in:Activity Search:Select By Best Fit:Order
             RockMigrationHelper.AddActionTypeAttributeValue( "7D482C58-34CB-4414-9607-4BD01D0C217A", "C599F69C-7295-4F82-A9A2-C769DBAF8765", @"" );
             // Attended Check-in:Activity Search:Select By Best Fit:Active
