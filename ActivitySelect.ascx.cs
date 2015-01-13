@@ -347,7 +347,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                     var location = (CheckInLocation)e.Item.DataItem;
                     var lbLocation = (LinkButton)e.Item.FindControl( "lbLocation" );
                     lbLocation.CommandArgument = location.Location.Id.ToString();
-                    lbLocation.Text = location.Location.Name + " (" + GetLocationAttendance( location ) + ")";
+                    lbLocation.Text = string.Format( "{0} ({1})", location.Location.Name, GetLocationAttendance( location ) );
 
                     if ( location.Selected && location.Location.Id == selectedLocationId )
                     {
@@ -376,7 +376,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 }
 
                 var scheduleAttendance = ScheduleAttendanceList.Where( s => s.ScheduleId == schedule.Schedule.Id );
-                lbSchedule.Text += " (" + scheduleAttendance.Select( s => s.AttendanceCount ).FirstOrDefault() + ")";
+                lbSchedule.Text += string.Format( " ({0})", scheduleAttendance.Select( s => s.AttendanceCount ).FirstOrDefault() );
             }
         }
 

@@ -1,4 +1,5 @@
 ﻿﻿// <copyright>
+
 // Copyright 2013 by the Spark Development Network
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -270,7 +271,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
         private void CreateGroupTypeEditorControls( GroupType groupType, Control parentControl, RockContext rockContext, bool createExpanded = false )
         {
             CheckinGroupTypeEditor groupTypeEditor = new CheckinGroupTypeEditor();
-            groupTypeEditor.ID = "GroupTypeEditor_" + groupType.Guid.ToString( "N" );
+            groupTypeEditor.ID = string.Format( "GroupTypeEditor_{0}", groupType.Guid.ToString( "N" ) );
             groupTypeEditor.SetGroupType( groupType.Id, groupType.Guid, groupType.Name, groupType.InheritedGroupTypeId );
             groupTypeEditor.AddGroupClick += groupTypeEditor_AddGroupClick;
             groupTypeEditor.AddGroupTypeClick += groupTypeEditor_AddGroupTypeClick;
@@ -461,7 +462,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
         private void CreateGroupEditorControls( Group group, Control parentControl, RockContext rockContext, bool createExpanded = false )
         {
             CheckinGroupEditor groupEditor = new CheckinGroupEditor();
-            groupEditor.ID = "GroupEditor_" + group.Guid.ToString( "N" );
+            groupEditor.ID = string.Format( "GroupEditor_{0}", group.Guid.ToString( "N" ) );
             if ( createExpanded )
             {
                 groupEditor.Expanded = true;
