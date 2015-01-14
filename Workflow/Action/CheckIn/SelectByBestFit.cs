@@ -90,8 +90,8 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                 else
                                 {
                                     CheckInGroup closestAbilityGroup = null;
-                                    // TODO: Get rid of LoadAttributes call when FilterGroupsByAbilityLevel does it for us so we can reduce DB calls
-                                    person.Person.LoadAttributes();
+
+                                    // FilterGroupsByAbilityLevel already loads the attributes on people
                                     var personsAbility = person.Person.GetAttributeValue( "AbilityLevel" );
 
                                     if ( personsAbility != null )
