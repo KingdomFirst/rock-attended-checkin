@@ -105,6 +105,7 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             RockMigrationHelper.AddBlockTypeAttribute( "5B1D4187-9B34-4AB6-AC57-7E2CF67B266F", "46A03F59-55D3-4ACE-ADD5-B4642225DD20", "Workflow Type", "WorkflowType", "", "The workflow type to activate for check-in", 0, @"0", "2A71729F-E7CA-4ACD-9996-A6A661A069FD" );
             RockMigrationHelper.AddBlockTypeAttribute( "5B1D4187-9B34-4AB6-AC57-7E2CF67B266F", "BD53F9C9-EBA9-4D3F-82EA-DE5DD34A8108", "Home Page", "HomePage", "", "", 0, @"", "DEB23724-94F9-4164-BFAB-AD2DDE1F90ED" );
             RockMigrationHelper.AddBlockTypeAttribute( "5B1D4187-9B34-4AB6-AC57-7E2CF67B266F", "BD53F9C9-EBA9-4D3F-82EA-DE5DD34A8108", "Activity Select Page", "ActivitySelectPage", "", "", 0, @"", "2D54A2C9-759C-45B6-8E23-42F39E134170" );
+            RockMigrationHelper.AddBlockTypeAttribute( "5B1D4187-9B34-4AB6-AC57-7E2CF67B266F", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Print Individual Labels", "PrintIndividualLabels", "", "", 0, @"False", "FB49557F-4B8E-4F7B-ACE1-A4230C3BB832" );
             RockMigrationHelper.AddBlockAttributeValue( "7CC68DD4-A6EF-4B67-9FEA-A144C479E058", "E45D2B10-D1B1-4CBE-9C7A-3098B1D95F47", @"AF83D0B2-2995-4E46-B0DF-1A4763637A68" ); // Previous Page
             RockMigrationHelper.AddBlockAttributeValue( "7CC68DD4-A6EF-4B67-9FEA-A144C479E058", "48813610-DD26-4E72-9D19-817535802C49", @"8F618315-F554-4751-AB7F-00CC5658120A" ); // Next Page
             RockMigrationHelper.AddBlockAttributeValue( "7CC68DD4-A6EF-4B67-9FEA-A144C479E058", "2A71729F-E7CA-4ACD-9996-A6A661A069FD", @"6E8CD562-A1DA-4E13-A45C-853DB56E0014" ); // Workflow Type
@@ -301,13 +302,16 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             // Attended Check-in:Save Attendance:Create Labels:Active
             RockMigrationHelper.AddActionTypeAttributeValue( "BBE6E76D-6C8E-4B8E-931C-DD3CBE9619A4", "36EB15CE-095C-41ED-9C0F-9EA345599D54", @"False" );
 
-            // Replace check-in config block
+            // Custom check-in config block
             RockMigrationHelper.UpdateBlockType( "Area Configuration", "Attended Check-In Area Config", "~/Plugins/cc_newspring/AttendedCheckIn/Config/AreaConfiguration.ascx", "Check-in > Attended", "FADD6974-FE07-49EF-AA8D-5AE5976D85D2" );
             Sql( @"
                 DECLARE @NewConfigBlockTypeId int = (SELECT [ID] FROM [BlockType] WHERE [Guid] = 'FADD6974-FE07-49EF-AA8D-5AE5976D85D2')
                 DECLARE @OldConfigBlockTypeId int = (SELECT [ID] FROM [BlockType] WHERE [Guid] = '2506B048-F62C-4945-B09A-1E053F66C592')
                 UPDATE [Block] SET [BlockTypeId] = @NewConfigBlockTypeId WHERE [BlockTypeId] = @OldConfigBlockTypeId AND [Name] = 'Check-in Configuration'
             " );
+
+            RockMigrationHelper.AddBlockTypeAttribute( "FADD6974-FE07-49EF-AA8D-5AE5976D85D2", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Create Check-in Hierarchy", "CreateCheck-inHierarchy", "", "", 0, @"False", "3B3BF9E2-51AE-44BD-B142-1F3D711E59F0" );
+            RockMigrationHelper.AddBlockTypeAttribute( "FADD6974-FE07-49EF-AA8D-5AE5976D85D2", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Display Check-in Groups", "DisplayCheck-inGroups", "", "", 0, @"False", "1AB938CC-BD49-4410-BC60-A57EDD7752FE" );
 
             // Add checkin note types
             Sql( @"
@@ -348,6 +352,7 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             RockMigrationHelper.DeleteBlock( "31E6A1CC-2ABE-4ECC-B8DF-1FD2E8EBA203" );
 
             // Delete Page: Confirmation
+            RockMigrationHelper.DeleteAttribute( "FB49557F-4B8E-4F7B-ACE1-A4230C3BB832" );
             RockMigrationHelper.DeleteAttribute( "2D54A2C9-759C-45B6-8E23-42F39E134170" );
             RockMigrationHelper.DeleteAttribute( "DEB23724-94F9-4164-BFAB-AD2DDE1F90ED" );
             RockMigrationHelper.DeleteAttribute( "2A71729F-E7CA-4ACD-9996-A6A661A069FD" );
