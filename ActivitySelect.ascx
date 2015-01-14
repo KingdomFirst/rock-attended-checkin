@@ -1,5 +1,4 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="ActivitySelect.ascx.cs" Inherits="RockWeb.Blocks.CheckIn.Attended.ActivitySelect" %>
-<%@ Register Assembly="AjaxControlToolkit" Namespace="AjaxControlToolkit" TagPrefix="asp" %>
 
 <asp:UpdatePanel ID="pnlContent" runat="server" UpdateMode="Conditional">
     <ContentTemplate>
