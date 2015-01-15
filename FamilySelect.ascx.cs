@@ -63,8 +63,14 @@ namespace RockWeb.Blocks.CheckIn.Attended
             {
                 if ( CurrentCheckInState.CheckIn.Families.Count > 0 )
                 {
-                    // TODO: make ordering smarter, possibly by campus then by caption
-                    var familyList = CurrentCheckInState.CheckIn.Families.OrderBy( f => f.Caption ).ToList();
+                    var kioskLocationId = CurrentCheckInState.Kiosk.Device.LocationId;
+                    var currentCampusId = CampusCache.All()
+                        .Where( c => c.LocationId.HasValue && c.LocationId == kioskLocationId )
+                        .Select( c => c.Id ).FirstOrDefault();
+
+                    // Order families by campus then by caption
+                    var familyList = CurrentCheckInState.CheckIn.Families.OrderByDescending( f => f.Group.CampusId == currentCampusId )
+                        .ThenBy( f => f.Caption ).ToList();
                     if ( !UserBackedUp )
                     {
                         familyList.FirstOrDefault().Selected = true;
