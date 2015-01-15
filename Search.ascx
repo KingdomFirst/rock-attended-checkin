@@ -3,7 +3,7 @@
 <asp:UpdatePanel ID="pnlContent" runat="server" UpdateMode="Conditional">
     <ContentTemplate>
 
-        <asp:PlaceHolder ID="phScript" runat="server"></asp:PlaceHolder>
+        <asp:PlaceHolder ID="phScript" runat="server" />
         <Rock:ModalAlert ID="maWarning" runat="server" />
 
         <asp:Panel ID="pnlSearch" runat="server" DefaultButton="lbSearch" CssClass="attended">
