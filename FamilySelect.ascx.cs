@@ -65,7 +65,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 {
                     var kioskLocationId = CurrentCheckInState.Kiosk.Device.LocationId;
                     var currentCampusId = CampusCache.All()
-                        .Where( c => c.LocationId.HasValue && c.LocationId == kioskLocationId )
+                        .Where( c => c.LocationId.HasValue && kioskLocationId == c.LocationId )
                         .Select( c => c.Id ).FirstOrDefault();
 
                     // Order families by campus then by caption
