@@ -78,7 +78,8 @@
                     <asp:UpdatePanel ID="pnlSelected" runat="server" UpdateMode="Conditional">
                         <ContentTemplate>
                             <div class="grid cozy">
-                                <Rock:Grid ID="gSelectedGrid" runat="server" ShowHeader="false" ShowFooter="false" DataKeyNames="LocationId, ScheduleId" DisplayType="Light" EmptyDataText="No CheckIn Selected">
+                                <Rock:Grid ID="gSelectedGrid" runat="server" ShowHeader="false" ShowFooter="false" EnableResponsiveTable="false" DisplayType="Light"
+                                    DataKeyNames="LocationId, ScheduleId" EmptyDataText="No CheckIn Selected">
                                     <Columns>
                                         <asp:BoundField DataField="Schedule" />
                                         <asp:BoundField DataField="ScheduleId" Visible="false" />
