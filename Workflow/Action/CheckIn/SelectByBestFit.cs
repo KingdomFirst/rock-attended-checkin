@@ -117,8 +117,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         if ( gradeFilteredGroups.Count > 0 )
                                         {
                                             decimal grade = (decimal)person.Person.Grade;
-                                            closestGradeGroup = gradeFilteredGroups.Aggregate( ( x, y ) =>
-                                                Math.Abs( x.GradeRange.Average() - grade ) < Math.Abs( y.GradeRange.Average() - grade ) ? x : y )
+                                            closestGradeGroup = gradeFilteredGroups.Aggregate( ( x, y ) => Math.Abs( x.GradeRange.Average() - grade ) < Math.Abs( y.GradeRange.Average() - grade ) ? x : y )
                                                 .Group;
                                         }
                                     }
@@ -140,8 +139,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         if ( ageFilteredGroups.Count > 0 )
                                         {
                                             decimal age = (decimal)person.Person.AgePrecise;
-                                            closestAgeGroup = ageFilteredGroups.Aggregate( ( x, y ) =>
-                                                Math.Abs( x.AgeRange.Average() - age ) < Math.Abs( y.AgeRange.Average() - age ) ? x : y )
+                                            closestAgeGroup = ageFilteredGroups.Aggregate( ( x, y ) => Math.Abs( x.AgeRange.Average() - age ) < Math.Abs( y.AgeRange.Average() - age ) ? x : y )
                                                 .Group;
                                         }
                                     }
@@ -198,6 +196,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                                 bestGroup.PreSelected = true;
                                                 bestGroup.Selected = true;
 
+                                                bestGroupType = validGroupTypes.FirstOrDefault( gt => gt.GroupType.Id == bestGroup.Group.GroupTypeId );
                                                 if ( bestGroupType != null )
                                                 {
                                                     bestGroupType.Selected = true;
