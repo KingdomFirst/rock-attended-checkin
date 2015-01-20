@@ -94,7 +94,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     // FilterGroupsByAbilityLevel already loads the attributes on people
                                     var personsAbility = person.Person.GetAttributeValue( "AbilityLevel" );
 
-                                    if ( personsAbility != null )
+                                    if ( !string.IsNullOrWhiteSpace( personsAbility ) )
                                     {
                                         // check groups for a ability
                                         closestAbilityGroup = validGroups.Where( g => g.Group.Attributes.ContainsKey( "AbilityLevel" ) && g.Group.GetAttributeValue( "AbilityLevel" ) == personsAbility ).FirstOrDefault();
@@ -118,7 +118,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         {
                                             decimal grade = (decimal)person.Person.Grade;
                                             closestGradeGroup = gradeFilteredGroups.Aggregate( ( x, y ) =>
-                                                Math.Abs( x.GradeRange.First() - grade ) < Math.Abs( y.GradeRange.First() - grade ) ? x : y )
+                                                Math.Abs( x.GradeRange.Average() - grade ) < Math.Abs( y.GradeRange.Average() - grade ) ? x : y )
                                                 .Group;
                                         }
                                     }
@@ -141,7 +141,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         {
                                             decimal age = (decimal)person.Person.AgePrecise;
                                             closestAgeGroup = ageFilteredGroups.Aggregate( ( x, y ) =>
-                                                Math.Abs( x.AgeRange.First() - age ) < Math.Abs( y.AgeRange.First() - age ) ? x : y )
+                                                Math.Abs( x.AgeRange.Average() - age ) < Math.Abs( y.AgeRange.Average() - age ) ? x : y )
                                                 .Group;
                                         }
                                     }
