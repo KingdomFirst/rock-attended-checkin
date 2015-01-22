@@ -1,14 +1,27 @@
-﻿tfoot {
-    display: none;
-}
-
-body {
-    background-size: cover !important;
-}
+﻿
+/* Layout */
 
 .container.body-content {
     padding: 0 30px 0 30px;
     width: 100%;
+}
+
+.checkin-header {
+    padding: 20px;
+}
+
+.checkin-header input {
+    width: 100%;
+    margin-top: 5px;
+}
+
+.checkin-header input + a > .fa {
+    color: #000000;
+    font-size: 36px;
+    font-weight: 700;
+    position: absolute;
+    right: 25px;
+    top: 15px;
 }
 
 *:not(.modal-content) > .checkin-header {
@@ -17,24 +30,123 @@ body {
     border-radius: 10px;
 }
 
-    *:not(.modal-content) > .checkin-header h1 {
-        margin-bottom: 0;
-        margin-top: 10px;
-    }
+*:not(.modal-content) > .checkin-header h1 {
+    margin-bottom: 0;
+    margin-top: 10px;
+}
+
+.checkin-footer {
+    position: relative;
+}
+
+body {
+    background-size: cover !important;
+}
+
+.datepicker, .modal-content {
+    color: #000000;
+}
+
+.three-col-with-controls td:nth-child(3) ~ td {
+    width: 100px;
+}
+
+tfoot {
+    display: none;
+}
+
+/* Modals */
 
 .modal-content .checkin-header {
     border-bottom: 1px solid #222222;
-    margin-top: 0;
+    margin-top: 0;    
 }
 
-.checkin-header {
+.modal-content .checkin-header h2 {
+    font-weight: bold;
+}
+
+.modal-content table thead, .modal-content table tfoot, .modal-content table tbody tr:nth-child(even) {
+    background-color: rgba(255,255,255,0.8);
+}
+
+.modal-content table thead a {
+    color: #000000;
+}
+
+.modal-content .checkin-body > .row:not(:first-of-type) {
+    margin-bottom: 10px;
+}
+
+.modal-content table tfoot ul.grid-pager li.active a {
+    background-color: #BBBBBB;
+    border-color: #BBBBBB;
+    color: #FFFFFF;
+}
+
+.modal-content table tfoot ul.grid-pager li a {
+    color: #000000;
+}
+
+.modal-content {
     padding: 20px;
 }
 
-    .checkin-header input {
-        width: 100%;
-        margin-top: 5px;
-    }
+.modal-header, .modal-footer {
+    display: none;
+}
+
+.bootbox .modal-footer {
+    border-color: #cccccc;
+}
+
+.grid-pagesize, .grid-itemcount {
+    display: none;
+}
+
+.bootbox .modal-content {
+    background-color: #ffffff;
+}
+
+
+/* Buttons */
+.btn {
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.btn.active {
+    box-shadow: inset 15px 20px 50px #222222, inset -10px -10px 50px #000000;
+    border: 0;
+}
+
+.btn-primary .checkin-sub-title {
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-left: 0;
+}
+
+.btn.pagination[disabled] {
+    opacity: 0;
+}
+
+.btn.pagination {
+    width: 45%;
+    margin-top: 0;
+    font-size: 18px;
+    text-align: center;
+    padding-right: 0;
+}
+
+.btn.pagination:last-of-type {
+    float: right;
+}
+
+/* Grid Items */
 
 .grid, .grid-table {
     overflow-y: auto;
@@ -61,101 +173,27 @@ table td {
     padding: 10px 8px;
 }
 
-.three-col-with-controls td:nth-child(3) ~ td {
-    width: 100px;
+td.day, th.prev, th.next, th.today, th.datepicker-switch {
+    cursor: pointer;
 }
 
-.modal-content table thead, .modal-content table tfoot, .modal-content table tbody tr:nth-child(even) {
-    background-color: rgba(255,255,255,0.8);
+td.day:hover, th.prev:hover, th.next:hover, th.today:hover, th.datepicker-switch:hover, span.month:hover, span.year:hover {
+    background-color: #eeeeee;
 }
 
-    .modal-content table thead a {
-        color: #000000;
-    }
-
-.modal-content .checkin-body > .row:not(:first-of-type) {
-    margin-bottom: 10px;
-}
-
-.modal-content table tfoot ul.grid-pager li.active a {
-    background-color: #BBBBBB;
-    border-color: #BBBBBB;
-    color: #FFFFFF;
-}
-
-.modal-content table tfoot ul.grid-pager li a {
-    color: #000000;
-}
-
-.checkin-header input + a > .fa {
-    color: #000000;
-    font-size: 36px;
-    font-weight: 700;
-    position: absolute;
-    right: 25px;
-    top: 15px;
-}
-
-.checkin-footer {
-    position: relative;
-}
-
-.btn {
-    width: 100%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.btn-primary .checkin-sub-title {
-    width: 100%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin-left: 0;
-}
-
-.btn.pagination[disabled] {
-    opacity: 0;
-}
-
-.btn.pagination {
-    width: 45%;
-    margin-top: 0;
-    font-size: 18px;
+th.datepicker-switch {
     text-align: center;
-    padding-right: 0;
 }
 
-    .btn.pagination:last-of-type {
-        float: right;
-    }
-
-.modal-content {
-    padding: 20px;
+th.next {
+    text-align: right;
 }
 
-.datepicker, .modal-content {
-    color: #000000;
+td.day {
+    width: 14.2%;
 }
 
-.btn.active {
-    box-shadow: inset 15px 20px 50px #222222, inset -10px -10px 50px #000000;
-    border: 0;
-}
-
-.bootbox .modal-footer {
-    border-color: #cccccc;
-}
-
-.grid-pagesize, .grid-itemcount {
-    display: none;
-}
-
-.bootbox .modal-content {
-    background-color: #ffffff;
-}
-
+/* Miscellaneous */
 .in-the-middle, .at-the-bottom {
     position: absolute;
     left: 15px;
@@ -169,26 +207,6 @@ table td {
 
 .at-the-bottom {
     bottom: 0;
-}
-
-td.day, th.prev, th.next, th.today, th.datepicker-switch {
-    cursor: pointer;
-}
-
-    td.day:hover, th.prev:hover, th.next:hover, th.today:hover, th.datepicker-switch:hover, span.month:hover, span.year:hover {
-        background-color: #eeeeee;
-    }
-
-th.datepicker-switch {
-    text-align: center;
-}
-
-th.next {
-    text-align: right;
-}
-
-td.day {
-    width: 14.2%;
 }
 
 .datepicker-months, .datepicker-years {

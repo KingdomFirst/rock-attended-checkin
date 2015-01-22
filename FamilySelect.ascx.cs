@@ -813,31 +813,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
 
             mdlAddPerson.Show();
         }
-
-        /// <summary>
-        /// Shows or hides the modal.
-        /// </summary>
-        /// <param name="elementId">The element identifier.</param>
-        /// <param name="doShow">if set to <c>true</c> [do show].</param>
-        //protected void ShowOrHideModal( string elementId, bool doShow )
-        //{
-        //    var js = "$('.modal-backdrop').remove();";
-
-        //    if ( doShow )
-        //    {
-        //        js += "var modal = $('#" + elementId + ":not(:visible)');" +
-        //            "modal.modal('show');" +
-        //            "$('.modal:visible').css('z-index', $('.modal-backdrop').css('z-index') + 1);";
-        //    }
-        //    else
-        //    {
-        //        js += "var modal = $('#" + elementId + ":visible');" +
-        //            "modal.modal('hide');";
-        //    }
-
-        //    ScriptManager.RegisterStartupScript( Page, Page.GetType(), DateTime.Now.ToString(), js, true );
-        //}
-
+        
         /// <summary>
         /// Adds a new person.
         /// </summary>

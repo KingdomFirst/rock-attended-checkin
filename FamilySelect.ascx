@@ -126,7 +126,7 @@
             </div>
         </asp:Panel>
 
-        <Rock:ModalDialog ID="mdlAddPerson" runat="server">
+        <Rock:ModalDialog ID="mdlAddPerson" runat="server" Content-DefaultButton="lbPersonSearch">
             <Content>
                 <div class="row checkin-header">
                     <div class="checkin-actions">
@@ -135,8 +135,7 @@
                         </div>
 
                         <div class="col-xs-6">
-                            <h2 class="text-center">
-                                <asp:Literal ID="lblAddPersonHeader" runat="server" EnableViewState="false" /></h2>
+                            <h2 class="text-center"><asp:Literal ID="lblAddPersonHeader" runat="server" /></h2>
                         </div>
 
                         <div class="col-xs-3 text-right">
@@ -201,7 +200,7 @@
             </Content>
         </Rock:ModalDialog>
 
-        <Rock:ModalDialog ID="mdlNewFamily" runat="server">
+        <Rock:ModalDialog ID="mdlNewFamily" runat="server" Content-DefaultButton="lbSaveFamily" >
             <Content>
                 <div class="row checkin-header">
                     <div class="col-xs-3 checkin-actions">
@@ -280,6 +279,8 @@
 <script type="text/javascript">
 
     var setControlEvents = function () {
+
+        $('.modal:visible').css('z-index', Number($('.modal-backdrop').css('z-index')) + 1);
 
         $('.person').unbind('click').on('click', function () {
             $(this).toggleClass('active');
