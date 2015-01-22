@@ -312,7 +312,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="System.Web.UI.WebControls.RepeaterItemEventArgs"/> instance containing the event data.</param>
-        protected void rGroupType_ItemDataBound( object sender, ListViewItemEventArgs e )
+        protected void lvGroupType_ItemDataBound( object sender, ListViewItemEventArgs e )
         {
             if ( ViewState["groupTypeId"] != null )
             {
