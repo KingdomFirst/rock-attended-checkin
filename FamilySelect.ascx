@@ -129,7 +129,6 @@
         <div class="modal" id="add-person-modal" role="dialog">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
-                    <asp:HiddenField ID="hfOpenPersonPanel" runat="server" />
                     <div class="row checkin-header">
                         <div class="checkin-actions">
                             <div class="col-xs-3">
@@ -150,10 +149,10 @@
                     <div class="checkin-body">
                         <div class="row">
                             <div class="col-xs-2">
-                                <Rock:RockTextBox ID="tbFirstNameSearch" runat="server" CssClass="col-xs-12" Label="First Name" ValidationGroup="Person" Text="" />
+                                <Rock:RockTextBox ID="tbFirstNameSearch" runat="server" CssClass="col-xs-12" Label="First Name" ValidationGroup="Person" />
                             </div>
                             <div class="col-xs-2">
-                                <Rock:RockTextBox ID="tbLastNameSearch" runat="server" CssClass="col-xs-12" Label="Last Name" ValidationGroup="Person" Text="" />
+                                <Rock:RockTextBox ID="tbLastNameSearch" runat="server" CssClass="col-xs-12" Label="Last Name" ValidationGroup="Person" />
                             </div>
                             <div class="col-xs-3">
                                 <Rock:DatePicker ID="dpDOBSearch" runat="server" Label="DOB" ValidationGroup="Person" CssClass="col-xs-12 date-picker" />
@@ -170,7 +169,7 @@
                             <asp:UpdatePanel ID="pnlPersonSearch" runat="server">
                                 <ContentTemplate>
                                     <div class="grid">
-                                        <Rock:Grid ID="rGridPersonResults" runat="server" OnRowCommand="rGridPersonResults_AddExistingPerson"
+                                        <Rock:Grid ID="rGridPersonResults" runat="server" OnRowCommand="rGridPersonResults_AddExistingPerson" EnableResponsiveTable="false"
                                             OnGridRebind="rGridPersonResults_GridRebind" ShowActionRow="false" PageSize="4" DataKeyNames="Id" AllowSorting="true">
                                             <Columns>
                                                 <asp:BoundField DataField="Id" Visible="false" />
@@ -207,8 +206,6 @@
         <div class="modal" id="new-family-modal" role="dialog">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
-                    <asp:HiddenField ID="hfOpenFamilyPanel" runat="server" />
-
                     <div class="row checkin-header">
                         <div class="col-xs-3 checkin-actions">
                             <Rock:BootstrapButton ID="lbCloseFamily" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbCloseFamily_Click" Text="Cancel" EnableViewState="false" />
