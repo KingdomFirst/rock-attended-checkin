@@ -33,11 +33,16 @@
                     <asp:UpdatePanel ID="pnlGroupTypes" runat="server" UpdateMode="Conditional">
                         <ContentTemplate>
                             <h3>GroupType</h3>
-                            <asp:ListView ID="rGroupType" runat="server" OnItemCommand="rGroupType_ItemCommand" OnItemDataBound="rGroupType_ItemDataBound">
+                            <asp:ListView ID="lvGroupType" runat="server" OnItemCommand="lvGroupType_ItemCommand" OnItemDataBound="lvGroupType_ItemDataBound">
                                 <ItemTemplate>
                                     <asp:LinkButton ID="lbGroupType" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" CausesValidation="false" />
                                 </ItemTemplate>
                             </asp:ListView>
+                            <asp:DataPager ID="dpGroupType" runat="server" PageSize="5" PagedControlID="lvGroupType">
+                                <Fields>
+                                    <asp:NextPreviousPagerField ButtonType="Button" ButtonCssClass="pagination btn btn-primary btn-checkin-select" />
+                                </Fields>
+                            </asp:DataPager>
                         </ContentTemplate>
                     </asp:UpdatePanel>
                 </div>
@@ -51,7 +56,7 @@
                                     <asp:LinkButton ID="lbLocation" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select"></asp:LinkButton>
                                 </ItemTemplate>
                             </asp:ListView>
-                            <asp:DataPager ID="Pager" runat="server" PageSize="5" PagedControlID="lvLocation">
+                            <asp:DataPager ID="dpLocation" runat="server" PageSize="5" PagedControlID="lvLocation">
                                 <Fields>
                                     <asp:NextPreviousPagerField ButtonType="Button" ButtonCssClass="pagination btn btn-primary btn-checkin-select" />
                                 </Fields>

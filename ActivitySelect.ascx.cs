@@ -34,6 +34,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
     [DisplayName( "Activity Select" )]
     [Category( "Check-in > Attended" )]
     [Description( "Attended Check-In Activity Select Block" )]
+    [BooleanField( "Display Group Names", "By default location names are shown.  Check this option to show the group names instead.", true )]
     public partial class ActivitySelect : CheckInBlock
     {
         /// <summary>
@@ -113,7 +114,6 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 if ( !Page.IsPostBack )
                 {
                     var person = GetPerson();
-
                     if ( person != null && person.GroupTypes.Any() )
                     {
                         ViewState["locationId"] = Request.QueryString["locationId"];
@@ -193,13 +193,13 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// </summary>
         /// <param name="source">The source of the event.</param>
         /// <param name="e">The <see cref="RepeaterCommandEventArgs"/> instance containing the event data.</param>
-        protected void rGroupType_ItemCommand( object source, ListViewCommandEventArgs e )
+        protected void lvGroupType_ItemCommand( object source, ListViewCommandEventArgs e )
         {
             var person = GetPerson();
 
             if ( person != null )
             {
-                foreach ( ListViewDataItem item in rGroupType.Items )
+                foreach ( ListViewDataItem item in lvGroupType.Items )
                 {
                     if ( item.ID != e.Item.ID )
                     {
@@ -341,13 +341,17 @@ namespace RockWeb.Blocks.CheckIn.Attended
         {
             if ( ViewState["locationId"] != null )
             {
+                bool showGroupNames = bool.Parse( GetAttributeValue( "DisplayGroupNames" ) );
                 var selectedLocationId = ViewState["locationId"].ToString().AsType<int?>();
                 if ( e.Item.ItemType == ListViewItemType.DataItem )
                 {
                     var location = (CheckInLocation)e.Item.DataItem;
                     var lbLocation = (LinkButton)e.Item.FindControl( "lbLocation" );
                     lbLocation.CommandArgument = location.Location.Id.ToString();
-                    lbLocation.Text = string.Format( "{0} ({1})", location.Location.Name, GetLocationAttendance( location ) );
+
+                    // TODO: Finish this display option
+                    var displayName = showGroupNames ? location.Location.Name : location.Location.Name;
+                    lbLocation.Text = string.Format( "{0} ({1})", displayName, GetLocationAttendance( location ) );
 
                     if ( location.Selected && location.Location.Id == selectedLocationId )
                     {
@@ -492,7 +496,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// <param name="e">The <see cref="PagePropertiesChangingEventArgs"/> instance containing the event data.</param>
         protected void lvLocation_PagePropertiesChanging( object sender, PagePropertiesChangingEventArgs e )
         {
-            Pager.SetPageProperties( e.StartRowIndex, e.MaximumRows, false );
+            dpLocation.SetPageProperties( e.StartRowIndex, e.MaximumRows, false );
             lvLocation.DataSource = Session["locations"];
             lvLocation.DataBind();
         }
@@ -681,8 +685,8 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// <param name="person">The person.</param>
         protected void BindGroupTypes( List<CheckInGroupType> groupTypes )
         {
-            rGroupType.DataSource = groupTypes;
-            rGroupType.DataBind();
+            lvGroupType.DataSource = groupTypes.OrderBy( gt => gt.GroupType.Name );
+            lvGroupType.DataBind();
             pnlGroupTypes.Update();
         }
 
@@ -708,19 +712,19 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 }
 
                 CheckInLocation location = null;
-                var locations = groupType.Groups.SelectMany( g => g.Locations ).ToList();
+                var locations = groupType.Groups.SelectMany( g => g.Locations ).OrderBy( l => l.Location.Name ).ToList();
                 if ( locationId > 0 )
                 {
                     location = locations.Where( l => l.Location.Id == locationId ).FirstOrDefault();
                     var selectedLocationPlaceInList = locations.IndexOf( location ) + 1;
-                    var pageSize = this.Pager.PageSize;
+                    var pageSize = dpLocation.PageSize;
                     var pageToGoTo = selectedLocationPlaceInList / pageSize;
                     if ( selectedLocationPlaceInList % pageSize != 0 || pageToGoTo == 0 )
                     {
                         pageToGoTo++;
                     }
 
-                    this.Pager.SetPageProperties( ( pageToGoTo - 1 ) * this.Pager.PageSize, this.Pager.MaximumRows, false );
+                    dpLocation.SetPageProperties( ( pageToGoTo - 1 ) * dpLocation.PageSize, dpLocation.MaximumRows, false );
                 }
                 else
                 {
