@@ -163,6 +163,13 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbOk_Click( object sender, EventArgs e )
         {
+            if ( CurrentCheckInState == null )
+            {
+                maWarning.Show( "Check-in state timed out.  Please try again.", ModalAlertType.Warning );
+                pnlHeader.Update();
+                return;
+            }
+
             var groupTypeIds = new List<int>();
             var selectedGroupTypeIds = hfGroupTypes.Value.SplitDelimitedValues().Select( int.Parse ).Distinct().ToList();
             if ( CurrentCheckInState.Kiosk.KioskGroupTypes.Any( gt => selectedGroupTypeIds.Contains( gt.GroupType.Id ) ) )
