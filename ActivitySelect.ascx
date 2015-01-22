@@ -33,7 +33,7 @@
                     <asp:UpdatePanel ID="pnlGroupTypes" runat="server" UpdateMode="Conditional">
                         <ContentTemplate>
                             <h3>GroupType</h3>
-                            <asp:ListView ID="lvGroupType" runat="server" OnItemCommand="lvGroupType_ItemCommand" OnItemDataBound="lvGroupType_ItemDataBound">
+                            <asp:ListView ID="lvGroupType" runat="server" OnItemCommand="lvGroupType_ItemCommand" OnPagePropertiesChanging="lvGroupType_PagePropertiesChanging" OnItemDataBound="lvGroupType_ItemDataBound">
                                 <ItemTemplate>
                                     <asp:LinkButton ID="lbGroupType" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" CausesValidation="false" />
                                 </ItemTemplate>

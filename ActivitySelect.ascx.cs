@@ -490,6 +490,18 @@ namespace RockWeb.Blocks.CheckIn.Attended
         }
 
         /// <summary>
+        /// Handles the PagePropertiesChanging event of the lvGroupType control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="PagePropertiesChangingEventArgs"/> instance containing the event data.</param>
+        protected void lvGroupType_PagePropertiesChanging( object sender, PagePropertiesChangingEventArgs e )
+        {
+            dpGroupType.SetPageProperties( e.StartRowIndex, e.MaximumRows, false );
+            lvGroupType.DataSource = Session["grouptypes"];
+            lvGroupType.DataBind();
+        }
+
+        /// <summary>
         /// Handles the PagePropertiesChanging event of the lvLocation control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
@@ -686,7 +698,27 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// <param name="person">The person.</param>
         protected void BindGroupTypes( List<CheckInGroupType> groupTypes )
         {
-            lvGroupType.DataSource = groupTypes.OrderBy( gt => gt.GroupType.Name ).ToList();
+            if ( ViewState["groupTypeId"] != null )
+            {
+                int groupTypeId = ViewState["groupTypeId"].ToString().AsType<int>();
+
+                if ( groupTypeId > 0 )
+                {
+                    var groupType = groupTypes.Where( gt => gt.GroupType.Id == groupTypeId ).FirstOrDefault();
+                    var placeInList = groupTypes.IndexOf( groupType ) + 1;
+                    var pageSize = dpGroupType.PageSize;
+                    var pageToGoTo = placeInList / pageSize;
+                    if ( placeInList % pageSize != 0 || pageToGoTo == 0 )
+                    {
+                        pageToGoTo++;
+                    }
+
+                    dpGroupType.SetPageProperties( ( pageToGoTo - 1 ) * dpGroupType.PageSize, dpGroupType.MaximumRows, false );
+                }
+            }
+
+            Session["grouptypes"] = groupTypes;
+            lvGroupType.DataSource = groupTypes;
             lvGroupType.DataBind();
             pnlGroupTypes.Update();
         }
@@ -717,10 +749,10 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 if ( locationId > 0 )
                 {
                     location = locations.Where( l => l.Location.Id == locationId ).FirstOrDefault();
-                    var selectedLocationPlaceInList = locations.IndexOf( location ) + 1;
+                    var placeInList = locations.IndexOf( location ) + 1;
                     var pageSize = dpLocation.PageSize;
-                    var pageToGoTo = selectedLocationPlaceInList / pageSize;
-                    if ( selectedLocationPlaceInList % pageSize != 0 || pageToGoTo == 0 )
+                    var pageToGoTo = placeInList / pageSize;
+                    if ( placeInList % pageSize != 0 || pageToGoTo == 0 )
                     {
                         pageToGoTo++;
                     }
