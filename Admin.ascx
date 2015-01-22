@@ -12,6 +12,7 @@
         <asp:LinkButton ID="lbRefresh" runat="server" OnClick="lbRefresh_Click"></asp:LinkButton>
         <asp:LinkButton ID="lbCheckGeoLocation" runat="server" OnClick="lbCheckGeoLocation_Click"></asp:LinkButton>
     </span>
+
     <Rock:ModalAlert ID="maWarning" runat="server" />
 
     <asp:Panel ID="pnlAdmin" runat="server" DefaultButton="lbOk" CssClass="attended">
@@ -39,7 +40,7 @@
                 <asp:Label ID="lblHeader" runat="server"><h3>Checkin Type(s)</h3></asp:Label>
                 <asp:Repeater ID="repMinistry" runat="server" OnItemDataBound="repMinistry_ItemDataBound">
                     <ItemTemplate>
-                        <asp:Button ID="lbMinistry" runat="server" data-id='<%# Eval("Id") %>' CommandArgument='<%# Eval("Id") %>' CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" Text='<%# Eval("Name") %>' />
+                        <asp:Button ID="lbMinistry" runat="server" data-id='<%# Eval("Id") %>' CommandArgument='<%# Eval("Id") %>' CssClass="btn btn-primary btn-lg btn-block btn-checkin-select btn-grouptype" Text='<%# Eval("Name") %>' />
                     </ItemTemplate>
                 </asp:Repeater>
                 <asp:Label ID="lblInfo" runat="server" Style="text-align: center" />
@@ -53,8 +54,8 @@
 
 <script type="text/javascript">
 
-    var setControlEvents = function () {
-        $('.btn-checkin-select').off('click').on('click', function () {
+    var setClickEvents = function () {
+        $('.btn-grouptype').off('click').on('click', function () {
             $(this).toggleClass('active').blur();
             var selectedIds = $('input[id$="hfGroupTypes"]').val();
             var buttonId = this.getAttribute('data-id') + ',';
@@ -67,9 +68,6 @@
         });
     };
 
-    $(document).ready(function () {
-        setControlEvents();
-    });
-
-    Sys.WebForms.PageRequestManager.getInstance().add_endRequest(setControlEvents);
+    $(document).ready(function () { setClickEvents(); });
+    Sys.WebForms.PageRequestManager.getInstance().add_endRequest(setClickEvents);
 </script>

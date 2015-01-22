@@ -857,7 +857,11 @@ namespace RockWeb.Blocks.CheckIn.Attended
             }
             else if ( person.Person.Attributes.ContainsKey( "AbilityLevel" ) )
             {
-                ddlAbility.SelectedValue = person.Person.GetAttributeValue( "AbilityLevel" );
+                var personAbility = person.Person.GetAttributeValue( "AbilityLevel" );
+                if ( !string.IsNullOrWhiteSpace( personAbility ) )
+                {
+                    ddlAbility.SelectedValue = personAbility;
+                }
             }
         }
 

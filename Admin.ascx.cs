@@ -164,10 +164,10 @@ namespace RockWeb.Blocks.CheckIn.Attended
         protected void lbOk_Click( object sender, EventArgs e )
         {
             var groupTypeIds = new List<int>();
-
-            if ( !string.IsNullOrEmpty( hfGroupTypes.Value ) )
+            var selectedGroupTypeIds = hfGroupTypes.Value.SplitDelimitedValues().Select( int.Parse ).Distinct().ToList();
+            if ( CurrentCheckInState.Kiosk.KioskGroupTypes.Any( gt => selectedGroupTypeIds.Contains( gt.GroupType.Id ) ) )
             {
-                groupTypeIds = hfGroupTypes.Value.SplitDelimitedValues().Select( int.Parse ).Distinct().ToList();
+                groupTypeIds = selectedGroupTypeIds;
             }
             else
             {
@@ -357,11 +357,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 var kiosk = new DeviceService( new RockContext() ).Get( (int)CurrentKioskId );
                 if ( kiosk != null )
                 {
-                    // var groupTypes = kiosk.Locations.SelectMany( l => l.GroupLocations
-                    //     .Select( gl => gl.Group.GroupType ) ).Distinct().ToList();
-
                     var groupTypes = GetDeviceGroupTypes( kiosk.Id );
-
                     hfGroupTypes.Value = selectedGroupTypes;
 
                     repMinistry.DataSource = groupTypes;

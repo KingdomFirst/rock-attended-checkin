@@ -68,12 +68,9 @@ namespace RockWeb.Blocks.CheckIn.Attended
                         // not active yet, display next active time
                         return;
                     }
-                    else if ( CurrentCheckInState.CheckIn.SearchType != null || CurrentCheckInState.CheckIn.Families.Count > 0 )
+                    else if ( CurrentCheckInState != null && !string.IsNullOrWhiteSpace( CurrentCheckInState.CheckIn.SearchValue ) )
                     {
-                        if ( !string.IsNullOrWhiteSpace( CurrentCheckInState.CheckIn.SearchValue ) )
-                        {
-                            tbSearchBox.Text = CurrentCheckInState.CheckIn.SearchValue;
-                        }
+                        tbSearchBox.Text = CurrentCheckInState.CheckIn.SearchValue;
                     }
 
                     string script = string.Format( @"
