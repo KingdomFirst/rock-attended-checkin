@@ -339,6 +339,38 @@ namespace RockWeb.Blocks.CheckIn.Attended
         #region Internal Methods
 
         /// <summary>
+        /// Binds the group types.
+        /// </summary>
+        private void BindGroupTypes()
+        {
+            BindGroupTypes( string.Empty );
+        }
+
+        /// <summary>
+        /// Binds the group types.
+        /// </summary>
+        /// <param name="selectedValues">The selected values.</param>
+        private void BindGroupTypes( string selectedGroupTypes )
+        {
+            if ( CurrentKioskId > 0 )
+            {
+                var kiosk = new DeviceService( new RockContext() ).Get( (int)CurrentKioskId );
+                if ( kiosk != null )
+                {
+                    // var groupTypes = kiosk.Locations.SelectMany( l => l.GroupLocations
+                    //     .Select( gl => gl.Group.GroupType ) ).Distinct().ToList();
+
+                    var groupTypes = GetDeviceGroupTypes( kiosk.Id );
+
+                    hfGroupTypes.Value = selectedGroupTypes;
+
+                    repMinistry.DataSource = groupTypes;
+                    repMinistry.DataBind();
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets the device group types.
         /// </summary>
         /// <param name="deviceId">The device identifier.</param>
@@ -369,38 +401,6 @@ namespace RockWeb.Blocks.CheckIn.Attended
             }
 
             return groupTypes.Select( g => g.Value ).ToList();
-        }
-
-        /// <summary>
-        /// Binds the group types.
-        /// </summary>
-        private void BindGroupTypes()
-        {
-            BindGroupTypes( string.Empty );
-        }
-
-        /// <summary>
-        /// Binds the group types.
-        /// </summary>
-        /// <param name="selectedValues">The selected values.</param>
-        private void BindGroupTypes( string selectedGroupTypes )
-        {
-            if ( CurrentKioskId > 0 )
-            {
-                var kiosk = new DeviceService( new RockContext() ).Get( (int)CurrentKioskId );
-                if ( kiosk != null )
-                {
-                    // var groupTypes = kiosk.Locations.SelectMany( l => l.GroupLocations
-                    //     .Select( gl => gl.Group.GroupType ) ).Distinct().ToList();
-
-                    var groupTypes = GetDeviceGroupTypes( kiosk.Id );
-
-                    hfGroupTypes.Value = selectedGroupTypes;
-
-                    repMinistry.DataSource = groupTypes;
-                    repMinistry.DataBind();
-                }
-            }
         }
 
         /// <summary>
