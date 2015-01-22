@@ -149,19 +149,19 @@
                     <div class="checkin-body">
                         <div class="row">
                             <div class="col-xs-2">
-                                <Rock:RockTextBox ID="tbFirstNameSearch" runat="server" CssClass="col-xs-12" Label="First Name" ValidationGroup="Person" />
+                                <Rock:RockTextBox ID="tbFirstNamePerson" runat="server" CssClass="col-xs-12" Label="First Name" ValidationGroup="Person" />
                             </div>
                             <div class="col-xs-2">
-                                <Rock:RockTextBox ID="tbLastNameSearch" runat="server" CssClass="col-xs-12" Label="Last Name" ValidationGroup="Person" />
+                                <Rock:RockTextBox ID="tbLastNamePerson" runat="server" CssClass="col-xs-12" Label="Last Name" ValidationGroup="Person" />
                             </div>
                             <div class="col-xs-3">
-                                <Rock:DatePicker ID="dpDOBSearch" runat="server" Label="DOB" ValidationGroup="Person" CssClass="col-xs-12 date-picker" />
+                                <Rock:DatePicker ID="dpDOBPerson" runat="server" Label="DOB" CssClass="col-xs-12 date-picker" />
                             </div>
                             <div class="col-xs-2">
-                                <Rock:RockDropDownList ID="ddlGenderSearch" runat="server" ValidationGroup="Person" CssClass="col-xs-12" Label="Gender" />
+                                <Rock:RockDropDownList ID="ddlGenderPerson" runat="server" ValidationGroup="Person" CssClass="col-xs-12" Label="Gender" />
                             </div>
                             <div class="col-xs-3">
-                                <Rock:RockDropDownList ID="ddlAbilitySearch" runat="server" CssClass="col-xs-12" Label="Ability/Grade" />
+                                <Rock:RockDropDownList ID="ddlAbilityPerson" runat="server" CssClass="col-xs-12" Label="Ability/Grade" />
                             </div>
                         </div>
 

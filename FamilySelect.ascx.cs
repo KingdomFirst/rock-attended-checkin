@@ -401,7 +401,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbSavePerson_Click( object sender, EventArgs e )
         {
-            if ( string.IsNullOrEmpty( tbFirstNameSearch.Text ) || string.IsNullOrEmpty( tbLastNameSearch.Text ) || string.IsNullOrEmpty( dpDOBSearch.Text ) || ddlGenderSearch.SelectedValueAsInt() == 0 )
+            if ( string.IsNullOrEmpty( tbFirstNamePerson.Text ) || string.IsNullOrEmpty( tbLastNamePerson.Text ) || string.IsNullOrEmpty( dpDOBPerson.Text ) || ddlGenderPerson.SelectedValueAsInt() == 0 )
             {
                 Page.Validate( "Person" );
                 ShowOrHideModal( "add-person-modal", true );
@@ -412,15 +412,15 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 if ( checkInFamily == null )
                 {
                     checkInFamily = new CheckInFamily();
-                    var familyGroup = CreateFamily( tbLastNameSearch.Text );
+                    var familyGroup = CreateFamily( tbLastNamePerson.Text );
 
                     checkInFamily.Group = familyGroup;
                     checkInFamily.Caption = familyGroup.Name;
                 }
 
                 var checkInPerson = new CheckInPerson();
-                checkInPerson.Person = CreatePerson( tbFirstNameSearch.Text, tbLastNameSearch.Text, dpDOBSearch.SelectedDate, (int?)ddlGenderSearch.SelectedValueAsEnum<Gender>(),
-                    ddlAbilitySearch.SelectedValue, ddlAbilitySearch.SelectedItem.Attributes["optiongroup"] );
+                checkInPerson.Person = CreatePerson( tbFirstNamePerson.Text, tbLastNamePerson.Text, dpDOBPerson.SelectedDate, (int?)ddlGenderPerson.SelectedValueAsEnum<Gender>(),
+                    ddlAbilityPerson.SelectedValue, ddlAbilityPerson.SelectedItem.Attributes["optiongroup"] );
 
                 if ( newPersonType.Value != "Visitor" )
                 {   // Family Member
@@ -441,10 +441,10 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 checkInFamily.Selected = true;
                 CurrentCheckInState.CheckIn.Families.Add( checkInFamily );
 
-                tbFirstNameSearch.Required = false;
-                tbLastNameSearch.Required = false;
-                ddlGenderSearch.Required = false;
-                dpDOBSearch.Required = false;
+                tbFirstNamePerson.Required = false;
+                tbLastNamePerson.Required = false;
+                ddlGenderPerson.Required = false;
+                dpDOBPerson.Required = false;
 
                 ProcessFamily();
                 ShowOrHideModal( "add-person-modal", false );
@@ -655,32 +655,34 @@ namespace RockWeb.Blocks.CheckIn.Attended
             var personService = new PersonService( new RockContext() );
             var people = personService.Queryable();
 
-            if ( !string.IsNullOrEmpty( tbFirstNameSearch.Text ) && !string.IsNullOrEmpty( tbLastNameSearch.Text ) )
+            var firstNameIsEmpty = string.IsNullOrEmpty( tbFirstNamePerson.Text );
+            var lastNameIsEmpty = string.IsNullOrEmpty( tbLastNamePerson.Text );
+            if ( !firstNameIsEmpty && !lastNameIsEmpty )
             {
-                people = personService.GetByFullName( string.Format( "{0} {1}", tbFirstNameSearch.Text, tbLastNameSearch.Text ), false );
+                people = personService.GetByFullName( string.Format( "{0} {1}", tbFirstNamePerson.Text, tbLastNamePerson.Text ), false );
             }
-            else if ( !string.IsNullOrEmpty( tbLastNameSearch.Text ) )
+            else if ( !lastNameIsEmpty )
             {
-                people = people.Where( p => p.LastName.ToLower().StartsWith( tbLastNameSearch.Text ) );
+                people = people.Where( p => p.LastName.ToLower().StartsWith( tbLastNamePerson.Text ) );
             }
-            else if ( !string.IsNullOrEmpty( tbFirstNameSearch.Text ) )
+            else if ( !firstNameIsEmpty )
             {
-                people = people.Where( p => p.FirstName.ToLower().StartsWith( tbFirstNameSearch.Text ) );
+                people = people.Where( p => p.FirstName.ToLower().StartsWith( tbFirstNamePerson.Text ) );
             }
 
-            if ( !string.IsNullOrEmpty( dpDOBSearch.Text ) )
+            if ( !string.IsNullOrEmpty( dpDOBPerson.Text ) )
             {
                 DateTime searchDate;
-                if ( DateTime.TryParse( dpDOBSearch.Text, out searchDate ) )
+                if ( DateTime.TryParse( dpDOBPerson.Text, out searchDate ) )
                 {
                     people = people.Where( p => p.BirthYear == searchDate.Year
                         && p.BirthMonth == searchDate.Month && p.BirthDay == searchDate.Day );
                 }
             }
 
-            if ( ddlGenderSearch.SelectedValueAsEnum<Gender>() != 0 )
+            if ( ddlGenderPerson.SelectedValueAsEnum<Gender>() != 0 )
             {
-                var gender = ddlGenderSearch.SelectedValueAsEnum<Gender>();
+                var gender = ddlGenderPerson.SelectedValueAsEnum<Gender>();
                 people = people.Where( p => p.Gender == gender );
             }
 
@@ -692,17 +694,17 @@ namespace RockWeb.Blocks.CheckIn.Attended
             peopleList.ForEach( p => p.LoadAttributes() );
 
             // Set a filter if an ability/grade was selected
-            var optionGroup = ddlAbilitySearch.SelectedItem.Attributes["optiongroup"];
+            var optionGroup = ddlAbilityPerson.SelectedItem.Attributes["optiongroup"];
             if ( !string.IsNullOrEmpty( optionGroup ) )
             {
                 if ( optionGroup.Equals( "Ability" ) )
                 {
                     peopleList = peopleList.Where( p => p.Attributes.ContainsKey( "AbilityLevel" )
-                        && p.GetAttributeValue( "AbilityLevel" ) == ddlAbilitySearch.SelectedValue ).ToList();
+                        && p.GetAttributeValue( "AbilityLevel" ) == ddlAbilityPerson.SelectedValue ).ToList();
                 }
                 else if ( optionGroup.Equals( "Grade" ) )
                 {
-                    var grade = ddlAbilitySearch.SelectedValueAsEnum<GradeLevel>();
+                    var grade = ddlAbilityPerson.SelectedValueAsEnum<GradeLevel>();
                     peopleList = peopleList.Where( p => p.Grade == (int?)grade ).ToList();
                 }
             }
@@ -798,17 +800,16 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// </summary>
         protected void SetAddPersonFields()
         {
-            ddlGenderSearch.BindToEnum<Gender>();
-            ddlGenderSearch.SelectedIndex = 0;
-            ddlAbilitySearch.LoadAbilityAndGradeItems();
-            ddlAbilitySearch.SelectedIndex = 0;
+            ddlGenderPerson.BindToEnum<Gender>();
+            ddlGenderPerson.SelectedIndex = 0;
+            ddlAbilityPerson.LoadAbilityAndGradeItems();
+            ddlAbilityPerson.SelectedIndex = 0;
             rGridPersonResults.Visible = false;
             lbSavePerson.Visible = false;
 
-            tbFirstNameSearch.Required = true;
-            tbLastNameSearch.Required = true;
-            ddlGenderSearch.Required = true;
-            dpDOBSearch.Required = true;
+            tbFirstNamePerson.Required = true;
+            tbLastNamePerson.Required = true;
+            ddlGenderPerson.Required = true;
 
             ShowOrHideModal( "add-person-modal", true );
         }
