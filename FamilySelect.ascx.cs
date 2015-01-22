@@ -112,7 +112,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbClosePerson_Click( object sender, EventArgs e )
         {
-            ShowOrHideModal( "add-person-modal", false );
+            mdlAddPerson.Hide();
         }
 
         /// <summary>
@@ -122,7 +122,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbCloseFamily_Click( object sender, EventArgs e )
         {
-            ShowOrHideModal( "new-family-modal", false );
+            mdlNewFamily.Hide();
         }
 
         /// <summary>
@@ -404,7 +404,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             if ( string.IsNullOrEmpty( tbFirstNamePerson.Text ) || string.IsNullOrEmpty( tbLastNamePerson.Text ) || string.IsNullOrEmpty( dpDOBPerson.Text ) || ddlGenderPerson.SelectedValueAsInt() == 0 )
             {
                 Page.Validate( "Person" );
-                ShowOrHideModal( "add-person-modal", true );
+                mdlAddPerson.Show();
             }
             else
             {
@@ -447,7 +447,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 dpDOBPerson.Required = false;
 
                 ProcessFamily();
-                ShowOrHideModal( "add-person-modal", false );
+                mdlAddPerson.Hide();
             }
         }
 
@@ -487,7 +487,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             dpNewFamily.SetPageProperties( e.StartRowIndex, e.MaximumRows, false );
             lvNewFamily.DataSource = newFamilyList;
             lvNewFamily.DataBind();
-            ShowOrHideModal( "new-family-modal", true );
+            mdlNewFamily.Show();
         }
 
         /// <summary>
@@ -502,7 +502,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             rGridPersonResults.Visible = true;
             rGridPersonResults.PageSize = 4;
             BindPersonGrid();
-            ShowOrHideModal( "add-person-modal", true );
+            mdlAddPerson.Show();
         }
 
         /// <summary>
@@ -518,7 +518,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             lvNewFamily.DataSource = newFamilyList;
             lvNewFamily.DataBind();
 
-            ShowOrHideModal( "new-family-modal", true );
+            mdlNewFamily.Show();
         }
 
         /// <summary>
@@ -618,7 +618,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                         ProcessFamily();
                     }
 
-                    ShowOrHideModal( "add-person-modal", false );
+                    mdlAddPerson.Hide();
                 }
                 else
                 {
@@ -628,7 +628,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             }
             else
             {
-                ShowOrHideModal( "add-person-modal", true );
+                mdlAddPerson.Show();
                 BindPersonGrid();
             }
         }
@@ -811,7 +811,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             tbLastNamePerson.Required = true;
             ddlGenderPerson.Required = true;
 
-            ShowOrHideModal( "add-person-modal", true );
+            mdlAddPerson.Show();
         }
 
         /// <summary>
@@ -819,24 +819,24 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// </summary>
         /// <param name="elementId">The element identifier.</param>
         /// <param name="doShow">if set to <c>true</c> [do show].</param>
-        protected void ShowOrHideModal( string elementId, bool doShow )
-        {
-            var js = "$('.modal-backdrop').remove();";
+        //protected void ShowOrHideModal( string elementId, bool doShow )
+        //{
+        //    var js = "$('.modal-backdrop').remove();";
 
-            if ( doShow )
-            {
-                js += "var modal = $('#" + elementId + ":not(:visible)');" +
-                    "modal.modal('show');" + 
-                    "$('.modal:visible').css('z-index', $('.modal-backdrop').css('z-index') + 1);";
-            }
-            else
-            {
-                js += "var modal = $('#" + elementId + ":visible');" +
-                    "modal.modal('hide');";
-            }
+        //    if ( doShow )
+        //    {
+        //        js += "var modal = $('#" + elementId + ":not(:visible)');" +
+        //            "modal.modal('show');" +
+        //            "$('.modal:visible').css('z-index', $('.modal-backdrop').css('z-index') + 1);";
+        //    }
+        //    else
+        //    {
+        //        js += "var modal = $('#" + elementId + ":visible');" +
+        //            "modal.modal('hide');";
+        //    }
 
-            ScriptManager.RegisterStartupScript( Page, Page.GetType(), DateTime.Now.ToString(), js, true );
-        }
+        //    ScriptManager.RegisterStartupScript( Page, Page.GetType(), DateTime.Now.ToString(), js, true );
+        //}
 
         /// <summary>
         /// Adds a new person.
