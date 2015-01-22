@@ -588,7 +588,8 @@ namespace RockWeb.Blocks.CheckIn.Attended
             if ( doShow )
             {
                 js += "var modal = $('#" + elementId + ":not(:visible)');" +
-                    "modal.modal('show');";
+                    "modal.modal('show');" +
+                    "$('.modal:visible').css('z-index', $('.modal-backdrop').css('z-index') + 1);";
             }
             else
             {
@@ -685,7 +686,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// <param name="person">The person.</param>
         protected void BindGroupTypes( List<CheckInGroupType> groupTypes )
         {
-            lvGroupType.DataSource = groupTypes.OrderBy( gt => gt.GroupType.Name );
+            lvGroupType.DataSource = groupTypes.OrderBy( gt => gt.GroupType.Name ).ToList();
             lvGroupType.DataBind();
             pnlGroupTypes.Update();
         }

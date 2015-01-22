@@ -825,7 +825,8 @@ namespace RockWeb.Blocks.CheckIn.Attended
             if ( doShow )
             {
                 js += "var modal = $('#" + elementId + ":not(:visible)');" +
-                    "modal.modal('show');";
+                    "modal.modal('show');" + 
+                    "$('.modal:visible').css('z-index', $('.modal-backdrop').css('z-index') + 1);";
             }
             else
             {
