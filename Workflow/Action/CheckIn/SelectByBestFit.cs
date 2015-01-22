@@ -97,7 +97,12 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     if ( !string.IsNullOrWhiteSpace( personsAbility ) )
                                     {
                                         // check groups for a ability
-                                        closestAbilityGroup = validGroups.Where( g => g.Group.Attributes.ContainsKey( "AbilityLevel" ) && g.Group.GetAttributeValue( "AbilityLevel" ) == personsAbility ).FirstOrDefault();
+                                        var newGroups = validGroups.Where( g => g.Group.Attributes.ContainsKey( "AbilityLevel" ) && g.Group.GetAttributeValue( "AbilityLevel" ) == personsAbility ).ToList();
+                                        closestAbilityGroup = newGroups.FirstOrDefault();
+                                    }
+                                    else
+                                    {
+                                        validGroups = validGroups.Where( g => !g.Group.Attributes.ContainsKey( "AbilityLevel" ) ).ToList();
                                     }
 
                                     CheckInGroup closestGradeGroup = null;
@@ -144,13 +149,16 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         }
                                     }
 
+                                    bestGroup = closestAbilityGroup ?? closestGradeGroup ?? closestAgeGroup ?? validGroups.FirstOrDefault();
                                     if ( roomBalanceByGroup )
-                                    {
-                                        bestGroup = validGroups.OrderBy( g => g.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum() ).FirstOrDefault();
-                                    }
-                                    else
-                                    {
-                                        bestGroup = closestAbilityGroup ?? closestGradeGroup ?? closestAgeGroup ?? validGroups.FirstOrDefault();
+                                    {   // only one location per group should exist
+                                        var lowestCountGroup = validGroups.OrderBy( g => g.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum() ).FirstOrDefault();
+                                        var lowCount = lowestCountGroup.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).FirstOrDefault();
+                                        var bestGroupCount = bestGroup.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).FirstOrDefault();
+                                        if ( lowCount < bestGroupCount )
+                                        {
+                                            bestGroup = lowestCountGroup;
+                                        }
                                     }
 
                                     validLocations = bestGroup.Locations.Where( l => !l.ExcludedByFilter ).ToList();

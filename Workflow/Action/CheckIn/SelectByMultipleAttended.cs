@@ -78,11 +78,12 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                     if ( personAttendances.Any() )
                     {
                         var lastDate = personAttendances.Max( a => a.StartDateTime ).Date;
-                        var lastDateAttendances = personAttendances.Where( a => a.StartDateTime >= lastDate );
+                        var lastDateAttendances = personAttendances.Where( a => a.StartDateTime >= lastDate ).ToList();
 
                         foreach ( var groupAttendance in lastDateAttendances )
                         {
-                            var groupType = person.GroupTypes.FirstOrDefault( t => t.GroupType.Id == groupAttendance.Group.GroupTypeId );
+                            var groupType = person.GroupTypes.Where( gt => !gt.ExcludedByFilter )
+                                .FirstOrDefault( t => t.GroupType.Id == groupAttendance.Group.GroupTypeId );
 
                             if ( groupType != null )
                             {
@@ -94,11 +95,13 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                 }
                                 else if ( roomBalanceByGroup )
                                 {
-                                    group = groupType.Groups.OrderBy( g => g.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum() ).FirstOrDefault();
+                                    group = groupType.Groups.Where( g => !g.ExcludedByFilter )
+                                        .OrderBy( g => g.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum() ).FirstOrDefault();
                                 }
                                 else
                                 {
-                                    group = groupType.Groups.FirstOrDefault( g => g.Group.Id == groupAttendance.GroupId );
+                                    group = groupType.Groups.Where( g => !g.ExcludedByFilter )
+                                        .FirstOrDefault( g => g.Group.Id == groupAttendance.GroupId );
                                 }
 
                                 if ( group != null )
@@ -111,17 +114,19 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     }
                                     else if ( roomBalanceByLocation )
                                     {
-                                        location = group.Locations.Where( l => l.Schedules.Any( s => !s.ExcludedByFilter && s.Schedule.IsCheckInActive ) )
-                                                .OrderBy( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).FirstOrDefault();
+                                        location = group.Locations.Where( l => !l.ExcludedByFilter && l.Schedules.Any( s => !s.ExcludedByFilter && s.Schedule.IsCheckInActive ) )
+                                            .OrderBy( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).FirstOrDefault();
                                     }
                                     else
                                     {
-                                        location = group.Locations.FirstOrDefault( l => l.Location.Id == groupAttendance.LocationId );
+                                        location = group.Locations.Where( l => !l.ExcludedByFilter )
+                                            .FirstOrDefault( l => l.Location.Id == groupAttendance.LocationId );
                                     }
 
                                     if ( location != null )
                                     {
-                                        var schedule = location.Schedules.FirstOrDefault( s => s.Schedule.Id == groupAttendance.ScheduleId );
+                                        var schedule = location.Schedules.Where( s => !s.ExcludedByFilter )
+                                            .FirstOrDefault( s => s.Schedule.Id == groupAttendance.ScheduleId );
 
                                         if ( schedule != null )
                                         {
