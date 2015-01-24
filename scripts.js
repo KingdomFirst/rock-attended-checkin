@@ -13,7 +13,7 @@
                 $('.datepicker').css('z-index', 2000);
             }, 100);
         });
-    };    
+    };
 
     var fixFocus = function () {
         $('.btn').blur();
@@ -26,7 +26,7 @@
         if (!curOverflow || curOverflow === 'visible') {
             el.style.overflow = 'hidden';
         }
-            
+
         var isOverflowing = el.clientWidth < el.scrollWidth || el.clientHeight < el.scrollHeight;
         el.style.overflow = curOverflow;
 
@@ -66,7 +66,7 @@
             loadStyles();
             fixDatePickerZIndex();
             fixFocus();
-            handleGridOverflowShadows();            
+            handleGridOverflowShadows();
         }
     };
 })();

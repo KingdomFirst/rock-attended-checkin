@@ -2,7 +2,7 @@
 /* Layout */
 
 .container.body-content {
-    padding: 0 30px 0 30px;
+    padding: 0 20px 0 20px;
     width: 100%;
 }
 
@@ -56,6 +56,10 @@ tfoot {
 }
 
 /* Modals */
+.rock-modal .modal-container {
+    margin-top: 0 !important;
+}
+
 
 .modal-content .checkin-header {
     border-bottom: 1px solid #222222;
@@ -92,15 +96,11 @@ tfoot {
     padding: 20px;
 }
 
-.modal-header, .modal-footer {
-    display: none;
-}
-
 .bootbox .modal-footer {
     border-color: #cccccc;
 }
 
-.grid-pagesize, .grid-itemcount {
+.modal-header, .modal-footer, .grid-pagesize, .grid-itemcount {
     display: none;
 }
 
