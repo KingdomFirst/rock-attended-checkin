@@ -122,13 +122,12 @@ namespace RockWeb.Blocks.CheckIn.Attended
             {
                 var selectedGroupTypes = person.GroupTypes.Where( gt => gt.Selected ).ToList();
                 var selectedGroups = selectedGroupTypes.SelectMany( gt => gt.Groups.Where( g => g.Selected ) ).ToList();
-                var selectedLocations = selectedGroups.SelectMany( g => g.Locations.Where( l => l.Selected ) ).ToList();
 
-                if ( selectedLocations.Any() )
+                if ( selectedGroupTypes.Any() )
                 {
                     foreach ( var group in selectedGroups )
                     {
-                        foreach ( var location in selectedLocations )
+                        foreach ( var location in group.Locations.Where( l => l.Selected ) )
                         {
                             foreach ( var schedule in location.Schedules.Where( s => s.Selected ) )
                             {

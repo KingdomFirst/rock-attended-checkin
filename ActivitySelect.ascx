@@ -100,7 +100,7 @@
                 </div>
             </div>
 
-            <div class="row at-the-bottom">
+            <div class="row checkin-footer at-the-bottom">
                 <div class="col-xs-3 col-xs-offset-6">
                     <asp:LinkButton ID="lbEditInfo" runat="server" Text="Edit Info" CssClass="btn btn-primary btn-block btn-checkin-select" OnClick="lbEditInfo_Click" CausesValidation="false" />
                 </div>

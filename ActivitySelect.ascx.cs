@@ -282,6 +282,10 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 var selectedGroupType = person.GroupTypes.FirstOrDefault( gt => gt.GroupType.Id == groupTypeId );
                 selectedGroupType.Selected = true;
                 var selectedGroup = selectedGroupType.Groups.FirstOrDefault( g => g.Group.Id == groupId && g.Locations.Any( l => l.Location.Id == locationId ) );
+                if ( selectedGroup == null )
+                {
+                    selectedGroup = selectedGroupType.Groups.FirstOrDefault( g => g.Locations.Any( l => l.Location.Id == locationId ) );
+                }
                 selectedGroup.Selected = true;
                 var selectedLocation = selectedGroup.Locations.FirstOrDefault( l => l.Location.Id == locationId );
                 selectedLocation.Selected = true;
@@ -789,12 +793,11 @@ namespace RockWeb.Blocks.CheckIn.Attended
             {
                 var selectedGroupTypes = person.GroupTypes.Where( gt => gt.Selected ).ToList();
                 var selectedGroups = selectedGroupTypes.SelectMany( gt => gt.Groups.Where( g => g.Selected ) ).ToList();
-                var selectedLocations = selectedGroups.SelectMany( g => g.Locations.Where( l => l.Selected ) ).ToList();
 
                 var checkInList = new List<Activity>();
                 foreach ( var group in selectedGroups )
                 {
-                    foreach ( var location in selectedLocations )
+                    foreach ( var location in group.Locations.Where( l => l.Selected ) )
                     {
                         foreach ( var schedule in location.Schedules.Where( s => s.Selected ) )
                         {
