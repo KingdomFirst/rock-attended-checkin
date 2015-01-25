@@ -10,9 +10,8 @@
 
             <div class="row checkin-header">
                 <div class="col-xs-2 checkin-actions">
-                    <Rock:BootstrapButton ID="lbBack" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbBack_Click"
-                        EnableViewState="false" CausesValidation="False" Text="Back">
-                    <span class="fa fa-arrow-left"></span>
+                    <Rock:BootstrapButton ID="lbBack" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbBack_Click" EnableViewState="false" CausesValidation="False">
+                        <span class="fa fa-arrow-left" />
                     </Rock:BootstrapButton>
                 </div>
 
@@ -22,7 +21,7 @@
 
                 <div class="col-xs-2 checkin-actions text-right">
                     <Rock:BootstrapButton ID="lbNext" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbNext_Click" EnableViewState="false" CausesValidation="False">
-                    <span class="fa fa-arrow-right"></span>
+                        <span class="fa fa-arrow-right" />
                     </Rock:BootstrapButton>
                 </div>
             </div>
@@ -31,17 +30,17 @@
                 <div class="col-xs-3">
                     <asp:UpdatePanel ID="pnlFamily" runat="server" UpdateMode="Conditional">
                         <ContentTemplate>
+
                             <h3 class="text-center">Families</h3>
+
                             <asp:ListView ID="lvFamily" runat="server" OnPagePropertiesChanging="lvFamily_PagePropertiesChanging"
                                 OnItemCommand="lvFamily_ItemCommand" OnItemDataBound="lvFamily_ItemDataBound">
                                 <ItemTemplate>
-                                    <asp:LinkButton ID="lbSelectFamily" runat="server" CommandArgument='<%# Eval("Group.Id") %>'
-                                        CssClass="btn btn-primary btn-lg btn-block btn-checkin-select family" CausesValidation="false">
-						        <%# Eval("Caption") %>
-                                <br />
-                                <div class='checkin-sub-title'>
-                                    <%# Eval("SubCaption") %>
-                                </div>
+                                    <asp:LinkButton ID="lbSelectFamily" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" CausesValidation="false">
+						                <%# Eval("Caption") %>
+                                        <span class='checkin-sub-title'>
+                                            <%# Eval("SubCaption") %>
+                                        </span>
                                     </asp:LinkButton>
                                 </ItemTemplate>
                             </asp:ListView>
@@ -60,15 +59,15 @@
                             <asp:HiddenField ID="hfSelectedPerson" runat="server" ClientIDMode="Static" />
 
                             <h3 class="text-center">People</h3>
+
                             <asp:ListView ID="lvPerson" runat="server" OnItemDataBound="lvPerson_ItemDataBound" OnPagePropertiesChanging="lvPerson_PagePropertiesChanging">
                                 <ItemTemplate>
-                                    <asp:LinkButton ID="lbSelectPerson" runat="server" data-id='<%# Eval("Person.Id") %>'
-                                        CssClass="btn btn-primary btn-lg btn-block btn-checkin-select person">
-						        <%# Eval("Person.FullName") %><br />
-						        <span class='checkin-sub-title'>
-							        Birthday: <%# Eval("Person.BirthMonth") + "/" + Eval("Person.BirthDay") + " " ?? "N/A " %>
-                                    <%# Convert.ToInt32( Eval( "Person.Age" ) ) <= 18 ? "Age: " + Eval( "Person.Age" ) : string.Empty %>
-						        </span>
+                                    <asp:LinkButton ID="lbSelectPerson" runat="server" data-id='<%# Eval("Person.Id") %>' CssClass="btn btn-primary btn-lg btn-block btn-checkin-select person">
+						                <%# Eval("Person.FullName") %>
+						                <span class='checkin-sub-title'>
+							                Birthday: <%# Eval("Person.BirthMonth") + "/" + Eval("Person.BirthDay") + " " ?? "N/A " %>
+                                            <%# Convert.ToInt32( Eval( "Person.Age" ) ) <= 18 ? "Age: " + Eval( "Person.Age" ) : string.Empty %>
+						                </span>
                                     </asp:LinkButton>
                                 </ItemTemplate>
                                 <EmptyDataTemplate>
@@ -92,12 +91,12 @@
                             <asp:HiddenField ID="hfSelectedVisitor" runat="server" ClientIDMode="Static" />
 
                             <h3 class="text-center">Visitors</h3>
+
                             <asp:ListView ID="lvVisitor" runat="server" OnItemDataBound="lvVisitor_ItemDataBound" OnPagePropertiesChanging="lvVisitor_PagePropertiesChanging">
                                 <ItemTemplate>
-                                    <asp:LinkButton ID="lbSelectVisitor" runat="server" data-id='<%# Eval("Person.Id") %>'
-                                        CssClass="btn btn-primary btn-lg btn-block btn-checkin-select visitor">
-						        <%# Eval("Person.FullName") %><br />
-						        <span class='checkin-sub-title'>Birthday: <%# Eval("Person.BirthMonth") + "/" + Eval("Person.BirthDay") ?? "N/A" %></span>
+                                    <asp:LinkButton ID="lbSelectVisitor" runat="server" data-id='<%# Eval("Person.Id") %>' CssClass="btn btn-primary btn-lg btn-block btn-checkin-select visitor">
+						                <%# Eval("Person.FullName") %>
+						                <span class='checkin-sub-title'>Birthday: <%# Eval("Person.BirthMonth") + "/" + Eval("Person.BirthDay") ?? "N/A" %></span>
                                     </asp:LinkButton>
                                 </ItemTemplate>
                             </asp:ListView>
@@ -119,6 +118,7 @@
 
                 <div id="divActions" runat="server" class="col-xs-3">
                     <h3 id="actions" runat="server" class="text-center">Actions</h3>
+
                     <asp:LinkButton ID="lbAddVisitor" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClick="lbAddVisitor_Click" Text="Add Visitor" CausesValidation="false" EnableViewState="false" />
                     <asp:LinkButton ID="lbAddFamilyMember" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClick="lbAddFamilyMember_Click" Text="Add Family Member" CausesValidation="false" EnableViewState="false" />
                     <asp:LinkButton ID="lbNewFamily" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClick="lbNewFamily_Click" Text="New Family" CausesValidation="false" EnableViewState="false" />
@@ -135,7 +135,8 @@
                         </div>
 
                         <div class="col-xs-6">
-                            <h2 class="text-center"><asp:Literal ID="lblAddPersonHeader" runat="server" /></h2>
+                            <h2 class="text-center">
+                                <asp:Literal ID="lblAddPersonHeader" runat="server" /></h2>
                         </div>
 
                         <div class="col-xs-3 text-right">
@@ -153,13 +154,13 @@
                             <Rock:RockTextBox ID="tbLastNamePerson" runat="server" CssClass="col-xs-12" Label="Last Name" ValidationGroup="Person" />
                         </div>
                         <div class="col-xs-3">
-                            <Rock:DatePicker ID="dpDOBPerson" runat="server" Label="DOB" CssClass="col-xs-12 date-picker" />
+                            <Rock:DatePicker ID="dpDOBPerson" runat="server" Label="DOB" CssClass="col-xs-12 date-picker" ValidationGroup="Person" />
                         </div>
                         <div class="col-xs-2">
-                            <Rock:RockDropDownList ID="ddlGenderPerson" runat="server" ValidationGroup="Person" CssClass="col-xs-12" Label="Gender" />
+                            <Rock:RockDropDownList ID="ddlGenderPerson" runat="server" Label="Gender" CssClass="col-xs-12" ValidationGroup="Person" />
                         </div>
                         <div class="col-xs-3">
-                            <Rock:RockDropDownList ID="ddlAbilityPerson" runat="server" CssClass="col-xs-12" Label="Ability/Grade" />
+                            <Rock:RockDropDownList ID="ddlAbilityPerson" runat="server" Label="Ability/Grade" CssClass="col-xs-12" />
                         </div>
                     </div>
 
@@ -193,18 +194,18 @@
 
                     <div class="row">
                         <div class="col-xs-12 text-right">
-                            <asp:LinkButton ID="lbSavePerson" runat="server" Text="None of these, add a new person" CssClass="btn btn-lg btn-primary btn-checkin-select" ValidationGroup="Person" CausesValidation="true" OnClick="lbSavePerson_Click" />
+                            <asp:LinkButton ID="lbNewPerson" runat="server" Text="None of these, add a new person" CssClass="btn btn-lg btn-primary btn-checkin-select" ValidationGroup="Person" CausesValidation="true" OnClick="lbNewPerson_Click" />
                         </div>
                     </div>
                 </div>
             </Content>
         </Rock:ModalDialog>
 
-        <Rock:ModalDialog ID="mdlNewFamily" runat="server" Content-DefaultButton="lbSaveFamily" >
+        <Rock:ModalDialog ID="mdlNewFamily" runat="server" Content-DefaultButton="lbSaveFamily">
             <Content>
                 <div class="row checkin-header">
                     <div class="col-xs-3 checkin-actions">
-                        <Rock:BootstrapButton ID="lbCloseFamily" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbCloseFamily_Click" Text="Cancel" EnableViewState="false" />
+                        <Rock:BootstrapButton ID="lbCloseFamily" runat="server" Text="Cancel" CssClass="btn btn-lg btn-primary" OnClick="lbCloseFamily_Click" EnableViewState="false" />
                     </div>
 
                     <div class="col-xs-6 text-center">
@@ -212,7 +213,7 @@
                     </div>
 
                     <div class="col-xs-3 checkin-actions text-right">
-                        <Rock:BootstrapButton ID="lbSaveFamily" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbSaveFamily_Click" Text="Save" EnableViewState="false" ValidationGroup="Family" />
+                        <Rock:BootstrapButton ID="lbSaveFamily" CssClass="btn btn-lg btn-primary" runat="server" Text="Save" OnClick="lbSaveFamily_Click" ValidationGroup="Family" EnableViewState="false" />
                     </div>
                 </div>
 

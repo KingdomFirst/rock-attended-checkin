@@ -16,14 +16,14 @@
                 </div>
 
                 <div class="col-xs-8">
-                    <Rock:RockTextBox ID="tbSearchBox" MaxLength="50" CssClass="checkin-phone-entry" runat="server" Label="" TabIndex="0" Placeholder="Search..." />
+                    <Rock:RockTextBox ID="tbSearchBox" MaxLength="50" CssClass="checkin-phone-entry" runat="server" Label="" TabIndex="0" />
                     <asp:LinkButton runat="server" OnClick="lbSearch_Click">
                     <span class="fa fa-search"></span>
                     </asp:LinkButton>
                 </div>
 
                 <div class="col-xs-2 checkin-actions text-right">
-                    <Rock:BootstrapButton ID="lbSearch" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbSearch_Click" EnableViewState="false">
+                    <Rock:BootstrapButton ID="lbSearch" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbSearch_Click" EnableViewState="false" DataLoadingText="Searching...">
                     <span class="fa fa-arrow-right"></span>
                     </Rock:BootstrapButton>
                 </div>
@@ -56,11 +56,6 @@
                     </asp:Panel>
                 </div>
                 <div class="col-xs-3"></div>
-            </div>
-            <div class="row checkin-footer at-the-bottom">
-                <div class="col-xs-3">
-                    <Rock:BootstrapButton ID="lbAdmin" runat="server" CssClass="btn btn-primary" OnClick="lbAdmin_Click" EnableViewState="false" Visible="false" />
-                </div>
             </div>
         </asp:Panel>
     </ContentTemplate>

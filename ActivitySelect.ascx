@@ -84,7 +84,7 @@
                         <ContentTemplate>
                             <div class="grid cozy">
                                 <Rock:Grid ID="gSelectedGrid" runat="server" ShowHeader="false" ShowFooter="false" EnableResponsiveTable="false" DisplayType="Light"
-                                    DataKeyNames="LocationId, ScheduleId" EmptyDataText="No CheckIn Selected">
+                                    DataKeyNames="GroupId, LocationId, ScheduleId" EmptyDataText="No Locations Selected">
                                     <Columns>
                                         <asp:BoundField DataField="Schedule" />
                                         <asp:BoundField DataField="ScheduleId" Visible="false" />

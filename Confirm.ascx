@@ -30,12 +30,13 @@
                     <asp:UpdatePanel ID="pnlSelectedGrid" runat="server">
                         <ContentTemplate>
                             <div class="grid in-the-middle">
-                                <Rock:Grid ID="gPersonList" runat="server" DataKeyNames="PersonId,LocationId,ScheduleId" DisplayType="Light"
+                                <Rock:Grid ID="gPersonList" runat="server" DataKeyNames="PersonId,GroupId,LocationId,ScheduleId" DisplayType="Light"
                                     CssClass="three-col-with-controls" EnableResponsiveTable="false" ShowFooter="false" EmptyDataText="No People Selected"
                                     OnRowCommand="gPersonList_Print" OnGridRebind="gPersonList_GridRebind">
                                     <Columns>
                                         <asp:BoundField DataField="PersonId" Visible="false" />
                                         <asp:BoundField DataField="Name" HeaderText="Name" />
+                                        <asp:BoundField DataField="GroupId" Visible="false" />
                                         <asp:BoundField DataField="Location" HeaderText="Assigned To" />
                                         <asp:BoundField DataField="LocationId" Visible="false" />
                                         <asp:BoundField DataField="Schedule" HeaderText="Time" />
