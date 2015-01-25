@@ -63,14 +63,14 @@ namespace RockWeb.Blocks.CheckIn.Attended
             {
                 if ( CurrentCheckInState.CheckIn.Families.Count > 0 )
                 {
-                    var kioskLocationId = CurrentCheckInState.Kiosk.Device.LocationId;
-                    var currentCampusId = CampusCache.All()
-                        .Where( c => c.LocationId.HasValue && kioskLocationId == c.LocationId )
-                        .Select( c => c.Id ).FirstOrDefault();
+                    var kioskLocationId = CurrentCheckInState.Kiosk.Device.Locations;
+                    //var currentCampusId = CampusCache.All()
+                    //    .Where( c => c.LocationId.HasValue && kioskLocationId == c.LocationId )
+                    //    .Select( c => c.Id ).FirstOrDefault();
 
                     // Order families by campus then by caption
-                    var familyList = CurrentCheckInState.CheckIn.Families.OrderByDescending( f => f.Group.CampusId == currentCampusId )
-                        .ThenBy( f => f.Caption ).ToList();
+                    var familyList = CurrentCheckInState.CheckIn.Families//.OrderByDescending( f => f.Group.CampusId == currentCampusId )
+                        .OrderBy( f => f.Caption ).ToList();
                     if ( !UserBackedUp )
                     {
                         familyList.FirstOrDefault().Selected = true;
@@ -79,23 +79,25 @@ namespace RockWeb.Blocks.CheckIn.Attended
                     ProcessFamily();
                     lvFamily.DataSource = familyList;
                     lvFamily.DataBind();
-                    lblFamilyTitle.InnerText = "Results for \""
-                        + CurrentCheckInState.CheckIn.SearchValue + "\"";
+                    //lblFamilyTitle.InnerText = string.Format( "Results for \"{0}\"", CurrentCheckInState.CheckIn.SearchValue );
                 }
                 else
                 {
-                    bool showAddButtons = bool.Parse( GetAttributeValue( "EnableAddButtons" ) );
-                    string nothingFoundText = GetAttributeValue( "NotFoundText" );
-                    lblFamilyTitle.InnerText = "No Results for \""
-                        + CurrentCheckInState.CheckIn.SearchValue + "\"";
+                    //lblFamilyTitle.InnerText = string.Format( "No Results for \"{0}\"", CurrentCheckInState.CheckIn.SearchValue );
                     lbNext.Enabled = false;
                     lbNext.Visible = false;
                     pnlFamily.Visible = false;
                     pnlPerson.Visible = false;
                     pnlVisitor.Visible = false;
                     actions.Visible = false;
-                    divNothingFound.Visible = true;
+
+                    string nothingFoundText = GetAttributeValue( "NotFoundText" );
                     divNothingFound.InnerText = nothingFoundText;
+                    divNothingFound.Visible = true;
+
+                    bool showAddButtons = true;
+                    bool.TryParse( GetAttributeValue( "EnableAddButtons" ), out showAddButtons );
+
                     lbAddFamilyMember.Visible = showAddButtons;
                     lbAddVisitor.Visible = showAddButtons;
                     lbNewFamily.Visible = showAddButtons;
@@ -132,11 +134,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbBack_Click( object sender, EventArgs e )
         {
-            if ( CurrentCheckInState != null && CurrentCheckInState.CheckIn != null )
-            {
-                CurrentCheckInState.CheckIn.Families = new List<CheckInFamily>();
-            }
-            GoBack();
+            NavigateToPreviousPage();
         }
 
         /// <summary>
@@ -151,7 +149,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             var family = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault();
             if ( family == null )
             {
-                maWarning.Show( "Please pick a family.", ModalAlertType.Warning );
+                maWarning.Show( "Please pick or add a family.", ModalAlertType.Warning );
                 return;
             }
             else if ( family.People.Count == 0 )
@@ -161,21 +159,12 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 return;
             }
 
+            // Successful family checkin
             if ( selectedPeopleIds.Count() > 0 )
             {
                 family.People.ForEach( p => p.Selected = selectedPeopleIds.Contains( p.Person.Id ) );
 
-                var errors = new List<string>();
-                if ( ProcessActivity( "Activity Search", out errors ) )
-                {
-                    SaveState();
-                    NavigateToNextPage();
-                }
-                else
-                {
-                    string errorMsg = "<ul><li>" + errors.AsDelimited( "</li><li>" ) + "</li></ul>";
-                    maWarning.Show( errorMsg, Rock.Web.UI.Controls.ModalAlertType.Warning );
-                }
+                ProcessSelection( maWarning );
             }
             else
             {
@@ -197,9 +186,12 @@ namespace RockWeb.Blocks.CheckIn.Attended
         {
             if ( e.Item.ItemType == ListViewItemType.DataItem )
             {
-                if ( ( (CheckInFamily)e.Item.DataItem ).Selected )
+                var family = (CheckInFamily)e.Item.DataItem;
+                if ( family.Selected )
                 {
-                    ( (LinkButton)e.Item.FindControl( "lbSelectFamily" ) ).AddCssClass( "active" );
+                    var lbSelectFamily = (LinkButton)e.Item.FindControl( "lbSelectFamily" );
+                    lbSelectFamily.CommandArgument = family.Group.Id.ToString();
+                    lbSelectFamily.AddCssClass( "active" );
                 }
             }
         }
@@ -217,8 +209,8 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 if ( person.Selected )
                 {
                     var lbSelectPerson = (LinkButton)e.Item.FindControl( "lbSelectPerson" );
-                    lbSelectPerson.AddCssClass( "active" );
                     lbSelectPerson.CommandArgument = person.Person.Id.ToString();
+                    lbSelectPerson.AddCssClass( "active" );
                 }
             }
         }
@@ -236,8 +228,8 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 if ( person.Selected )
                 {
                     var lbSelectVisitor = (LinkButton)e.Item.FindControl( "lbSelectVisitor" );
-                    lbSelectVisitor.AddCssClass( "active" );
                     lbSelectVisitor.CommandArgument = person.Person.Id.ToString();
+                    lbSelectVisitor.AddCssClass( "active" );
                 }
             }
         }
@@ -249,9 +241,9 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// <param name="e">The <see cref="ListViewItemEventArgs"/> instance containing the event data.</param>
         protected void lvNewFamily_ItemDataBound( object sender, ListViewItemEventArgs e )
         {
-            var tbFirstName = (RockTextBox)e.Item.FindControl( "tbFirstName" );
-            var tbLastName = (RockTextBox)e.Item.FindControl( "tbLastName" );
-            var dpBirthDate = (DatePicker)e.Item.FindControl( "dpBirthDate" );
+            //var tbFirstName = (RockTextBox)e.Item.FindControl( "tbFirstName" );
+            //var tbLastName = (RockTextBox)e.Item.FindControl( "tbLastName" );
+            //var dpBirthDate = (DatePicker)e.Item.FindControl( "dpBirthDate" );
             var ddlGender = (RockDropDownList)e.Item.FindControl( "ddlGender" );
             ddlGender.BindToEnum<Gender>();
             ( (RockDropDownList)e.Item.FindControl( "ddlAbilityGrade" ) ).LoadAbilityAndGradeItems();
@@ -286,24 +278,25 @@ namespace RockWeb.Blocks.CheckIn.Attended
             else
             {
                 family.Selected = false;
+                //dpPersonPager.Visible = false;
                 lvPerson.DataSource = null;
                 lvPerson.DataBind();
+                //dpVisitorPager.Visible = false;
                 lvVisitor.DataSource = null;
                 lvVisitor.DataBind();
+                return;
             }
 
-            dpPersonPager.Visible = true;
-            dpPersonPager.SetPageProperties( 0, dpPersonPager.MaximumRows, false );
-            if ( lvPerson.DataSource == null )
+            if ( lvPerson.DataSource != null )
             {
-                dpPersonPager.Visible = false;
+                dpPersonPager.Visible = true;
+                dpPersonPager.SetPageProperties( 0, dpPersonPager.MaximumRows, false );
             }
 
-            dpVisitorPager.Visible = true;
-            dpVisitorPager.SetPageProperties( 0, dpVisitorPager.MaximumRows, false );
-            if ( lvVisitor.DataSource == null )
+            if ( lvVisitor.DataSource != null )
             {
-                dpVisitorPager.Visible = false;
+                dpVisitorPager.Visible = true;
+                dpVisitorPager.SetPageProperties( 0, dpVisitorPager.MaximumRows, false );
             }
         }
 
@@ -331,17 +324,20 @@ namespace RockWeb.Blocks.CheckIn.Attended
         {
             dpPersonPager.SetPageProperties( e.StartRowIndex, e.MaximumRows, false );
 
-            var selectedFamily = CurrentCheckInState.CheckIn.Families
-                .Where( f => f.Selected ).FirstOrDefault()
-                .People.Where( f => f.FamilyMember )
-                .OrderBy( p => p.Person.FullNameReversed ).ToList();
-            var selectedPeopleList = hfSelectedPerson.Value.SplitDelimitedValues().Select( int.Parse ).ToList();
-            selectedFamily.ForEach( p => p.Selected = selectedPeopleList.Contains( p.Person.Id ) );
+            var selectedFamily = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
+            if ( selectedFamily != null )
+            {
+                var peopleList = selectedFamily.People.Where( f => f.FamilyMember )
+                    .OrderBy( p => p.Person.FullNameReversed ).ToList();
 
-            // rebind List View
-            lvPerson.DataSource = selectedFamily;
-            lvPerson.DataBind();
-            pnlPerson.Update();
+                var selectedPeople = hfSelectedPerson.Value.SplitDelimitedValues().Select( int.Parse ).ToList();
+                peopleList.ForEach( p => p.Selected = selectedPeople.Contains( p.Person.Id ) );
+
+                // rebind List View
+                lvPerson.DataSource = selectedFamily;
+                lvPerson.DataBind();
+                pnlPerson.Update();
+            }
         }
 
         /// <summary>
@@ -353,17 +349,19 @@ namespace RockWeb.Blocks.CheckIn.Attended
         {
             dpVisitorPager.SetPageProperties( e.StartRowIndex, e.MaximumRows, false );
 
-            var visitorList = CurrentCheckInState.CheckIn.Families
-                .Where( f => f.Selected ).FirstOrDefault()
-                .People.Where( f => !f.FamilyMember )
-                .OrderBy( p => p.Person.FullNameReversed ).ToList();
-            var selectedVisitors = hfSelectedVisitor.Value.SplitDelimitedValues().Select( int.Parse ).ToList();
-            visitorList.ForEach( p => p.Selected = selectedVisitors.Contains( p.Person.Id ) );
+            var selectedFamily = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
+            if ( selectedFamily != null )
+            {
+                var visitorList = selectedFamily.People.Where( f => !f.FamilyMember ).OrderBy( p => p.Person.FullNameReversed ).ToList();
 
-            // rebind List View
-            lvVisitor.DataSource = visitorList;
-            lvVisitor.DataBind();
-            pnlVisitor.Update();
+                var selectedVisitors = hfSelectedVisitor.Value.SplitDelimitedValues().Select( int.Parse ).ToList();
+                visitorList.ForEach( p => p.Selected = selectedVisitors.Contains( p.Person.Id ) );
+
+                // rebind List View
+                lvVisitor.DataSource = visitorList;
+                lvVisitor.DataBind();
+                pnlVisitor.Update();
+            }
         }
 
         #endregion Select People Events
@@ -395,12 +393,13 @@ namespace RockWeb.Blocks.CheckIn.Attended
         }
 
         /// <summary>
-        /// Handles the Click event of the lbAddSearchedForPerson control.
+        /// Handles the Click event of the lbNewPerson control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
-        protected void lbSavePerson_Click( object sender, EventArgs e )
+        protected void lbNewPerson_Click( object sender, EventArgs e )
         {
+            // Make sure all required fields are filled out
             if ( string.IsNullOrEmpty( tbFirstNamePerson.Text ) || string.IsNullOrEmpty( tbLastNamePerson.Text ) || string.IsNullOrEmpty( dpDOBPerson.Text ) || ddlGenderPerson.SelectedValueAsInt() == 0 )
             {
                 Page.Validate( "Person" );
@@ -425,14 +424,14 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 if ( newPersonType.Value != "Visitor" )
                 {   // Family Member
                     var groupMember = AddGroupMember( checkInFamily.Group.Id, checkInPerson.Person );
-                    checkInPerson.FamilyMember = true;
                     hfSelectedPerson.Value += checkInPerson.Person.Id + ",";
+                    checkInPerson.FamilyMember = true;
                 }
                 else
                 {   // Visitor
                     AddVisitorGroupMemberRoles( checkInFamily, checkInPerson.Person.Id );
-                    checkInPerson.FamilyMember = false;
                     hfSelectedVisitor.Value += checkInPerson.Person.Id + ",";
+                    checkInPerson.FamilyMember = false;
                 }
 
                 checkInPerson.Selected = true;
@@ -497,10 +496,10 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbPersonSearch_Click( object sender, EventArgs e )
         {
-            lbSavePerson.Visible = true;
             rGridPersonResults.PageIndex = 0;
             rGridPersonResults.Visible = true;
             rGridPersonResults.PageSize = 4;
+            lbNewPerson.Visible = true;
             BindPersonGrid();
             mdlAddPerson.Show();
         }
@@ -546,7 +545,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 newFamilyList.Add( newPerson );
             }
 
-            var lastName = newFamilyList.Where( p => p.BirthDate.HasValue ).OrderBy( p => p.BirthDate ).Select( p => p.LastName ).FirstOrDefault();
+            var lastName = newFamilyList.Where( p => p.BirthDate.HasValue ).OrderByDescending( p => p.BirthDate ).Select( p => p.LastName ).FirstOrDefault();
             var familyGroup = CreateFamily( lastName );
 
             // create people and add to checkin
@@ -585,8 +584,8 @@ namespace RockWeb.Blocks.CheckIn.Attended
             {
                 var rockContext = new RockContext();
                 var groupMemberService = new GroupMemberService( rockContext );
-                int index = int.Parse( e.CommandArgument.ToString() );
-                int personId = int.Parse( rGridPersonResults.DataKeys[index].Value.ToString() );
+                int rowIndex = int.Parse( e.CommandArgument.ToString() );
+                int personId = int.Parse( rGridPersonResults.DataKeys[rowIndex].Value.ToString() );
 
                 var family = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault();
                 if ( family != null )
@@ -598,16 +597,20 @@ namespace RockWeb.Blocks.CheckIn.Attended
                     {
                         if ( newPersonType.Value != "Visitor" )
                         {
-                            // TODO: Not sure this is the best way to set family id
-                            var groupMember = groupMemberService.GetByPersonId( personId ).FirstOrDefault();
-                            groupMember.GroupId = family.Group.Id;
-                            rockContext.SaveChanges();
+                            // Add as family member
+                            var groupMember = groupMemberService.GetByPersonId( personId ).FirstOrDefault( gm => gm.Group.GroupType.Guid == new Guid( Rock.SystemGuid.GroupType.GROUPTYPE_FAMILY ) );
+                            if ( groupMember != null )
+                            {
+                                groupMember.GroupId = family.Group.Id;
+                                rockContext.SaveChanges();
+                            }
 
                             checkInPerson.FamilyMember = true;
                             hfSelectedPerson.Value += personId + ",";
                         }
                         else
                         {
+                            // Add as visitor
                             AddVisitorGroupMemberRoles( family, personId );
                             checkInPerson.FamilyMember = false;
                             hfSelectedVisitor.Value += personId + ",";
@@ -622,7 +625,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 }
                 else
                 {
-                    string errorMsg = "<ul><li>You have to pick a family to add this person to.</li></ul>";
+                    string errorMsg = "<ul><li>You have to pick or create a family to add this person to.</li></ul>";
                     maWarning.Show( errorMsg, Rock.Web.UI.Controls.ModalAlertType.Warning );
                 }
             }
@@ -709,7 +712,8 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 }
             }
 
-            var matches = peopleList.Select( p => new
+            // Load person grid
+            var matchingPeople = peopleList.Select( p => new
             {
                 p.Id,
                 p.FirstName,
@@ -724,7 +728,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                         .Select( dv => dv.Value ).FirstOrDefault()
             } ).OrderByDescending( p => p.BirthDate ).ToList();
 
-            rGridPersonResults.DataSource = matches;
+            rGridPersonResults.DataSource = matchingPeople;
             rGridPersonResults.DataBind();
         }
 
@@ -746,8 +750,8 @@ namespace RockWeb.Blocks.CheckIn.Attended
                         if ( family.People.Where( f => f.FamilyMember ).Any() )
                         {
                             var familyMembers = family.People.Where( f => f.FamilyMember && !f.ExcludedByFilter ).ToList();
-                            familyMembers.ForEach( p => p.Selected = true );
                             hfSelectedPerson.Value = string.Join( ",", familyMembers.Select( f => f.Person.Id ) ) + ",";
+                            familyMembers.ForEach( p => p.Selected = true );
                             memberDataSource = familyMembers.OrderBy( p => p.Person.FullNameReversed ).ToList();
                         }
 
@@ -778,6 +782,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// </summary>
         protected void RefreshFamily()
         {
+            // Sort by campus first
             lvFamily.DataSource = CurrentCheckInState.CheckIn.Families.OrderBy( f => f.Caption ).ToList();
             lvFamily.DataBind();
             pnlFamily.Update();
@@ -805,7 +810,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             ddlAbilityPerson.LoadAbilityAndGradeItems();
             ddlAbilityPerson.SelectedIndex = 0;
             rGridPersonResults.Visible = false;
-            lbSavePerson.Visible = false;
+            lbNewPerson.Visible = false;
 
             tbFirstNamePerson.Required = true;
             tbLastNamePerson.Required = true;
@@ -813,7 +818,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
 
             mdlAddPerson.Show();
         }
-        
+
         /// <summary>
         /// Adds a new person.
         /// </summary>
@@ -827,7 +832,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             var rockContext = new RockContext();
             var personService = new PersonService( rockContext );
 
-            Person person = new Person();
+            var person = new Person();
             person.FirstName = firstName;
             person.LastName = lastName;
             person.BirthDate = DOB;

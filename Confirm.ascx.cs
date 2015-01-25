@@ -46,11 +46,13 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// <summary>
         /// Check-In information class used to bind the selected grid.
         /// </summary>
-        protected class CheckIn
+        protected class Checkins
         {
             public int PersonId { get; set; }
 
             public string Name { get; set; }
+
+            public int GroupId { get; set; }
 
             public string Location { get; set; }
 
@@ -60,10 +62,11 @@ namespace RockWeb.Blocks.CheckIn.Attended
 
             public int ScheduleId { get; set; }
 
-            public CheckIn()
+            public Checkins()
             {
                 PersonId = 0;
                 Name = string.Empty;
+                GroupId = 0;
                 Location = string.Empty;
                 LocationId = 0;
                 Schedule = string.Empty;
@@ -114,33 +117,37 @@ namespace RockWeb.Blocks.CheckIn.Attended
             var selectedPeopleList = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault()
                 .People.Where( p => p.Selected ).OrderBy( p => p.Person.FullNameReversed ).ToList();
 
-            var checkInList = new List<CheckIn>();
+            var checkInList = new List<Checkins>();
             foreach ( var person in selectedPeopleList )
             {
-                var locations = person.GroupTypes.Where( gt => gt.Selected )
-                    .SelectMany( gt => gt.Groups ).Where( g => g.Selected )
-                    .SelectMany( g => g.Locations ).Where( l => l.Selected ).ToList();
+                var selectedGroupTypes = person.GroupTypes.Where( gt => gt.Selected ).ToList();
+                var selectedGroups = selectedGroupTypes.SelectMany( gt => gt.Groups.Where( g => g.Selected ) ).ToList();
+                var selectedLocations = selectedGroups.SelectMany( g => g.Locations.Where( l => l.Selected ) ).ToList();
 
-                if ( locations.Any() )
+                if ( selectedLocations.Any() )
                 {
-                    foreach ( var location in locations )
+                    foreach ( var group in selectedGroups )
                     {
-                        foreach ( var schedule in location.Schedules.Where( s => s.Selected ) )
+                        foreach ( var location in selectedLocations )
                         {
-                            var checkIn = new CheckIn();
-                            checkIn.PersonId = person.Person.Id;
-                            checkIn.Name = person.Person.FullName;
-                            checkIn.Location = location.Location.Name;
-                            checkIn.LocationId = location.Location.Id;
-                            checkIn.Schedule = schedule.Schedule.Name;
-                            checkIn.ScheduleId = schedule.Schedule.Id;
-                            checkInList.Add( checkIn );
+                            foreach ( var schedule in location.Schedules.Where( s => s.Selected ) )
+                            {
+                                var checkIn = new Checkins();
+                                checkIn.PersonId = person.Person.Id;
+                                checkIn.Name = person.Person.FullName;
+                                checkIn.GroupId = group.Group.Id;
+                                checkIn.Location = location.Location.Name;
+                                checkIn.LocationId = location.Location.Id;
+                                checkIn.Schedule = schedule.Schedule.Name;
+                                checkIn.ScheduleId = schedule.Schedule.Id;
+                                checkInList.Add( checkIn );
+                            }
                         }
                     }
                 }
                 else
                 {   // auto assignment didn't select anything
-                    checkInList.Add( new CheckIn { PersonId = person.Person.Id, Name = person.Person.FullName } );
+                    checkInList.Add( new Checkins { PersonId = person.Person.Id, Name = person.Person.FullName } );
                 }
             }
 
@@ -169,12 +176,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbDone_Click( object sender, EventArgs e )
         {
-            // Save the attendance and move forward
-            // Note: might be called without printing any labels
-            if ( SaveAttendance() )
-            {
-                NavigateToNextPage();
-            }
+            ProcessSelection( maWarning );
         }
 
         /// <summary>
@@ -187,6 +189,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             var dataKeyValues = gPersonList.DataKeys[e.RowIndex].Values;
             var queryParams = new Dictionary<string, string>();
             queryParams.Add( "personId", dataKeyValues["PersonId"].ToString() );
+            queryParams.Add( "groupId", dataKeyValues["GroupId"].ToString() );
             queryParams.Add( "locationId", dataKeyValues["LocationId"].ToString() );
             queryParams.Add( "scheduleId", dataKeyValues["ScheduleId"].ToString() );
             NavigateToLinkedPage( "ActivitySelectPage", queryParams );
@@ -201,6 +204,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
         {
             var dataKeyValues = gPersonList.DataKeys[e.RowIndex].Values;
             var personId = Convert.ToInt32( dataKeyValues["PersonId"] );
+            var groupId = Convert.ToInt32( dataKeyValues["GroupId"] );
             var locationId = Convert.ToInt32( dataKeyValues["LocationId"] );
             var scheduleId = Convert.ToInt32( dataKeyValues["ScheduleId"] );
 
@@ -208,7 +212,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 .People.Where( p => p.Person.Id == personId ).FirstOrDefault();
             var selectedGroups = selectedPerson.GroupTypes.Where( gt => gt.Selected )
                 .SelectMany( gt => gt.Groups.Where( g => g.Selected ) );
-            CheckInGroup selectedGroup = selectedGroups.Where( g => g.Selected
+            CheckInGroup selectedGroup = selectedGroups.Where( g => g.Selected && g.Group.Id == groupId
                 && g.Locations.Any( l => l.Location.Id == locationId
                     && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) ) ).FirstOrDefault();
             CheckInLocation selectedLocation = selectedGroup.Locations.Where( l => l.Selected
@@ -323,6 +327,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                     foreach ( DataKey dataKey in labelKeyArray )
                     {
                         var personId = Convert.ToInt32( dataKey["PersonId"] );
+                        var groupId = Convert.ToInt32( dataKey["GroupId"] );
                         var locationId = Convert.ToInt32( dataKey["LocationId"] );
                         var scheduleId = Convert.ToInt32( dataKey["ScheduleId"] );
 
@@ -350,8 +355,8 @@ namespace RockWeb.Blocks.CheckIn.Attended
                         var selectedGroupType = selectedPerson.GroupTypes.FirstOrDefault( gt =>
                             gt.Groups.Any( g => g.Locations.Any( l => l.Location.Id == locationId
                                 && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) ) ) );
-                        var selectedGroup = selectedGroupType.Groups.FirstOrDefault( g => g.Locations.Any( l =>
-                            l.Location.Id == locationId && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) ) );
+                        var selectedGroup = selectedGroupType.Groups.FirstOrDefault( g => g.Group.Id == groupId &&
+                            g.Locations.Any( l => l.Location.Id == locationId && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) ) );
                         var selectedLocation = selectedGroup.Locations.FirstOrDefault( l => l.Location.Id == locationId
                                 && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) );
                         var selectedSchedule = selectedLocation.Schedules.FirstOrDefault( s => s.Schedule.Id == scheduleId );

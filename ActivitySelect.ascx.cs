@@ -34,33 +34,33 @@ namespace RockWeb.Blocks.CheckIn.Attended
     [DisplayName( "Activity Select" )]
     [Category( "Check-in > Attended" )]
     [Description( "Attended Check-In Activity Select Block" )]
-    [BooleanField( "Display Group Names", "By default location names are shown.  Check this option to show the group names instead.", true )]
+    [BooleanField( "Display Group Names", "By default location names are shown.  Check this option to show the group names instead.", false )]
     public partial class ActivitySelect : CheckInBlock
     {
         /// <summary>
         /// Check-In information class used to bind the selected grid.
         /// </summary>
-        protected class CheckIn
+        protected class Activity
         {
-            public string Location { get; set; }
-
-            public string Schedule { get; set; }
-
             public DateTime? StartTime { get; set; }
 
             public int GroupId { get; set; }
 
+            public string Location { get; set; }
+
             public int LocationId { get; set; }
+
+            public string Schedule { get; set; }
 
             public int ScheduleId { get; set; }
 
-            public CheckIn()
+            public Activity()
             {
-                Location = string.Empty;
-                Schedule = string.Empty;
                 StartTime = new DateTime?();
                 GroupId = 0;
+                Location = string.Empty;
                 LocationId = 0;
+                Schedule = string.Empty;
                 ScheduleId = 0;
             }
         }
@@ -131,6 +131,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                             ViewState["groupTypeId"] = selectedGroupType.GroupType.Id.ToString();
                         }
 
+                        ViewState["groupId"] = Request.QueryString["groupId"];
                         ViewState["locationId"] = Request.QueryString["locationId"];
                         ViewState["scheduleId"] = Request.QueryString["scheduleId"];
 
@@ -160,7 +161,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                     else
                     {
                         maWarning.Show( InvalidParameterError, ModalAlertType.Warning );
-                        GoBack();
+                        NavigateToPreviousPage();
                     }
                 }
 
@@ -273,18 +274,19 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 }
 
                 var groupTypeId = ViewState["groupTypeId"].ToString().AsType<int?>();
+                var groupId = ViewState["groupId"].ToString().AsType<int?>();
                 var locationId = ViewState["locationId"].ToString().AsType<int?>();
                 int scheduleId = Int32.Parse( e.CommandArgument.ToString() );
 
                 // set this selected group, location, and schedule
-                var selectedGroupTypes = person.GroupTypes.Where( gt => gt.GroupType.Id == groupTypeId ).ToList();
-                selectedGroupTypes.ForEach( gt => gt.Selected = true );
-                var selectedGroups = selectedGroupTypes.SelectMany( gt => gt.Groups ).Where( g => g.Locations.Any( l => l.Location.Id == locationId ) ).ToList();
-                selectedGroups.ForEach( g => g.Selected = true );
-                var selectedLocations = selectedGroups.SelectMany( g => g.Locations ).Where( l => l.Location.Id == locationId ).ToList();
-                selectedLocations.ForEach( l => l.Selected = true );
-                var selectedSchedules = selectedLocations.SelectMany( l => l.Schedules ).Where( s => s.Schedule.Id == scheduleId ).ToList();
-                selectedSchedules.ForEach( s => s.Selected = true );
+                var selectedGroupType = person.GroupTypes.FirstOrDefault( gt => gt.GroupType.Id == groupTypeId );
+                selectedGroupType.Selected = true;
+                var selectedGroup = selectedGroupType.Groups.FirstOrDefault( g => g.Group.Id == groupId && g.Locations.Any( l => l.Location.Id == locationId ) );
+                selectedGroup.Selected = true;
+                var selectedLocation = selectedGroup.Locations.FirstOrDefault( l => l.Location.Id == locationId );
+                selectedLocation.Selected = true;
+                var selectedSchedule = selectedLocation.Schedules.FirstOrDefault( s => s.Schedule.Id == scheduleId );
+                selectedSchedule.Selected = true;
 
                 pnlSchedules.Update();
                 BindSelectedGrid();
@@ -494,7 +496,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             var person = GetPerson();
             var rockContext = new RockContext();
             var checkInNote = new NoteService( rockContext ).GetByNoteTypeId( int.Parse( ViewState["checkInNoteTypeId"].ToString() ) )
-                .FirstOrDefault( n => n.EntityId == person.Person.Id )
+                .FirstOrDefault( n => n.EntityId == person.Person.Id );
             if ( checkInNote == null )
             {
                 checkInNote = new Note();
@@ -573,8 +575,8 @@ namespace RockWeb.Blocks.CheckIn.Attended
 
             if ( changes )
             {
-                var newContext = new RockContext();
-                var person = new PersonService( newContext ).Get( currentPerson.Person.Id );
+                var rockContext = new RockContext();
+                var person = new PersonService( rockContext ).Get( currentPerson.Person.Id );
                 person.LoadAttributes();
 
                 person.FirstName = tbFirstName.Text;
@@ -617,7 +619,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                     }
                 }
 
-                newContext.SaveChanges();
+                rockContext.SaveChanges();
             }
 
             mdlInfo.Hide();
@@ -640,7 +642,8 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbBack_Click( object sender, EventArgs e )
         {
-            GoBack();
+            UnsetChanges();
+            NavigateToPreviousPage();
         }
 
         /// <summary>
@@ -693,6 +696,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             int? groupTypeId = ViewState["groupTypeId"].ToString().AsType<int>();
             if ( groupTypeId != null )
             {
+                int groupId = ViewState["groupId"].ToString().AsType<int>();
                 int locationId = ViewState["locationId"].ToString().AsType<int>();
 
                 var groupType = groupTypes.FirstOrDefault( gt => gt.GroupType.Id == groupTypeId );
@@ -713,17 +717,19 @@ namespace RockWeb.Blocks.CheckIn.Attended
                         placeInList = allLocations.IndexOf( selectedLocation ) + 1;
                     }
 
+                    // Show Group Names not set, locationItems is Type <CheckInLocation>
                     locationItems = allLocations.Cast<Rock.Lava.ILiquidizable>().ToList();
                 }
                 else
                 {
                     var allGroups = groupType.Groups.OrderBy( g => g.Group.Name ).ToList();
-                    if ( locationId > 0 )
+                    if ( groupId > 0 )
                     {
-                        var selectedGroup = allGroups.FirstOrDefault( g => g.Locations.Any( l => l.Location.Id == locationId ) );
+                        var selectedGroup = allGroups.FirstOrDefault( g => g.Group.Id == groupId && g.Locations.Any( l => l.Location.Id == locationId ) );
                         placeInList = allGroups.IndexOf( selectedGroup ) + 1;
                     }
 
+                    // Show Group Names is set, locationItems is Type <CheckInGroup>
                     locationItems = allGroups.Cast<Rock.Lava.ILiquidizable>().ToList();
                 }
 
@@ -751,6 +757,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             int? groupTypeId = ViewState["groupTypeId"].ToString().AsType<int?>();
             if ( groupTypeId != null )
             {
+                int groupId = ViewState["groupId"].ToString().AsType<int>();
                 int locationId = ViewState["locationId"].ToString().AsType<int>();
 
                 var groupType = groupTypes.FirstOrDefault( gt => gt.GroupType.Id == groupTypeId );
@@ -786,20 +793,21 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 var selectedGroups = selectedGroupTypes.SelectMany( gt => gt.Groups.Where( g => g.Selected ) ).ToList();
                 var selectedLocations = selectedGroups.SelectMany( g => g.Locations.Where( l => l.Selected ) ).ToList();
 
-                var checkInList = new List<CheckIn>();
+                var checkInList = new List<Activity>();
                 foreach ( var group in selectedGroups )
                 {
                     foreach ( var location in selectedLocations )
                     {
                         foreach ( var schedule in location.Schedules.Where( s => s.Selected ) )
                         {
-                            var checkIn = new CheckIn();
-                            checkIn.Location = location.Location.Name;
-                            checkIn.Schedule = schedule.Schedule.Name;
+                            var checkIn = new Activity();
                             checkIn.StartTime = Convert.ToDateTime( schedule.StartTime );
-                            checkIn.LocationId = location.Location.Id;
-                            checkIn.ScheduleId = schedule.Schedule.Id;
                             checkIn.GroupId = group.Group.Id;
+                            checkIn.Location = location.Location.Name;
+                            checkIn.LocationId = location.Location.Id;
+                            checkIn.Schedule = schedule.Schedule.Name;
+                            checkIn.ScheduleId = schedule.Schedule.Id;
+
                             checkInList.Add( checkIn );
                         }
                     }
@@ -898,9 +906,9 @@ namespace RockWeb.Blocks.CheckIn.Attended
         }
 
         /// <summary>
-        /// Goes back to the confirmation page with no changes.
+        /// Unsets the changes.
         /// </summary>
-        private new void GoBack()
+        private void UnsetChanges()
         {
             var person = GetPerson();
 
@@ -922,8 +930,6 @@ namespace RockWeb.Blocks.CheckIn.Attended
             {
                 maWarning.Show( InvalidParameterError, ModalAlertType.Warning );
             }
-
-            NavigateToPreviousPage();
         }
 
         /// <summary>
@@ -931,37 +937,27 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// </summary>
         private void GoNext()
         {
-            if ( gSelectedGrid.Rows.Count > 0 )
+            var person = GetPerson();
+            if ( person != null )
             {
-                var person = GetPerson();
+                var groupTypes = person.GroupTypes.ToList();
+                groupTypes.ForEach( gt => gt.PreSelected = gt.Selected );
 
-                if ( person != null )
-                {
-                    var groupTypes = person.GroupTypes.ToList();
-                    groupTypes.ForEach( gt => gt.PreSelected = gt.Selected );
+                var groups = groupTypes.SelectMany( gt => gt.Groups ).ToList();
+                groups.ForEach( g => g.PreSelected = g.Selected );
 
-                    var groups = groupTypes.SelectMany( gt => gt.Groups ).ToList();
-                    groups.ForEach( g => g.PreSelected = g.Selected );
+                var locations = groups.SelectMany( g => g.Locations ).ToList();
+                locations.ForEach( l => l.PreSelected = l.Selected );
 
-                    var locations = groups.SelectMany( g => g.Locations ).ToList();
-                    locations.ForEach( l => l.PreSelected = l.Selected );
-
-                    var schedules = locations.SelectMany( l => l.Schedules ).ToList();
-                    schedules.ForEach( s => s.PreSelected = s.Selected );
-                }
-                else
-                {
-                    maWarning.Show( InvalidParameterError, ModalAlertType.Warning );
-                }
-
-                SaveState();
-                NavigateToNextPage();
+                var schedules = locations.SelectMany( l => l.Schedules ).ToList();
+                schedules.ForEach( s => s.PreSelected = s.Selected );
             }
             else
             {
-                string errorMsg = "<ul><li>" + "You must select an activity to continue. Otherwise, click the Back arrow." + "</li></ul>";
-                maWarning.Show( errorMsg, Rock.Web.UI.Controls.ModalAlertType.Warning );
+                maWarning.Show( InvalidParameterError, ModalAlertType.Warning );
             }
+
+            ProcessSelection( maWarning );
         }
 
         #endregion Internal Methods
