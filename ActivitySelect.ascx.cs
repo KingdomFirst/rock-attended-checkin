@@ -757,7 +757,6 @@ namespace RockWeb.Blocks.CheckIn.Attended
             int? groupTypeId = ViewState["groupTypeId"].ToString().AsType<int?>();
             if ( groupTypeId != null )
             {
-                int groupId = ViewState["groupId"].ToString().AsType<int>();
                 int locationId = ViewState["locationId"].ToString().AsType<int>();
 
                 var groupType = groupTypes.FirstOrDefault( gt => gt.GroupType.Id == groupTypeId );
@@ -766,11 +765,10 @@ namespace RockWeb.Blocks.CheckIn.Attended
                     groupType = groupTypes.FirstOrDefault();
                 }
 
-                var locations = groupType.Groups.SelectMany( g => g.Locations.Where( l => l.Location.Id == locationId ) );
-                var location = locations.FirstOrDefault( l => l.Location.Id == locationId );
+                var location = groupType.Groups.SelectMany( g => g.Locations ).FirstOrDefault( l => l.Location.Id == locationId );
                 if ( location == null )
                 {
-                    location = locations.FirstOrDefault();
+                    location = groupType.Groups.SelectMany( g => g.Locations ).FirstOrDefault();
                 }
 
                 GetScheduleAttendance( location );
@@ -861,16 +859,19 @@ namespace RockWeb.Blocks.CheckIn.Attended
         /// <param name="location"></param>
         protected void GetScheduleAttendance( CheckInLocation location )
         {
-            var rockContext = new RockContext();
-            var attendanceService = new AttendanceService( rockContext );
-            var attendanceQuery = attendanceService.GetByDateAndLocation( DateTime.Now, location.Location.Id );
-            ScheduleAttendanceList.Clear();
-            foreach ( var schedule in location.Schedules )
+            if ( location != null )
             {
-                ScheduleAttendance sa = new ScheduleAttendance();
-                sa.ScheduleId = schedule.Schedule.Id;
-                sa.AttendanceCount = attendanceQuery.Where( l => l.ScheduleId == sa.ScheduleId ).Count();
-                ScheduleAttendanceList.Add( sa );
+                var rockContext = new RockContext();
+                var attendanceService = new AttendanceService( rockContext );
+                var attendanceQuery = attendanceService.GetByDateAndLocation( DateTime.Now, location.Location.Id );
+                ScheduleAttendanceList.Clear();
+                foreach ( var schedule in location.Schedules )
+                {
+                    ScheduleAttendance sa = new ScheduleAttendance();
+                    sa.ScheduleId = schedule.Schedule.Id;
+                    sa.AttendanceCount = attendanceQuery.Where( l => l.ScheduleId == sa.ScheduleId ).Count();
+                    ScheduleAttendanceList.Add( sa );
+                }
             }
         }
 

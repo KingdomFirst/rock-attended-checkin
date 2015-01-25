@@ -41,8 +41,6 @@ namespace RockWeb.Blocks.CheckIn.Attended
     [Description( "Attended Check-In Family Select Block" )]
     [BooleanField( "Enable Add Buttons", "Show the add people/visitor/family buttons on the family select page?", true )]
     [TextField( "Not Found Text", "What text should display when the nothing is found?", true, "Please add them using one of the buttons on the right" )]
-    [IntegerField( "Minimum Text Length", "Minimum length for text searches (defaults to 1).", false, 1 )]
-    [IntegerField( "Maximum Text Length", "Maximum length for text searches (defaults to 20).", false, 20 )]
     public partial class FamilySelect : CheckInBlock
     {
         #region Control Methods
@@ -327,14 +325,14 @@ namespace RockWeb.Blocks.CheckIn.Attended
             var selectedFamily = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
             if ( selectedFamily != null )
             {
-                var peopleList = selectedFamily.People.Where( f => f.FamilyMember )
+                var peopleList = selectedFamily.People.Where( f => f.FamilyMember && !f.ExcludedByFilter )
                     .OrderBy( p => p.Person.FullNameReversed ).ToList();
 
                 var selectedPeople = hfSelectedPerson.Value.SplitDelimitedValues().Select( int.Parse ).ToList();
                 peopleList.ForEach( p => p.Selected = selectedPeople.Contains( p.Person.Id ) );
 
                 // rebind List View
-                lvPerson.DataSource = selectedFamily;
+                lvPerson.DataSource = peopleList;
                 lvPerson.DataBind();
                 pnlPerson.Update();
             }
@@ -352,7 +350,8 @@ namespace RockWeb.Blocks.CheckIn.Attended
             var selectedFamily = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
             if ( selectedFamily != null )
             {
-                var visitorList = selectedFamily.People.Where( f => !f.FamilyMember ).OrderBy( p => p.Person.FullNameReversed ).ToList();
+                var visitorList = selectedFamily.People.Where( f => !f.FamilyMember && !f.ExcludedByFilter )
+                    .OrderBy( p => p.Person.FullNameReversed ).ToList();
 
                 var selectedVisitors = hfSelectedVisitor.Value.SplitDelimitedValues().Select( int.Parse ).ToList();
                 visitorList.ForEach( p => p.Selected = selectedVisitors.Contains( p.Person.Id ) );

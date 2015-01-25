@@ -37,7 +37,7 @@
                                 OnItemCommand="lvFamily_ItemCommand" OnItemDataBound="lvFamily_ItemDataBound">
                                 <ItemTemplate>
                                     <asp:LinkButton ID="lbSelectFamily" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" CausesValidation="false">
-						                <%# Eval("Caption") %>
+						                <%# Eval("Caption") %><br />
                                         <span class='checkin-sub-title'>
                                             <%# Eval("SubCaption") %>
                                         </span>
@@ -63,7 +63,7 @@
                             <asp:ListView ID="lvPerson" runat="server" OnItemDataBound="lvPerson_ItemDataBound" OnPagePropertiesChanging="lvPerson_PagePropertiesChanging">
                                 <ItemTemplate>
                                     <asp:LinkButton ID="lbSelectPerson" runat="server" data-id='<%# Eval("Person.Id") %>' CssClass="btn btn-primary btn-lg btn-block btn-checkin-select person">
-						                <%# Eval("Person.FullName") %>
+						                <%# Eval("Person.FullName") %><br />
 						                <span class='checkin-sub-title'>
 							                Birthday: <%# Eval("Person.BirthMonth") + "/" + Eval("Person.BirthDay") + " " ?? "N/A " %>
                                             <%# Convert.ToInt32( Eval( "Person.Age" ) ) <= 18 ? "Age: " + Eval( "Person.Age" ) : string.Empty %>
@@ -95,7 +95,7 @@
                             <asp:ListView ID="lvVisitor" runat="server" OnItemDataBound="lvVisitor_ItemDataBound" OnPagePropertiesChanging="lvVisitor_PagePropertiesChanging">
                                 <ItemTemplate>
                                     <asp:LinkButton ID="lbSelectVisitor" runat="server" data-id='<%# Eval("Person.Id") %>' CssClass="btn btn-primary btn-lg btn-block btn-checkin-select visitor">
-						                <%# Eval("Person.FullName") %>
+						                <%# Eval("Person.FullName") %><br />
 						                <span class='checkin-sub-title'>Birthday: <%# Eval("Person.BirthMonth") + "/" + Eval("Person.BirthDay") ?? "N/A" %></span>
                                     </asp:LinkButton>
                                 </ItemTemplate>
