@@ -16,6 +16,7 @@
 //
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -23,13 +24,12 @@ using Rock;
 using Rock.Constants;
 using Rock.Data;
 using Rock.Model;
+using Rock.Security;
 using Rock.Web.Cache;
 using Rock.Web.UI;
 using Rock.Web.UI.Controls;
-using System.ComponentModel;
-using Rock.Security;
 
-namespace RockWeb.Blocks.CheckIn
+namespace cc.newspring.AttendedCheckin.Config
 {
     /// <summary>
     ///
@@ -163,7 +163,7 @@ namespace RockWeb.Blocks.CheckIn
             }
         }
 
-        #endregion
+        #endregion Control Methods
 
         #region ViewState and Dynamic Controls
 
@@ -520,7 +520,7 @@ namespace RockWeb.Blocks.CheckIn
             groupEditor.Parent.Controls.Remove( groupEditor );
         }
 
-        #endregion
+        #endregion ViewState and Dynamic Controls
 
         #region CheckinLabel Add/Delete
 
@@ -604,7 +604,7 @@ namespace RockWeb.Blocks.CheckIn
             pnlDetails.Visible = true;
         }
 
-        #endregion
+        #endregion CheckinLabel Add/Delete
 
         #region Location Add/Delete
 
@@ -677,7 +677,7 @@ namespace RockWeb.Blocks.CheckIn
             mdLocationPicker.Hide();
         }
 
-        #endregion
+        #endregion Location Add/Delete
 
         /// <summary>
         /// Handles the Click event of the btnSave control.
@@ -744,7 +744,7 @@ namespace RockWeb.Blocks.CheckIn
                 rockContext.SaveChanges();
 
                 // Add/Update grouptypes and groups that are in the UI
-                // Note:  We'll have to save all the groupTypes without changing the DB value of ChildGroupTypes, then come around again and save the ChildGroupTypes 
+                // Note:  We'll have to save all the groupTypes without changing the DB value of ChildGroupTypes, then come around again and save the ChildGroupTypes
                 // since the ChildGroupTypes may not exist in the database yet
                 foreach ( GroupType groupTypeUI in groupTypesToAddUpdate )
                 {

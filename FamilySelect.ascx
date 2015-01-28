@@ -1,4 +1,4 @@
-﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="FamilySelect.ascx.cs" Inherits="RockWeb.Blocks.CheckIn.Attended.FamilySelect" %>
+﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="FamilySelect.ascx.cs" Inherits="cc.newspring.AttendedCheckin.FamilySelect" %>
 
 <asp:UpdatePanel ID="pnlContent" runat="server" UpdateMode="Conditional">
     <ContentTemplate>
