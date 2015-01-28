@@ -467,7 +467,6 @@ namespace cc.newspring.AttendedCheckin.Config
                 groupEditor.Expanded = true;
             }
 
-            parentControl.Controls.Add( groupEditor );
             groupEditor.SetGroup( group, rockContext );
             var locationService = new LocationService( rockContext );
             var locationQry = locationService.Queryable().Select( a => new { a.Id, a.ParentLocationId, a.Name } );
@@ -495,6 +494,7 @@ namespace cc.newspring.AttendedCheckin.Config
             groupEditor.AddLocationClick += groupEditor_AddLocationClick;
             groupEditor.DeleteLocationClick += groupEditor_DeleteLocationClick;
             groupEditor.DeleteGroupClick += groupEditor_DeleteGroupClick;
+            parentControl.Controls.Add( groupEditor );
         }
 
         /// <summary>
@@ -1005,6 +1005,20 @@ namespace cc.newspring.AttendedCheckin.Config
             int groupTypeSortOrder = 0;
             int groupSortOrder = 0;
             var parentGroup = groupTypeUI.Groups.FirstOrDefault();
+            if ( parentGroup == null )
+            {
+                parentGroup = new Group();
+                parentGroup.IsActive = true;
+                parentGroup.IsSystem = false;
+                parentGroup.Guid = Guid.NewGuid();
+                parentGroup.IsSecurityRole = false;
+                parentGroup.Name = groupTypeUI.Name;
+                parentGroup.GroupTypeId = groupTypeUI.Id;
+                parentGroup.Order = groupTypeUI.Order;
+                parentGroup.GroupType = new GroupType { Guid = groupTypeUI.Guid };
+                groupsToAddUpdate.Add( parentGroup );
+            }
+
             foreach ( var childGroupTypeUI in groupTypeUI.ChildGroupTypes )
             {
                 PopulateAddUpdateLists( groupTypesToAddUpdate, groupsToAddUpdate, childGroupTypeUI, createCheckinHierarchy );
