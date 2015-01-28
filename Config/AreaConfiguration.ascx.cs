@@ -1,5 +1,4 @@
-﻿﻿// <copyright>
-
+﻿// <copyright>
 // Copyright 2013 by the Spark Development Network
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,21 +16,20 @@
 //
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using Rock;
-using Rock.Attribute;
 using Rock.Constants;
 using Rock.Data;
 using Rock.Model;
-using Rock.Security;
 using Rock.Web.Cache;
 using Rock.Web.UI;
 using Rock.Web.UI.Controls;
+using System.ComponentModel;
+using Rock.Security;
 
-namespace RockWeb.Blocks.CheckIn.Attended
+namespace RockWeb.Blocks.CheckIn
 {
     /// <summary>
     ///
@@ -165,7 +163,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             }
         }
 
-        #endregion Control Methods
+        #endregion
 
         #region ViewState and Dynamic Controls
 
@@ -271,7 +269,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
         private void CreateGroupTypeEditorControls( GroupType groupType, Control parentControl, RockContext rockContext, bool createExpanded = false )
         {
             CheckinGroupTypeEditor groupTypeEditor = new CheckinGroupTypeEditor();
-            groupTypeEditor.ID = string.Format( "GroupTypeEditor_{0}", groupType.Guid.ToString( "N" ) );
+            groupTypeEditor.ID = "GroupTypeEditor_" + groupType.Guid.ToString( "N" );
             groupTypeEditor.SetGroupType( groupType.Id, groupType.Guid, groupType.Name, groupType.InheritedGroupTypeId );
             groupTypeEditor.AddGroupClick += groupTypeEditor_AddGroupClick;
             groupTypeEditor.AddGroupTypeClick += groupTypeEditor_AddGroupTypeClick;
@@ -462,7 +460,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
         private void CreateGroupEditorControls( Group group, Control parentControl, RockContext rockContext, bool createExpanded = false )
         {
             CheckinGroupEditor groupEditor = new CheckinGroupEditor();
-            groupEditor.ID = string.Format( "GroupEditor_{0}", group.Guid.ToString( "N" ) );
+            groupEditor.ID = "GroupEditor_" + group.Guid.ToString( "N" );
             if ( createExpanded )
             {
                 groupEditor.Expanded = true;
@@ -522,7 +520,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             groupEditor.Parent.Controls.Remove( groupEditor );
         }
 
-        #endregion ViewState and Dynamic Controls
+        #endregion
 
         #region CheckinLabel Add/Delete
 
@@ -606,7 +604,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             pnlDetails.Visible = true;
         }
 
-        #endregion CheckinLabel Add/Delete
+        #endregion
 
         #region Location Add/Delete
 
@@ -679,7 +677,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
             mdLocationPicker.Hide();
         }
 
-        #endregion Location Add/Delete
+        #endregion
 
         /// <summary>
         /// Handles the Click event of the btnSave control.
@@ -746,7 +744,7 @@ namespace RockWeb.Blocks.CheckIn.Attended
                 rockContext.SaveChanges();
 
                 // Add/Update grouptypes and groups that are in the UI
-                // Note:  We'll have to save all the groupTypes without changing the DB value of ChildGroupTypes, then come around again and save the ChildGroupTypes
+                // Note:  We'll have to save all the groupTypes without changing the DB value of ChildGroupTypes, then come around again and save the ChildGroupTypes 
                 // since the ChildGroupTypes may not exist in the database yet
                 foreach ( GroupType groupTypeUI in groupTypesToAddUpdate )
                 {
