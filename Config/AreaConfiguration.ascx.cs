@@ -718,7 +718,7 @@ namespace cc.newspring.AttendedCheckin.Config
             var groupsToAddUpdate = new List<Group>();
 
             GroupType parentGroupTypeDB = groupTypeService.Get( parentGroupTypeId );
-            GroupType parentGroupTypeUI = parentGroupTypeDB.Clone( true );
+            GroupType parentGroupTypeUI = parentGroupTypeDB.Clone( false );
             parentGroupTypeUI.ChildGroupTypes = groupTypeUIList;
 
             PopulateDeleteLists( groupTypesToDelete, groupsToDelete, parentGroupTypeDB, parentGroupTypeUI );
