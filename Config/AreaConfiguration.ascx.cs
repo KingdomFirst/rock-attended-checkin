@@ -225,14 +225,15 @@ namespace cc.newspring.AttendedCheckin.Config
             groupTypeViewStateList.AddAll( groupTypeList );
             ViewState["CheckinGroupTypes"] = groupTypeViewStateList;
 
+            // get all GroupTypes' editors to save groups and labels
+            var recursiveGroupTypeEditors = phCheckinGroupTypes.ControlsOfTypeRecursive<CheckinGroupTypeEditor>().ToList();
+
             // save each GroupTypes' Groups to ViewState (since GroupType.Groups are not Serialized)
             var groupTypeGroupsList = new List<Group>();
-            foreach ( var groupType in groupTypeList )
+            foreach ( var editor in recursiveGroupTypeEditors )
             {
-                foreach ( var group in groupType.Groups )
-                {
-                    groupTypeGroupsList.Add( group );
-                }
+                var groupType = editor.GetCheckinGroupType( rockContext );
+                groupTypeGroupsList.AddRange( groupType.Groups );
             }
 
             ViewStateList<Group> checkinGroupTypesGroups = new ViewStateList<Group>();
@@ -241,7 +242,7 @@ namespace cc.newspring.AttendedCheckin.Config
 
             // save all the checkinlabels for all the grouptypes (recursively) to viewstate
             GroupTypeCheckinLabelAttributesState = new Dictionary<Guid, List<CheckinGroupTypeEditor.CheckinLabelAttributeInfo>>();
-            foreach ( var checkinGroupTypeEditor in phCheckinGroupTypes.ControlsOfTypeRecursive<CheckinGroupTypeEditor>().ToList() )
+            foreach ( var checkinGroupTypeEditor in recursiveGroupTypeEditors )
             {
                 GroupTypeCheckinLabelAttributesState.Add( checkinGroupTypeEditor.GroupTypeGuid, checkinGroupTypeEditor.CheckinLabels );
             }
@@ -265,13 +266,15 @@ namespace cc.newspring.AttendedCheckin.Config
             phCheckinGroupTypes.Controls.Clear();
             var rockContext = new RockContext();
 
+            // GroupTypeViewStateList only contains parent GroupTypes, so get all the child GroupTypes and assign their groups
             ViewStateList<GroupType> groupTypeViewStateList = ViewState["CheckinGroupTypes"] as ViewStateList<GroupType>;
+            var allGroupTypesList = groupTypeViewStateList.Flatten<GroupType>( gt => gt.ChildGroupTypes );
 
             // load each GroupTypes' Groups from ViewState (since GroupType.Groups are not Serialized)
             ViewStateList<Group> checkinGroupTypesGroups = ViewState["CheckinGroupTypesGroups"] as ViewStateList<Group>;
             foreach ( var groupTypeGroups in checkinGroupTypesGroups.GroupBy( g => g.GroupType.Guid ) )
             {
-                var groupType = groupTypeViewStateList.FirstOrDefault( a => a.Guid == groupTypeGroups.Key );
+                var groupType = allGroupTypesList.FirstOrDefault( a => a.Guid == groupTypeGroups.Key );
 
                 if ( groupType != null )
                 {
@@ -283,6 +286,7 @@ namespace cc.newspring.AttendedCheckin.Config
                 }
             }
 
+            // Build out Parent GroupTypes controls (Child GroupTypes controls are built recursively)
             foreach ( var groupType in groupTypeViewStateList )
             {
                 CreateGroupTypeEditorControls( groupType, phCheckinGroupTypes, rockContext );
@@ -1034,19 +1038,6 @@ namespace cc.newspring.AttendedCheckin.Config
             int groupTypeSortOrder = 0;
             int groupSortOrder = 0;
             var parentGroup = groupTypeUI.Groups.FirstOrDefault();
-            if ( parentGroup == null )
-            {
-                parentGroup = new Group();
-                parentGroup.IsActive = true;
-                parentGroup.IsSystem = false;
-                parentGroup.Guid = Guid.NewGuid();
-                parentGroup.IsSecurityRole = false;
-                parentGroup.Name = groupTypeUI.Name;
-                parentGroup.GroupTypeId = groupTypeUI.Id;
-                parentGroup.Order = groupTypeUI.Order;
-                parentGroup.GroupType = new GroupType { Guid = groupTypeUI.Guid };
-                groupsToAddUpdate.Add( parentGroup );
-            }
 
             foreach ( var childGroupTypeUI in groupTypeUI.ChildGroupTypes )
             {
