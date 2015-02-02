@@ -149,15 +149,17 @@ namespace cc.newspring.AttendedCheckin
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbBack_Click( object sender, EventArgs e )
         {
-            //bool selectedFamilyExists = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).Any();
-            //if ( !selectedFamilyExists )
-            //{
-            //    var queryParams = new Dictionary<string, string>();
-            //    queryParams.Add( "back", "true" );
-            //    NavigateToLinkedPage( "AdminPage", queryParams );
-            //}
-
-            NavigateToPreviousPage();
+            bool selectedFamilyExists = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).Any();
+            if ( !selectedFamilyExists )
+            {
+                var queryParams = new Dictionary<string, string>();
+                queryParams.Add( "back", "true" );
+                NavigateToLinkedPage( "AdminPage", queryParams );
+            }
+            else
+            {
+                NavigateToPreviousPage();
+            }
         }
 
         #endregion Edit Events
