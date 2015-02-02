@@ -36,7 +36,7 @@
                             <asp:ListView ID="lvFamily" runat="server" OnPagePropertiesChanging="lvFamily_PagePropertiesChanging"
                                 OnItemCommand="lvFamily_ItemCommand" OnItemDataBound="lvFamily_ItemDataBound">
                                 <ItemTemplate>
-                                    <asp:LinkButton ID="lbSelectFamily" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" CausesValidation="false">
+                                    <asp:LinkButton ID="lbSelectFamily" runat="server" CommandArgument='<%# Eval("Group.Id") %>' CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" CausesValidation="false">
 						                <%# Eval("Caption") %><br />
                                         <span class='checkin-sub-title'>
                                             <%# Eval("SubCaption") %>
