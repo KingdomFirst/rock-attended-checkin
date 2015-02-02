@@ -332,7 +332,7 @@ namespace cc.newspring.AttendedCheckin
 
                         // mark the person whose label is being printed
                         var selectedPerson = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected )
-                            .People.FirstOrDefault( p => p.Person.Id == personId && p.Selected );
+                            .People.FirstOrDefault( p => p.Person.Id == personId );
 
                         // unselect other people
                         CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).SelectMany( f => f.People ).ToList().ForEach( p => p.Selected = false );
