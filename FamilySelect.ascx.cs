@@ -82,27 +82,42 @@ namespace cc.newspring.AttendedCheckin
                 else
                 {
                     //lblFamilyTitle.InnerText = string.Format( "No Results for \"{0}\"", CurrentCheckInState.CheckIn.SearchValue );
-                    lbNext.Enabled = false;
-                    lbNext.Visible = false;
-                    pnlFamily.Visible = false;
-                    pnlPerson.Visible = false;
-                    pnlVisitor.Visible = false;
-                    actions.Visible = false;
-
-                    string nothingFoundText = GetAttributeValue( "NotFoundText" );
-                    divNothingFound.InnerText = nothingFoundText;
-                    divNothingFound.Visible = true;
-
-                    bool showAddButtons = true;
-                    bool.TryParse( GetAttributeValue( "EnableAddButtons" ), out showAddButtons );
-
-                    lbAddFamilyMember.Visible = showAddButtons;
-                    lbAddVisitor.Visible = showAddButtons;
-                    lbNewFamily.Visible = showAddButtons;
+                    SetFamilyDisplay( false );
                 }
 
                 rGridPersonResults.PageSize = 4;
             }
+        }
+
+        /// <summary>
+        /// Sets the family display to show or hide panels depending on the result.
+        /// </summary>
+        /// <param name="hasValidResults">if set to <c>true</c> [has valid results].</param>
+        private void SetFamilyDisplay( bool hasValidResults )
+        {
+            lbNext.Enabled = hasValidResults;
+            lbNext.Visible = hasValidResults;
+            pnlFamily.Visible = hasValidResults;
+            pnlPerson.Visible = hasValidResults;
+            pnlVisitor.Visible = hasValidResults;
+            actions.Visible = hasValidResults;
+
+            if ( !hasValidResults )
+            {
+                // Show a custom message when nothing is found
+                string nothingFoundText = GetAttributeValue( "NotFoundText" );
+                divNothingFound.InnerText = nothingFoundText;
+                divNothingFound.AddCssClass( "large-font" );
+                divNothingFound.Visible = true;
+            }
+
+            // Check if the add buttons can be displayed
+            bool showAddButtons = true;
+            bool.TryParse( GetAttributeValue( "EnableAddButtons" ), out showAddButtons );
+
+            lbAddFamilyMember.Visible = showAddButtons;
+            lbAddVisitor.Visible = showAddButtons;
+            lbNewFamily.Visible = showAddButtons;
         }
 
         /// <summary>
@@ -445,6 +460,7 @@ namespace cc.newspring.AttendedCheckin
                 dpDOBPerson.Required = false;
 
                 ProcessFamily();
+                SetFamilyDisplay( true );
                 mdlAddPerson.Hide();
             }
         }
@@ -568,6 +584,7 @@ namespace cc.newspring.AttendedCheckin
             CurrentCheckInState.CheckIn.Families.Clear();
             CurrentCheckInState.CheckIn.Families.Add( checkInFamily );
 
+            mdlNewFamily.Hide();
             ProcessFamily();
             RefreshFamily();
         }
@@ -620,12 +637,15 @@ namespace cc.newspring.AttendedCheckin
                         ProcessFamily();
                     }
 
+                    SetFamilyDisplay( true );
                     mdlAddPerson.Hide();
                 }
                 else
                 {
-                    string errorMsg = "<ul><li>You have to pick or create a family to add this person to.</li></ul>";
+                    mdlAddPerson.Hide();
+                    string errorMsg = "<ul><li>Please pick or create a family to add this person to.</li></ul>";
                     maWarning.Show( errorMsg, Rock.Web.UI.Controls.ModalAlertType.Warning );
+                    
                 }
             }
             else
