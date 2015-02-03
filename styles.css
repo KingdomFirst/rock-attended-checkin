@@ -56,14 +56,20 @@ tfoot {
 }
 
 /* Modals */
-.rock-modal .modal-container {
-    margin-top: 0 !important;
+.modal-scrollable {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
 }
 
+.modal {
+    top: 50%;
+}
 
 .modal-content .checkin-header {
     border-bottom: 1px solid #222222;
-    margin-top: 0;    
 }
 
 .modal-content .checkin-header h2 {
@@ -78,10 +84,6 @@ tfoot {
     color: #000000;
 }
 
-.modal-content .checkin-body > .row:not(:first-of-type) {
-    margin-bottom: 10px;
-}
-
 .modal-content table tfoot ul.grid-pager li.active a {
     background-color: #BBBBBB;
     border-color: #BBBBBB;
@@ -90,10 +92,6 @@ tfoot {
 
 .modal-content table tfoot ul.grid-pager li a {
     color: #000000;
-}
-
-.modal-content {
-    padding: 20px;
 }
 
 .bootbox .modal-footer {
@@ -108,8 +106,11 @@ tfoot {
     background-color: #ffffff;
 }
 
-
 /* Buttons */
+button.close {
+    color: #000;
+}
+
 .btn {
     width: 100%;
     white-space: nowrap;
