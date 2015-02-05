@@ -105,7 +105,7 @@
                     <asp:LinkButton ID="lbEditInfo" runat="server" Text="Edit Info" CssClass="btn btn-primary btn-block btn-checkin-select" OnClick="lbEditInfo_Click" CausesValidation="false" />
                 </div>
                 <div class="col-xs-3">
-                    <asp:LinkButton ID="lbAddNote" runat="server" Text="Add Note" CssClass="btn btn-primary btn-block btn-checkin-select" OnClick="lbAddNote_Click" CausesValidation="false" />
+                    <asp:LinkButton ID="lbAddNote" runat="server" Text="Add/Edit Note" CssClass="btn btn-primary btn-block btn-checkin-select" OnClick="lbAddNote_Click" CausesValidation="false" />
                 </div>
             </div>
         </asp:Panel>
