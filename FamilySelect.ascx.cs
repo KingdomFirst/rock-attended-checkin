@@ -18,9 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Web.UI;
-using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
 using cc.newspring.AttendedCheckIn.Utility;
 using Rock;
@@ -254,12 +252,24 @@ namespace cc.newspring.AttendedCheckin
         /// <param name="e">The <see cref="ListViewItemEventArgs"/> instance containing the event data.</param>
         protected void lvNewFamily_ItemDataBound( object sender, ListViewItemEventArgs e )
         {
-            //var tbFirstName = (RockTextBox)e.Item.FindControl( "tbFirstName" );
-            //var tbLastName = (RockTextBox)e.Item.FindControl( "tbLastName" );
-            //var dpBirthDate = (DatePicker)e.Item.FindControl( "dpBirthDate" );
-            var ddlGender = (RockDropDownList)e.Item.FindControl( "ddlGender" );
-            ddlGender.BindToEnum<Gender>();
-            ( (RockDropDownList)e.Item.FindControl( "ddlAbilityGrade" ) ).LoadAbilityAndGradeItems();
+            if ( e.Item.ItemType == ListViewItemType.DataItem )
+            {
+                NewPerson person = ( (ListViewDataItem)e.Item ).DataItem as NewPerson;
+
+                var ddlGender = (RockDropDownList)e.Item.FindControl( "ddlGender" );
+                ddlGender.BindToEnum<Gender>();
+                if ( person.Gender != Gender.Unknown )
+                {
+                    ddlGender.SelectedIndex = person.Gender.ConvertToInt();
+                }
+
+                var ddlAbilityGrade = (RockDropDownList)e.Item.FindControl( "ddlAbilityGrade" );
+                ddlAbilityGrade.LoadAbilityAndGradeItems();
+                if ( !string.IsNullOrWhiteSpace( person.Ability ) )
+                {
+                    ddlAbilityGrade.SelectedValue = person.Ability;
+                }
+            }
         }
 
         #endregion Load Methods
@@ -527,7 +537,8 @@ namespace cc.newspring.AttendedCheckin
         protected void lbNewFamily_Click( object sender, EventArgs e )
         {
             var newFamilyList = new List<NewPerson>();
-            newFamilyList.AddRange( Enumerable.Repeat( new NewPerson(), 10 ) );
+            var familyMembersToAdd = dpNewFamily.PageSize * 3;
+            newFamilyList.AddRange( Enumerable.Repeat( new NewPerson(), familyMembersToAdd ) );
             ViewState["newFamily"] = newFamilyList;
             lvNewFamily.DataSource = newFamilyList;
             lvNewFamily.DataBind();
@@ -645,7 +656,6 @@ namespace cc.newspring.AttendedCheckin
                     mdlAddPerson.Hide();
                     string errorMsg = "<ul><li>Please pick or create a family to add this person to.</li></ul>";
                     maWarning.Show( errorMsg, Rock.Web.UI.Controls.ModalAlertType.Warning );
-                    
                 }
             }
             else
