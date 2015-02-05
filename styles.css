@@ -222,3 +222,7 @@ span.month, span.year {
 .large-font {
     font-size: 1.5em;
 }
+
+.expanded {
+    margin-bottom: 10px;
+}

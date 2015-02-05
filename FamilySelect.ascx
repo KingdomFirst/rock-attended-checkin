@@ -217,27 +217,27 @@
                 <div class="checkin-body">
                     <asp:ListView ID="lvNewFamily" runat="server" OnPagePropertiesChanging="lvNewFamily_PagePropertiesChanging" OnItemDataBound="lvNewFamily_ItemDataBound">
                         <LayoutTemplate>
-                            <div class="row">
+                            <div class="row large-font">
                                 <div class="col-xs-2">
-                                    <h4>First Name</h4>
+                                    <label>First Name</label>
                                 </div>
                                 <div class="col-xs-2">
-                                    <h4>Last Name</h4>
+                                    <label>Last Name</label>
                                 </div>
                                 <div class="col-xs-3">
-                                    <h4>DOB</h4>
+                                    <label>DOB</label>
                                 </div>
                                 <div class="col-xs-2">
-                                    <h4>Gender</h4>
+                                    <label>Gender</label>
                                 </div>
                                 <div class="col-xs-3">
-                                    <h4>Ability/Grade</h4>
+                                    <label>Ability/Grade</label>
                                 </div>
                             </div>
                             <asp:PlaceHolder ID="itemPlaceholder" runat="server" />
                         </LayoutTemplate>
                         <ItemTemplate>
-                            <div class="row">
+                            <div class="row expanded">
                                 <div class="col-xs-2">
                                     <Rock:RockTextBox ID="tbFirstName" runat="server" RequiredErrorMessage="First Name is Required" Text='<%# ((NewPerson)Container.DataItem).FirstName %>' ValidationGroup="Family" />
                                 </div>
