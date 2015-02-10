@@ -56,7 +56,7 @@ namespace cc.newspring.AttendedCheckin
             {
                 if ( CurrentKioskId == null || CurrentGroupTypeIds == null || CurrentCheckInState.Kiosk == null )
                 {
-                    NavigateToHomePage();
+                    NavigateToLinkedPage( "AdminPage" );
                 }
                 else
                 {
