@@ -254,6 +254,13 @@ namespace cc.newspring.AttendedCheckin
             {
                 SerializedPerson person = ( (ListViewDataItem)e.Item ).DataItem as SerializedPerson;
 
+                var ddlSuffix = (RockDropDownList)e.Item.FindControl( "ddlSuffix" );
+                ddlSuffix.BindToDefinedType( DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_SUFFIX ) ), true );
+                if ( person.SuffixValueId != null )
+                {
+                    ddlSuffix.SelectedValue = person.SuffixValueId.ToString();
+                }
+
                 var ddlGender = (RockDropDownList)e.Item.FindControl( "ddlGender" );
                 ddlGender.BindToEnum<Gender>();
                 if ( person.Gender != Gender.Unknown )
@@ -470,7 +477,7 @@ namespace cc.newspring.AttendedCheckin
                 }
 
                 var checkInPerson = new CheckInPerson();
-                checkInPerson.Person = CreatePerson( tbFirstNamePerson.Text, tbLastNamePerson.Text, dpDOBPerson.SelectedDate, (int?)ddlGenderPerson.SelectedValueAsEnum<Gender>(),
+                checkInPerson.Person = CreatePerson( tbFirstNamePerson.Text, tbLastNamePerson.Text, ddlSuffix.SelectedValueAsId(), dpDOBPerson.SelectedDate, (int?)ddlGenderPerson.SelectedValueAsEnum<Gender>(),
                     ddlAbilityPerson.SelectedValue, ddlAbilityPerson.SelectedItem.Attributes["optiongroup"] );
 
                 if ( newPersonType.Value != "Visitor" )
@@ -523,6 +530,7 @@ namespace cc.newspring.AttendedCheckin
                     var rowPerson = new SerializedPerson();
                     rowPerson.FirstName = ( (TextBox)item.FindControl( "tbFirstName" ) ).Text;
                     rowPerson.LastName = ( (TextBox)item.FindControl( "tbLastName" ) ).Text;
+                    rowPerson.SuffixValueId = ( (RockDropDownList)item.FindControl( "ddlSuffix" ) ).SelectedValueAsId();
                     rowPerson.BirthDate = ( (DatePicker)item.FindControl( "dpBirthDate" ) ).SelectedDate;
                     rowPerson.Gender = ( (RockDropDownList)item.FindControl( "ddlGender" ) ).SelectedValueAsEnum<Gender>();
                     rowPerson.Ability = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedValue;
@@ -569,6 +577,7 @@ namespace cc.newspring.AttendedCheckin
                 newPerson = new SerializedPerson();
                 newPerson.FirstName = ( (TextBox)item.FindControl( "tbFirstName" ) ).Text;
                 newPerson.LastName = ( (TextBox)item.FindControl( "tbLastName" ) ).Text;
+                newPerson.SuffixValueId = ( (RockDropDownList)item.FindControl( "ddlSuffix" ) ).SelectedValueAsId();
                 newPerson.BirthDate = ( (DatePicker)item.FindControl( "dpBirthDate" ) ).SelectedDate;
                 newPerson.Gender = ( (RockDropDownList)item.FindControl( "ddlGender" ) ).SelectedValueAsEnum<Gender>();
                 newPerson.Ability = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedValue;
@@ -582,7 +591,7 @@ namespace cc.newspring.AttendedCheckin
             // create people and add to checkin
             foreach ( SerializedPerson np in newFamilyList.Where( np => np.IsValid() ) )
             {
-                var person = CreatePerson( np.FirstName, np.LastName, np.BirthDate, (int?)np.Gender, np.Ability, np.AbilityGroup );
+                var person = CreatePerson( np.FirstName, np.LastName, np.SuffixValueId, np.BirthDate, (int?)np.Gender, np.Ability, np.AbilityGroup );
                 var groupMember = AddGroupMember( familyGroup.Id, person );
                 familyGroup.Members.Add( groupMember );
                 checkInPerson = new CheckInPerson();
@@ -707,6 +716,12 @@ namespace cc.newspring.AttendedCheckin
                 people = people.Where( p => p.FirstName.ToLower().StartsWith( tbFirstNamePerson.Text ) );
             }
 
+            if ( ddlSuffix.SelectedValueAsInt() != null )
+            {
+                var suffixValueId = ddlSuffix.SelectedValueAsId();
+                people = people.Where( p => p.SuffixValueId == suffixValueId );
+            }
+
             if ( !string.IsNullOrEmpty( dpDOBPerson.Text ) )
             {
                 DateTime searchDate;
@@ -752,6 +767,7 @@ namespace cc.newspring.AttendedCheckin
                 p.Id,
                 p.FirstName,
                 p.LastName,
+                p.SuffixValue,
                 p.BirthDate,
                 p.Age,
                 p.Gender,
@@ -839,6 +855,7 @@ namespace cc.newspring.AttendedCheckin
         /// </summary>
         protected void SetAddPersonFields()
         {
+            ddlSuffix.BindToDefinedType( DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_SUFFIX ) ), true );
             ddlGenderPerson.BindToEnum<Gender>();
             ddlGenderPerson.SelectedIndex = 0;
             ddlAbilityPerson.LoadAbilityAndGradeItems();
@@ -861,7 +878,7 @@ namespace cc.newspring.AttendedCheckin
         /// <param name="DOB">The DOB.</param>
         /// <param name="gender">The gender</param>
         /// <param name="attribute">The attribute.</param>
-        protected Person CreatePerson( string firstName, string lastName, DateTime? DOB, int? gender, string ability, string abilityGroup )
+        protected Person CreatePerson( string firstName, string lastName, int? suffixValueId, DateTime? DOB, int? gender, string ability, string abilityGroup )
         {
             var rockContext = new RockContext();
             var personService = new PersonService( rockContext );
@@ -869,6 +886,7 @@ namespace cc.newspring.AttendedCheckin
             var person = new Person();
             person.FirstName = firstName;
             person.LastName = lastName;
+            person.SuffixValueId = suffixValueId;
             person.BirthDate = DOB;
             personService.Add( person );
 
@@ -1012,6 +1030,8 @@ namespace cc.newspring.AttendedCheckin
             public string FirstName { get; set; }
 
             public string LastName { get; set; }
+
+            public int? SuffixValueId { get; set; }
 
             public DateTime? BirthDate { get; set; }
 

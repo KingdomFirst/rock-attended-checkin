@@ -153,13 +153,16 @@
                         <div class="col-xs-2">
                             <Rock:RockTextBox ID="tbLastNamePerson" runat="server" CssClass="col-xs-12" Label="Last Name" ValidationGroup="Person" />
                         </div>
+                        <div class="col-xs-1">
+                            <Rock:RockDropDownList ID="ddlSuffix" runat="server" CssClass="col-xs-12" Label="Suffix" />
+                        </div>
                         <div class="col-xs-3">
-                            <Rock:DatePicker ID="dpDOBPerson" runat="server" Label="DOB" CssClass="col-xs-12 date-picker" ValidationGroup="Person" />
+                            <Rock:DatePicker ID="dpDOBPerson" runat="server" Label="Date of Birth" CssClass="col-xs-12 date-picker" ValidationGroup="Person" />
                         </div>
                         <div class="col-xs-2">
                             <Rock:RockDropDownList ID="ddlGenderPerson" runat="server" Label="Gender" CssClass="col-xs-12" ValidationGroup="Person" />
                         </div>
-                        <div class="col-xs-3">
+                        <div class="col-xs-2">
                             <Rock:RockDropDownList ID="ddlAbilityPerson" runat="server" Label="Ability/Grade" CssClass="col-xs-12" />
                         </div>
                     </div>
@@ -174,6 +177,7 @@
                                             <asp:BoundField DataField="Id" Visible="false" />
                                             <asp:BoundField DataField="FirstName" HeaderText="First Name" SortExpression="FirstName" />
                                             <asp:BoundField DataField="LastName" HeaderText="Last Name" SortExpression="LastName" />
+                                            <asp:BoundField DataField="SuffixValue" HeaderText="Suffix" SortExpression="SuffixValue" />
                                             <asp:BoundField DataField="BirthDate" HeaderText="DOB" SortExpression="BirthDate" DataFormatString="{0:MM/dd/yy}" HtmlEncode="false" />
                                             <asp:BoundField DataField="Age" HeaderText="Age" SortExpression="Age" />
                                             <asp:BoundField DataField="Gender" HeaderText="Gender" SortExpression="Gender" />
@@ -227,13 +231,16 @@
                                 <div class="col-xs-2">
                                     <label>Last Name</label>
                                 </div>
+                                <div class="col-xs-1">
+                                    <label>Suffix</label>
+                                </div>
                                 <div class="col-xs-3">
-                                    <label>DOB</label>
+                                    <label>Date of Birth</label>
                                 </div>
                                 <div class="col-xs-2">
                                     <label>Gender</label>
                                 </div>
-                                <div class="col-xs-3">
+                                <div class="col-xs-2">
                                     <label>Ability/Grade</label>
                                 </div>
                             </div>
@@ -247,13 +254,16 @@
                                 <div class="col-xs-2">
                                     <Rock:RockTextBox ID="tbLastName" runat="server" RequiredErrorMessage="Last Name is Required" Text='<%# ((SerializedPerson)Container.DataItem).LastName %>' ValidationGroup="Family" />
                                 </div>
+                                <div class="col-xs-1">
+                                    <Rock:RockDropDownList ID="ddlSuffix" runat="server" />
+                                </div>
                                 <div class="col-xs-3">
-                                    <Rock:DatePicker ID="dpBirthDate" runat="server" RequiredErrorMessage="DOB is Required" SelectedDate='<%# ((SerializedPerson)Container.DataItem).BirthDate %>' ValidationGroup="Family" CssClass="date-picker" />
+                                    <Rock:DatePicker ID="dpBirthDate" runat="server" RequiredErrorMessage="Date of Birth is Required" SelectedDate='<%# ((SerializedPerson)Container.DataItem).BirthDate %>' ValidationGroup="Family" CssClass="date-picker" />
                                 </div>
                                 <div class="col-xs-2">
                                     <Rock:RockDropDownList ID="ddlGender" runat="server" RequiredErrorMessage="Gender is Required" ValidationGroup="Family" />
                                 </div>
-                                <div class="col-xs-3">
+                                <div class="col-xs-2">
                                     <Rock:RockDropDownList ID="ddlAbilityGrade" runat="server" />
                                 </div>
                             </div>
