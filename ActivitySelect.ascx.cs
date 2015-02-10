@@ -570,17 +570,18 @@ namespace cc.newspring.AttendedCheckin
                 return;
             }
 
-            var currentPerson = GetPerson();
+            CheckInPerson currentPerson = GetPerson();
 
             var changes = currentPerson.Person.FirstName == tbFirstName.Text;
             changes = changes || currentPerson.Person.LastName == tbLastName.Text;
+            changes = changes || currentPerson.Person.SuffixValueId == ddlSuffix.SelectedValueAsId();
             changes = changes || currentPerson.Person.NickName == tbNickname.Text;
             changes = changes || currentPerson.Person.BirthDate == dpDOB.SelectedDate;
 
             if ( changes )
             {
                 var rockContext = new RockContext();
-                var person = new PersonService( rockContext ).Get( currentPerson.Person.Id );
+                Person person = new PersonService( rockContext ).Get( currentPerson.Person.Id );
                 person.LoadAttributes();
 
                 person.FirstName = tbFirstName.Text;
@@ -588,6 +589,9 @@ namespace cc.newspring.AttendedCheckin
 
                 person.LastName = tbLastName.Text;
                 currentPerson.Person.LastName = tbLastName.Text;
+
+                person.SuffixValueId = ddlSuffix.SelectedValueAsId();
+                currentPerson.Person.SuffixValueId = ddlSuffix.SelectedValueAsId();
 
                 person.BirthDate = dpDOB.SelectedDate;
                 currentPerson.Person.BirthDate = dpDOB.SelectedDate;
@@ -885,7 +889,8 @@ namespace cc.newspring.AttendedCheckin
         {
             var person = GetPerson();
             ddlAbility.LoadAbilityAndGradeItems();
-
+            ddlSuffix.BindToDefinedType( DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_SUFFIX ) ), true );
+            
             tbFirstName.Text = person.Person.FirstName;
             tbLastName.Text = person.Person.LastName;
             tbNickname.Text = person.Person.NickName;
@@ -894,6 +899,11 @@ namespace cc.newspring.AttendedCheckin
             tbFirstName.Required = true;
             tbLastName.Required = true;
             dpDOB.Required = true;
+
+            if ( person.Person.SuffixValueId.HasValue )
+            {
+                ddlSuffix.SelectedValue = person.Person.SuffixValueId.ToString();
+            }
 
             if ( person.Person.Grade.HasValue )
             {

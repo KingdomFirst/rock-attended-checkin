@@ -169,10 +169,13 @@
                         <div class="col-xs-2">
                             <Rock:RockTextBox ID="tbLastName" runat="server" Label="Last Name" ValidationGroup="Person" />
                         </div>
-                        <div class="col-xs-3">
-                            <Rock:DatePicker ID="dpDOB" runat="server" Label="DOB" ValidationGroup="Person" CssClass="date-picker" />
+                        <div class="col-xs-1">
+                            <Rock:RockDropDownList ID="ddlSuffix" runat="server" Label="Suffix" />
                         </div>
                         <div class="col-xs-3">
+                            <Rock:DatePicker ID="dpDOB" runat="server" Label="Date of Birth" ValidationGroup="Person" CssClass="date-picker" />
+                        </div>
+                        <div class="col-xs-2">
                             <Rock:RockDropDownList ID="ddlAbility" runat="server" Label="Ability/Grade" />
                         </div>
                     </div>
