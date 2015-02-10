@@ -60,7 +60,7 @@ namespace cc.newspring.AttendedCheckin
                 if ( CurrentCheckInState.CheckIn.Families.Count > 0 )
                 {
                     var kioskCampusId = CurrentCheckInState.Kiosk.KioskGroupTypes
-                        .Where( gt => gt.KioskGroups.Any( g => g.KioskLocations.Any( l => l.CampusId != null ) ) )
+                        .Where( gt => gt.KioskGroups.Any( g => g.KioskLocations.Any( l => l.CampusId.HasValue ) ) )
                         .SelectMany( gt => gt.KioskGroups.SelectMany( g => g.KioskLocations.Select( l => l.CampusId ) ) )
                         .FirstOrDefault();
 
@@ -256,7 +256,7 @@ namespace cc.newspring.AttendedCheckin
 
                 var ddlSuffix = (RockDropDownList)e.Item.FindControl( "ddlSuffix" );
                 ddlSuffix.BindToDefinedType( DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_SUFFIX ) ), true );
-                if ( person.SuffixValueId != null )
+                if ( person.SuffixValueId.HasValue )
                 {
                     ddlSuffix.SelectedValue = person.SuffixValueId.ToString();
                 }
@@ -536,7 +536,7 @@ namespace cc.newspring.AttendedCheckin
                     rowPerson.Ability = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedValue;
                     rowPerson.AbilityGroup = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedItem.Attributes["optiongroup"];
 
-                    if ( previousPage != null )
+                    if ( previousPage.HasValue )
                     {
                         pageOffset = (int)previousPage * e.MaximumRows;
                     }
@@ -716,7 +716,7 @@ namespace cc.newspring.AttendedCheckin
                 people = people.Where( p => p.FirstName.ToLower().StartsWith( tbFirstNamePerson.Text ) );
             }
 
-            if ( ddlSuffix.SelectedValueAsInt() != null )
+            if ( ddlSuffix.SelectedValueAsInt().HasValue )
             {
                 var suffixValueId = ddlSuffix.SelectedValueAsId();
                 people = people.Where( p => p.SuffixValueId == suffixValueId );
@@ -890,7 +890,7 @@ namespace cc.newspring.AttendedCheckin
             person.BirthDate = DOB;
             personService.Add( person );
 
-            if ( gender != null )
+            if ( gender.HasValue )
             {
                 person.Gender = (Gender)gender;
             }

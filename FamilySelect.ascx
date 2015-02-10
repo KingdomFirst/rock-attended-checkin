@@ -164,7 +164,7 @@
                         </div>
                         <div class="col-xs-2">
                             <Rock:RockDropDownList ID="ddlAbilityPerson" runat="server" Label="Ability/Grade" CssClass="col-xs-12" />
-                        </div>
+                        </div>                        
                     </div>
 
                     <div class="row">
