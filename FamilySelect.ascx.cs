@@ -75,11 +75,9 @@ namespace cc.newspring.AttendedCheckin
                     ProcessFamily();
                     lvFamily.DataSource = familyList;
                     lvFamily.DataBind();
-                    //lblFamilyTitle.InnerText = string.Format( "Results for \"{0}\"", CurrentCheckInState.CheckIn.SearchValue );
                 }
                 else
                 {
-                    //lblFamilyTitle.InnerText = string.Format( "No Results for \"{0}\"", CurrentCheckInState.CheckIn.SearchValue );
                     SetFamilyDisplay( false );
                 }
 
@@ -254,7 +252,7 @@ namespace cc.newspring.AttendedCheckin
         {
             if ( e.Item.ItemType == ListViewItemType.DataItem )
             {
-                NewPerson person = ( (ListViewDataItem)e.Item ).DataItem as NewPerson;
+                SerializedPerson person = ( (ListViewDataItem)e.Item ).DataItem as SerializedPerson;
 
                 var ddlGender = (RockDropDownList)e.Item.FindControl( "ddlGender" );
                 ddlGender.BindToEnum<Gender>();
@@ -301,10 +299,8 @@ namespace cc.newspring.AttendedCheckin
             else
             {
                 family.Selected = false;
-                //dpPersonPager.Visible = false;
                 lvPerson.DataSource = null;
                 lvPerson.DataBind();
-                //dpVisitorPager.Visible = false;
                 lvVisitor.DataSource = null;
                 lvVisitor.DataBind();
                 return;
@@ -417,6 +413,38 @@ namespace cc.newspring.AttendedCheckin
         }
 
         /// <summary>
+        /// Handles the Click event of the lbNewFamily control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        protected void lbNewFamily_Click( object sender, EventArgs e )
+        {
+            var newFamilyList = new List<SerializedPerson>();
+            var familyMembersToAdd = dpNewFamily.PageSize * 2;
+            newFamilyList.AddRange( Enumerable.Repeat( new SerializedPerson(), familyMembersToAdd ) );
+            ViewState["newFamily"] = newFamilyList;
+            lvNewFamily.DataSource = newFamilyList;
+            lvNewFamily.DataBind();
+
+            mdlNewFamily.Show();
+        }
+
+        /// <summary>
+        /// Handles the Click event of the lbPersonSearch control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        protected void lbPersonSearch_Click( object sender, EventArgs e )
+        {
+            rGridPersonResults.PageIndex = 0;
+            rGridPersonResults.Visible = true;
+            rGridPersonResults.PageSize = 4;
+            lbNewPerson.Visible = true;
+            BindPersonGrid();
+            mdlAddPerson.Show();
+        }
+
+        /// <summary>
         /// Handles the Click event of the lbNewPerson control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
@@ -482,67 +510,44 @@ namespace cc.newspring.AttendedCheckin
         /// <param name="e">The <see cref="PagePropertiesChangingEventArgs"/> instance containing the event data.</param>
         protected void lvNewFamily_PagePropertiesChanging( object sender, PagePropertiesChangingEventArgs e )
         {
-            var newFamilyList = new List<NewPerson>();
+            var newFamilyList = new List<SerializedPerson>();
+            int currentPage = e.StartRowIndex / e.MaximumRows;
+            int? previousPage = ViewState["currentPage"] as int?;
             if ( ViewState["newFamily"] != null )
             {
-                newFamilyList = (List<NewPerson>)ViewState["newFamily"];
+                newFamilyList = (List<SerializedPerson>)ViewState["newFamily"];
+                int pageOffset = 0;
                 int personOffset = 0;
                 foreach ( ListViewItem item in lvNewFamily.Items )
                 {
-                    var rowPerson = new NewPerson();
+                    var rowPerson = new SerializedPerson();
                     rowPerson.FirstName = ( (TextBox)item.FindControl( "tbFirstName" ) ).Text;
                     rowPerson.LastName = ( (TextBox)item.FindControl( "tbLastName" ) ).Text;
                     rowPerson.BirthDate = ( (DatePicker)item.FindControl( "dpBirthDate" ) ).SelectedDate;
                     rowPerson.Gender = ( (RockDropDownList)item.FindControl( "ddlGender" ) ).SelectedValueAsEnum<Gender>();
                     rowPerson.Ability = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedValue;
                     rowPerson.AbilityGroup = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedItem.Attributes["optiongroup"];
-                    newFamilyList[System.Math.Abs( e.StartRowIndex - e.MaximumRows ) + personOffset] = rowPerson;
-                    personOffset++;
 
-                    // check if the list should be expanded
-                    if ( e.MaximumRows + e.StartRowIndex + personOffset >= newFamilyList.Count )
+                    if ( previousPage != null )
                     {
-                        newFamilyList.AddRange( Enumerable.Repeat( new NewPerson(), e.MaximumRows ) );
+                        pageOffset = (int)previousPage * e.MaximumRows;
                     }
+
+                    newFamilyList[pageOffset + personOffset] = rowPerson;
+                    personOffset++;
+                }
+
+                if ( e.StartRowIndex + personOffset >= newFamilyList.Count )
+                {
+                    newFamilyList.AddRange( Enumerable.Repeat( new SerializedPerson(), e.MaximumRows ) );
                 }
             }
 
+            ViewState["currentPage"] = currentPage;
             ViewState["newFamily"] = newFamilyList;
             dpNewFamily.SetPageProperties( e.StartRowIndex, e.MaximumRows, false );
             lvNewFamily.DataSource = newFamilyList;
             lvNewFamily.DataBind();
-            mdlNewFamily.Show();
-        }
-
-        /// <summary>
-        /// Handles the Click event of the lbPersonSearch control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
-        protected void lbPersonSearch_Click( object sender, EventArgs e )
-        {
-            rGridPersonResults.PageIndex = 0;
-            rGridPersonResults.Visible = true;
-            rGridPersonResults.PageSize = 4;
-            lbNewPerson.Visible = true;
-            BindPersonGrid();
-            mdlAddPerson.Show();
-        }
-
-        /// <summary>
-        /// Handles the Click event of the lbNewFamily control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
-        protected void lbNewFamily_Click( object sender, EventArgs e )
-        {
-            var newFamilyList = new List<NewPerson>();
-            var familyMembersToAdd = dpNewFamily.PageSize * 3;
-            newFamilyList.AddRange( Enumerable.Repeat( new NewPerson(), familyMembersToAdd ) );
-            ViewState["newFamily"] = newFamilyList;
-            lvNewFamily.DataSource = newFamilyList;
-            lvNewFamily.DataBind();
-
             mdlNewFamily.Show();
         }
 
@@ -553,15 +558,15 @@ namespace cc.newspring.AttendedCheckin
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbSaveFamily_Click( object sender, EventArgs e )
         {
-            var newFamilyList = (List<NewPerson>)ViewState["newFamily"];
+            var newFamilyList = (List<SerializedPerson>)ViewState["newFamily"];
             var checkInFamily = new CheckInFamily();
             CheckInPerson checkInPerson;
-            NewPerson newPerson;
+            SerializedPerson newPerson;
 
             // add the new people
             foreach ( ListViewItem item in lvNewFamily.Items )
             {
-                newPerson = new NewPerson();
+                newPerson = new SerializedPerson();
                 newPerson.FirstName = ( (TextBox)item.FindControl( "tbFirstName" ) ).Text;
                 newPerson.LastName = ( (TextBox)item.FindControl( "tbLastName" ) ).Text;
                 newPerson.BirthDate = ( (DatePicker)item.FindControl( "dpBirthDate" ) ).SelectedDate;
@@ -575,7 +580,7 @@ namespace cc.newspring.AttendedCheckin
             var familyGroup = CreateFamily( lastName );
 
             // create people and add to checkin
-            foreach ( NewPerson np in newFamilyList.Where( np => np.IsValid() ) )
+            foreach ( SerializedPerson np in newFamilyList.Where( np => np.IsValid() ) )
             {
                 var person = CreatePerson( np.FirstName, np.LastName, np.BirthDate, (int?)np.Gender, np.Ability, np.AbilityGroup );
                 var groupMember = AddGroupMember( familyGroup.Id, person );
@@ -999,10 +1004,10 @@ namespace cc.newspring.AttendedCheckin
         #region NewPerson Class
 
         /// <summary>
-        /// Lightweight Person model to quickly add people during Check-in
+        /// Lightweight Person model to serialize people to viewstate
         /// </summary>
         [Serializable()]
-        protected class NewPerson
+        protected class SerializedPerson
         {
             public string FirstName { get; set; }
 
@@ -1022,7 +1027,7 @@ namespace cc.newspring.AttendedCheckin
                     || !BirthDate.HasValue || Gender == Gender.Unknown );
             }
 
-            public NewPerson()
+            public SerializedPerson()
             {
                 FirstName = string.Empty;
                 LastName = string.Empty;

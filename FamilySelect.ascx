@@ -242,13 +242,13 @@
                         <ItemTemplate>
                             <div class="row expanded">
                                 <div class="col-xs-2">
-                                    <Rock:RockTextBox ID="tbFirstName" runat="server" RequiredErrorMessage="First Name is Required" Text='<%# ((NewPerson)Container.DataItem).FirstName %>' ValidationGroup="Family" />
+                                    <Rock:RockTextBox ID="tbFirstName" runat="server" RequiredErrorMessage="First Name is Required" Text='<%# ((SerializedPerson)Container.DataItem).FirstName %>' ValidationGroup="Family" />
                                 </div>
                                 <div class="col-xs-2">
-                                    <Rock:RockTextBox ID="tbLastName" runat="server" RequiredErrorMessage="Last Name is Required" Text='<%# ((NewPerson)Container.DataItem).LastName %>' ValidationGroup="Family" />
+                                    <Rock:RockTextBox ID="tbLastName" runat="server" RequiredErrorMessage="Last Name is Required" Text='<%# ((SerializedPerson)Container.DataItem).LastName %>' ValidationGroup="Family" />
                                 </div>
                                 <div class="col-xs-3">
-                                    <Rock:DatePicker ID="dpBirthDate" runat="server" RequiredErrorMessage="DOB is Required" SelectedDate='<%# ((NewPerson)Container.DataItem).BirthDate %>' ValidationGroup="Family" CssClass="date-picker" />
+                                    <Rock:DatePicker ID="dpBirthDate" runat="server" RequiredErrorMessage="DOB is Required" SelectedDate='<%# ((SerializedPerson)Container.DataItem).BirthDate %>' ValidationGroup="Family" CssClass="date-picker" />
                                 </div>
                                 <div class="col-xs-2">
                                     <Rock:RockDropDownList ID="ddlGender" runat="server" RequiredErrorMessage="Gender is Required" ValidationGroup="Family" />
