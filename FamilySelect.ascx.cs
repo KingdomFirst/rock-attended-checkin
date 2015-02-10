@@ -59,14 +59,14 @@ namespace cc.newspring.AttendedCheckin
             {
                 if ( CurrentCheckInState.CheckIn.Families.Count > 0 )
                 {
-                    var kioskLocationId = CurrentCheckInState.Kiosk.Device.Locations;
-                    //var currentCampusId = CampusCache.All()
-                    //    .Where( c => c.LocationId.HasValue && kioskLocationId == c.LocationId )
-                    //    .Select( c => c.Id ).FirstOrDefault();
+                    var kioskCampusId = CurrentCheckInState.Kiosk.KioskGroupTypes
+                        .Where( gt => gt.KioskGroups.Any( g => g.KioskLocations.Any( l => l.CampusId != null ) ) )
+                        .SelectMany( gt => gt.KioskGroups.SelectMany( g => g.KioskLocations.Select( l => l.CampusId ) ) )
+                        .FirstOrDefault();
 
                     // Order families by campus then by caption
-                    var familyList = CurrentCheckInState.CheckIn.Families//.OrderByDescending( f => f.Group.CampusId == currentCampusId )
-                        .OrderBy( f => f.Caption ).ToList();
+                    var familyList = CurrentCheckInState.CheckIn.Families.OrderByDescending( f => f.Group.CampusId == kioskCampusId )
+                        .ThenBy( f => f.Caption ).ToList();
                     if ( !UserBackedUp )
                     {
                         familyList.FirstOrDefault().Selected = true;
