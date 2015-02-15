@@ -30,8 +30,7 @@
             </div>
 
             <div class="row checkin-body">
-                <div class="col-xs-4"></div>
-                <div class="col-xs-4">
+                <div class="col-xs-4 col-xs-offset-4">
                     <asp:Panel ID="pnlKeyPad" runat="server" Visible="false" CssClass="tenkey checkin-phone-entry ">
                         <div>
                             <a href="#" class="btn btn-default btn-lg digit">1</a>
@@ -55,7 +54,6 @@
                         </div>
                     </asp:Panel>
                 </div>
-                <div class="col-xs-4"></div>
             </div>
         </asp:Panel>
     </ContentTemplate>

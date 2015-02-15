@@ -52,50 +52,48 @@ namespace cc.newspring.AttendedCheckin
         /// <param name="e">The <see cref="T:System.EventArgs" /> object that contains the event data.</param>
         protected override void OnLoad( EventArgs e )
         {
+            if ( CurrentKioskId == null || CurrentGroupTypeIds == null || CurrentCheckInState.Kiosk == null )
+            {
+                NavigateToLinkedPage( "AdminPage" );
+            }
+
             if ( !Page.IsPostBack )
             {
-                if ( CurrentKioskId == null || CurrentGroupTypeIds == null || CurrentCheckInState.Kiosk == null )
+                if ( !CurrentCheckInState.Kiosk.HasLocations( CurrentGroupTypeIds ) || !CurrentCheckInState.Kiosk.HasActiveLocations( CurrentGroupTypeIds ) )
                 {
-                    NavigateToLinkedPage( "AdminPage" );
+                    DateTimeOffset activeAt = CurrentCheckInState.Kiosk.FilteredGroupTypes( CurrentGroupTypeIds ).Select( g => g.NextActiveTime ).Min();
+                    // not active yet, display next active time
+                    return;
                 }
-                else
+                else if ( CurrentCheckInState != null && !string.IsNullOrWhiteSpace( CurrentCheckInState.CheckIn.SearchValue ) )
                 {
-                    if ( !CurrentCheckInState.Kiosk.HasLocations( CurrentGroupTypeIds ) || !CurrentCheckInState.Kiosk.HasActiveLocations( CurrentGroupTypeIds ) )
-                    {
-                        DateTimeOffset activeAt = CurrentCheckInState.Kiosk.FilteredGroupTypes( CurrentGroupTypeIds ).Select( g => g.NextActiveTime ).Min();
-                        // not active yet, display next active time
-                        return;
-                    }
-                    else if ( CurrentCheckInState != null && !string.IsNullOrWhiteSpace( CurrentCheckInState.CheckIn.SearchValue ) )
-                    {
-                        tbSearchBox.Text = CurrentCheckInState.CheckIn.SearchValue;
-                    }
-
-                    string script = string.Format( @"
-                    <script>
-                        $(document).ready(function (e) {{
-                            if (localStorage) {{
-                                localStorage.checkInKiosk = '{0}';
-                                localStorage.checkInGroupTypes = '{1}';
-                            }}
-                        }});
-                    </script>
-                    ", CurrentKioskId, CurrentGroupTypeIds.AsDelimited( "," ) );
-                    phScript.Controls.Add( new LiteralControl( script ) );
-
-                    if ( bool.Parse( GetAttributeValue( "ShowKeyPad" ) ) == true )
-                    {
-                        pnlKeyPad.Visible = true;
-                    }
-
-                    tbSearchBox.Focus();
+                    tbSearchBox.Text = CurrentCheckInState.CheckIn.SearchValue;
                 }
+
+                string script = string.Format( @"
+                <script>
+                    $(document).ready(function (e) {{
+                        if (localStorage) {{
+                            localStorage.checkInKiosk = '{0}';
+                            localStorage.checkInGroupTypes = '{1}';
+                        }}
+                    }});
+                </script>
+                ", CurrentKioskId, CurrentGroupTypeIds.AsDelimited( "," ) );
+                phScript.Controls.Add( new LiteralControl( script ) );
+
+                if ( bool.Parse( GetAttributeValue( "ShowKeyPad" ) ) == true )
+                {
+                    pnlKeyPad.Visible = true;
+                }
+
+                tbSearchBox.Focus();
             }
         }
 
-        #endregion Control Methods
+        #endregion
 
-        #region Edit Events
+        #region Click Events
 
         /// <summary>
         /// Handles the Click event of the lbSearch control.
@@ -162,6 +160,6 @@ namespace cc.newspring.AttendedCheckin
             }
         }
 
-        #endregion Edit Events
+        #endregion
     }
 }
