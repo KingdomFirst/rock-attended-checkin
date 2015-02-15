@@ -82,82 +82,96 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                             {
                                 CheckInGroup bestGroup = null;
                                 List<CheckInLocation> validLocations;
-                                if ( validGroups.Count() == 1 || validGroups.Any( g => g.Selected ) )
+                                if ( validGroups.Count == 1 || validGroups.Any( g => g.Selected ) )
                                 {
                                     bestGroup = validGroups.OrderByDescending( g => g.Selected ).FirstOrDefault();
                                     validLocations = bestGroup.Locations.Where( l => !l.ExcludedByFilter ).ToList();
                                 }
                                 else
                                 {
-                                    CheckInGroup closestAbilityGroup = null;
-
-                                    // FilterGroupsByAbilityLevel already loads the attributes on people
-                                    var personsAbility = person.Person.GetAttributeValue( "AbilityLevel" );
-
-                                    if ( !string.IsNullOrWhiteSpace( personsAbility ) )
+                                    // Select group by assignment first
+                                    var checkInGroupIds = validGroups.Select( g => g.Group.Id ).ToList();
+                                    var personAssignments = new GroupMemberService( rockContext ).Queryable()
+                                        .Where( m => checkInGroupIds.Contains( m.GroupId ) && m.PersonId == person.Person.Id )
+                                        .Select( m => m.GroupId ).ToList();
+                                    if ( personAssignments.Any() )
                                     {
-                                        // check groups for a ability
-                                        var newGroups = validGroups.Where( g => g.Group.Attributes.ContainsKey( "AbilityLevel" ) && g.Group.GetAttributeValue( "AbilityLevel" ) == personsAbility ).ToList();
-                                        closestAbilityGroup = newGroups.FirstOrDefault();
-                                    }
-                                    else
-                                    {
-                                        validGroups = validGroups.Where( g => !g.Group.Attributes.ContainsKey( "AbilityLevel" ) ).ToList();
+                                        bestGroup = validGroups.FirstOrDefault( g => personAssignments.Contains( g.Group.Id ) );
                                     }
 
-                                    CheckInGroup closestGradeGroup = null;
-                                    if ( person.Person.Grade != null )
+                                    // Select group by best fit
+                                    if ( bestGroup == null )
                                     {
-                                        // check groups for a grade range
-                                        var gradeFilteredGroups = validGroups.Where( g => g.Group.Attributes.ContainsKey( "GradeRange" ) )
-                                            .Select( g => new
-                                            {
-                                                Group = g,
-                                                GradeRange = g.Group.GetAttributeValue( "GradeRange" )
-                                                    .Split( delimiter, StringSplitOptions.None )
-                                                    .Select( av => av.AsType<decimal>() )
-                                            }
-                                            ).ToList();
+                                        CheckInGroup closestAbilityGroup = null;
 
-                                        if ( gradeFilteredGroups.Count > 0 )
+                                        // FilterGroupsByAbilityLevel already loads the attributes on people
+                                        var personsAbility = person.Person.GetAttributeValue( "AbilityLevel" );
+
+                                        if ( !string.IsNullOrWhiteSpace( personsAbility ) )
                                         {
-                                            decimal grade = (decimal)person.Person.Grade;
-                                            closestGradeGroup = gradeFilteredGroups.Aggregate( ( x, y ) => Math.Abs( x.GradeRange.Average() - grade ) < Math.Abs( y.GradeRange.Average() - grade ) ? x : y )
-                                                .Group;
+                                            // check groups for a ability
+                                            var newGroups = validGroups.Where( g => g.Group.Attributes.ContainsKey( "AbilityLevel" ) && g.Group.GetAttributeValue( "AbilityLevel" ) == personsAbility ).ToList();
+                                            closestAbilityGroup = newGroups.FirstOrDefault();
                                         }
-                                    }
-
-                                    CheckInGroup closestAgeGroup = null;
-                                    if ( person.Person.Age != null )
-                                    {
-                                        // check groups for an age range
-                                        var ageFilteredGroups = validGroups.Where( g => g.Group.Attributes.ContainsKey( "AgeRange" ) )
-                                            .Select( g => new
-                                            {
-                                                Group = g,
-                                                AgeRange = g.Group.GetAttributeValue( "AgeRange" )
-                                                    .Split( delimiter, StringSplitOptions.None )
-                                                    .Select( av => av.AsType<decimal>() )
-                                            }
-                                            ).ToList();
-
-                                        if ( ageFilteredGroups.Count > 0 )
+                                        else
                                         {
-                                            decimal age = (decimal)person.Person.AgePrecise;
-                                            closestAgeGroup = ageFilteredGroups.Aggregate( ( x, y ) => Math.Abs( x.AgeRange.Average() - age ) < Math.Abs( y.AgeRange.Average() - age ) ? x : y )
-                                                .Group;
+                                            validGroups = validGroups.Where( g => !g.Group.Attributes.ContainsKey( "AbilityLevel" ) ).ToList();
                                         }
-                                    }
 
-                                    bestGroup = closestAbilityGroup ?? closestGradeGroup ?? closestAgeGroup ?? validGroups.FirstOrDefault();
-                                    if ( roomBalanceByGroup )
-                                    {   // only one location per group should exist
-                                        var lowestCountGroup = validGroups.OrderBy( g => g.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum() ).FirstOrDefault();
-                                        var lowCount = lowestCountGroup.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).FirstOrDefault();
-                                        var bestGroupCount = bestGroup.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).FirstOrDefault();
-                                        if ( lowCount < bestGroupCount )
+                                        CheckInGroup closestGradeGroup = null;
+                                        if ( person.Person.Grade != null )
                                         {
-                                            bestGroup = lowestCountGroup;
+                                            // check groups for a grade range
+                                            var gradeFilteredGroups = validGroups.Where( g => g.Group.Attributes.ContainsKey( "GradeRange" ) )
+                                                .Select( g => new
+                                                {
+                                                    Group = g,
+                                                    GradeRange = g.Group.GetAttributeValue( "GradeRange" )
+                                                        .Split( delimiter, StringSplitOptions.None )
+                                                        .Select( av => av.AsType<decimal>() )
+                                                }
+                                                ).ToList();
+
+                                            if ( gradeFilteredGroups.Count > 0 )
+                                            {
+                                                decimal grade = (decimal)person.Person.Grade;
+                                                closestGradeGroup = gradeFilteredGroups.Aggregate( ( x, y ) => Math.Abs( x.GradeRange.Average() - grade ) < Math.Abs( y.GradeRange.Average() - grade ) ? x : y )
+                                                    .Group;
+                                            }
+                                        }
+
+                                        CheckInGroup closestAgeGroup = null;
+                                        if ( person.Person.Age != null )
+                                        {
+                                            // check groups for an age range
+                                            var ageFilteredGroups = validGroups.Where( g => g.Group.Attributes.ContainsKey( "AgeRange" ) )
+                                                .Select( g => new
+                                                {
+                                                    Group = g,
+                                                    AgeRange = g.Group.GetAttributeValue( "AgeRange" )
+                                                        .Split( delimiter, StringSplitOptions.None )
+                                                        .Select( av => av.AsType<decimal>() )
+                                                }
+                                                ).ToList();
+
+                                            if ( ageFilteredGroups.Count > 0 )
+                                            {
+                                                decimal age = (decimal)person.Person.AgePrecise;
+                                                closestAgeGroup = ageFilteredGroups.Aggregate( ( x, y ) => Math.Abs( x.AgeRange.Average() - age ) < Math.Abs( y.AgeRange.Average() - age ) ? x : y )
+                                                    .Group;
+                                            }
+                                        }
+
+                                        bestGroup = closestAbilityGroup ?? closestGradeGroup ?? closestAgeGroup ?? validGroups.FirstOrDefault();
+                                        if ( roomBalanceByGroup )
+                                        {   // only one location per group should exist
+                                            var lowestCountGroup = validGroups.OrderBy( g => g.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum() ).FirstOrDefault();
+                                            var lowCount = lowestCountGroup.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).FirstOrDefault();
+                                            var bestGroupCount = bestGroup.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).FirstOrDefault();
+                                            if ( lowCount < bestGroupCount )
+                                            {
+                                                bestGroup = lowestCountGroup;
+                                            }
                                         }
                                     }
 
