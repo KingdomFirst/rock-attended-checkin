@@ -178,7 +178,7 @@ namespace cc.newspring.AttendedCheckin
             }
             else
             {
-                foreach ( RepeaterItem item in repMinistry.Items )
+                foreach ( RepeaterItem item in dlMinistry.Items )
                 {
                     ( (Button)item.FindControl( "lbMinistry" ) ).RemoveCssClass( "active" );
                 }
@@ -367,8 +367,8 @@ namespace cc.newspring.AttendedCheckin
                     var groupTypes = GetDeviceGroupTypes( kiosk.Id );
                     hfGroupTypes.Value = selectedGroupTypes;
 
-                    repMinistry.DataSource = groupTypes;
-                    repMinistry.DataBind();
+                    dlMinistry.DataSource = groupTypes;
+                    dlMinistry.DataBind();
                 }
             }
         }
@@ -407,11 +407,11 @@ namespace cc.newspring.AttendedCheckin
         }
 
         /// <summary>
-        /// Handles the ItemDataBound event of the repMinistry control.
+        /// Handles the ItemDataBound event of the dlMinistry control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="RepeaterItemEventArgs"/> instance containing the event data.</param>
-        protected void repMinistry_ItemDataBound( object sender, RepeaterItemEventArgs e )
+        protected void dlMinistry_ItemDataBound( object sender, DataListItemEventArgs e )
         {
             var selectedGroupTypes = hfGroupTypes.Value.SplitDelimitedValues().Select( int.Parse ).ToList();
             if ( selectedGroupTypes.Count > 0 )

@@ -35,17 +35,18 @@
         </asp:UpdatePanel>
 
         <div class="row checkin-body">
-            <div class="col-xs-4"></div>
-            <div class="col-xs-4">
+
+            <div class="col-xs-12 centered">
                 <asp:Label ID="lblHeader" runat="server"><h3>Checkin Type(s)</h3></asp:Label>
-                <asp:Repeater ID="repMinistry" runat="server" OnItemDataBound="repMinistry_ItemDataBound">
+                <asp:DataList ID="dlMinistry" runat="server" OnItemDataBound="dlMinistry_ItemDataBound" RepeatColumns="4" CssClass="centered">
+                    <ItemStyle CssClass="expanded" />
                     <ItemTemplate>
-                        <asp:Button ID="lbMinistry" runat="server" data-id='<%# Eval("Id") %>' CommandArgument='<%# Eval("Id") %>' CssClass="btn btn-primary btn-lg btn-block btn-checkin-select btn-grouptype" Text='<%# Eval("Name") %>' />
+                        <asp:Button ID="lbMinistry" runat="server" data-id='<%# Eval("Id") %>' CommandArgument='<%# Eval("Id") %>'
+                            CssClass="btn btn-primary btn-lg btn-block btn-checkin-select btn-grouptype" Text='<%# Eval("Name") %>' />
                     </ItemTemplate>
-                </asp:Repeater>
-                <asp:Label ID="lblInfo" runat="server" Style="text-align: center" />
+                </asp:DataList>
+                <asp:Label ID="lblInfo" runat="server" />
             </div>
-            <div class="col-xs-4"></div>
         </div>
     </asp:Panel>
 </asp:Panel>
