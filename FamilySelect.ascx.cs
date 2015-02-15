@@ -527,21 +527,21 @@ namespace cc.newspring.AttendedCheckin
                 int personOffset = 0;
                 foreach ( ListViewItem item in lvNewFamily.Items )
                 {
-                    var rowPerson = new SerializedPerson();
-                    rowPerson.FirstName = ( (TextBox)item.FindControl( "tbFirstName" ) ).Text;
-                    rowPerson.LastName = ( (TextBox)item.FindControl( "tbLastName" ) ).Text;
-                    rowPerson.SuffixValueId = ( (RockDropDownList)item.FindControl( "ddlSuffix" ) ).SelectedValueAsId();
-                    rowPerson.BirthDate = ( (DatePicker)item.FindControl( "dpBirthDate" ) ).SelectedDate;
-                    rowPerson.Gender = ( (RockDropDownList)item.FindControl( "ddlGender" ) ).SelectedValueAsEnum<Gender>();
-                    rowPerson.Ability = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedValue;
-                    rowPerson.AbilityGroup = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedItem.Attributes["optiongroup"];
+                    var newPerson = new SerializedPerson();
+                    newPerson.FirstName = ( (TextBox)item.FindControl( "tbFirstName" ) ).Text;
+                    newPerson.LastName = ( (TextBox)item.FindControl( "tbLastName" ) ).Text;
+                    newPerson.SuffixValueId = ( (RockDropDownList)item.FindControl( "ddlSuffix" ) ).SelectedValueAsId();
+                    newPerson.BirthDate = ( (DatePicker)item.FindControl( "dpBirthDate" ) ).SelectedDate;
+                    newPerson.Gender = ( (RockDropDownList)item.FindControl( "ddlGender" ) ).SelectedValueAsEnum<Gender>();
+                    newPerson.Ability = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedValue;
+                    newPerson.AbilityGroup = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedItem.Attributes["optiongroup"];
 
                     if ( previousPage.HasValue )
                     {
                         pageOffset = (int)previousPage * e.MaximumRows;
                     }
 
-                    newFamilyList[pageOffset + personOffset] = rowPerson;
+                    newFamilyList[pageOffset + personOffset] = newPerson;
                     personOffset++;
                 }
 
@@ -566,15 +566,15 @@ namespace cc.newspring.AttendedCheckin
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbSaveFamily_Click( object sender, EventArgs e )
         {
-            var newFamilyList = (List<SerializedPerson>)ViewState["newFamily"];
-            var checkInFamily = new CheckInFamily();
-            CheckInPerson checkInPerson;
-            SerializedPerson newPerson;
+            var newFamilyList = (List<SerializedPerson>)ViewState["newFamily"] ?? new List<SerializedPerson>();
+            int? currentPage = ViewState["currentPage"] as int?;
+            int personOffset = 0;
+            int pageOffset = 0;
 
-            // add the new people
+            // add people from the current page
             foreach ( ListViewItem item in lvNewFamily.Items )
             {
-                newPerson = new SerializedPerson();
+                var newPerson = new SerializedPerson();
                 newPerson.FirstName = ( (TextBox)item.FindControl( "tbFirstName" ) ).Text;
                 newPerson.LastName = ( (TextBox)item.FindControl( "tbLastName" ) ).Text;
                 newPerson.SuffixValueId = ( (RockDropDownList)item.FindControl( "ddlSuffix" ) ).SelectedValueAsId();
@@ -582,19 +582,29 @@ namespace cc.newspring.AttendedCheckin
                 newPerson.Gender = ( (RockDropDownList)item.FindControl( "ddlGender" ) ).SelectedValueAsEnum<Gender>();
                 newPerson.Ability = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedValue;
                 newPerson.AbilityGroup = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedItem.Attributes["optiongroup"];
-                newFamilyList.Add( newPerson );
+
+                if ( currentPage.HasValue )
+                {
+                    pageOffset = (int)currentPage * lvNewFamily.DataKeys.Count;
+                }
+
+                newFamilyList[pageOffset + personOffset] = newPerson;
+                personOffset++;
             }
 
-            var lastName = newFamilyList.Where( p => p.BirthDate.HasValue ).OrderByDescending( p => p.BirthDate ).Select( p => p.LastName ).FirstOrDefault();
-            var familyGroup = CreateFamily( lastName );
+            var familyLastName = newFamilyList.Where( p => p.BirthDate.HasValue ).OrderByDescending( p => p.BirthDate )
+                .Select( p => p.LastName ).FirstOrDefault();
+            var familyGroup = CreateFamily( familyLastName );
 
             // create people and add to checkin
-            foreach ( SerializedPerson np in newFamilyList.Where( np => np.IsValid() ) )
+            var checkInFamily = new CheckInFamily();
+            foreach ( SerializedPerson np in newFamilyList.Where( p => p.IsValid() ) )
             {
                 var person = CreatePerson( np.FirstName, np.LastName, np.SuffixValueId, np.BirthDate, (int?)np.Gender, np.Ability, np.AbilityGroup );
                 var groupMember = AddGroupMember( familyGroup.Id, person );
                 familyGroup.Members.Add( groupMember );
-                checkInPerson = new CheckInPerson();
+
+                var checkInPerson = new CheckInPerson();
                 checkInPerson.Person = person;
                 checkInPerson.Selected = true;
                 checkInPerson.FamilyMember = true;
