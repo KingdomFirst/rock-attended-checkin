@@ -123,6 +123,11 @@
                     <asp:LinkButton ID="lbAddFamilyMember" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClick="lbAddFamilyMember_Click" Text="Add Child" CausesValidation="false" EnableViewState="false" />
                     <asp:LinkButton ID="lbNewFamily" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClick="lbNewFamily_Click" Text="New Family" CausesValidation="false" EnableViewState="false" />
                 </div>
+
+                <div>
+                    <Rock:BootstrapButton ID="lbCheckout" runat="server" CssClass="btn btn-lg btn-primary btn-lg btn-block btn-checkin-select checkout" OnClick="lbCheckout_Click"
+                        Text="Checkout" EnableViewState="false" />
+                </div>
             </div>
         </asp:Panel>
 
@@ -164,7 +169,7 @@
                         </div>
                         <div class="col-xs-2">
                             <Rock:RockDropDownList ID="ddlAbilityPerson" runat="server" Label="Ability/Grade" CssClass="col-xs-12" />
-                        </div>                        
+                        </div>
                     </div>
 
                     <div class="row">

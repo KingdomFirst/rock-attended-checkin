@@ -241,3 +241,11 @@ span.month, span.year {
     margin: auto;
     text-align: center;
 }
+
+.checkout {
+    position:absolute;
+    min-width: 300px;
+    width: auto;
+    right: 20px;
+    bottom: 0px;
+}

@@ -437,6 +437,15 @@ namespace cc.newspring.AttendedCheckin
         }
 
         /// <summary>
+        /// Handles the Click event of the lbCheckout control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        protected void lbCheckout_Click( object sender, EventArgs e )
+        {
+        }
+
+        /// <summary>
         /// Handles the Click event of the lbPersonSearch control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
