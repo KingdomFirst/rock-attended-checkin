@@ -775,8 +775,8 @@ namespace cc.newspring.AttendedCheckin
                 }
                 else if ( optionGroup.Equals( "Grade" ) )
                 {
-                    var grade = ddlAbilityPerson.SelectedValueAsEnum<GradeLevel>();
-                    peopleList = peopleList.Where( p => p.Grade == (int?)grade ).ToList();
+                    var grade = ddlAbilityPerson.SelectedValueAsId();
+                    peopleList = peopleList.Where( p => p.GradeOffset == (int?)grade ).ToList();
                 }
             }
 
@@ -790,8 +790,8 @@ namespace cc.newspring.AttendedCheckin
                 p.BirthDate,
                 p.Age,
                 p.Gender,
-                Attribute = p.Grade.HasValue
-                    ? ( (GradeLevel)p.Grade ).GetDescription()
+                Attribute = p.GradeOffset.HasValue
+                    ? p.GradeFormatted
                     : abilityLevelValues.Where( dv => dv.Guid.ToString()
                         .Equals( p.GetAttributeValue( "AbilityLevel" ), StringComparison.OrdinalIgnoreCase ) )
                         .Select( dv => dv.Value ).FirstOrDefault()
@@ -916,7 +916,7 @@ namespace cc.newspring.AttendedCheckin
 
             if ( !string.IsNullOrWhiteSpace( ability ) && abilityGroup == "Grade" )
             {
-                person.Grade = (int?)ability.ConvertToEnum<GradeLevel>();
+                person.GradeOffset = ability.AsIntegerOrNull();
             }
 
             rockContext.SaveChanges();

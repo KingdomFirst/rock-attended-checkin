@@ -608,17 +608,16 @@ namespace cc.newspring.AttendedCheckin
                         person.SetAttributeValue( "AbilityLevel", ddlAbility.SelectedValue );
                         currentPerson.Person.SetAttributeValue( "AbilityLevel", ddlAbility.SelectedValue );
 
-                        person.Grade = null;
-                        currentPerson.Person.Grade = null;
+                        person.GradeOffset = null;
+                        currentPerson.Person.GradeOffset = null;
 
                         person.SaveAttributeValues();
                     }
                     // Selected a grade
                     else if ( optionGroup == "Grade" )
                     {
-                        var grade = ddlAbility.SelectedValueAsEnum<GradeLevel>();
-                        person.Grade = (int?)grade;
-                        currentPerson.Person.Grade = (int?)grade;
+                        person.GradeOffset = ddlAbility.SelectedValueAsId();
+                        currentPerson.Person.GradeOffset = ddlAbility.SelectedValueAsId();
 
                         person.Attributes.Remove( "AbilityLevel" );
                         currentPerson.Person.Attributes.Remove( "AbilityLevel" );
@@ -890,7 +889,7 @@ namespace cc.newspring.AttendedCheckin
             var person = GetPerson();
             ddlAbility.LoadAbilityAndGradeItems();
             ddlSuffix.BindToDefinedType( DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_SUFFIX ) ), true );
-            
+
             tbFirstName.Text = person.Person.FirstName;
             tbLastName.Text = person.Person.LastName;
             tbNickname.Text = person.Person.NickName;
@@ -905,9 +904,9 @@ namespace cc.newspring.AttendedCheckin
                 ddlSuffix.SelectedValue = person.Person.SuffixValueId.ToString();
             }
 
-            if ( person.Person.Grade.HasValue )
+            if ( person.Person.GradeOffset.HasValue )
             {
-                ddlAbility.SelectedValue = ( (GradeLevel)person.Person.Grade.Value ).ToString();
+                ddlAbility.SelectedValue = person.Person.GradeOffset.ToString();
             }
             else if ( person.Person.Attributes.ContainsKey( "AbilityLevel" ) )
             {
