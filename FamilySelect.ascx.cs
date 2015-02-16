@@ -97,6 +97,7 @@ namespace cc.newspring.AttendedCheckin
             pnlPerson.Visible = hasValidResults;
             pnlVisitor.Visible = hasValidResults;
             actions.Visible = hasValidResults;
+            lbCheckout.Visible = hasValidResults;
 
             if ( !hasValidResults )
             {
