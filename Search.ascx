@@ -16,7 +16,7 @@
                 </div>
 
                 <div class="col-xs-8">
-                    <Rock:RockTextBox ID="tbSearchBox" MaxLength="50" CssClass="checkin-phone-entry" runat="server" Label="" TabIndex="0" />
+                    <Rock:RockTextBox ID="tbSearchBox" MaxLength="50" CssClass="checkin-phone-entry" runat="server" Label="" TabIndex="0" autocomplete="off" />
                     <asp:LinkButton runat="server" OnClick="lbSearch_Click">
                     <span class="fa fa-search"></span>
                     </asp:LinkButton>
