@@ -119,7 +119,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         }
 
                                         CheckInGroup closestGradeGroup = null;
-                                        if ( person.Person.Grade != null )
+                                        if ( person.Person.GradeOffset != null )
                                         {
                                             // check groups for a grade range
                                             var gradeFilteredGroups = validGroups.Where( g => g.Group.Attributes.ContainsKey( "GradeRange" ) )
@@ -134,7 +134,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
 
                                             if ( gradeFilteredGroups.Count > 0 )
                                             {
-                                                decimal grade = (decimal)person.Person.Grade;
+                                                decimal grade = (decimal)person.Person.GradeOffset;
                                                 closestGradeGroup = gradeFilteredGroups.Aggregate( ( x, y ) => Math.Abs( x.GradeRange.Average() - grade ) < Math.Abs( y.GradeRange.Average() - grade ) ? x : y )
                                                     .Group;
                                             }

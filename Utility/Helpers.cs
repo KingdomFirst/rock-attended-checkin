@@ -20,26 +20,31 @@ namespace cc.newspring.AttendedCheckIn.Utility
         /// Gets the ability list items.
         /// </summary>
         /// <returns></returns>
-        public static List<ListItem> GetAbilityListItems()
+        public static List<ListItem> GetAbilityItems()
         {
-            var dtAbility = DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_ABILITY_LEVEL_TYPE ) );
+            var abilities = DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_ABILITY_LEVEL_TYPE ) ).DefinedValues;
 
-            if ( dtAbility == null )
+            if ( abilities.Count > 0 )
             {
-                return new List<ListItem>();
+                return abilities.Select( dv => new ListItem( dv.Value, dv.Guid.ToString() ) ).ToList();
             }
 
-            return dtAbility.DefinedValues.Select( dv => new ListItem( dv.Value, dv.Guid.ToString() ) ).ToList();
+            return new List<ListItem>();
         }
 
         /// <summary>
-        /// Gets the grade list items.
+        /// Gets the grade items.
         /// </summary>
         /// <returns></returns>
-        public static List<ListItem> GetGradeListItems()
+        public static List<ListItem> GetGradeItems()
         {
-            return Enum.GetValues( typeof( GradeLevel ) ).Cast<GradeLevel>().OrderBy( gl => (int)gl )
-                .Select( g => new ListItem( g.GetDescription(), g.ConvertToString() ) ).ToList();
+            var grades = DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.SCHOOL_GRADES ) ).DefinedValues;
+            if ( grades.Count > 0 )
+            {
+                return grades.Select( dv => new ListItem( dv.Description, dv.Value.ToString() ) ).ToList();
+            }
+
+            return new List<ListItem>();
         }
 
         /// <summary>
@@ -72,8 +77,8 @@ namespace cc.newspring.AttendedCheckIn.Utility
             thisDDL.DataValueField = "Value";
             thisDDL.Items.Add( new ListItem( Rock.Constants.None.Text, Rock.Constants.None.IdValue ) );
 
-            thisDDL.LoadItems( GetAbilityListItems(), "Ability" );
-            thisDDL.LoadItems( GetGradeListItems(), "Grade" );
+            thisDDL.LoadItems( GetAbilityItems(), "Ability" );
+            thisDDL.LoadItems( GetGradeItems(), "Grade" );
         }
     }
 }
