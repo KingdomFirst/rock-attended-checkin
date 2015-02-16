@@ -308,19 +308,17 @@ namespace cc.newspring.AttendedCheckin
         /// <param name="e">The <see cref="System.Web.UI.WebControls.RepeaterItemEventArgs"/> instance containing the event data.</param>
         protected void lvGroupType_ItemDataBound( object sender, ListViewItemEventArgs e )
         {
-            var selectedGroupTypeId = ViewState["groupTypeId"].ToString().AsType<int?>();
-            if ( selectedGroupTypeId != null )
+            if ( e.Item.ItemType == ListViewItemType.DataItem )
             {
-                if ( e.Item.ItemType == ListViewItemType.DataItem )
+                var groupType = (CheckInGroupType)e.Item.DataItem;
+                var lbGroupType = (LinkButton)e.Item.FindControl( "lbGroupType" );
+                lbGroupType.CommandArgument = groupType.GroupType.Id.ToString();
+                lbGroupType.Text = groupType.GroupType.Name;
+
+                string selectedGroupTypeId = (string)ViewState["groupTypeId"];
+                if ( groupType.Selected && selectedGroupTypeId != null && groupType.GroupType.Id == selectedGroupTypeId.AsType<int>() )
                 {
-                    var groupType = (CheckInGroupType)e.Item.DataItem;
-                    var lbGroupType = (LinkButton)e.Item.FindControl( "lbGroupType" );
-                    lbGroupType.CommandArgument = groupType.GroupType.Id.ToString();
-                    lbGroupType.Text = groupType.GroupType.Name;
-                    if ( groupType.Selected && groupType.GroupType.Id == selectedGroupTypeId )
-                    {
-                        lbGroupType.AddCssClass( "active" );
-                    }
+                    lbGroupType.AddCssClass( "active" );
                 }
             }
         }
@@ -332,38 +330,34 @@ namespace cc.newspring.AttendedCheckin
         /// <param name="e">The <see cref="ListViewItemEventArgs"/> instance containing the event data.</param>
         protected void lvLocation_ItemDataBound( object sender, ListViewItemEventArgs e )
         {
-            var selectedLocationId = ViewState["locationId"].ToString().AsType<int?>();
-            if ( selectedLocationId != null )
+            bool showGroupNames = bool.Parse( GetAttributeValue( "DisplayGroupNames" ) ?? "false" );
+            if ( e.Item.ItemType == ListViewItemType.DataItem )
             {
-                bool showGroupNames = bool.Parse( GetAttributeValue( "DisplayGroupNames" ) ?? "false" );
-                if ( e.Item.ItemType == ListViewItemType.DataItem )
+                int locationId = 0;
+                string displayName = string.Empty;
+                bool optionSelected = false;
+                if ( !showGroupNames )
                 {
-                    int locationId = 0;
-                    string displayName = string.Empty;
-                    bool optionSelected = false;
-                    if ( !showGroupNames )
-                    {
-                        var location = (CheckInLocation)e.Item.DataItem;
-                        locationId = location.Location.Id;
-                        displayName = location.Location.Name;
-                        optionSelected = location.Selected;
-                    }
-                    else
-                    {
-                        var group = (CheckInGroup)e.Item.DataItem;
-                        displayName = group.Group.Name;
-                        optionSelected = group.Selected;
-                        locationId = group.Locations.Select( l => l.Location.Id ).FirstOrDefault();
-                    }
+                    var location = (CheckInLocation)e.Item.DataItem;
+                    locationId = location.Location.Id;
+                    displayName = location.Location.Name;
+                    optionSelected = location.Selected;
+                }
+                else
+                {
+                    var group = (CheckInGroup)e.Item.DataItem;
+                    displayName = group.Group.Name;
+                    optionSelected = group.Selected;
+                    locationId = group.Locations.Select( l => l.Location.Id ).FirstOrDefault();
+                }
 
-                    var lbLocation = (LinkButton)e.Item.FindControl( "lbLocation" );
-                    lbLocation.Text = string.Format( "{0} ({1})", displayName, KioskLocationAttendance.Read( locationId ).CurrentCount.ToString() );
-                    lbLocation.CommandArgument = locationId.ToString();
+                var lbLocation = (LinkButton)e.Item.FindControl( "lbLocation" );
+                lbLocation.Text = string.Format( "{0} ({1})", displayName, KioskLocationAttendance.Read( locationId ).CurrentCount.ToString() );
+                lbLocation.CommandArgument = locationId.ToString();
 
-                    if ( optionSelected )
-                    {
-                        lbLocation.AddCssClass( "active" );
-                    }
+                if ( optionSelected )
+                {
+                    lbLocation.AddCssClass( "active" );
                 }
             }
         }
@@ -673,10 +667,10 @@ namespace cc.newspring.AttendedCheckin
         /// <param name="person">The person.</param>
         protected void BindGroupTypes( List<CheckInGroupType> groupTypes )
         {
-            int? groupTypeId = ViewState["groupTypeId"].ToString().AsType<int?>();
+            string groupTypeId = (string)ViewState["groupTypeId"];
             if ( groupTypeId != null )
             {
-                var groupType = groupTypes.FirstOrDefault( gt => gt.GroupType.Id == groupTypeId );
+                var groupType = groupTypes.FirstOrDefault( gt => gt.GroupType.Id == groupTypeId.AsType<int>() );
                 var placeInList = groupTypes.IndexOf( groupType ) + 1;
                 var pageSize = dpGroupType.PageSize;
                 var pageToGoTo = placeInList / pageSize;
@@ -700,13 +694,13 @@ namespace cc.newspring.AttendedCheckin
         /// <param name="person">The person.</param>
         protected void BindLocations( List<CheckInGroupType> groupTypes )
         {
-            int? groupTypeId = ViewState["groupTypeId"].ToString().AsType<int>();
+            string groupTypeId = (string)ViewState["groupTypeId"];
             if ( groupTypeId != null )
             {
                 int groupId = ViewState["groupId"].ToString().AsType<int>();
                 int locationId = ViewState["locationId"].ToString().AsType<int>();
 
-                var groupType = groupTypes.FirstOrDefault( gt => gt.GroupType.Id == groupTypeId );
+                var groupType = groupTypes.FirstOrDefault( gt => gt.GroupType.Id == groupTypeId.AsType<int>() );
                 if ( groupType == null )
                 {
                     groupType = groupTypes.FirstOrDefault();
@@ -761,12 +755,12 @@ namespace cc.newspring.AttendedCheckin
         /// <param name="person">The person.</param>
         protected void BindSchedules( List<CheckInGroupType> groupTypes )
         {
-            int? groupTypeId = ViewState["groupTypeId"].ToString().AsType<int?>();
+            string groupTypeId = (string)ViewState["groupTypeId"];
             if ( groupTypeId != null )
             {
                 int locationId = ViewState["locationId"].ToString().AsType<int>();
 
-                var groupType = groupTypes.FirstOrDefault( gt => gt.GroupType.Id == groupTypeId );
+                var groupType = groupTypes.FirstOrDefault( gt => gt.GroupType.Id == groupTypeId.AsType<int>() );
                 if ( groupType == null )
                 {
                     groupType = groupTypes.FirstOrDefault();
