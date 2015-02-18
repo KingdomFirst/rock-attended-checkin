@@ -99,6 +99,20 @@ namespace cc.newspring.AttendedCheckin
         #region Control Methods
 
         /// <summary>
+        /// Raises the <see cref="E:System.Web.UI.Control.Init" /> event.
+        /// </summary>
+        /// <param name="e">An <see cref="T:System.EventArgs" /> object that contains the event data.</param>
+        protected override void OnInit( EventArgs e )
+        {
+            base.OnInit( e );
+
+            if ( CurrentWorkflow == null || CurrentCheckInState == null )
+            {
+                NavigateToHomePage();
+            }
+        }
+
+        /// <summary>
         /// Raises the <see cref="E:System.Web.UI.Control.Load" /> event.
         /// </summary>
         /// <param name="e">The <see cref="T:System.EventArgs" /> object that contains the event data.</param>
@@ -106,79 +120,72 @@ namespace cc.newspring.AttendedCheckin
         {
             base.OnLoad( e );
 
-            if ( CurrentWorkflow == null || CurrentCheckInState == null )
+            var personId = Request.QueryString["personId"].AsType<int?>();
+            var person = GetPerson( personId );
+
+            if ( person != null )
             {
-                NavigateToHomePage();
+                var first = person.Person.NickName ?? person.Person.FirstName;
+                lblPersonName.Text = string.Format( "{0} {1}", first, person.Person.LastName );
             }
-            else
+
+            if ( !Page.IsPostBack )
             {
-                var personId = Request.QueryString["personId"].AsType<int?>();
-                var person = GetPerson( personId );
-
-                if ( person != null )
+                if ( person != null && person.GroupTypes.Any() )
                 {
-                    var first = person.Person.NickName ?? person.Person.FirstName;
-                    lblPersonName.Text = string.Format( "{0} {1}", first, person.Person.LastName );
-                }
-
-                if ( !Page.IsPostBack )
-                {
-                    if ( person != null && person.GroupTypes.Any() )
+                    var selectedGroupType = person.GroupTypes.FirstOrDefault( gt => gt.Selected );
+                    if ( selectedGroupType != null )
                     {
-                        var selectedGroupType = person.GroupTypes.FirstOrDefault( gt => gt.Selected );
-                        if ( selectedGroupType != null )
-                        {
-                            ViewState["groupTypeId"] = selectedGroupType.GroupType.Id.ToString();
-                        }
-
-                        ViewState["groupId"] = Request.QueryString["groupId"];
-                        ViewState["locationId"] = Request.QueryString["locationId"];
-                        ViewState["scheduleId"] = Request.QueryString["scheduleId"];
-
-                        BindGroupTypes( person.GroupTypes );
-                        BindLocations( person.GroupTypes );
-                        BindSchedules( person.GroupTypes );
-                        BindSelectedGrid();
-
-                        // look up check-in notes
-                        var rockContext = new RockContext();
-                        var personTypeId = new Person().TypeId;
-                        CheckInNoteTypeId = new NoteTypeService( rockContext ).Queryable()
-                            .Where( t => t.Name == "Check-In" && t.EntityTypeId == personTypeId )
-                            .Select( t => t.Id ).FirstOrDefault();
-
-                        ViewState["checkInNoteTypeId"] = CheckInNoteTypeId;
-
-                        var checkInNote = new NoteService( rockContext )
-                            .GetByNoteTypeId( CheckInNoteTypeId )
-                            .FirstOrDefault( n => n.EntityId == person.Person.Id );
-
-                        if ( checkInNote != null )
-                        {
-                            tbNoteText.Text = checkInNote.Text;
-                        }
+                        ViewState["groupTypeId"] = selectedGroupType.GroupType.Id.ToString();
                     }
-                    else
+
+                    ViewState["groupId"] = Request.QueryString["groupId"];
+                    ViewState["locationId"] = Request.QueryString["locationId"];
+                    ViewState["scheduleId"] = Request.QueryString["scheduleId"];
+
+                    BindGroupTypes( person.GroupTypes );
+                    BindLocations( person.GroupTypes );
+                    BindSchedules( person.GroupTypes );
+                    BindSelectedGrid();
+
+                    // look up check-in notes
+                    var rockContext = new RockContext();
+                    var personTypeId = new Person().TypeId;
+                    CheckInNoteTypeId = new NoteTypeService( rockContext ).Queryable()
+                        .Where( t => t.Name == "Check-In" && t.EntityTypeId == personTypeId )
+                        .Select( t => t.Id ).FirstOrDefault();
+
+                    ViewState["checkInNoteTypeId"] = CheckInNoteTypeId;
+
+                    var checkInNote = new NoteService( rockContext )
+                        .GetByNoteTypeId( CheckInNoteTypeId )
+                        .FirstOrDefault( n => n.EntityId == person.Person.Id );
+
+                    if ( checkInNote != null )
                     {
-                        maWarning.Show( InvalidParameterError, ModalAlertType.Warning );
-                        NavigateToPreviousPage();
+                        tbNoteText.Text = checkInNote.Text;
                     }
                 }
-
-                // reload the attribute field.
-                var allergyAttribute = new AttributeService( new RockContext() )
-                    .GetByEntityTypeId( new Person().TypeId )
-                    .FirstOrDefault( a => a.Name.ToUpper() == "ALLERGY" );
-                if ( allergyAttribute != null )
+                else
                 {
-                    LoadAttributeControl( allergyAttribute.Id, person.Person.Id );
+                    maWarning.Show( InvalidParameterError, ModalAlertType.Warning );
+                    NavigateToPreviousPage();
                 }
+            }
 
-                bool showGroupNames = bool.Parse( GetAttributeValue( "DisplayGroupNames" ) );
-                if ( showGroupNames )
-                {
-                    hdrLocations.InnerText = "Group";
-                }
+            // reload the attribute field.
+            var allergyAttribute = new AttributeService( new RockContext() )
+                .GetByEntityTypeId( new Person().TypeId )
+                .FirstOrDefault( a => a.Name.ToUpper() == "ALLERGY" );
+            if ( allergyAttribute != null )
+            {
+                LoadAttributeControl( allergyAttribute.Id, person.Person.Id );
+            }
+
+            bool showGroupNames = bool.Parse( GetAttributeValue( "DisplayGroupNames" ) );
+            if ( showGroupNames )
+            {
+                hdrLocations.InnerText = "Group";
             }
         }
 

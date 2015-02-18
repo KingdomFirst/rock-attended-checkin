@@ -55,7 +55,7 @@ namespace cc.newspring.AttendedCheckin
         {
             base.OnInit( e );
 
-            if ( CurrentWorkflow == null || CurrentCheckInState == null )
+            if ( CurrentKioskId == null || CurrentCheckInState == null )
             {
                 NavigateToLinkedPage( "AdminPage" );
             }
@@ -74,7 +74,7 @@ namespace cc.newspring.AttendedCheckin
                 if ( !CurrentCheckInState.Kiosk.HasLocations( CurrentGroupTypeIds ) || !CurrentCheckInState.Kiosk.HasActiveLocations( CurrentGroupTypeIds ) )
                 {
                     DateTimeOffset activeAt = CurrentCheckInState.Kiosk.FilteredGroupTypes( CurrentGroupTypeIds ).Select( g => g.NextActiveTime ).Min();
-                    // not active yet, display next active time
+                    maWarning.Show( "There are no active schedules for this kiosk.", ModalAlertType.Information );
                     return;
                 }
                 else if ( CurrentCheckInState != null && !string.IsNullOrWhiteSpace( CurrentCheckInState.CheckIn.SearchValue ) )
@@ -156,8 +156,8 @@ namespace cc.newspring.AttendedCheckin
                 else
                 {
                     string errorMsg = ( tbSearchBox.Text.Length > maxLength )
-                        ? string.Format( "<ul><li>Please enter no more than {0} characters</li></ul>", maxLength )
-                        : string.Format( "<ul><li>Please enter at least {0} characters</li></ul>", minLength );
+                        ? string.Format( "<ul><li>Please enter no more than {0} character(s)</li></ul>", maxLength )
+                        : string.Format( "<ul><li>Please enter at least {0} character(s)</li></ul>", minLength );
 
                     maWarning.Show( errorMsg, ModalAlertType.Warning );
                 }

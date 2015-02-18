@@ -86,6 +86,11 @@ namespace cc.newspring.AttendedCheckin
 
             RockPage.AddScriptLink( this.Page, "~/Scripts/CheckinClient/cordova-2.4.0.js", false );
             RockPage.AddScriptLink( this.Page, "~/Scripts/CheckinClient/ZebraPrint.js", false );
+
+            if ( CurrentWorkflow == null || CurrentCheckInState == null )
+            {
+                NavigateToHomePage();
+            }
         }
 
         /// <summary>
@@ -96,16 +101,9 @@ namespace cc.newspring.AttendedCheckin
         {
             base.OnLoad( e );
 
-            if ( CurrentWorkflow == null || CurrentCheckInState == null )
+            if ( !Page.IsPostBack )
             {
-                NavigateToHomePage();
-            }
-            else
-            {
-                if ( !Page.IsPostBack )
-                {
-                    BindGrid();
-                }
+                BindGrid();
             }
         }
 
