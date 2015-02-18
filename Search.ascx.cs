@@ -18,10 +18,10 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Web.UI;
 using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
-
 using Rock;
 using Rock.Attribute;
 using Rock.CheckIn;
@@ -42,9 +42,24 @@ namespace cc.newspring.AttendedCheckin
     [BooleanField( "Show Key Pad", "Show the number key pad on the search screen", false )]
     [IntegerField( "Minimum Text Length", "Minimum length for text searches (defaults to 1).", false, 1 )]
     [IntegerField( "Maximum Text Length", "Maximum length for text searches (defaults to 20).", false, 20 )]
+    [TextField( "Search Regex", "Regular Expression to run the search input through before sending it to the workflow. Useful for stripping off characters.", false )]
     public partial class Search : CheckInBlock
     {
         #region Control Methods
+
+        /// <summary>
+        /// Raises the <see cref="E:System.Web.UI.Control.Init" /> event.
+        /// </summary>
+        /// <param name="e">An <see cref="T:System.EventArgs" /> object that contains the event data.</param>
+        protected override void OnInit( EventArgs e )
+        {
+            base.OnInit( e );
+
+            if ( CurrentWorkflow == null || CurrentCheckInState == null )
+            {
+                NavigateToLinkedPage( "AdminPage" );
+            }
+        }
 
         /// <summary>
         /// Raises the <see cref="E:System.Web.UI.Control.Load" /> event.
@@ -52,10 +67,7 @@ namespace cc.newspring.AttendedCheckin
         /// <param name="e">The <see cref="T:System.EventArgs" /> object that contains the event data.</param>
         protected override void OnLoad( EventArgs e )
         {
-            if ( CurrentKioskId == null || CurrentGroupTypeIds == null || CurrentCheckInState.Kiosk == null )
-            {
-                NavigateToLinkedPage( "AdminPage" );
-            }
+            base.OnLoad( e );
 
             if ( !Page.IsPostBack )
             {
@@ -112,8 +124,24 @@ namespace cc.newspring.AttendedCheckin
                 int maxLength = int.Parse( GetAttributeValue( "MaximumTextLength" ) );
                 if ( tbSearchBox.Text.Length >= minLength && tbSearchBox.Text.Length <= maxLength )
                 {
+                    string searchInput = tbSearchBox.Text;
+
+                    // run regex expression on input if provided
+                    if ( !string.IsNullOrWhiteSpace( GetAttributeValue( "SearchRegex" ) ) )
+                    {
+                        Regex regex = new Regex( GetAttributeValue( "SearchRegex" ) );
+                        Match match = regex.Match( searchInput );
+                        if ( match.Success )
+                        {
+                            if ( match.Groups.Count == 2 )
+                            {
+                                searchInput = match.Groups[1].ToString();
+                            }
+                        }
+                    }
+
                     int searchNumber;
-                    if ( int.TryParse( tbSearchBox.Text, out searchNumber ) )
+                    if ( int.TryParse( searchInput, out searchNumber ) )
                     {
                         CurrentCheckInState.CheckIn.SearchType = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.CHECKIN_SEARCH_TYPE_PHONE_NUMBER );
                     }
@@ -122,7 +150,7 @@ namespace cc.newspring.AttendedCheckin
                         CurrentCheckInState.CheckIn.SearchType = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.CHECKIN_SEARCH_TYPE_NAME );
                     }
 
-                    CurrentCheckInState.CheckIn.SearchValue = tbSearchBox.Text;
+                    CurrentCheckInState.CheckIn.SearchValue = searchInput;
                     ProcessSelection( maWarning );
                 }
                 else
