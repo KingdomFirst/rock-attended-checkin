@@ -381,7 +381,7 @@ namespace cc.newspring.AttendedCheckin
             {
                 var visitorList = selectedFamily.People.Where( f => !f.FamilyMember && !f.ExcludedByFilter )
                     .OrderBy( p => p.Person.FullNameReversed ).ToList();
-
+                
                 var selectedVisitors = hfSelectedVisitor.Value.SplitDelimitedValues().Select( int.Parse ).ToList();
                 visitorList.ForEach( p => p.Selected = selectedVisitors.Contains( p.Person.Id ) );
 
@@ -653,8 +653,8 @@ namespace cc.newspring.AttendedCheckin
                 {
                     var checkInPerson = new CheckInPerson();
                     checkInPerson.Person = new PersonService( rockContext ).Get( personId ).Clone( false );
-                    var isPersonInFamily = family.People.Any( p => p.Person.Id == checkInPerson.Person.Id );
-                    if ( !isPersonInFamily )
+                    var personAlreadyInFamily = family.People.Any( p => p.Person.Id == checkInPerson.Person.Id );
+                    if ( !personAlreadyInFamily )
                     {
                         if ( newPersonType.Value != "Visitor" )
                         {
@@ -679,10 +679,10 @@ namespace cc.newspring.AttendedCheckin
 
                         checkInPerson.Selected = true;
                         family.People.Add( checkInPerson );
-                        ProcessFamily();
+                        //ProcessFamily();
                     }
 
-                    SetFamilyDisplay( true );
+                    SetFamilyDisplay( family.People.Count > 0 );
                     mdlAddPerson.Hide();
                 }
                 else
@@ -995,46 +995,12 @@ namespace cc.newspring.AttendedCheckin
         /// <param name="family">The family.</param>
         /// <param name="personId">The person id.</param>
         protected void AddVisitorGroupMemberRoles( CheckInFamily family, int personId )
-        {
-            var rockContext = new RockContext();
-            var groupService = new GroupService( rockContext );
-            var groupMemberService = new GroupMemberService( rockContext );
-
-            var knownRelationshipGroupType = GroupTypeCache.Read( Rock.SystemGuid.GroupType.GROUPTYPE_KNOWN_RELATIONSHIPS );
-            var ownerRole = knownRelationshipGroupType.Roles.FirstOrDefault( r => r.Guid == new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_KNOWN_RELATIONSHIPS_OWNER ) );
-            var canCheckIn = knownRelationshipGroupType.Roles.FirstOrDefault( r => r.Guid == new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_KNOWN_RELATIONSHIPS_CAN_CHECK_IN ) );
-
-            foreach ( var familyMember in family.People )
+        {            
+            foreach ( var familyMember in family.People.Where( p => p.FamilyMember ) )
             {
-                if ( familyMember.FamilyMember )
-                {
-                    var group = groupMemberService.Queryable()
-                    .Where( m =>
-                        m.PersonId == familyMember.Person.Id &&
-                        m.GroupRoleId == ownerRole.Id )
-                    .Select( m => m.Group )
-                    .FirstOrDefault();
-
-                    if ( group == null && ownerRole != null )
-                    {
-                        var groupMember = new GroupMember();
-                        groupMember.PersonId = familyMember.Person.Id;
-                        groupMember.GroupRoleId = ownerRole.Id;
-
-                        group = new Group();
-                        group.Name = knownRelationshipGroupType.Name;
-                        group.GroupTypeId = knownRelationshipGroupType.Id;
-                        group.Members.Add( groupMember );
-
-                        groupService.Add( group );
-                    }
-
-                    // add the visitor to this group with CanCheckIn
-                    Person.CreateCheckinRelationship( familyMember.Person.Id, personId, CurrentPersonAlias );
-                }
-            }
-
-            rockContext.SaveChanges();
+                // add the visitor to this group with CanCheckIn
+                Person.CreateCheckinRelationship( familyMember.Person.Id, personId, CurrentPersonAlias );
+            }         
         }
 
         #endregion Internal Methods
