@@ -44,6 +44,20 @@ namespace cc.newspring.AttendedCheckin
         #region Control Methods
 
         /// <summary>
+        /// Raises the <see cref="E:System.Web.UI.Control.Init" /> event.
+        /// </summary>
+        /// <param name="e">An <see cref="T:System.EventArgs" /> object that contains the event data.</param>
+        protected override void OnInit( EventArgs e )
+        {
+            base.OnInit( e );
+
+            if ( CurrentWorkflow == null || CurrentCheckInState == null )
+            {
+                NavigateToHomePage();
+            }
+        }
+
+        /// <summary>
         /// Raises the <see cref="E:System.Web.UI.Control.Load" /> event.
         /// </summary>
         /// <param name="e">The <see cref="T:System.EventArgs" /> object that contains the event data.</param>
@@ -51,45 +65,55 @@ namespace cc.newspring.AttendedCheckin
         {
             base.OnLoad( e );
 
-            if ( CurrentWorkflow == null || CurrentCheckInState == null )
-            {
-                NavigateToHomePage();
-            }
-            else if ( !Page.IsPostBack )
+            if ( !Page.IsPostBack )
             {
                 if ( CurrentCheckInState.CheckIn.Families.Count > 0 )
                 {
-                    var kioskCampusId = CurrentCheckInState.Kiosk.KioskGroupTypes
-                        .Where( gt => gt.KioskGroups.Any( g => g.KioskLocations.Any( l => l.CampusId.HasValue ) ) )
-                        .SelectMany( gt => gt.KioskGroups.SelectMany( g => g.KioskLocations.Select( l => l.CampusId ) ) )
-                        .FirstOrDefault();
+                    // Load the family results
+                    DisplayFamily();
 
-                    // Order families by campus then by caption
-                    var familyList = CurrentCheckInState.CheckIn.Families.OrderByDescending( f => f.Group.CampusId == kioskCampusId )
-                        .ThenBy( f => f.Caption ).ToList();
-                    if ( !UserBackedUp )
-                    {
-                        familyList.FirstOrDefault().Selected = true;
-                    }
-
+                    // Load the person/visitor results
                     ProcessFamily();
-                    lvFamily.DataSource = familyList;
-                    lvFamily.DataBind();
                 }
                 else
                 {
-                    SetFamilyDisplay( false );
+                    ShowHideResults( false );
                 }
 
-                rGridPersonResults.PageSize = 4;
+                rGridPersonResults.PageSize = 2;
             }
         }
 
         /// <summary>
-        /// Sets the family display to show or hide panels depending on the result.
+        /// Refreshes the family.
+        /// </summary>
+        protected void DisplayFamily()
+        {
+            // Order families by campus then by caption
+            var kioskCampusId = CurrentCheckInState.Kiosk.KioskGroupTypes
+                        .Where( gt => gt.KioskGroups.Any( g => g.KioskLocations.Any( l => l.CampusId.HasValue ) ) )
+                        .SelectMany( gt => gt.KioskGroups.SelectMany( g => g.KioskLocations.Select( l => l.CampusId ) ) )
+                        .FirstOrDefault();
+
+            var familyList = CurrentCheckInState.CheckIn.Families.OrderByDescending( f => f.Group.CampusId == kioskCampusId )
+                .ThenBy( f => f.Caption ).ToList();
+
+            // Auto process the first family if not set
+            if ( !familyList.Any( f => f.Selected ) )
+            {
+                familyList.FirstOrDefault().Selected = true;
+            }
+
+            lvFamily.DataSource = familyList;
+            lvFamily.DataBind();
+            pnlFamily.Update();
+        }
+
+        /// <summary>
+        /// Sets the display to show or hide panels depending on the search results.
         /// </summary>
         /// <param name="hasValidResults">if set to <c>true</c> [has valid results].</param>
-        private void SetFamilyDisplay( bool hasValidResults )
+        private void ShowHideResults( bool hasValidResults )
         {
             lbNext.Enabled = hasValidResults;
             lbNext.Visible = hasValidResults;
@@ -107,6 +131,10 @@ namespace cc.newspring.AttendedCheckin
                 divNothingFound.AddCssClass( "large-font" );
                 divNothingFound.Visible = true;
             }
+            else
+            {
+                divNothingFound.Visible = false;
+            }
 
             // Check if the add buttons can be displayed
             bool showAddButtons = true;
@@ -117,25 +145,9 @@ namespace cc.newspring.AttendedCheckin
             lbNewFamily.Visible = showAddButtons;
         }
 
-        /// <summary>
-        /// Handles the Click event of the lbClosePerson control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
-        protected void lbClosePerson_Click( object sender, EventArgs e )
-        {
-            mdlAddPerson.Hide();
-        }
+        #endregion
 
-        /// <summary>
-        /// Handles the Click event of the lbCloseFamily control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
-        protected void lbCloseFamily_Click( object sender, EventArgs e )
-        {
-            mdlNewFamily.Hide();
-        }
+        #region Click Events
 
         /// <summary>
         /// Handles the Click event of the lbBack control.
@@ -183,9 +195,171 @@ namespace cc.newspring.AttendedCheckin
             }
         }
 
-        #endregion Control Methods
+        /// <summary>
+        /// Handles the ItemCommand event of the lvFamily control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="ListViewCommandEventArgs"/> instance containing the event data.</param>
+        protected void lvFamily_ItemCommand( object sender, ListViewCommandEventArgs e )
+        {
+            int id = int.Parse( e.CommandArgument.ToString() );
+            var family = CurrentCheckInState.CheckIn.Families.Where( f => f.Group.Id == id ).FirstOrDefault();
 
-        #region Load Methods
+            foreach ( ListViewDataItem li in lvFamily.Items )
+            {
+                ( (LinkButton)li.FindControl( "lbSelectFamily" ) ).RemoveCssClass( "active" );
+            }
+
+            if ( !family.Selected )
+            {
+                CurrentCheckInState.CheckIn.Families.ForEach( f => f.Selected = false );
+                ( (LinkButton)e.Item.FindControl( "lbSelectFamily" ) ).AddCssClass( "active" );
+                family.Selected = true;
+                ProcessFamily();
+            }
+            else
+            {
+                family.Selected = false;
+                lvPerson.DataSource = null;
+                lvPerson.DataBind();
+                lvVisitor.DataSource = null;
+                lvVisitor.DataBind();
+                return;
+            }
+
+            if ( lvPerson.DataSource != null )
+            {
+                dpPersonPager.Visible = true;
+                dpPersonPager.SetPageProperties( 0, dpPersonPager.MaximumRows, false );
+            }
+
+            if ( lvVisitor.DataSource != null )
+            {
+                dpVisitorPager.Visible = true;
+                dpVisitorPager.SetPageProperties( 0, dpVisitorPager.MaximumRows, false );
+            }
+        }
+
+        /// <summary>
+        /// Handles the Click event of the lbAddVisitor control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        protected void lbAddVisitor_Click( object sender, EventArgs e )
+        {
+            lblAddPersonHeader.Text = "Add Visitor";
+            newPersonType.Value = "Visitor";
+            SetAddPersonFields();
+        }
+
+        /// <summary>
+        /// Handles the Click event of the lbAddFamilyMember control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        protected void lbAddFamilyMember_Click( object sender, EventArgs e )
+        {
+            lblAddPersonHeader.Text = "Add Family Member";
+            newPersonType.Value = "Person";
+            SetAddPersonFields();
+        }
+
+        /// <summary>
+        /// Handles the Click event of the lbNewFamily control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        protected void lbNewFamily_Click( object sender, EventArgs e )
+        {
+            var newFamilyList = new List<SerializedPerson>();
+            var familyMembersToAdd = dpNewFamily.PageSize * 2;
+            newFamilyList.AddRange( Enumerable.Repeat( new SerializedPerson(), familyMembersToAdd ) );
+
+            ViewState["newFamily"] = newFamilyList;
+
+            lvNewFamily.DataSource = newFamilyList;
+            lvNewFamily.DataBind();
+
+            mdlNewFamily.Show();
+        }
+
+        /// <summary>
+        /// Handles the Click event of the lbCheckout control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        protected void lbCheckout_Click( object sender, EventArgs e )
+        {
+        }
+
+        /// <summary>
+        /// Handles the PagePropertiesChanging event of the lvFamily control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="PagePropertiesChangingEventArgs"/> instance containing the event data.</param>
+        protected void lvFamily_PagePropertiesChanging( object sender, PagePropertiesChangingEventArgs e )
+        {
+            dpFamilyPager.SetPageProperties( e.StartRowIndex, e.MaximumRows, false );
+
+            // rebind List View
+            //lvFamily.DataSource = CurrentCheckInState.CheckIn.Families.OrderBy( f => f.Caption ).ToList();
+            //lvFamily.DataBind();
+            pnlFamily.Update();
+        }
+
+        /// <summary>
+        /// Handles the PagePropertiesChanging event of the dpPerson control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="PagePropertiesChangingEventArgs"/> instance containing the event data.</param>
+        protected void lvPerson_PagePropertiesChanging( object sender, PagePropertiesChangingEventArgs e )
+        {
+            dpPersonPager.SetPageProperties( e.StartRowIndex, e.MaximumRows, false );
+
+            var selectedFamily = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
+            if ( selectedFamily != null )
+            {
+                var peopleList = selectedFamily.People.Where( f => f.FamilyMember && !f.ExcludedByFilter )
+                    .OrderBy( p => p.Person.FullNameReversed ).ToList();
+
+                var selectedPeople = hfSelectedPerson.Value.SplitDelimitedValues().Select( int.Parse ).ToList();
+                peopleList.ForEach( p => p.Selected = selectedPeople.Contains( p.Person.Id ) );
+
+                // rebind List View
+                lvPerson.DataSource = peopleList;
+                lvPerson.DataBind();
+                pnlPerson.Update();
+            }
+        }
+
+        /// <summary>
+        /// Handles the PagePropertiesChanging event of the dpVisitor control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="PagePropertiesChangingEventArgs"/> instance containing the event data.</param>
+        protected void lvVisitor_PagePropertiesChanging( object sender, PagePropertiesChangingEventArgs e )
+        {
+            dpVisitorPager.SetPageProperties( e.StartRowIndex, e.MaximumRows, false );
+
+            var selectedFamily = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
+            if ( selectedFamily != null )
+            {
+                var visitorList = selectedFamily.People.Where( f => !f.FamilyMember && !f.ExcludedByFilter )
+                    .OrderBy( p => p.Person.FullNameReversed ).ToList();
+
+                var selectedVisitors = hfSelectedVisitor.Value.SplitDelimitedValues().Select( int.Parse ).ToList();
+                visitorList.ForEach( p => p.Selected = selectedVisitors.Contains( p.Person.Id ) );
+
+                // rebind List View
+                lvVisitor.DataSource = visitorList;
+                lvVisitor.DataBind();
+                pnlVisitor.Update();
+            }
+        }
+
+        #endregion
+
+        #region DataBound Methods
 
         /// <summary>
         /// Handles the DataBound event of the lvFamily control.
@@ -278,172 +452,28 @@ namespace cc.newspring.AttendedCheckin
             }
         }
 
-        #endregion Load Methods
+        #endregion
 
-        #region Select People Events
-
-        /// <summary>
-        /// Handles the ItemCommand event of the lvFamily control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="ListViewCommandEventArgs"/> instance containing the event data.</param>
-        protected void lvFamily_ItemCommand( object sender, ListViewCommandEventArgs e )
-        {
-            int id = int.Parse( e.CommandArgument.ToString() );
-            var family = CurrentCheckInState.CheckIn.Families.Where( f => f.Group.Id == id ).FirstOrDefault();
-
-            foreach ( ListViewDataItem li in lvFamily.Items )
-            {
-                ( (LinkButton)li.FindControl( "lbSelectFamily" ) ).RemoveCssClass( "active" );
-            }
-
-            if ( !family.Selected )
-            {
-                CurrentCheckInState.CheckIn.Families.ForEach( f => f.Selected = false );
-                ( (LinkButton)e.Item.FindControl( "lbSelectFamily" ) ).AddCssClass( "active" );
-                family.Selected = true;
-                ProcessFamily();
-            }
-            else
-            {
-                family.Selected = false;
-                lvPerson.DataSource = null;
-                lvPerson.DataBind();
-                lvVisitor.DataSource = null;
-                lvVisitor.DataBind();
-                return;
-            }
-
-            if ( lvPerson.DataSource != null )
-            {
-                dpPersonPager.Visible = true;
-                dpPersonPager.SetPageProperties( 0, dpPersonPager.MaximumRows, false );
-            }
-
-            if ( lvVisitor.DataSource != null )
-            {
-                dpVisitorPager.Visible = true;
-                dpVisitorPager.SetPageProperties( 0, dpVisitorPager.MaximumRows, false );
-            }
-        }
+        #region Modal Events
 
         /// <summary>
-        /// Handles the PagePropertiesChanging event of the lvFamily control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="PagePropertiesChangingEventArgs"/> instance containing the event data.</param>
-        protected void lvFamily_PagePropertiesChanging( object sender, PagePropertiesChangingEventArgs e )
-        {
-            dpFamilyPager.SetPageProperties( e.StartRowIndex, e.MaximumRows, false );
-
-            // rebind List View
-            lvFamily.DataSource = CurrentCheckInState.CheckIn.Families.OrderBy( f => f.Caption ).ToList();
-            lvFamily.DataBind();
-            pnlFamily.Update();
-        }
-
-        /// <summary>
-        /// Handles the PagePropertiesChanging event of the dpPerson control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="PagePropertiesChangingEventArgs"/> instance containing the event data.</param>
-        protected void lvPerson_PagePropertiesChanging( object sender, PagePropertiesChangingEventArgs e )
-        {
-            dpPersonPager.SetPageProperties( e.StartRowIndex, e.MaximumRows, false );
-
-            var selectedFamily = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
-            if ( selectedFamily != null )
-            {
-                var peopleList = selectedFamily.People.Where( f => f.FamilyMember && !f.ExcludedByFilter )
-                    .OrderBy( p => p.Person.FullNameReversed ).ToList();
-
-                var selectedPeople = hfSelectedPerson.Value.SplitDelimitedValues().Select( int.Parse ).ToList();
-                peopleList.ForEach( p => p.Selected = selectedPeople.Contains( p.Person.Id ) );
-
-                // rebind List View
-                lvPerson.DataSource = peopleList;
-                lvPerson.DataBind();
-                pnlPerson.Update();
-            }
-        }
-
-        /// <summary>
-        /// Handles the PagePropertiesChanging event of the dpVisitor control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="PagePropertiesChangingEventArgs"/> instance containing the event data.</param>
-        protected void lvVisitor_PagePropertiesChanging( object sender, PagePropertiesChangingEventArgs e )
-        {
-            dpVisitorPager.SetPageProperties( e.StartRowIndex, e.MaximumRows, false );
-
-            var selectedFamily = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
-            if ( selectedFamily != null )
-            {
-                var visitorList = selectedFamily.People.Where( f => !f.FamilyMember && !f.ExcludedByFilter )
-                    .OrderBy( p => p.Person.FullNameReversed ).ToList();
-                
-                var selectedVisitors = hfSelectedVisitor.Value.SplitDelimitedValues().Select( int.Parse ).ToList();
-                visitorList.ForEach( p => p.Selected = selectedVisitors.Contains( p.Person.Id ) );
-
-                // rebind List View
-                lvVisitor.DataSource = visitorList;
-                lvVisitor.DataBind();
-                pnlVisitor.Update();
-            }
-        }
-
-        #endregion Select People Events
-
-        #region Add People Events
-
-        /// <summary>
-        /// Handles the Click event of the lbAddVisitor control.
+        /// Handles the Click event of the lbClosePerson control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
-        protected void lbAddVisitor_Click( object sender, EventArgs e )
+        protected void lbClosePerson_Click( object sender, EventArgs e )
         {
-            lblAddPersonHeader.Text = "Add Visitor";
-            newPersonType.Value = "Visitor";
-            SetAddPersonFields();
+            mdlAddPerson.Hide();
         }
 
         /// <summary>
-        /// Handles the Click event of the lbAddFamilyMember control.
+        /// Handles the Click event of the lbCloseFamily control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
-        protected void lbAddFamilyMember_Click( object sender, EventArgs e )
+        protected void lbCloseFamily_Click( object sender, EventArgs e )
         {
-            lblAddPersonHeader.Text = "Add Family Member";
-            newPersonType.Value = "Person";
-            SetAddPersonFields();
-        }
-
-        /// <summary>
-        /// Handles the Click event of the lbNewFamily control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
-        protected void lbNewFamily_Click( object sender, EventArgs e )
-        {
-            var newFamilyList = new List<SerializedPerson>();
-            var familyMembersToAdd = dpNewFamily.PageSize * 2;
-            newFamilyList.AddRange( Enumerable.Repeat( new SerializedPerson(), familyMembersToAdd ) );
-            ViewState["newFamily"] = newFamilyList;
-            lvNewFamily.DataSource = newFamilyList;
-            lvNewFamily.DataBind();
-
-            mdlNewFamily.Show();
-        }
-
-        /// <summary>
-        /// Handles the Click event of the lbCheckout control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
-        protected void lbCheckout_Click( object sender, EventArgs e )
-        {
+            mdlNewFamily.Hide();
         }
 
         /// <summary>
@@ -472,7 +502,8 @@ namespace cc.newspring.AttendedCheckin
             if ( string.IsNullOrEmpty( tbFirstNamePerson.Text ) || string.IsNullOrEmpty( tbLastNamePerson.Text ) || string.IsNullOrEmpty( dpDOBPerson.Text ) || ddlGenderPerson.SelectedValueAsInt() == 0 )
             {
                 Page.Validate( "Person" );
-                mdlAddPerson.Show();
+                //mdlAddPerson.Show();
+                return;
             }
             else
             {
@@ -515,58 +546,74 @@ namespace cc.newspring.AttendedCheckin
                 dpDOBPerson.Required = false;
 
                 ProcessFamily();
-                SetFamilyDisplay( true );
+                ShowHideResults( true );
                 mdlAddPerson.Hide();
             }
         }
 
         /// <summary>
-        /// Handles the PagePropertiesChanging event of the lvNewFamily control.
+        /// Handles the RowCommand event of the grdPersonSearchResults control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="PagePropertiesChangingEventArgs"/> instance containing the event data.</param>
-        protected void lvNewFamily_PagePropertiesChanging( object sender, PagePropertiesChangingEventArgs e )
+        /// <param name="e">The <see cref="GridViewCommandEventArgs"/> instance containing the event data.</param>
+        protected void rGridPersonResults_AddExistingPerson( object sender, GridViewCommandEventArgs e )
         {
-            var newFamilyList = new List<SerializedPerson>();
-            int currentPage = e.StartRowIndex / e.MaximumRows;
-            int? previousPage = ViewState["currentPage"] as int?;
-            if ( ViewState["newFamily"] != null )
+            if ( e.CommandName == "Add" )
             {
-                newFamilyList = (List<SerializedPerson>)ViewState["newFamily"];
-                int pageOffset = 0;
-                int personOffset = 0;
-                foreach ( ListViewItem item in lvNewFamily.Items )
-                {
-                    var newPerson = new SerializedPerson();
-                    newPerson.FirstName = ( (TextBox)item.FindControl( "tbFirstName" ) ).Text;
-                    newPerson.LastName = ( (TextBox)item.FindControl( "tbLastName" ) ).Text;
-                    newPerson.SuffixValueId = ( (RockDropDownList)item.FindControl( "ddlSuffix" ) ).SelectedValueAsId();
-                    newPerson.BirthDate = ( (DatePicker)item.FindControl( "dpBirthDate" ) ).SelectedDate;
-                    newPerson.Gender = ( (RockDropDownList)item.FindControl( "ddlGender" ) ).SelectedValueAsEnum<Gender>();
-                    newPerson.Ability = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedValue;
-                    newPerson.AbilityGroup = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedItem.Attributes["optiongroup"];
+                var rockContext = new RockContext();
+                var groupMemberService = new GroupMemberService( rockContext );
+                int rowIndex = int.Parse( e.CommandArgument.ToString() );
+                int personId = int.Parse( rGridPersonResults.DataKeys[rowIndex].Value.ToString() );
 
-                    if ( previousPage.HasValue )
+                var family = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault();
+                if ( family != null )
+                {
+                    var checkInPerson = new CheckInPerson();
+                    checkInPerson.Person = new PersonService( rockContext ).Get( personId ).Clone( false );
+                    var personAlreadyInFamily = family.People.Any( p => p.Person.Id == checkInPerson.Person.Id );
+                    if ( !personAlreadyInFamily )
                     {
-                        pageOffset = (int)previousPage * e.MaximumRows;
+                        if ( newPersonType.Value != "Visitor" )
+                        {
+                            // Add as family member
+                            var groupMember = groupMemberService.GetByPersonId( personId ).FirstOrDefault( gm => gm.Group.GroupType.Guid == new Guid( Rock.SystemGuid.GroupType.GROUPTYPE_FAMILY ) );
+                            if ( groupMember != null )
+                            {
+                                groupMember.GroupId = family.Group.Id;
+                                rockContext.SaveChanges();
+                            }
+
+                            checkInPerson.FamilyMember = true;
+                            hfSelectedPerson.Value += personId + ",";
+                        }
+                        else
+                        {
+                            // Add as visitor
+                            AddVisitorGroupMemberRoles( family, personId );
+                            checkInPerson.FamilyMember = false;
+                            hfSelectedVisitor.Value += personId + ",";
+                        }
+
+                        checkInPerson.Selected = true;
+                        family.People.Add( checkInPerson );
+                        //ProcessFamily();
                     }
 
-                    newFamilyList[pageOffset + personOffset] = newPerson;
-                    personOffset++;
+                    mdlAddPerson.Hide();
+                    ShowHideResults( family.People.Count > 0 );
                 }
-
-                if ( e.StartRowIndex + personOffset >= newFamilyList.Count )
+                else
                 {
-                    newFamilyList.AddRange( Enumerable.Repeat( new SerializedPerson(), e.MaximumRows ) );
+                    mdlAddPerson.Hide();
+                    string errorMsg = "<ul><li>Please pick or create a family to add this person to.</li></ul>";
+                    maWarning.Show( errorMsg, Rock.Web.UI.Controls.ModalAlertType.Warning );
                 }
             }
-
-            ViewState["currentPage"] = currentPage;
-            ViewState["newFamily"] = newFamilyList;
-            dpNewFamily.SetPageProperties( e.StartRowIndex, e.MaximumRows, false );
-            lvNewFamily.DataSource = newFamilyList;
-            lvNewFamily.DataBind();
-            mdlNewFamily.Show();
+            else
+            {
+                mdlAddPerson.Show();
+                BindPersonGrid();
+            }
         }
 
         /// <summary>
@@ -631,72 +678,56 @@ namespace cc.newspring.AttendedCheckin
 
             mdlNewFamily.Hide();
             ProcessFamily();
-            RefreshFamily();
+            DisplayFamily();
         }
 
         /// <summary>
-        /// Handles the RowCommand event of the grdPersonSearchResults control.
+        /// Handles the PagePropertiesChanging event of the lvNewFamily control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="GridViewCommandEventArgs"/> instance containing the event data.</param>
-        protected void rGridPersonResults_AddExistingPerson( object sender, GridViewCommandEventArgs e )
+        /// <param name="e">The <see cref="PagePropertiesChangingEventArgs"/> instance containing the event data.</param>
+        protected void lvNewFamily_PagePropertiesChanging( object sender, PagePropertiesChangingEventArgs e )
         {
-            if ( e.CommandName == "Add" )
+            var newFamilyList = new List<SerializedPerson>();
+            int currentPage = e.StartRowIndex / e.MaximumRows;
+            int? previousPage = ViewState["currentPage"] as int?;
+            if ( ViewState["newFamily"] != null )
             {
-                var rockContext = new RockContext();
-                var groupMemberService = new GroupMemberService( rockContext );
-                int rowIndex = int.Parse( e.CommandArgument.ToString() );
-                int personId = int.Parse( rGridPersonResults.DataKeys[rowIndex].Value.ToString() );
-
-                var family = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault();
-                if ( family != null )
+                newFamilyList = (List<SerializedPerson>)ViewState["newFamily"];
+                int pageOffset = 0;
+                int personOffset = 0;
+                foreach ( ListViewItem item in lvNewFamily.Items )
                 {
-                    var checkInPerson = new CheckInPerson();
-                    checkInPerson.Person = new PersonService( rockContext ).Get( personId ).Clone( false );
-                    var personAlreadyInFamily = family.People.Any( p => p.Person.Id == checkInPerson.Person.Id );
-                    if ( !personAlreadyInFamily )
+                    var newPerson = new SerializedPerson();
+                    newPerson.FirstName = ( (TextBox)item.FindControl( "tbFirstName" ) ).Text;
+                    newPerson.LastName = ( (TextBox)item.FindControl( "tbLastName" ) ).Text;
+                    newPerson.SuffixValueId = ( (RockDropDownList)item.FindControl( "ddlSuffix" ) ).SelectedValueAsId();
+                    newPerson.BirthDate = ( (DatePicker)item.FindControl( "dpBirthDate" ) ).SelectedDate;
+                    newPerson.Gender = ( (RockDropDownList)item.FindControl( "ddlGender" ) ).SelectedValueAsEnum<Gender>();
+                    newPerson.Ability = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedValue;
+                    newPerson.AbilityGroup = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedItem.Attributes["optiongroup"];
+
+                    if ( previousPage.HasValue )
                     {
-                        if ( newPersonType.Value != "Visitor" )
-                        {
-                            // Add as family member
-                            var groupMember = groupMemberService.GetByPersonId( personId ).FirstOrDefault( gm => gm.Group.GroupType.Guid == new Guid( Rock.SystemGuid.GroupType.GROUPTYPE_FAMILY ) );
-                            if ( groupMember != null )
-                            {
-                                groupMember.GroupId = family.Group.Id;
-                                rockContext.SaveChanges();
-                            }
-
-                            checkInPerson.FamilyMember = true;
-                            hfSelectedPerson.Value += personId + ",";
-                        }
-                        else
-                        {
-                            // Add as visitor
-                            AddVisitorGroupMemberRoles( family, personId );
-                            checkInPerson.FamilyMember = false;
-                            hfSelectedVisitor.Value += personId + ",";
-                        }
-
-                        checkInPerson.Selected = true;
-                        family.People.Add( checkInPerson );
-                        //ProcessFamily();
+                        pageOffset = (int)previousPage * e.MaximumRows;
                     }
 
-                    SetFamilyDisplay( family.People.Count > 0 );
-                    mdlAddPerson.Hide();
+                    newFamilyList[pageOffset + personOffset] = newPerson;
+                    personOffset++;
                 }
-                else
+
+                if ( e.StartRowIndex + personOffset >= newFamilyList.Count )
                 {
-                    mdlAddPerson.Hide();
-                    string errorMsg = "<ul><li>Please pick or create a family to add this person to.</li></ul>";
-                    maWarning.Show( errorMsg, Rock.Web.UI.Controls.ModalAlertType.Warning );
+                    newFamilyList.AddRange( Enumerable.Repeat( new SerializedPerson(), e.MaximumRows ) );
                 }
             }
-            else
-            {
-                mdlAddPerson.Show();
-                BindPersonGrid();
-            }
+
+            ViewState["currentPage"] = currentPage;
+            ViewState["newFamily"] = newFamilyList;
+            dpNewFamily.SetPageProperties( e.StartRowIndex, e.MaximumRows, false );
+            lvNewFamily.DataSource = newFamilyList;
+            lvNewFamily.DataBind();
+            mdlNewFamily.Show();
         }
 
         /// <summary>
@@ -712,6 +743,26 @@ namespace cc.newspring.AttendedCheckin
         #endregion Add People Events
 
         #region Internal Methods
+
+        /// <summary>
+        /// Sets the add person fields.
+        /// </summary>
+        private void SetAddPersonFields()
+        {
+            ddlSuffix.BindToDefinedType( DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_SUFFIX ) ), true );
+            ddlGenderPerson.BindToEnum<Gender>();
+            ddlGenderPerson.SelectedIndex = 0;
+            ddlAbilityPerson.LoadAbilityAndGradeItems();
+            ddlAbilityPerson.SelectedIndex = 0;
+            rGridPersonResults.Visible = false;
+            lbNewPerson.Visible = false;
+
+            tbFirstNamePerson.Required = true;
+            tbLastNamePerson.Required = true;
+            ddlGenderPerson.Required = true;
+
+            mdlAddPerson.Show();
+        }
 
         /// <summary>
         /// Binds the person search results grid on the New Person/Visitor screen.
@@ -848,49 +899,6 @@ namespace cc.newspring.AttendedCheckin
         }
 
         /// <summary>
-        /// Refreshes the family.
-        /// </summary>
-        protected void RefreshFamily()
-        {
-            // Sort by campus first
-            lvFamily.DataSource = CurrentCheckInState.CheckIn.Families.OrderBy( f => f.Caption ).ToList();
-            lvFamily.DataBind();
-            pnlFamily.Update();
-
-            if ( divNothingFound.Visible )
-            {
-                lblFamilyTitle.InnerText = "Search Results";
-                lbNext.Enabled = true;
-                lbNext.Visible = true;
-                pnlFamily.Visible = true;
-                pnlPerson.Visible = true;
-                pnlVisitor.Visible = true;
-                actions.Visible = true;
-                divNothingFound.Visible = false;
-            }
-        }
-
-        /// <summary>
-        /// Sets the add person fields.
-        /// </summary>
-        protected void SetAddPersonFields()
-        {
-            ddlSuffix.BindToDefinedType( DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_SUFFIX ) ), true );
-            ddlGenderPerson.BindToEnum<Gender>();
-            ddlGenderPerson.SelectedIndex = 0;
-            ddlAbilityPerson.LoadAbilityAndGradeItems();
-            ddlAbilityPerson.SelectedIndex = 0;
-            rGridPersonResults.Visible = false;
-            lbNewPerson.Visible = false;
-
-            tbFirstNamePerson.Required = true;
-            tbLastNamePerson.Required = true;
-            ddlGenderPerson.Required = true;
-
-            mdlAddPerson.Show();
-        }
-
-        /// <summary>
         /// Adds a new person.
         /// </summary>
         /// <param name="firstName">The first name.</param>
@@ -898,7 +906,7 @@ namespace cc.newspring.AttendedCheckin
         /// <param name="DOB">The DOB.</param>
         /// <param name="gender">The gender</param>
         /// <param name="attribute">The attribute.</param>
-        protected Person CreatePerson( string firstName, string lastName, int? suffixValueId, DateTime? DOB, int? gender, string ability, string abilityGroup )
+        private Person CreatePerson( string firstName, string lastName, int? suffixValueId, DateTime? DOB, int? gender, string ability, string abilityGroup )
         {
             var rockContext = new RockContext();
             var personService = new PersonService( rockContext );
@@ -939,11 +947,11 @@ namespace cc.newspring.AttendedCheckin
         }
 
         /// <summary>
-        /// Creates the family.
+        /// Creates the family group.
         /// </summary>
         /// <param name="FamilyName">Name of the family.</param>
         /// <returns></returns>
-        protected Group CreateFamily( string FamilyName )
+        private Group CreateFamily( string FamilyName )
         {
             var familyGroup = new Group();
             familyGroup.Name = FamilyName + " Family";
@@ -965,7 +973,7 @@ namespace cc.newspring.AttendedCheckin
         /// <param name="familyGroup">The family group.</param>
         /// <param name="person">The person.</param>
         /// <returns></returns>
-        protected GroupMember AddGroupMember( int familyGroupId, Person person )
+        private GroupMember AddGroupMember( int familyGroupId, Person person )
         {
             var rockContext = new RockContext();
             var familyGroupType = GroupTypeCache.GetFamilyGroupType();
@@ -994,13 +1002,12 @@ namespace cc.newspring.AttendedCheckin
         /// </summary>
         /// <param name="family">The family.</param>
         /// <param name="personId">The person id.</param>
-        protected void AddVisitorGroupMemberRoles( CheckInFamily family, int personId )
-        {            
-            foreach ( var familyMember in family.People.Where( p => p.FamilyMember ) )
+        private void AddVisitorGroupMemberRoles( CheckInFamily family, int personId )
+        {
+            foreach ( var familyMember in family.People.Where( p => p.FamilyMember && p.Person.Age >= 18 ) )
             {
-                // add the visitor to this group with CanCheckIn
                 Person.CreateCheckinRelationship( familyMember.Person.Id, personId, CurrentPersonAlias );
-            }         
+            }
         }
 
         #endregion Internal Methods
