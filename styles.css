@@ -124,7 +124,7 @@ table td {
 
 table td.expanded{
     padding-left: 20px;
-    min-width: 300px;
+    min-width: 275px;
 }
 
 table td.expanded:first-child {
@@ -232,65 +232,27 @@ span.month, span.year {
 
 .checkout {
     position:absolute;
-    min-width: 300px;
+    min-width: 275px;
     width: auto;
     right: 20px;
     bottom: 0px;
 }
 
-
-
-/* Old Modals */
-
 /*
-.modal-scrollable {
+    Modal Styles
+*/
+
+.modal-content {
     position: fixed;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
-}
-
-.modal {
+    bottom: auto;
     top: 5%;
+    width: 95%;
 }
 
-.modal-content .checkin-header {
-    border-bottom: 1px solid #222222;
-}
 
-.modal-content .checkin-header h2 {
-    font-weight: bold;
-}
-
-.modal-content table thead, .modal-content table tfoot, .modal-content table tbody tr:nth-child(even) {
-    background-color: rgba(255,255,255,0.8);
-}
-
-.modal-content table thead a {
-    color: #000000;
-}
-
-.modal-content table tfoot ul.grid-pager li.active a {
-    background-color: #BBBBBB;
-    border-color: #BBBBBB;
-    color: #FFFFFF;
-}
-
-.modal-content table tfoot ul.grid-pager li a {
-    color: #000000;
-}
-
-.bootbox .modal-footer {
-    border-color: #cccccc;
-}
-
-.modal-header, .modal-footer, .grid-pagesize, .grid-itemcount {
+.modal-header, 
+.grid-pagesize, 
+.grid-itemcount,
+.modal:not(.bootbox) .modal-footer {
     display: none;
 }
-
-.bootbox .modal-content {
-    background-color: #ffffff;
-}
-
-*/
