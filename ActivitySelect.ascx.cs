@@ -109,6 +109,7 @@ namespace cc.newspring.AttendedCheckin
             if ( CurrentWorkflow == null || CurrentCheckInState == null )
             {
                 NavigateToHomePage();
+                return;
             }
         }
 

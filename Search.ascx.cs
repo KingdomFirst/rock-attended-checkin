@@ -58,6 +58,7 @@ namespace cc.newspring.AttendedCheckin
             if ( CurrentKioskId == null || CurrentCheckInState == null )
             {
                 NavigateToLinkedPage( "AdminPage" );
+                return;
             }
         }
 
