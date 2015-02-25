@@ -1,6 +1,7 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="Admin.ascx.cs" Inherits="cc.newspring.AttendedCheckin.Admin" %>
 
-<asp:Panel ID="pnlContent" runat="server">
+<asp:UpdatePanel ID="pnlContent" runat="server" UpdateMode="Conditional">
+    <ContentTemplate>
 
     <asp:PlaceHolder ID="phScript" runat="server"></asp:PlaceHolder>
     <asp:HiddenField ID="hfLatitude" runat="server" />
@@ -8,12 +9,12 @@
     <asp:HiddenField ID="hfKiosk" runat="server" />
     <asp:HiddenField ID="hfGroupTypes" runat="server" />
 
+    <Rock:ModalAlert ID="maAlert" runat="server" />
+
     <span style="display: none">
         <asp:LinkButton ID="lbRefresh" runat="server" OnClick="lbRefresh_Click"></asp:LinkButton>
         <asp:LinkButton ID="lbCheckGeoLocation" runat="server" OnClick="lbCheckGeoLocation_Click"></asp:LinkButton>
     </span>
-
-    <Rock:ModalAlert ID="maWarning" runat="server" />
 
     <asp:Panel ID="pnlAdmin" runat="server" DefaultButton="lbOk" CssClass="attended">
         <asp:UpdatePanel ID="pnlHeader" runat="server" UpdateMode="Conditional">
@@ -49,7 +50,9 @@
             </div>
         </div>
     </asp:Panel>
-</asp:Panel>
+
+    </ContentTemplate>
+</asp:UpdatePanel>
 
 <script type="text/javascript" src="../plugins/cc_newspring/attendedcheckin/scripts.js"></script>
 

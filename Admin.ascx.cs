@@ -90,7 +90,7 @@ namespace cc.newspring.AttendedCheckin
                 }
                 else if ( !CurrentKioskId.HasValue )
                 {
-                    maWarning.Show( "This device has not been set up for check-in.", ModalAlertType.Warning );
+                    maAlert.Show( "This device has not been set up for check-in.", ModalAlertType.Warning );
                     lbOk.Visible = false;
                     pnlHeader.Update();
                     return;
@@ -165,28 +165,28 @@ namespace cc.newspring.AttendedCheckin
         {
             if ( CurrentCheckInState == null )
             {
-                maWarning.Show( "Check-in state timed out.  Please try again.", ModalAlertType.Warning );
-                pnlHeader.Update();
+                maAlert.Show( "Check-in state timed out.  Please try again.", ModalAlertType.Warning );
+                pnlContent.Update();
                 return;
             }
 
-            var groupTypeIds = new List<int>();
             var selectedGroupTypeIds = hfGroupTypes.Value.SplitDelimitedValues().Select( int.Parse ).Distinct().ToList();
-            if ( CurrentCheckInState.Kiosk.KioskGroupTypes.Any( gt => selectedGroupTypeIds.Contains( gt.GroupType.Id ) ) )
+            if ( !selectedGroupTypeIds.Any() || !CurrentCheckInState.Kiosk.KioskGroupTypes.Any( gt => selectedGroupTypeIds.Contains( gt.GroupType.Id ) ) )
             {
-                groupTypeIds = selectedGroupTypeIds;
-            }
-            else
-            {
-                foreach ( RepeaterItem item in dlMinistry.Items )
+                maAlert.Show( "Please select at least one check-in type.", ModalAlertType.Warning );
+
+                foreach ( DataListItem item in dlMinistry.Items )
                 {
                     ( (Button)item.FindControl( "lbMinistry" ) ).RemoveCssClass( "active" );
                 }
 
-                maWarning.Show( "Please select at least one ministry.", ModalAlertType.Warning );
+                pnlContent.Update();
                 return;
             }
-
+            
+            // Set selected grouptypes
+            var groupTypeIds = selectedGroupTypeIds;
+            
             if ( CurrentKioskId == null || CurrentKioskId == 0 )
             {
                 CurrentKioskId = hfKiosk.ValueAsInt();
