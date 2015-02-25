@@ -23,7 +23,7 @@
                 </div>
 
                 <div class="col-xs-2 checkin-actions text-right">
-                    <Rock:BootstrapButton ID="lbSearch" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbSearch_Click" EnableViewState="false">
+                    <Rock:BootstrapButton ID="lbSearch" runat="server" CssClass="btn btn-primary" OnClick="lbSearch_Click" EnableViewState="false">
                     <span class="fa fa-arrow-right"></span>
                     </Rock:BootstrapButton>
                 </div>
