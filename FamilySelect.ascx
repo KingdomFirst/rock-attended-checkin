@@ -36,7 +36,7 @@
                             <asp:ListView ID="lvFamily" runat="server" OnPagePropertiesChanging="lvFamily_PagePropertiesChanging"
                                 OnItemCommand="lvFamily_ItemCommand" OnItemDataBound="lvFamily_ItemDataBound">
                                 <ItemTemplate>
-                                    <asp:LinkButton ID="lbSelectFamily" runat="server" CommandArgument='<%# Eval("Group.Id") %>' CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" CausesValidation="false">
+                                    <asp:LinkButton ID="lbSelectFamily" runat="server" CommandArgument='<%# Eval("Group.Id") %>' CssClass="btn btn-primary btn-lg btn-block btn-checkin-select family" CausesValidation="false">
 						                <%# Eval("Caption") %><br />
                                         <span class='checkin-sub-title'>
                                             <%# Eval("SubCaption") %>
@@ -72,7 +72,7 @@
                                 </ItemTemplate>
                                 <EmptyDataTemplate>
                                     <div class="text-center large-font">
-                                        <asp:Literal ID="lblPersonTitle" runat="server" Text="No one in this family is eligible to check-in." />
+                                        <asp:Literal ID="lblPersonTitle" runat="server" Text="No one in this family is eligible for check-in." />
                                     </div>
                                 </EmptyDataTemplate>
                             </asp:ListView>
@@ -153,19 +153,19 @@
                 <div class="checkin-body">
                     <div class="row">
                         <div class="col-xs-2">
-                            <Rock:RockTextBox ID="tbFirstNamePerson" runat="server" CssClass="col-xs-12" Label="First Name" ValidationGroup="Person" />
+                            <Rock:RockTextBox ID="tbFirstNamePerson" runat="server" CssClass="col-xs-12" RequiredErrorMessage="First Name is Required" Label="First Name" ValidationGroup="Person" DisplayRequiredIndicato="true" />
                         </div>
                         <div class="col-xs-2">
-                            <Rock:RockTextBox ID="tbLastNamePerson" runat="server" CssClass="col-xs-12" Label="Last Name" ValidationGroup="Person" />
+                            <Rock:RockTextBox ID="tbLastNamePerson" runat="server" CssClass="col-xs-12" RequiredErrorMessage="Last Name is Required" Label="Last Name" ValidationGroup="Person" DisplayRequiredIndicato="true" />
                         </div>
                         <div class="col-xs-1">
                             <Rock:RockDropDownList ID="ddlSuffix" runat="server" CssClass="col-xs-12" Label="Suffix" />
                         </div>
                         <div class="col-xs-3">
-                            <Rock:DatePicker ID="dpDOBPerson" runat="server" Label="Date of Birth" CssClass="col-xs-12 date-picker" ValidationGroup="Person" />
+                            <Rock:DatePicker ID="dpDOBPerson" runat="server" RequiredErrorMessage="DOB is Required" Label="Date of Birth" CssClass="col-xs-12 date-picker" ValidationGroup="Person" DisplayRequiredIndicato="true" />
                         </div>
                         <div class="col-xs-2">
-                            <Rock:RockDropDownList ID="ddlGenderPerson" runat="server" Label="Gender" CssClass="col-xs-12" ValidationGroup="Person" />
+                            <Rock:RockDropDownList ID="ddlGenderPerson" runat="server" RequiredErrorMessage="Gender is Required" Label="Gender" CssClass="col-xs-12" ValidationGroup="Person" DisplayRequiredIndicato="true" />
                         </div>
                         <div class="col-xs-2">
                             <Rock:RockDropDownList ID="ddlAbilityPerson" runat="server" Label="Ability/Grade" CssClass="col-xs-12" />
@@ -203,7 +203,7 @@
 
                     <div class="row">
                         <div class="col-xs-12 text-right">
-                            <asp:LinkButton ID="lbNewPerson" runat="server" Text="None of these, add a new person" CssClass="btn btn-lg btn-primary btn-checkin-select" ValidationGroup="Person" CausesValidation="true" OnClick="lbNewPerson_Click" />
+                            <asp:LinkButton ID="lbNewPerson" runat="server" Text="None of these, add a new person" CssClass="btn btn-lg btn-primary btn-checkin-select" OnClick="lbNewPerson_Click" ValidationGroup="Person" CausesValidation="true" />
                         </div>
                     </div>
                 </div>
@@ -222,7 +222,7 @@
                     </div>
 
                     <div class="col-xs-3 checkin-actions text-right">
-                        <Rock:BootstrapButton ID="lbSaveFamily" CssClass="btn btn-lg btn-primary" runat="server" Text="Save" OnClick="lbSaveFamily_Click" ValidationGroup="Family" EnableViewState="false" />
+                        <Rock:BootstrapButton ID="lbSaveFamily" CssClass="btn btn-lg btn-primary" runat="server" Text="Save" OnClick="lbSaveFamily_Click" ValidationGroup="Family" CausesValidation="true" />
                     </div>
                 </div>
 
@@ -254,19 +254,19 @@
                         <ItemTemplate>
                             <div class="row expanded">
                                 <div class="col-xs-2">
-                                    <Rock:RockTextBox ID="tbFirstName" runat="server" RequiredErrorMessage="First Name is Required" Text='<%# ((SerializedPerson)Container.DataItem).FirstName %>' ValidationGroup="Family" />
+                                    <Rock:RockTextBox ID="tbFirstName" runat="server" RequiredErrorMessage="First Name is Required" Text='<%# ((SerializedPerson)Container.DataItem).FirstName %>' ValidationGroup="Family" DisplayRequiredIndicato="true" />
                                 </div>
                                 <div class="col-xs-2">
-                                    <Rock:RockTextBox ID="tbLastName" runat="server" RequiredErrorMessage="Last Name is Required" Text='<%# ((SerializedPerson)Container.DataItem).LastName %>' ValidationGroup="Family" />
+                                    <Rock:RockTextBox ID="tbLastName" runat="server" RequiredErrorMessage="Last Name is Required" Text='<%# ((SerializedPerson)Container.DataItem).LastName %>' ValidationGroup="Family" DisplayRequiredIndicato="true" />
                                 </div>
                                 <div class="col-xs-1">
                                     <Rock:RockDropDownList ID="ddlSuffix" runat="server" />
                                 </div>
                                 <div class="col-xs-3">
-                                    <Rock:DatePicker ID="dpBirthDate" runat="server" RequiredErrorMessage="Date of Birth is Required" SelectedDate='<%# ((SerializedPerson)Container.DataItem).BirthDate %>' ValidationGroup="Family" CssClass="date-picker" />
+                                    <Rock:DatePicker ID="dpBirthDate" runat="server" RequiredErrorMessage="Date of Birth is Required" SelectedDate='<%# ((SerializedPerson)Container.DataItem).BirthDate %>' ValidationGroup="Family" DisplayRequiredIndicato="true" CssClass="date-picker" />
                                 </div>
                                 <div class="col-xs-2">
-                                    <Rock:RockDropDownList ID="ddlGender" runat="server" RequiredErrorMessage="Gender is Required" ValidationGroup="Family" />
+                                    <Rock:RockDropDownList ID="ddlGender" runat="server" RequiredErrorMessage="Gender is Required" ValidationGroup="Family" DisplayRequiredIndicato="true" />
                                 </div>
                                 <div class="col-xs-2">
                                     <Rock:RockDropDownList ID="ddlAbilityGrade" runat="server" />
@@ -297,6 +297,11 @@
     var setControlEvents = function () {
 
         $('.modal:visible').css('z-index', Number($('.modal-backdrop').css('z-index')) + 1);
+
+        $('.family').unbind('click').on('click', function () {
+            $(this).toggleClass('active');
+            $(this).siblings('.family').removeClass('active');
+        });
 
         $('.person').unbind('click').on('click', function () {
             $(this).toggleClass('active');

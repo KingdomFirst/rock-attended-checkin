@@ -50,7 +50,7 @@ namespace cc.newspring.AttendedCheckin
                 {
                     return campusId.AsType<int?>();
                 }
-                else 
+                else
                 {
                     var kioskCampusId = CurrentCheckInState.Kiosk.KioskGroupTypes
                         .Where( gt => gt.KioskGroups.Any( g => g.KioskLocations.Any( l => l.CampusId.HasValue ) ) )
@@ -118,7 +118,7 @@ namespace cc.newspring.AttendedCheckin
                 familyList = CurrentCheckInState.CheckIn.Families.OrderByDescending( f => f.Group.CampusId == KioskCampusId )
                     .ThenBy( f => f.Caption ).ToList();
             }
-            
+
             // Auto process the first family if one not selected
             if ( !familyList.Any( f => f.Selected ) )
             {
@@ -226,8 +226,8 @@ namespace cc.newspring.AttendedCheckin
         {
             int id = int.Parse( e.CommandArgument.ToString() );
             var family = CurrentCheckInState.CheckIn.Families.Where( f => f.Group.Id == id ).FirstOrDefault();
-
-            foreach ( ListViewDataItem li in lvFamily.Items )
+            
+            foreach ( ListViewDataItem li in ( (ListView)sender ).Items )
             {
                 ( (LinkButton)li.FindControl( "lbSelectFamily" ) ).RemoveCssClass( "active" );
             }
@@ -397,7 +397,6 @@ namespace cc.newspring.AttendedCheckin
                 if ( family.Selected )
                 {
                     var lbSelectFamily = (LinkButton)e.Item.FindControl( "lbSelectFamily" );
-                    lbSelectFamily.CommandArgument = family.Group.Id.ToString();
                     lbSelectFamily.AddCssClass( "active" );
                 }
             }
@@ -416,7 +415,6 @@ namespace cc.newspring.AttendedCheckin
                 if ( person.Selected )
                 {
                     var lbSelectPerson = (LinkButton)e.Item.FindControl( "lbSelectPerson" );
-                    lbSelectPerson.CommandArgument = person.Person.Id.ToString();
                     lbSelectPerson.AddCssClass( "active" );
                 }
             }
@@ -435,7 +433,6 @@ namespace cc.newspring.AttendedCheckin
                 if ( person.Selected )
                 {
                     var lbSelectVisitor = (LinkButton)e.Item.FindControl( "lbSelectVisitor" );
-                    lbSelectVisitor.CommandArgument = person.Person.Id.ToString();
                     lbSelectVisitor.AddCssClass( "active" );
                 }
             }
@@ -522,11 +519,10 @@ namespace cc.newspring.AttendedCheckin
         protected void lbNewPerson_Click( object sender, EventArgs e )
         {
             // Make sure all required fields are filled out
-            if ( string.IsNullOrEmpty( tbFirstNamePerson.Text ) || string.IsNullOrEmpty( tbLastNamePerson.Text ) || string.IsNullOrEmpty( dpDOBPerson.Text ) || ddlGenderPerson.SelectedValueAsInt() == 0 )
+            Page.Validate( "Person" );
+            if ( !Page.IsValid )
             {
-                Page.Validate( "Person" );
-                //mdlAddPerson.Show();
-                //return;
+                return;
             }
             else
             {
@@ -568,9 +564,9 @@ namespace cc.newspring.AttendedCheckin
                 ddlGenderPerson.Required = false;
                 dpDOBPerson.Required = false;
 
+                mdlAddPerson.Hide();
                 ProcessFamily();
                 ShowHideResults( checkInFamily.People.Count > 0 );
-                mdlAddPerson.Hide();
             }
         }
 
@@ -646,6 +642,13 @@ namespace cc.newspring.AttendedCheckin
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbSaveFamily_Click( object sender, EventArgs e )
         {
+            // Make sure all required fields are filled out
+            Page.Validate( "Family" );
+            if ( !Page.IsValid )
+            {
+                return;
+            }
+
             var newFamilyList = (List<SerializedPerson>)ViewState["newFamily"] ?? new List<SerializedPerson>();
             int? currentPage = ViewState["currentPage"] as int?;
             int personOffset = 0;
