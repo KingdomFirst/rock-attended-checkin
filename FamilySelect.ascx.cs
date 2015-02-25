@@ -41,6 +41,27 @@ namespace cc.newspring.AttendedCheckin
     [TextField( "Not Found Text", "What text should display when the nothing is found?", true, "Please add them using one of the buttons on the right" )]
     public partial class FamilySelect : CheckInBlock
     {
+        private int? KioskCampusId
+        {
+            get
+            {
+                var campusId = ViewState["CampusId"] as string;
+                if ( campusId != null )
+                {
+                    return campusId.AsType<int?>();
+                }
+                else 
+                {
+                    var kioskCampusId = CurrentCheckInState.Kiosk.KioskGroupTypes
+                        .Where( gt => gt.KioskGroups.Any( g => g.KioskLocations.Any( l => l.CampusId.HasValue ) ) )
+                        .SelectMany( gt => gt.KioskGroups.SelectMany( g => g.KioskLocations.Select( l => l.CampusId ) ) )
+                        .FirstOrDefault();
+                    ViewState["CampusId"] = kioskCampusId;
+                    return kioskCampusId;
+                }
+            }
+        }
+
         #region Control Methods
 
         /// <summary>
@@ -91,15 +112,14 @@ namespace cc.newspring.AttendedCheckin
         protected void DisplayFamily()
         {
             // Order families by campus then by caption
-            var kioskCampusId = CurrentCheckInState.Kiosk.KioskGroupTypes
-                        .Where( gt => gt.KioskGroups.Any( g => g.KioskLocations.Any( l => l.CampusId.HasValue ) ) )
-                        .SelectMany( gt => gt.KioskGroups.SelectMany( g => g.KioskLocations.Select( l => l.CampusId ) ) )
-                        .FirstOrDefault();
-
-            var familyList = CurrentCheckInState.CheckIn.Families.OrderByDescending( f => f.Group.CampusId == kioskCampusId )
-                .ThenBy( f => f.Caption ).ToList();
-
-            // Auto process the first family if not set
+            List<CheckInFamily> familyList = CurrentCheckInState.CheckIn.Families;
+            if ( familyList.Count > 1 )
+            {
+                familyList = CurrentCheckInState.CheckIn.Families.OrderByDescending( f => f.Group.CampusId == KioskCampusId )
+                    .ThenBy( f => f.Caption ).ToList();
+            }
+            
+            // Auto process the first family if one not selected
             if ( !familyList.Any( f => f.Selected ) )
             {
                 familyList.FirstOrDefault().Selected = true;
@@ -128,12 +148,14 @@ namespace cc.newspring.AttendedCheckin
             {
                 // Show a custom message when nothing is found
                 string nothingFoundText = GetAttributeValue( "NotFoundText" );
+                lblFamilyTitle.InnerText = "No Results";
                 divNothingFound.InnerText = nothingFoundText;
                 divNothingFound.AddCssClass( "large-font" );
                 divNothingFound.Visible = true;
             }
             else
             {
+                lblFamilyTitle.InnerText = "Search Results";
                 divNothingFound.Visible = false;
             }
 
@@ -144,6 +166,7 @@ namespace cc.newspring.AttendedCheckin
             lbAddFamilyMember.Visible = showAddButtons;
             lbAddVisitor.Visible = showAddButtons;
             lbNewFamily.Visible = showAddButtons;
+            //pnlContent.Update();
         }
 
         #endregion
@@ -169,6 +192,7 @@ namespace cc.newspring.AttendedCheckin
         {
             var selectedPeopleIds = ( hfSelectedPerson.Value + hfSelectedVisitor.Value )
                 .SplitDelimitedValues().Select( int.Parse ).ToList();
+
             var family = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault();
             if ( family == null )
             {
@@ -181,18 +205,15 @@ namespace cc.newspring.AttendedCheckin
                 maWarning.Show( errorMsg, Rock.Web.UI.Controls.ModalAlertType.Warning );
                 return;
             }
-
-            // Successful family checkin
-            if ( selectedPeopleIds.Count() > 0 )
-            {
-                family.People.ForEach( p => p.Selected = selectedPeopleIds.Contains( p.Person.Id ) );
-
-                ProcessSelection( maWarning );
-            }
-            else
+            else if ( !selectedPeopleIds.Any() )
             {
                 maWarning.Show( "Please pick at least one person.", ModalAlertType.Warning );
                 return;
+            }
+            else
+            {
+                family.People.ForEach( p => p.Selected = selectedPeopleIds.Contains( p.Person.Id ) );
+                ProcessSelection( maWarning );
             }
         }
 
@@ -250,7 +271,8 @@ namespace cc.newspring.AttendedCheckin
         {
             lblAddPersonHeader.Text = "Add Visitor";
             newPersonType.Value = "Visitor";
-            SetAddPersonFields();
+            SetRequiredFields();
+            mdlAddPerson.Show();
         }
 
         /// <summary>
@@ -262,7 +284,8 @@ namespace cc.newspring.AttendedCheckin
         {
             lblAddPersonHeader.Text = "Add Family Member";
             newPersonType.Value = "Person";
-            SetAddPersonFields();
+            SetRequiredFields();
+            mdlAddPerson.Show();
         }
 
         /// <summary>
@@ -275,12 +298,9 @@ namespace cc.newspring.AttendedCheckin
             var newFamilyList = new List<SerializedPerson>();
             var familyMembersToAdd = dpNewFamily.PageSize * 2;
             newFamilyList.AddRange( Enumerable.Repeat( new SerializedPerson(), familyMembersToAdd ) );
-
             ViewState["newFamily"] = newFamilyList;
-
             lvNewFamily.DataSource = newFamilyList;
             lvNewFamily.DataBind();
-
             mdlNewFamily.Show();
         }
 
@@ -303,8 +323,10 @@ namespace cc.newspring.AttendedCheckin
             dpFamilyPager.SetPageProperties( e.StartRowIndex, e.MaximumRows, false );
 
             // rebind List View
-            //lvFamily.DataSource = CurrentCheckInState.CheckIn.Families.OrderBy( f => f.Caption ).ToList();
-            //lvFamily.DataBind();
+            lvFamily.DataSource = CurrentCheckInState.CheckIn.Families
+                .OrderByDescending( f => f.Group.CampusId == KioskCampusId )
+                .ThenBy( f => f.Caption ).ToList();
+            lvFamily.DataBind();
             pnlFamily.Update();
         }
 
@@ -489,7 +511,7 @@ namespace cc.newspring.AttendedCheckin
             rGridPersonResults.PageSize = 4;
             lbNewPerson.Visible = true;
             BindPersonGrid();
-            mdlAddPerson.Show();
+            //mdlAddPerson.Show();
         }
 
         /// <summary>
@@ -504,7 +526,7 @@ namespace cc.newspring.AttendedCheckin
             {
                 Page.Validate( "Person" );
                 //mdlAddPerson.Show();
-                return;
+                //return;
             }
             else
             {
@@ -547,7 +569,7 @@ namespace cc.newspring.AttendedCheckin
                 dpDOBPerson.Required = false;
 
                 ProcessFamily();
-                ShowHideResults( true );
+                ShowHideResults( checkInFamily.People.Count > 0 );
                 mdlAddPerson.Hide();
             }
         }
@@ -678,8 +700,8 @@ namespace cc.newspring.AttendedCheckin
             CurrentCheckInState.CheckIn.Families.Add( checkInFamily );
 
             mdlNewFamily.Hide();
-            ProcessFamily();
             DisplayFamily();
+            ProcessFamily();
         }
 
         /// <summary>
@@ -692,35 +714,36 @@ namespace cc.newspring.AttendedCheckin
             var newFamilyList = new List<SerializedPerson>();
             int currentPage = e.StartRowIndex / e.MaximumRows;
             int? previousPage = ViewState["currentPage"] as int?;
+            int personOffset = 0;
+            int pageOffset = 0;
             if ( ViewState["newFamily"] != null )
             {
                 newFamilyList = (List<SerializedPerson>)ViewState["newFamily"];
-                int pageOffset = 0;
-                int personOffset = 0;
-                foreach ( ListViewItem item in lvNewFamily.Items )
+            }
+
+            foreach ( ListViewItem item in lvNewFamily.Items )
+            {
+                var newPerson = new SerializedPerson();
+                newPerson.FirstName = ( (TextBox)item.FindControl( "tbFirstName" ) ).Text;
+                newPerson.LastName = ( (TextBox)item.FindControl( "tbLastName" ) ).Text;
+                newPerson.SuffixValueId = ( (RockDropDownList)item.FindControl( "ddlSuffix" ) ).SelectedValueAsId();
+                newPerson.BirthDate = ( (DatePicker)item.FindControl( "dpBirthDate" ) ).SelectedDate;
+                newPerson.Gender = ( (RockDropDownList)item.FindControl( "ddlGender" ) ).SelectedValueAsEnum<Gender>();
+                newPerson.Ability = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedValue;
+                newPerson.AbilityGroup = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedItem.Attributes["optiongroup"];
+
+                if ( previousPage.HasValue )
                 {
-                    var newPerson = new SerializedPerson();
-                    newPerson.FirstName = ( (TextBox)item.FindControl( "tbFirstName" ) ).Text;
-                    newPerson.LastName = ( (TextBox)item.FindControl( "tbLastName" ) ).Text;
-                    newPerson.SuffixValueId = ( (RockDropDownList)item.FindControl( "ddlSuffix" ) ).SelectedValueAsId();
-                    newPerson.BirthDate = ( (DatePicker)item.FindControl( "dpBirthDate" ) ).SelectedDate;
-                    newPerson.Gender = ( (RockDropDownList)item.FindControl( "ddlGender" ) ).SelectedValueAsEnum<Gender>();
-                    newPerson.Ability = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedValue;
-                    newPerson.AbilityGroup = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedItem.Attributes["optiongroup"];
-
-                    if ( previousPage.HasValue )
-                    {
-                        pageOffset = (int)previousPage * e.MaximumRows;
-                    }
-
-                    newFamilyList[pageOffset + personOffset] = newPerson;
-                    personOffset++;
+                    pageOffset = (int)previousPage * e.MaximumRows;
                 }
 
-                if ( e.StartRowIndex + personOffset >= newFamilyList.Count )
+                if ( e.StartRowIndex + personOffset + e.MaximumRows >= newFamilyList.Count )
                 {
                     newFamilyList.AddRange( Enumerable.Repeat( new SerializedPerson(), e.MaximumRows ) );
                 }
+
+                newFamilyList[pageOffset + personOffset] = newPerson;
+                personOffset++;
             }
 
             ViewState["currentPage"] = currentPage;
@@ -746,9 +769,9 @@ namespace cc.newspring.AttendedCheckin
         #region Internal Methods
 
         /// <summary>
-        /// Sets the add person fields.
+        /// Sets the required person fields.
         /// </summary>
-        private void SetAddPersonFields()
+        private void SetRequiredFields()
         {
             ddlSuffix.BindToDefinedType( DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_SUFFIX ) ), true );
             ddlGenderPerson.BindToEnum<Gender>();
@@ -761,8 +784,6 @@ namespace cc.newspring.AttendedCheckin
             tbFirstNamePerson.Required = true;
             tbLastNamePerson.Required = true;
             ddlGenderPerson.Required = true;
-
-            mdlAddPerson.Show();
         }
 
         /// <summary>
@@ -912,11 +933,19 @@ namespace cc.newspring.AttendedCheckin
             var rockContext = new RockContext();
             var personService = new PersonService( rockContext );
 
+            var connectionStatus = DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_CONNECTION_STATUS ) );
+            var statusAttendee = connectionStatus.DefinedValues.FirstOrDefault( dv => dv.Guid.Equals( new Guid( Rock.SystemGuid.DefinedValue.PERSON_CONNECTION_STATUS_ATTENDEE ) ) );
+
             var person = new Person();
             person.FirstName = firstName;
             person.LastName = lastName;
             person.SuffixValueId = suffixValueId;
             person.BirthDate = DOB;
+
+            if ( statusAttendee != null )
+            {
+                person.ConnectionStatusValueId = statusAttendee.Id;
+            }
             personService.Add( person );
 
             if ( gender.HasValue )
