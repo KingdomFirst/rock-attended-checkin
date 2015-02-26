@@ -166,7 +166,6 @@ namespace cc.newspring.AttendedCheckin
             lbAddFamilyMember.Visible = showAddButtons;
             lbAddVisitor.Visible = showAddButtons;
             lbNewFamily.Visible = showAddButtons;
-            //pnlContent.Update();
         }
 
         #endregion
@@ -225,8 +224,8 @@ namespace cc.newspring.AttendedCheckin
         protected void lvFamily_ItemCommand( object sender, ListViewCommandEventArgs e )
         {
             int id = int.Parse( e.CommandArgument.ToString() );
-            var family = CurrentCheckInState.CheckIn.Families.Where( f => f.Group.Id == id ).FirstOrDefault();
-            
+            var family = CurrentCheckInState.CheckIn.Families.Where( f => f.Group.Id == 147 ).FirstOrDefault();
+
             foreach ( ListViewDataItem li in ( (ListView)sender ).Items )
             {
                 ( (LinkButton)li.FindControl( "lbSelectFamily" ) ).RemoveCssClass( "active" );
@@ -589,13 +588,14 @@ namespace cc.newspring.AttendedCheckin
                 {
                     var checkInPerson = new CheckInPerson();
                     checkInPerson.Person = new PersonService( rockContext ).Get( personId ).Clone( false );
-                    var personAlreadyInFamily = family.People.Any( p => p.Person.Id == checkInPerson.Person.Id );
+                    var personAlreadyInFamily = family.People.Any( p => p.Person.Id == personId );
                     if ( !personAlreadyInFamily )
                     {
                         if ( newPersonType.Value != "Visitor" )
                         {
                             // Add as family member
-                            var groupMember = groupMemberService.GetByPersonId( personId ).FirstOrDefault( gm => gm.Group.GroupType.Guid == new Guid( Rock.SystemGuid.GroupType.GROUPTYPE_FAMILY ) );
+                            var groupMember = groupMemberService.GetByPersonId( personId )
+                                .FirstOrDefault( gm => gm.Group.GroupType.Guid == new Guid( Rock.SystemGuid.GroupType.GROUPTYPE_FAMILY ) );
                             if ( groupMember != null )
                             {
                                 groupMember.GroupId = family.Group.Id;
@@ -615,7 +615,7 @@ namespace cc.newspring.AttendedCheckin
 
                         checkInPerson.Selected = true;
                         family.People.Add( checkInPerson );
-                        //ProcessFamily();
+                        ProcessFamily();
                     }
 
                     mdlAddPerson.Hide();
