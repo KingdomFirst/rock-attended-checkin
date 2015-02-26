@@ -211,7 +211,7 @@
             </Content>
         </Rock:ModalDialog>
 
-        <Rock:ModalDialog ID="mdlNewFamily" runat="server" Content-DefaultButton="lbSaveFamily">
+        <Rock:ModalDialog ID="mdlNewFamily" runat="server" Content-DefaultButton="lbSaveFamily"> 
             <Content>
                 <div class="row checkin-header">
                     <div class="col-xs-3 checkin-actions">

@@ -943,7 +943,13 @@ namespace cc.newspring.AttendedCheckin
             person.FirstName = firstName;
             person.LastName = lastName;
             person.SuffixValueId = suffixValueId;
-            person.BirthDate = DOB;
+
+            if ( DOB != null )
+            {
+                person.BirthDay = ( (DateTime)DOB ).Day;
+                person.BirthMonth = ( (DateTime)DOB ).Month;
+                person.BirthYear = ( (DateTime)DOB ).Year;
+            }
 
             if ( statusAttendee != null )
             {
