@@ -101,8 +101,6 @@ namespace cc.newspring.AttendedCheckin
                 {
                     ShowHideResults( false );
                 }
-
-                rGridPersonResults.PageSize = 2;
             }
         }
 
@@ -150,7 +148,6 @@ namespace cc.newspring.AttendedCheckin
                 string nothingFoundText = GetAttributeValue( "NotFoundText" );
                 lblFamilyTitle.InnerText = "No Results";
                 divNothingFound.InnerText = nothingFoundText;
-                divNothingFound.AddCssClass( "large-font" );
                 divNothingFound.Visible = true;
             }
             else

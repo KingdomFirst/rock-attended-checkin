@@ -154,19 +154,19 @@
                 <div class="checkin-body">
                     <div class="row">
                         <div class="col-xs-2">
-                            <Rock:RockTextBox ID="tbFirstNamePerson" runat="server" CssClass="col-xs-12" RequiredErrorMessage="First Name is Required" Label="First Name" ValidationGroup="Person" DisplayRequiredIndicato="true" />
+                            <Rock:RockTextBox ID="tbFirstNamePerson" runat="server" CssClass="col-xs-12" RequiredErrorMessage="First Name is Required" Label="First Name" ValidationGroup="Person" DisplayRequiredIndicator="true" />
                         </div>
                         <div class="col-xs-2">
-                            <Rock:RockTextBox ID="tbLastNamePerson" runat="server" CssClass="col-xs-12" RequiredErrorMessage="Last Name is Required" Label="Last Name" ValidationGroup="Person" DisplayRequiredIndicato="true" />
+                            <Rock:RockTextBox ID="tbLastNamePerson" runat="server" CssClass="col-xs-12" RequiredErrorMessage="Last Name is Required" Label="Last Name" ValidationGroup="Person" DisplayRequiredIndicator="true" />
                         </div>
                         <div class="col-xs-1">
                             <Rock:RockDropDownList ID="ddlSuffix" runat="server" CssClass="col-xs-12" Label="Suffix" />
                         </div>
                         <div class="col-xs-3">
-                            <Rock:DatePicker ID="dpDOBPerson" runat="server" RequiredErrorMessage="DOB is Required" Label="Date of Birth" CssClass="col-xs-12 date-picker" ValidationGroup="Person" DisplayRequiredIndicato="true" />
+                            <Rock:DatePicker ID="dpDOBPerson" runat="server" RequiredErrorMessage="DOB is Required" Label="Date of Birth" CssClass="col-xs-12 date-picker" ValidationGroup="Person" DisplayRequiredIndicator="true" />
                         </div>
                         <div class="col-xs-2">
-                            <Rock:RockDropDownList ID="ddlGenderPerson" runat="server" RequiredErrorMessage="Gender is Required" Label="Gender" CssClass="col-xs-12" ValidationGroup="Person" DisplayRequiredIndicato="true" />
+                            <Rock:RockDropDownList ID="ddlGenderPerson" runat="server" RequiredErrorMessage="Gender is Required" Label="Gender" CssClass="col-xs-12" ValidationGroup="Person" />
                         </div>
                         <div class="col-xs-2">
                             <Rock:RockDropDownList ID="ddlAbilityPerson" runat="server" Label="Ability/Grade" CssClass="col-xs-12" />
@@ -255,19 +255,19 @@
                         <ItemTemplate>
                             <div class="row expanded">
                                 <div class="col-xs-2">
-                                    <Rock:RockTextBox ID="tbFirstName" runat="server" RequiredErrorMessage="First Name is Required" Text='<%# ((SerializedPerson)Container.DataItem).FirstName %>' ValidationGroup="Family" DisplayRequiredIndicato="true" />
+                                    <Rock:RockTextBox ID="tbFirstName" runat="server" RequiredErrorMessage="First Name is Required" Text='<%# ((SerializedPerson)Container.DataItem).FirstName %>' ValidationGroup="Family" DisplayRequiredIndicator="true" />
                                 </div>
                                 <div class="col-xs-2">
-                                    <Rock:RockTextBox ID="tbLastName" runat="server" RequiredErrorMessage="Last Name is Required" Text='<%# ((SerializedPerson)Container.DataItem).LastName %>' ValidationGroup="Family" DisplayRequiredIndicato="true" />
+                                    <Rock:RockTextBox ID="tbLastName" runat="server" RequiredErrorMessage="Last Name is Required" Text='<%# ((SerializedPerson)Container.DataItem).LastName %>' ValidationGroup="Family" DisplayRequiredIndicator="true" />
                                 </div>
                                 <div class="col-xs-1">
                                     <Rock:RockDropDownList ID="ddlSuffix" runat="server" />
                                 </div>
                                 <div class="col-xs-3">
-                                    <Rock:DatePicker ID="dpBirthDate" runat="server" RequiredErrorMessage="Date of Birth is Required" SelectedDate='<%# ((SerializedPerson)Container.DataItem).BirthDate %>' ValidationGroup="Family" DisplayRequiredIndicato="true" CssClass="date-picker" />
+                                    <Rock:DatePicker ID="dpBirthDate" runat="server" RequiredErrorMessage="Date of Birth is Required" SelectedDate='<%# ((SerializedPerson)Container.DataItem).BirthDate %>' ValidationGroup="Family" DisplayRequiredIndicator="true" CssClass="date-picker" />
                                 </div>
                                 <div class="col-xs-2">
-                                    <Rock:RockDropDownList ID="ddlGender" runat="server" RequiredErrorMessage="Gender is Required" ValidationGroup="Family" DisplayRequiredIndicato="true" />
+                                    <Rock:RockDropDownList ID="ddlGender" runat="server" RequiredErrorMessage="Gender is Required" ValidationGroup="Family" />
                                 </div>
                                 <div class="col-xs-2">
                                     <Rock:RockDropDownList ID="ddlAbilityGrade" runat="server" />
