@@ -41,6 +41,7 @@ namespace cc.newspring.AttendedCheckin
     [Description( "Attended Check-In Confirmation Block" )]
     [LinkedPage( "Activity Select Page" )]
     [BooleanField( "Print Individual Labels", "Select this option to print one label per person's group, location, & schedule.", false )]
+    [BinaryFileTypeField( "Designated Parent Label", "Select the label you want to only be printed once.  Unselect the label to print the label every time.", false )]
     public partial class Confirm : CheckInBlock
     {
         /// <summary>
@@ -319,11 +320,12 @@ namespace cc.newspring.AttendedCheckin
         /// </summary>
         /// <param name="dataKeyArray">The data key array.</param>
         /// <returns></returns>
-        private void ProcessLabels( DataKeyArray labelKeyArray )
+        private void ProcessLabels( DataKeyArray checkinArray )
         {
             // Make sure we can save the attendance and get an attendance code
             if ( SaveAttendance() )
             {
+                string designatedParentLabel = GetAttributeValue( "DesignatedParentLabel" );
                 bool printIndividualLabels = bool.Parse( GetAttributeValue( "PrintIndividualLabels" ) ?? "false" );
                 if ( !printIndividualLabels )
                 {
@@ -332,8 +334,8 @@ namespace cc.newspring.AttendedCheckin
                 }
                 else
                 {
-                    // labelKeyArray has all the labels to be printed, whether single or multiple people are checking in
-                    foreach ( DataKey dataKey in labelKeyArray )
+                    // checkinArray has all the data to be printed, whether single or multiple people are checking in
+                    foreach ( DataKey dataKey in checkinArray )
                     {
                         var personId = Convert.ToInt32( dataKey["PersonId"] );
                         var groupId = Convert.ToInt32( dataKey["GroupId"] );
@@ -414,6 +416,10 @@ namespace cc.newspring.AttendedCheckin
                                 printFromClient.ToList().ForEach( l => l.LabelFile = urlRoot + l.LabelFile );
                                 AddLabelScript( printFromClient.ToJson() );
                             }
+
+                            //
+                            // add check for parent label already printed
+                            //
 
                             var printFromServer = groupType.Labels.Where( l => l.PrintFrom == Rock.Model.PrintFrom.Server );
                             if ( printFromServer.Any() )
