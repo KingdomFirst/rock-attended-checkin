@@ -19,10 +19,10 @@
         <asp:UpdatePanel ID="pnlHeader" runat="server" UpdateMode="Conditional">
             <ContentTemplate>
                 <div class="row checkin-header">
-                    <div class="col-xs-2 checkin-actions">
+                    <!-- <div class="col-xs-2 checkin-actions">
                         <a id="lbRetry" runat="server" class="btn btn-lg btn-primary" visible="false" href="javascript:window.location.href=window.location.href">Retry</a>
-                    </div>
-                    <div class="col-xs-8 text-center">
+                    </div> -->
+                    <div class="col-xs-8 col-xs-offset-2 text-center">
                         <h1>Admin</h1>
                     </div>
                     <div class="col-xs-2 checkin-actions text-right">
@@ -38,7 +38,7 @@
 
             <div class="col-xs-12 centered">
                 <asp:Label ID="lblHeader" runat="server"><h3>Checkin Type(s)</h3></asp:Label>
-                <asp:DataList ID="dlMinistry" runat="server" OnItemDataBound="dlMinistry_ItemDataBound" RepeatColumns="4" CssClass="centered">
+                <asp:DataList ID="dlMinistry" runat="server" OnItemDataBound="dlMinistry_ItemDataBound" RepeatColumns="4" CssClass="full-width centered">
                     <ItemStyle CssClass="expanded" />
                     <ItemTemplate>
                         <asp:Button ID="lbMinistry" runat="server" data-id='<%# Eval("Id") %>' CommandArgument='<%# Eval("Id") %>'

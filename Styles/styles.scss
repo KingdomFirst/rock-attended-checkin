@@ -1,0 +1,437 @@
+$base-spacing-unit: 60px;
+$font-size: 22px;
+$dark-color: #222;
+
+html {
+    text-rendering: optimizeLegibility !important;
+    -webkit-font-smoothing: antialiased !important;
+}
+
+/* Global Helpers */
+.push-top { margin-top: $base-spacing-unit; }
+.push-right { margin-right: $base-spacing-unit; }
+.push-bottom { margin-bottom: $base-spacing-unit; }
+.push-left { margin-left: $base-spacing-unit; }
+
+.flush { margin: 0px !important; }
+.flush-sides { margin-left: 0px !important; margin-right: 0px !important; }
+.flush-ends { margin-top: 0px !important; margin-bottom: 0px !important; }
+.flush-top { margin-top: 0px !important; }
+.flush-right { margin-right: 0px !important; }
+.flush-bottom { margin-bottom: 0px !important; }
+.flush-left { margin-left: 0px !important; }
+
+.hard { padding: 0px !important; }
+.hard-top { padding-top: 0px !important; }
+.hard-right { padding-right: 0px !important; }
+.hard-bottom { padding-bottom: 0px !important; }
+.hard-left { padding-left: 0px !important; }
+
+.soft { padding: $base-spacing-unit; }
+.soft-ends { padding-top: $base-spacing-unit; padding-bottom: $base-spacing-unit; }
+.soft-sides { padding-left: $base-spacing-unit; padding-right: $base-spacing-unit; }
+.soft-top { padding-top: $base-spacing-unit; }
+.soft-right { padding-right: $base-spacing-unit; }
+.soft-bottom { padding-bottom: $base-spacing-unit; }
+.soft-left { padding-left: $base-spacing-unit; }
+
+.soft-half { padding: $base-spacing-unit/2; }
+.soft-half-ends { padding-top: $base-spacing-unit/2; padding-bottom: $base-spacing-unit/2; }
+.soft-half-sides { padding-left: $base-spacing-unit/2; padding-right: $base-spacing-unit/2; }
+.soft-half-top { padding-top: $base-spacing-unit/2; }
+.soft-half-right { padding-right: $base-spacing-unit/2; }
+.soft-half-bottom { padding-bottom: $base-spacing-unit/2; }
+.soft-half-left { padding-left: $base-spacing-unit/2; }
+
+.soft-quarter { padding: $base-spacing-unit/4; }
+.soft-quarter-ends { padding-top: $base-spacing-unit/4; padding-bottom: $base-spacing-unit/4; }
+.soft-quarter-sides { padding-left: $base-spacing-unit/4; padding-right: $base-spacing-unit/4; }
+.soft-quarter-top { padding-top: $base-spacing-unit/4; }
+.soft-quarter-right { padding-right: $base-spacing-unit/4; }
+.soft-quarter-bottom { padding-bottom: $base-spacing-unit/4; }
+.soft-quarter-left { padding-left: $base-spacing-unit/4; }
+
+/* Layout */
+
+.container.body-content {
+    // padding: 0 20px 0 20px;
+    width: 100%;
+}
+
+.checkin-header {
+    padding: $base-spacing-unit/4;
+    // margin-top: 30px;
+    margin-top: 0px;
+}
+
+.checkin-header input {
+    width: 100%;
+    height: 65px;
+    margin-top: 1px;
+    margin-bottom: 0px;
+    border: 0px;
+    letter-spacing: -1px;
+
+    &::-webkit-input-placeholder { color: rgba(0,0,0,.2); }
+    &:-moz-placeholder { color: rgba(0,0,0,.2); }
+    &::-moz-placeholder { color: rgba(0,0,0,.2); }
+    &:-ms-input-placeholder { color: rgba(0,0,0,.2); }
+
+}
+
+.checkin-header input + a > .fa {
+    color: #000000;
+    font-size: 28px;
+    font-weight: 700;
+    position: absolute;
+    right: 34px;
+    top: 18px;
+}
+
+*:not(.modal-content) > .checkin-header {
+    background-color: rgba(10,10,10,0.5);
+    padding: $base-spacing-unit/3 0;
+}
+
+.modal .checkin-header {
+    background-color: transparent;
+    margin-bottom: $base-spacing-unit/2;
+}
+
+*:not(.modal-content) > .checkin-header h1 {
+    margin-bottom: 0;
+    margin-top: 10px;
+}
+
+.checkin-header {
+    h2 {
+        margin-top: $base-spacing-unit/4;
+    }
+}
+
+.checkin-footer {
+    position: relative;
+}
+
+body {
+    background-size: cover !important;
+}
+
+.datepicker, .modal-content {
+    color: #000000;
+}
+
+.three-col-with-controls td:nth-child(3) ~ td {
+    width: 100px;
+}
+
+/* Typography */
+
+h1, h2, h3, h4, h5 {
+    margin-bottom: $base-spacing-unit/2;
+}
+
+h1 { font-size: $font-size*2; line-height: $font-size*2; }
+h2 { font-size: $font-size*1.7; line-height: $font-size*1.7; }
+h3 { font-size: $font-size*1.3; line-height: $font-size*1.3; }
+h4 { font-size: $font-size*1.2; line-height: $font-size*1.2; }
+h5 { font-size: $font-size*1.1; line-height: $font-size*1.1; }
+
+/* Buttons */
+
+button.close {
+    color: #000;
+}
+
+.btn {
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.btn.active {
+    box-shadow: none;
+}
+
+.btn-primary .checkin-sub-title {
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-left: 0;
+}
+
+.btn.pagination[disabled] {
+    opacity: 0;
+}
+
+.btn.pagination {
+    width: 45%;
+    margin-top: 0;
+    font-size: 18px;
+    text-align: center;
+    padding-right: 0;
+}
+
+.btn.pagination:last-of-type {
+    float: right;
+}
+
+/* Date Picker */
+.datepicker {
+    padding: 0px;
+    overflow: hidden;
+
+    thead {
+        tr:first-child {
+            background-color: rgba(0,0,0,.7);
+            th {
+                color: white;
+
+                &:hover {
+                    background-color: rgba(0,0,0,.3);
+                }
+            }
+        }
+    }
+
+    th, td {
+        text-align: center;
+        font-size: $font-size*.7;
+    }
+
+    .day {
+        letter-spacing: -1px;
+        border-right: 1px solid #eee;
+        border-bottom: 1px solid #eee;
+
+        &:last-child {
+            border-right: 0px;
+        }
+    }
+
+    tr:last-child {
+        .day {
+            border-bottom: 0px;
+        }
+    }
+}
+
+/* Grid Items */
+
+.grid, .grid-table {
+    overflow-y: auto;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+table.table {
+    background-color: rgba(10,10,10,0.5);
+    font-size: 21px;
+    margin-bottom: 0;
+}
+
+table {
+    th, td {
+        font-size: $font-size*.82;
+        vertical-align: middle !important;
+    }
+}
+
+table thead {
+    background-color: rgba(10,10,10,0.3);
+}
+
+table td {
+    text-align: left;
+}
+
+table td.expanded{
+    padding-left: 20px;
+    min-width: 275px;
+}
+
+table td.expanded:first-child {
+    padding-left: 0;
+}
+
+.cozy table > tbody > tr td {
+    padding: 10px 8px;
+}
+
+td.day, th.prev, th.next, th.today, th.datepicker-switch {
+    cursor: pointer;
+}
+
+td.day:hover, th.prev:hover, th.next:hover, th.today:hover, th.datepicker-switch:hover, span.month:hover, span.year:hover {
+    background-color: #eeeeee;
+}
+
+th.datepicker-switch {
+    text-align: center;
+}
+
+td.day {
+    width: 14.3%;
+}
+
+tfoot {
+    display: none;
+}
+
+.grid-paging {
+    padding: 0px !important;
+}
+
+.pagination {
+    margin: 0px;
+    width: 100%;
+
+    li {
+        display: inline-block;
+        width: 8.333%;
+
+        a {
+            display: inline-block;
+            float: none;
+            width: 100%;
+            text-align: center;
+            border: 0px;
+            border-right: 1px solid rgba(0,0,0,.1);
+            font-size: $font-size*.82;
+        }
+
+        &:last-child {
+            a {
+                border-right: 0px;
+            }
+        }
+    }
+}
+
+/* Modal Colors */
+
+.modal-content .checkin-header {
+    // border-bottom: 1px solid #222222;
+    padding: 0px;
+}
+
+.modal-content .checkin-header h2 {
+    font-weight: bold;
+}
+
+.modal-content table thead, .modal-content table tfoot, .modal-content table tbody tr:nth-child(even) {
+    background-color: rgba(255,255,255,0.8);
+}
+
+.modal-content table thead a {
+    color: #000000;
+}
+
+.modal-content table tfoot ul.grid-pager li.active a {
+    background-color: #BBBBBB;
+    border-color: #BBBBBB;
+    color: #FFFFFF;
+}
+
+.modal-content table tfoot ul.grid-pager li a {
+    color: #000000;
+}
+
+.bootbox .modal-footer {
+    border-color: #cccccc;
+}
+
+.bootbox .modal-content {
+    background-color: #ffffff;
+}
+
+/* Miscellaneous */
+
+.tenkey a.digit {
+    line-height: 58px;
+}
+
+.in-the-middle, .at-the-bottom {
+    position: absolute;
+    left: 15px;
+    right: 15px;
+}
+
+.in-the-middle {
+    top: 180px;
+    bottom: 80px;
+}
+
+.at-the-bottom {
+    bottom: 0;
+}
+
+.datepicker-months, .datepicker-years {
+    max-width: 300px;
+}
+
+span.month, span.year {
+    float: left;
+    padding: 10px;
+}
+
+.large-font {
+    font-size: 1.5em;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.expanded {
+    margin-bottom: 10px;    
+}
+
+.centered {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+.checkout {
+    position:absolute;
+    min-width: 275px;
+    width: auto;
+    right: 20px;
+    bottom: 0px;
+}
+
+/*
+    Modal Styles
+*/
+
+.modal {
+    h1,h2,h3,h4,h5,p,li,label,td,th {
+        color: $dark-color;
+    }
+
+    &.modal-overflow {
+        top: 5%;
+    }
+}
+
+.modal.modal-overflow {
+    position: fixed;
+    height: auto;
+    bottom: auto;
+    max-height: 90%;
+    // top: $base-spacing-unit/3;
+    // right: $base-spacing-unit/3;
+    // bottom: $base-spacing-unit/3;
+    // left: $base-spacing-unit/3;
+    // overflow: hidden;
+}
+
+.modal-header, 
+.grid-pagesize, 
+.grid-itemcount,
+.modal:not(.bootbox) .modal-footer {
+    display: none;
+}

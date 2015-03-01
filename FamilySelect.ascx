@@ -111,12 +111,13 @@
                         </ContentTemplate>
                     </asp:UpdatePanel>
                 </div>
-
-                <div id="divNothingFound" runat="server" class="col-xs-9" visible="false">
+                
+                <!-- Nothing Found State -->
+                <h3 id="divNothingFound" runat="server" class="col-xs-12 centered" visible="false">
                     <asp:Literal ID="lblNothingFound" runat="server" EnableViewState="false" />
-                </div>
+                </h3>
 
-                <div id="divActions" runat="server" class="col-xs-3">
+                <div id="divActions" runat="server" class="col-xs-4 col-xs-offset-4">
                     <h3 id="actions" runat="server" class="text-center">Actions</h3>
 
                     <asp:LinkButton ID="lbAddVisitor" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClick="lbAddVisitor_Click" Text="Add Visitor" CausesValidation="false" EnableViewState="false" />
@@ -130,80 +131,85 @@
                 </div>
             </div>
         </asp:Panel>
-
+        
+        <!-- ADD PERSON MODAL -->
         <Rock:ModalDialog ID="mdlAddPerson" runat="server" Content-DefaultButton="lbPersonSearch">
             <Content>
-                <div class="row checkin-header">
-                    <div class="checkin-actions">
-                        <div class="col-xs-3">
-                            <Rock:BootstrapButton ID="lbClosePerson" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbClosePerson_Click" Text="Cancel" EnableViewState="false" />
-                        </div>
+                <div class="soft-quarter-ends">
+                    <!-- Modal Header -->
+                    <div class="row checkin-header">
+                        <div class="checkin-actions">
+                            <div class="col-xs-3">
+                                <Rock:BootstrapButton ID="lbClosePerson" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbClosePerson_Click" Text="Cancel" EnableViewState="false" />
+                            </div>
 
-                        <div class="col-xs-6">
-                            <h2 class="text-center">
-                                <asp:Literal ID="lblAddPersonHeader" runat="server" /></h2>
-                        </div>
+                            <div class="col-xs-6">
+                                <h2 class="text-center">
+                                    <asp:Literal ID="lblAddPersonHeader" runat="server" /></h2>
+                            </div>
 
-                        <div class="col-xs-3 text-right">
-                            <Rock:BootstrapButton ID="lbPersonSearch" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbPersonSearch_Click" Text="Search" EnableViewState="false" />
-                        </div>
-                    </div>
-                </div>
-
-                <div class="checkin-body">
-                    <div class="row">
-                        <div class="col-xs-2">
-                            <Rock:RockTextBox ID="tbFirstNamePerson" runat="server" CssClass="col-xs-12" Label="First Name" ValidationGroup="Person" />
-                        </div>
-                        <div class="col-xs-2">
-                            <Rock:RockTextBox ID="tbLastNamePerson" runat="server" CssClass="col-xs-12" Label="Last Name" ValidationGroup="Person" />
-                        </div>
-                        <div class="col-xs-1">
-                            <Rock:RockDropDownList ID="ddlSuffix" runat="server" CssClass="col-xs-12" Label="Suffix" />
-                        </div>
-                        <div class="col-xs-3">
-                            <Rock:DatePicker ID="dpDOBPerson" runat="server" Label="Date of Birth" CssClass="col-xs-12 date-picker" ValidationGroup="Person" />
-                        </div>
-                        <div class="col-xs-2">
-                            <Rock:RockDropDownList ID="ddlGenderPerson" runat="server" Label="Gender" CssClass="col-xs-12" ValidationGroup="Person" />
-                        </div>
-                        <div class="col-xs-2">
-                            <Rock:RockDropDownList ID="ddlAbilityPerson" runat="server" Label="Ability/Grade" CssClass="col-xs-12" />
+                            <div class="col-xs-3 text-right">
+                                <Rock:BootstrapButton ID="lbPersonSearch" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbPersonSearch_Click" Text="Search" EnableViewState="false" />
+                            </div>
                         </div>
                     </div>
 
-                    <div class="row">
-                        <asp:UpdatePanel ID="pnlPersonSearch" runat="server">
-                            <ContentTemplate>
-                                <div class="grid">
-                                    <Rock:Grid ID="rGridPersonResults" runat="server" OnRowCommand="rGridPersonResults_AddExistingPerson" EnableResponsiveTable="false"
-                                        OnGridRebind="rGridPersonResults_GridRebind" ShowActionRow="false" PageSize="4" DataKeyNames="Id" AllowSorting="true">
-                                        <Columns>
-                                            <asp:BoundField DataField="Id" Visible="false" />
-                                            <asp:BoundField DataField="FirstName" HeaderText="First Name" SortExpression="FirstName" />
-                                            <asp:BoundField DataField="LastName" HeaderText="Last Name" SortExpression="LastName" />
-                                            <asp:BoundField DataField="SuffixValue" HeaderText="Suffix" SortExpression="SuffixValue" />
-                                            <asp:BoundField DataField="BirthDate" HeaderText="DOB" SortExpression="BirthDate" DataFormatString="{0:MM/dd/yy}" HtmlEncode="false" />
-                                            <asp:BoundField DataField="Age" HeaderText="Age" SortExpression="Age" />
-                                            <asp:BoundField DataField="Gender" HeaderText="Gender" SortExpression="Gender" />
-                                            <asp:BoundField DataField="Attribute" HeaderText="Ability/Grade" SortExpression="Attribute" />
-                                            <asp:TemplateField>
-                                                <ItemTemplate>
-                                                    <asp:LinkButton ID="lbAdd" runat="server" CssClass="btn btn-lg btn-primary" CommandName="Add"
-                                                        Text="Add" CommandArgument="<%# ((GridViewRow) Container).RowIndex %>" CausesValidation="false"><i class="fa fa-plus"></i>
-                                                    </asp:LinkButton>
-                                                </ItemTemplate>
-                                            </asp:TemplateField>
-                                        </Columns>
-                                    </Rock:Grid>
-                                </div>
-                            </ContentTemplate>
-                        </asp:UpdatePanel>
-                    </div>
+                    <!-- Modal Body -->
+                    <div class="checkin-body">
+                        <div class="row">
+                            <div class="col-xs-2">
+                                <Rock:RockTextBox ID="tbFirstNamePerson" runat="server" CssClass="col-xs-12" Label="First Name" ValidationGroup="Person" />
+                            </div>
+                            <div class="col-xs-2">
+                                <Rock:RockTextBox ID="tbLastNamePerson" runat="server" CssClass="col-xs-12" Label="Last Name" ValidationGroup="Person" />
+                            </div>
+                            <div class="col-xs-1">
+                                <Rock:RockDropDownList ID="ddlSuffix" runat="server" CssClass="col-xs-12" Label="Suffix" />
+                            </div>
+                            <div class="col-xs-3">
+                                <Rock:DatePicker ID="dpDOBPerson" runat="server" Label="Date of Birth" CssClass="col-xs-12 date-picker" ValidationGroup="Person" />
+                            </div>
+                            <div class="col-xs-2">
+                                <Rock:RockDropDownList ID="ddlGenderPerson" runat="server" Label="Gender" CssClass="col-xs-12" ValidationGroup="Person" />
+                            </div>
+                            <div class="col-xs-2">
+                                <Rock:RockDropDownList ID="ddlAbilityPerson" runat="server" Label="Ability/Grade" CssClass="col-xs-12" />
+                            </div>
+                        </div>
 
-                    <div class="row">
-                        <div class="col-xs-12 text-right">
-                            <asp:LinkButton ID="lbNewPerson" runat="server" Text="None of these, add a new person" CssClass="btn btn-lg btn-primary btn-checkin-select" ValidationGroup="Person" CausesValidation="true" OnClick="lbNewPerson_Click" />
+                        <div class="row flush-sides">
+                            <asp:UpdatePanel ID="pnlPersonSearch" runat="server">
+                                <ContentTemplate>
+                                    <div class="grid">
+                                        <Rock:Grid ID="rGridPersonResults" runat="server" OnRowCommand="rGridPersonResults_AddExistingPerson" EnableResponsiveTable="true"
+                                            OnGridRebind="rGridPersonResults_GridRebind" ShowActionRow="false" PageSize="4" DataKeyNames="Id" AllowSorting="true">
+                                            <Columns>
+                                                <asp:BoundField DataField="Id" Visible="false" />
+                                                <asp:BoundField DataField="FirstName" HeaderText="First Name" SortExpression="FirstName" />
+                                                <asp:BoundField DataField="LastName" HeaderText="Last Name" SortExpression="LastName" />
+                                                <asp:BoundField DataField="SuffixValue" HeaderText="Suffix" SortExpression="SuffixValue" />
+                                                <asp:BoundField DataField="BirthDate" HeaderText="DOB" SortExpression="BirthDate" DataFormatString="{0:MM/dd/yy}" HtmlEncode="false" />
+                                                <asp:BoundField DataField="Age" HeaderText="Age" SortExpression="Age" />
+                                                <asp:BoundField DataField="Gender" HeaderText="Gender" SortExpression="Gender" />
+                                                <asp:BoundField DataField="Attribute" HeaderText="Ability/Grade" SortExpression="Attribute" />
+                                                <asp:TemplateField>
+                                                    <ItemTemplate>
+                                                        <asp:LinkButton ID="lbAdd" runat="server" CssClass="btn btn-lg btn-primary" CommandName="Add"
+                                                            Text="Add" CommandArgument="<%# ((GridViewRow) Container).RowIndex %>" CausesValidation="false"><i class="fa fa-plus"></i>
+                                                        </asp:LinkButton>
+                                                    </ItemTemplate>
+                                                </asp:TemplateField>
+                                            </Columns>
+                                        </Rock:Grid>
+                                    </div>
+                                </ContentTemplate>
+                            </asp:UpdatePanel>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12 text-right">
+                                <asp:LinkButton ID="lbNewPerson" runat="server" Text="None of these, add a new person" CssClass="btn btn-lg btn-primary btn-checkin-select" ValidationGroup="Person" CausesValidation="true" OnClick="lbNewPerson_Click" />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -298,33 +304,33 @@
 
         $('.modal:visible').css('z-index', Number($('.modal-backdrop').css('z-index')) + 1);
 
-        $('.person').unbind('click').on('click', function () {
-            $(this).toggleClass('active');
-            var selectedIds = $('#hfSelectedPerson').val();
-            var buttonId = this.getAttribute('data-id') + ',';
-            if (typeof selectedIds == "string" && (selectedIds.indexOf(buttonId) >= 0)) {
-                $('#hfSelectedPerson').val(selectedIds.replace(buttonId, ''));
-            } else {
-                $('#hfSelectedPerson').val(buttonId + selectedIds);
-            }
-            return false;
-        });
+        // $('.person').unbind('click').on('click', function () {
+        //     $(this).toggleClass('active');
+        //     var selectedIds = $('#hfSelectedPerson').val();
+        //     var buttonId = this.getAttribute('data-id') + ',';
+        //     if (typeof selectedIds == "string" && (selectedIds.indexOf(buttonId) >= 0)) {
+        //         $('#hfSelectedPerson').val(selectedIds.replace(buttonId, ''));
+        //     } else {
+        //         $('#hfSelectedPerson').val(buttonId + selectedIds);
+        //     }
+        //     return false;
+        // });
 
-        $('.visitor').unbind('click').on('click', function () {
-            $(this).toggleClass('active');
-            var selectedIds = $('#hfSelectedVisitor').val();
-            var buttonId = this.getAttribute('data-id') + ',';
-            if (typeof selectedIds == "string" && (selectedIds.indexOf(buttonId) >= 0)) {
-                $('#hfSelectedVisitor').val(selectedIds.replace(buttonId, ''));
-            } else {
-                $('#hfSelectedVisitor').val(buttonId + selectedIds);
-            }
-            return false;
-        });
+        // $('.visitor').unbind('click').on('click', function () {
+        //     $(this).toggleClass('active');
+        //     var selectedIds = $('#hfSelectedVisitor').val();
+        //     var buttonId = this.getAttribute('data-id') + ',';
+        //     if (typeof selectedIds == "string" && (selectedIds.indexOf(buttonId) >= 0)) {
+        //         $('#hfSelectedVisitor').val(selectedIds.replace(buttonId, ''));
+        //     } else {
+        //         $('#hfSelectedVisitor').val(buttonId + selectedIds);
+        //     }
+        //     return false;
+        // });
 
-        $('#<%= pnlFamily.ClientID %>').on('click', 'a', function () {
-            $('.nothing-eligible').html("<i class='fa fa-refresh fa-spin fa-2x'></i>");
-        });
+        // $('#<%= pnlFamily.ClientID %>').on('click', 'a', function () {
+        //     $('.nothing-eligible').html("<i class='fa fa-refresh fa-spin fa-2x'></i>");
+        // });
     };
 
     $(document).ready(function () {

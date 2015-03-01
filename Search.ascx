@@ -10,13 +10,13 @@
 
             <div class="row checkin-header">
                 <div class="col-xs-2 checkin-actions">
-                    <Rock:BootstrapButton ID="lbBack" runat="server" CssClass="btn btn-primary" OnClick="lbBack_Click" EnableViewState="false">
+                    <Rock:BootstrapButton ID="lbBack" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbBack_Click" EnableViewState="false">
                 <span class="fa fa-arrow-left"></span>
                     </Rock:BootstrapButton>
                 </div>
 
                 <div class="col-xs-8">
-                    <Rock:RockTextBox ID="tbSearchBox" MaxLength="50" CssClass="checkin-phone-entry" runat="server" Label="" TabIndex="0" autocomplete="off" />
+                    <Rock:RockTextBox ID="tbSearchBox" MaxLength="50" CssClass="checkin-phone-entry" runat="server" placeholder="Enter a Name or Phone Number" Label="" TabIndex="0" />
                     <asp:LinkButton runat="server" OnClick="lbSearch_Click">
                         <span class="fa fa-search" />
                     </asp:LinkButton>
@@ -31,26 +31,26 @@
 
             <div class="row checkin-body">
                 <div class="col-xs-4 col-xs-offset-4">
-                    <asp:Panel ID="pnlKeyPad" runat="server" Visible="false" CssClass="tenkey checkin-phone-entry ">
-                        <div>
-                            <a href="#" class="btn btn-default btn-lg digit">1</a>
-                            <a href="#" class="btn btn-default btn-lg digit">2</a>
-                            <a href="#" class="btn btn-default btn-lg digit">3</a>
+                    <asp:Panel ID="pnlKeyPad" runat="server" Visible="false" CssClass="tenkey centered push-top checkin-phone-entry ">
+                        <div class="centered">
+                            <a href="#" class="btn btn-default btn-lg digit">1</a><!-- 
+                             --><a href="#" class="btn btn-default btn-lg digit">2</a><!-- 
+                             --><a href="#" class="btn btn-default btn-lg digit">3</a>
                         </div>
-                        <div>
-                            <a href="#" class="btn btn-default btn-lg digit">4</a>
-                            <a href="#" class="btn btn-default btn-lg digit">5</a>
-                            <a href="#" class="btn btn-default btn-lg digit">6</a>
+                        <div class="centered">
+                            <a href="#" class="btn btn-default btn-lg digit">4</a><!-- 
+                             --><a href="#" class="btn btn-default btn-lg digit">5</a><!-- 
+                             --><a href="#" class="btn btn-default btn-lg digit">6</a>
                         </div>
-                        <div>
-                            <a href="#" class="btn btn-default btn-lg digit">7</a>
-                            <a href="#" class="btn btn-default btn-lg digit">8</a>
-                            <a href="#" class="btn btn-default btn-lg digit">9</a>
+                        <div class="centered">
+                            <a href="#" class="btn btn-default btn-lg digit">7</a><!-- 
+                             --><a href="#" class="btn btn-default btn-lg digit">8</a><!-- 
+                             --><a href="#" class="btn btn-default btn-lg digit">9</a>
                         </div>
-                        <div>
-                            <a href="#" class="btn btn-default btn-lg digit back"><i class='fa fa-arrow-left'></i></a>
-                            <a href="#" class="btn btn-default btn-lg digit">0</a>
-                            <a href="#" class="btn btn-default btn-lg digit clear">C</a>
+                        <div class="centered">
+                            <a href="#" class="btn btn-default btn-lg digit back"><i class='fa fa-arrow-left'></i></a><!-- 
+                             --><a href="#" class="btn btn-default btn-lg digit">0</a><!-- 
+                             --><a href="#" class="btn btn-default btn-lg digit clear">C</a>
                         </div>
                     </asp:Panel>
                 </div>

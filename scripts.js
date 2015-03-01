@@ -1,7 +1,7 @@
 ﻿var AttendedCheckin = (function () {
 
     var loadStyles = function () {
-        var relPath = '../plugins/cc_newspring/attendedcheckin/styles.css';
+        var relPath = '../plugins/cc_newspring/attendedcheckin/Styles/styles.css';
         var styleLink = $('<link>').attr('rel', 'stylesheet').attr('href', relPath);
         $('head').append(styleLink);
     };

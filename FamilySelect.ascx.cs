@@ -80,8 +80,6 @@ namespace cc.newspring.AttendedCheckin
                 {
                     ShowHideResults( false );
                 }
-
-                rGridPersonResults.PageSize = 2;
             }
         }
 
@@ -129,7 +127,6 @@ namespace cc.newspring.AttendedCheckin
                 // Show a custom message when nothing is found
                 string nothingFoundText = GetAttributeValue( "NotFoundText" );
                 divNothingFound.InnerText = nothingFoundText;
-                divNothingFound.AddCssClass( "large-font" );
                 divNothingFound.Visible = true;
             }
             else
