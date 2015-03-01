@@ -145,7 +145,7 @@ namespace cc.newspring.AttendedCheckin
                 }
                 else
                 {   // auto assignment didn't select anything
-                    checkInList.Add( new Checkins { PersonId = person.Person.Id, Name = person.Person.FullName } );
+                    checkInList.Add( new Checkins { PersonId = person.Person.Id, Name = person.Person.FullName, GroupId = 0, LocationId = 0, ScheduleId = 0 } );
                 }
             }
 
@@ -210,37 +210,46 @@ namespace cc.newspring.AttendedCheckin
 
             var selectedPerson = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault()
                 .People.Where( p => p.Person.Id == personId ).FirstOrDefault();
-            var selectedGroups = selectedPerson.GroupTypes.Where( gt => gt.Selected )
-                .SelectMany( gt => gt.Groups.Where( g => g.Selected ) );
-            CheckInGroup selectedGroup = selectedGroups.Where( g => g.Selected && g.Group.Id == groupId
-                && g.Locations.Any( l => l.Location.Id == locationId
-                    && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) ) ).FirstOrDefault();
-            CheckInLocation selectedLocation = selectedGroup.Locations.Where( l => l.Selected
-                && l.Location.Id == locationId
-                    && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) ).FirstOrDefault();
-            CheckInSchedule selectedSchedule = selectedLocation.Schedules.Where( s => s.Selected
-                && s.Schedule.Id == scheduleId ).FirstOrDefault();
 
-            selectedSchedule.Selected = false;
-            selectedSchedule.PreSelected = false;
-
-            // clear checkin rows without anything selected
-            if ( !selectedLocation.Schedules.Any( s => s.Selected ) )
-            {
-                selectedLocation.Selected = false;
-                selectedLocation.PreSelected = false;
-            }
-
-            if ( !selectedGroup.Locations.Any( l => l.Selected ) )
-            {
-                selectedGroup.Selected = false;
-                selectedGroup.PreSelected = false;
-            }
-
-            if ( !selectedGroups.Any() )
+            if ( groupId == 0 || locationId == 0 || scheduleId == 0 )
             {
                 selectedPerson.Selected = false;
                 selectedPerson.PreSelected = false;
+            }
+            else
+            {
+                var selectedGroups = selectedPerson.GroupTypes.Where( gt => gt.Selected )
+                    .SelectMany( gt => gt.Groups.Where( g => g.Selected ) );
+                CheckInGroup selectedGroup = selectedGroups.Where( g => g.Selected && g.Group.Id == groupId
+                    && g.Locations.Any( l => l.Location.Id == locationId
+                        && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) ) ).FirstOrDefault();
+                CheckInLocation selectedLocation = selectedGroup.Locations.Where( l => l.Selected
+                    && l.Location.Id == locationId
+                        && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) ).FirstOrDefault();
+                CheckInSchedule selectedSchedule = selectedLocation.Schedules.Where( s => s.Selected
+                    && s.Schedule.Id == scheduleId ).FirstOrDefault();
+
+                selectedSchedule.Selected = false;
+                selectedSchedule.PreSelected = false;
+
+                // clear checkin rows without anything selected
+                if ( !selectedLocation.Schedules.Any( s => s.Selected ) )
+                {
+                    selectedLocation.Selected = false;
+                    selectedLocation.PreSelected = false;
+                }
+
+                if ( !selectedGroup.Locations.Any( l => l.Selected ) )
+                {
+                    selectedGroup.Selected = false;
+                    selectedGroup.PreSelected = false;
+                }
+
+                if ( !selectedGroups.Any() )
+                {
+                    selectedPerson.Selected = false;
+                    selectedPerson.PreSelected = false;
+                }
             }
 
             BindGrid();
