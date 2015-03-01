@@ -165,7 +165,7 @@ namespace cc.newspring.AttendedCheckin
             lbNewFamily.Visible = showAddButtons;
         }
 
-        #endregion
+        #endregion Control Methods
 
         #region Click Events
 
@@ -376,7 +376,7 @@ namespace cc.newspring.AttendedCheckin
             }
         }
 
-        #endregion
+        #endregion Click Events
 
         #region DataBound Methods
 
@@ -468,7 +468,7 @@ namespace cc.newspring.AttendedCheckin
             }
         }
 
-        #endregion
+        #endregion DataBound Methods
 
         #region Modal Events
 
@@ -561,8 +561,8 @@ namespace cc.newspring.AttendedCheckin
                 dpDOBPerson.Required = false;
 
                 mdlAddPerson.Hide();
-                ProcessFamily();
                 ShowHideResults( checkInFamily.People.Count > 0 );
+                ProcessFamily();
             }
         }
 
@@ -612,11 +612,12 @@ namespace cc.newspring.AttendedCheckin
 
                         checkInPerson.Selected = true;
                         family.People.Add( checkInPerson );
-                        ProcessFamily();
                     }
 
                     mdlAddPerson.Hide();
                     ShowHideResults( family.People.Count > 0 );
+                    ProcessFamily();
+                    pnlContent.Update();
                 }
                 else
                 {
@@ -700,6 +701,7 @@ namespace cc.newspring.AttendedCheckin
             CurrentCheckInState.CheckIn.Families.Add( checkInFamily );
 
             mdlNewFamily.Hide();
+            ShowHideResults( checkInFamily.People.Count > 0 );
             DisplayFamily();
             ProcessFamily();
         }
@@ -764,7 +766,7 @@ namespace cc.newspring.AttendedCheckin
             BindPersonGrid();
         }
 
-        #endregion Add People Events
+        #endregion Modal Events
 
         #region Internal Methods
 
