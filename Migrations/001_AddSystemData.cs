@@ -37,6 +37,10 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             RockMigrationHelper.AddSite( "Rock Attended Check-in", "Attended Check-In Site.", "CheckinPark", "30FB46F7-4814-4691-852A-04FB56CC07F0" );
             RockMigrationHelper.AddLayout( "30FB46F7-4814-4691-852A-04FB56CC07F0", "Checkin", "Checkin", "", "3BD6CFC1-0BF2-43C8-AD38-44E711D6ACE0" );
 
+            Sql( @"
+                UPDATE [Site] SET [IsSytem] = 0 WHERE [Guid] = '30FB46F7-4814-4691-852A-04FB56CC07F0'
+            " );
+
             // Attended Check-in root page (no blocks)
             RockMigrationHelper.AddPage( "", "3BD6CFC1-0BF2-43C8-AD38-44E711D6ACE0", "Attended Check-in", "Screens for managing Attended Check-in", "32A132A6-63A2-4840-B4A5-23D80994CCBD", "" );
             Sql( @"
