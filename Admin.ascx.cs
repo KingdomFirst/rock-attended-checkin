@@ -170,19 +170,18 @@ namespace cc.newspring.AttendedCheckin
                 return;
             }
 
-            List<int> var selectedGroupTypeIds new List<int>();
-            List<Button> dlMinistries = new List<Button>();
-            foreach ( DataListItem item in dlMinistry.Items )
-            {
-                dlMinistries.Add( ( (Button)item.FindControl( "lbMinistry" ) ) );
-            }
-
-            var selectedGroupTypeIds = hfGroupTypes.Value.SplitDelimitedValues().Select( int.Parse ).Distinct().ToList();
+            List<int> selectedGroupTypeIds = hfGroupTypes.Value.SplitDelimitedValues().Select( int.Parse ).Distinct().ToList();
             if ( !selectedGroupTypeIds.Any() || !CurrentCheckInState.Kiosk.KioskGroupTypes.Any( gt => selectedGroupTypeIds.Contains( gt.GroupType.Id ) ) )
-            {
+            {   
+                hfGroupTypes.Value = string.Empty;
+                foreach ( DataListItem item in dlMinistry.Items )
+                {
+                    ( (Button)item.FindControl( "lbMinistry" ) ).RemoveCssClass( "active" );
+                }
+                
+                // Pop a warning message
                 maAlert.Show( "Please select at least one check-in type.", ModalAlertType.Warning );
-                dlMinistries.ForEach( m => m.RemoveCssClass( "active" ) );
-                //pnlContent.Update();
+                pnlContent.Update();
                 return;
             }
 

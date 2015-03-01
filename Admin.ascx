@@ -62,11 +62,12 @@
         $('.btn-grouptype').off('click').on('click', function () {
             $(this).toggleClass('active').blur();
             var selectedIds = $('input[id$="hfGroupTypes"]').val();
-            var buttonId = this.getAttribute('data-id') + ',';
-            if (typeof selectedIds == "string" && (selectedIds.indexOf(buttonId) >= 0)) {
-                $('input[id$="hfGroupTypes"]').val(selectedIds.replace(buttonId, ''));
+            var buttonId = this.getAttribute('data-id');
+            if (selectedIds.length && selectedIds.indexOf(buttonId) >= 0) {
+                var replacedIds = selectedIds.replace(buttonId, '');
+                $('input[id$="hfGroupTypes"]').val(replacedIds + ',');
             } else {
-                $('input[id$="hfGroupTypes"]').val(buttonId + selectedIds);
+                $('input[id$="hfGroupTypes"]').val(buttonId + ',' + selectedIds);
             }
             return false;
         });
