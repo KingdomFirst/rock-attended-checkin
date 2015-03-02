@@ -41,6 +41,7 @@ namespace cc.newspring.AttendedCheckin
     [Description( "Attended Check-In Confirmation Block" )]
     [LinkedPage( "Activity Select Page" )]
     [BooleanField( "Print Individual Labels", "Select this option to print one label per person's group, location, & schedule.", false )]
+    [BinaryFileTypeField( "Designated Parent Label", "Select the label you want to only be printed once.  Unselect the label to print the label every time.", false )]
     public partial class Confirm : CheckInBlock
     {
         /// <summary>
@@ -145,7 +146,7 @@ namespace cc.newspring.AttendedCheckin
                 }
                 else
                 {   // auto assignment didn't select anything
-                    checkInList.Add( new Checkins { PersonId = person.Person.Id, Name = person.Person.FullName } );
+                    checkInList.Add( new Checkins { PersonId = person.Person.Id, Name = person.Person.FullName, GroupId = 0, LocationId = 0, ScheduleId = 0 } );
                 }
             }
 
@@ -210,37 +211,46 @@ namespace cc.newspring.AttendedCheckin
 
             var selectedPerson = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault()
                 .People.Where( p => p.Person.Id == personId ).FirstOrDefault();
-            var selectedGroups = selectedPerson.GroupTypes.Where( gt => gt.Selected )
-                .SelectMany( gt => gt.Groups.Where( g => g.Selected ) );
-            CheckInGroup selectedGroup = selectedGroups.Where( g => g.Selected && g.Group.Id == groupId
-                && g.Locations.Any( l => l.Location.Id == locationId
-                    && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) ) ).FirstOrDefault();
-            CheckInLocation selectedLocation = selectedGroup.Locations.Where( l => l.Selected
-                && l.Location.Id == locationId
-                    && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) ).FirstOrDefault();
-            CheckInSchedule selectedSchedule = selectedLocation.Schedules.Where( s => s.Selected
-                && s.Schedule.Id == scheduleId ).FirstOrDefault();
 
-            selectedSchedule.Selected = false;
-            selectedSchedule.PreSelected = false;
-
-            // clear checkin rows without anything selected
-            if ( !selectedLocation.Schedules.Any( s => s.Selected ) )
-            {
-                selectedLocation.Selected = false;
-                selectedLocation.PreSelected = false;
-            }
-
-            if ( !selectedGroup.Locations.Any( l => l.Selected ) )
-            {
-                selectedGroup.Selected = false;
-                selectedGroup.PreSelected = false;
-            }
-
-            if ( !selectedGroups.Any() )
+            if ( groupId == 0 || locationId == 0 || scheduleId == 0 )
             {
                 selectedPerson.Selected = false;
                 selectedPerson.PreSelected = false;
+            }
+            else
+            {
+                var selectedGroups = selectedPerson.GroupTypes.Where( gt => gt.Selected )
+                    .SelectMany( gt => gt.Groups.Where( g => g.Selected ) );
+                CheckInGroup selectedGroup = selectedGroups.Where( g => g.Selected && g.Group.Id == groupId
+                    && g.Locations.Any( l => l.Location.Id == locationId
+                        && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) ) ).FirstOrDefault();
+                CheckInLocation selectedLocation = selectedGroup.Locations.Where( l => l.Selected
+                    && l.Location.Id == locationId
+                        && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) ).FirstOrDefault();
+                CheckInSchedule selectedSchedule = selectedLocation.Schedules.Where( s => s.Selected
+                    && s.Schedule.Id == scheduleId ).FirstOrDefault();
+
+                selectedSchedule.Selected = false;
+                selectedSchedule.PreSelected = false;
+
+                // clear checkin rows without anything selected
+                if ( !selectedLocation.Schedules.Any( s => s.Selected ) )
+                {
+                    selectedLocation.Selected = false;
+                    selectedLocation.PreSelected = false;
+                }
+
+                if ( !selectedGroup.Locations.Any( l => l.Selected ) )
+                {
+                    selectedGroup.Selected = false;
+                    selectedGroup.PreSelected = false;
+                }
+
+                if ( !selectedGroups.Any() )
+                {
+                    selectedPerson.Selected = false;
+                    selectedPerson.PreSelected = false;
+                }
             }
 
             BindGrid();
@@ -310,11 +320,12 @@ namespace cc.newspring.AttendedCheckin
         /// </summary>
         /// <param name="dataKeyArray">The data key array.</param>
         /// <returns></returns>
-        private void ProcessLabels( DataKeyArray labelKeyArray )
+        private void ProcessLabels( DataKeyArray checkinArray )
         {
             // Make sure we can save the attendance and get an attendance code
             if ( SaveAttendance() )
             {
+                string designatedParentLabel = GetAttributeValue( "DesignatedParentLabel" );
                 bool printIndividualLabels = bool.Parse( GetAttributeValue( "PrintIndividualLabels" ) ?? "false" );
                 if ( !printIndividualLabels )
                 {
@@ -323,8 +334,8 @@ namespace cc.newspring.AttendedCheckin
                 }
                 else
                 {
-                    // labelKeyArray has all the labels to be printed, whether single or multiple people are checking in
-                    foreach ( DataKey dataKey in labelKeyArray )
+                    // checkinArray has all the data to be printed, whether single or multiple people are checking in
+                    foreach ( DataKey dataKey in checkinArray )
                     {
                         var personId = Convert.ToInt32( dataKey["PersonId"] );
                         var groupId = Convert.ToInt32( dataKey["GroupId"] );
@@ -405,6 +416,10 @@ namespace cc.newspring.AttendedCheckin
                                 printFromClient.ToList().ForEach( l => l.LabelFile = urlRoot + l.LabelFile );
                                 AddLabelScript( printFromClient.ToJson() );
                             }
+
+                            //
+                            // add check for parent label already printed
+                            //
 
                             var printFromServer = groupType.Labels.Where( l => l.PrintFrom == Rock.Model.PrintFrom.Server );
                             if ( printFromServer.Any() )

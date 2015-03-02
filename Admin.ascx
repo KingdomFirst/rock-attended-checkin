@@ -1,6 +1,7 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="Admin.ascx.cs" Inherits="cc.newspring.AttendedCheckin.Admin" %>
 
-<asp:Panel ID="pnlContent" runat="server">
+<asp:UpdatePanel ID="pnlContent" runat="server" UpdateMode="Conditional">
+    <ContentTemplate>
 
     <asp:PlaceHolder ID="phScript" runat="server"></asp:PlaceHolder>
     <asp:HiddenField ID="hfLatitude" runat="server" />
@@ -8,12 +9,12 @@
     <asp:HiddenField ID="hfKiosk" runat="server" />
     <asp:HiddenField ID="hfGroupTypes" runat="server" />
 
+    <Rock:ModalAlert ID="maAlert" runat="server" />
+
     <span style="display: none">
         <asp:LinkButton ID="lbRefresh" runat="server" OnClick="lbRefresh_Click"></asp:LinkButton>
         <asp:LinkButton ID="lbCheckGeoLocation" runat="server" OnClick="lbCheckGeoLocation_Click"></asp:LinkButton>
     </span>
-
-    <Rock:ModalAlert ID="maWarning" runat="server" />
 
     <asp:Panel ID="pnlAdmin" runat="server" DefaultButton="lbOk" CssClass="attended">
         <asp:UpdatePanel ID="pnlHeader" runat="server" UpdateMode="Conditional">
@@ -49,7 +50,9 @@
             </div>
         </div>
     </asp:Panel>
-</asp:Panel>
+
+    </ContentTemplate>
+</asp:UpdatePanel>
 
 <script type="text/javascript" src="../plugins/cc_newspring/attendedcheckin/scripts.js"></script>
 
@@ -59,11 +62,12 @@
         $('.btn-grouptype').off('click').on('click', function () {
             $(this).toggleClass('active').blur();
             var selectedIds = $('input[id$="hfGroupTypes"]').val();
-            var buttonId = this.getAttribute('data-id') + ',';
-            if (typeof selectedIds == "string" && (selectedIds.indexOf(buttonId) >= 0)) {
-                $('input[id$="hfGroupTypes"]').val(selectedIds.replace(buttonId, ''));
+            var buttonId = this.getAttribute('data-id');
+            if (selectedIds.length && selectedIds.indexOf(buttonId) >= 0) {
+                var replacedIds = selectedIds.replace(buttonId, '');
+                $('input[id$="hfGroupTypes"]').val(replacedIds + ',');
             } else {
-                $('input[id$="hfGroupTypes"]').val(buttonId + selectedIds);
+                $('input[id$="hfGroupTypes"]').val(buttonId + ',' + selectedIds);
             }
             return false;
         });

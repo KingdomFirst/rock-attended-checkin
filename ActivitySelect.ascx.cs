@@ -595,8 +595,16 @@ namespace cc.newspring.AttendedCheckin
                 person.SuffixValueId = ddlSuffix.SelectedValueAsId();
                 currentPerson.Person.SuffixValueId = ddlSuffix.SelectedValueAsId();
 
-                person.BirthDate = dpDOB.SelectedDate;
-                currentPerson.Person.BirthDate = dpDOB.SelectedDate;
+                var DOB = dpDOB.SelectedDate;
+                if ( DOB != null )
+                {
+                    person.BirthDay = ( (DateTime)DOB ).Day;
+                    currentPerson.Person.BirthDay = ( (DateTime)DOB ).Day;
+                    person.BirthMonth = ( (DateTime)DOB ).Month;
+                    currentPerson.Person.BirthMonth = ( (DateTime)DOB ).Month;
+                    person.BirthYear = ( (DateTime)DOB ).Year;
+                    currentPerson.Person.BirthYear = ( (DateTime)DOB ).Year;
+                }
 
                 person.NickName = tbNickname.Text.Length > 0 ? tbNickname.Text : tbFirstName.Text;
                 currentPerson.Person.NickName = tbNickname.Text.Length > 0 ? tbNickname.Text : tbFirstName.Text;
