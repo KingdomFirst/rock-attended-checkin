@@ -38,7 +38,7 @@
 
             <div class="col-xs-12 centered">
                 <asp:Label ID="lblHeader" runat="server"><h3>Checkin Type(s)</h3></asp:Label>
-                <asp:DataList ID="dlMinistry" runat="server" OnItemDataBound="dlMinistry_ItemDataBound" RepeatColumns="4" CssClass="full-width centered">
+                <asp:DataList ID="dlMinistry" runat="server" OnItemDataBound="dlMinistry_ItemDataBound" RepeatColumns="3" CssClass="full-width centered">
                     <ItemStyle CssClass="expanded" />
                     <ItemTemplate>
                         <asp:Button ID="lbMinistry" runat="server" data-id='<%# Eval("Id") %>' CommandArgument='<%# Eval("Id") %>'
