@@ -41,7 +41,6 @@ namespace cc.newspring.AttendedCheckin
     [Description( "Attended Check-In Confirmation Block" )]
     [LinkedPage( "Activity Select Page" )]
     [BooleanField( "Print Individual Labels", "Select this option to print one label per person's group, location, & schedule.", false )]
-    [BinaryFileTypeField( "Designated Parent Label", "Select the label you want to only be printed once.  Unselect the label to print the label every time.", false )]
     public partial class Confirm : CheckInBlock
     {
         /// <summary>
