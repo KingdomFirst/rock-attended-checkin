@@ -43,37 +43,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [BooleanField( "Print Individual Labels", "Select this option to print one label per person's group, location, & schedule.", false )]
     public partial class Confirm : CheckInBlock
     {
-        /// <summary>
-        /// Check-In information class used to bind the selected grid.
-        /// </summary>
-        protected class Checkins
-        {
-            public int PersonId { get; set; }
-
-            public string Name { get; set; }
-
-            public int GroupId { get; set; }
-
-            public string Location { get; set; }
-
-            public int LocationId { get; set; }
-
-            public string Schedule { get; set; }
-
-            public int ScheduleId { get; set; }
-
-            public Checkins()
-            {
-                PersonId = 0;
-                Name = string.Empty;
-                GroupId = 0;
-                Location = string.Empty;
-                LocationId = 0;
-                Schedule = string.Empty;
-                ScheduleId = 0;
-            }
-        }
-
         #region Control Methods
 
         /// <summary>
@@ -544,5 +513,40 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         }
 
         #endregion Internal Methods
+
+
+        #region Classes
+        /// <summary>
+        /// Check-In information class used to bind the selected grid.
+        /// </summary>
+        protected class Checkins
+        {
+            public int PersonId { get; set; }
+
+            public string Name { get; set; }
+
+            public int GroupId { get; set; }
+
+            public string Location { get; set; }
+
+            public int LocationId { get; set; }
+
+            public string Schedule { get; set; }
+
+            public int ScheduleId { get; set; }
+
+            public Checkins()
+            {
+                PersonId = 0;
+                Name = string.Empty;
+                GroupId = 0;
+                Location = string.Empty;
+                LocationId = 0;
+                Schedule = string.Empty;
+                ScheduleId = 0;
+            }
+        }
+
+        #endregion
     }
 }

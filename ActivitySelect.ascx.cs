@@ -37,33 +37,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [BooleanField( "Display Group Names", "By default location names are shown.  Check this option to show the group names instead.", false )]
     public partial class ActivitySelect : CheckInBlock
     {
-        /// <summary>
-        /// Check-In information class used to bind the selected grid.
-        /// </summary>
-        protected class Activity
-        {
-            public DateTime? StartTime { get; set; }
-
-            public int GroupId { get; set; }
-
-            public string Location { get; set; }
-
-            public int LocationId { get; set; }
-
-            public string Schedule { get; set; }
-
-            public int ScheduleId { get; set; }
-
-            public Activity()
-            {
-                StartTime = new DateTime?();
-                GroupId = 0;
-                Location = string.Empty;
-                LocationId = 0;
-                Schedule = string.Empty;
-                ScheduleId = 0;
-            }
-        }
+        #region Variables
 
         /// <summary>
         /// Gets the error when a page's parameter string is invalid.
@@ -95,6 +69,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         }
 
         protected List<ScheduleAttendance> ScheduleAttendanceList = new List<ScheduleAttendance>();
+
+        #endregion
 
         #region Control Methods
 
@@ -984,5 +960,37 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         }
 
         #endregion Internal Methods
+
+        #region Classes
+
+        /// <summary>
+        /// Check-In information class used to bind the selected grid.
+        /// </summary>
+        protected class Activity
+        {
+            public DateTime? StartTime { get; set; }
+
+            public int GroupId { get; set; }
+
+            public string Location { get; set; }
+
+            public int LocationId { get; set; }
+
+            public string Schedule { get; set; }
+
+            public int ScheduleId { get; set; }
+
+            public Activity()
+            {
+                StartTime = new DateTime?();
+                GroupId = 0;
+                Location = string.Empty;
+                LocationId = 0;
+                Schedule = string.Empty;
+                ScheduleId = 0;
+            }
+        }
+
+        #endregion
     }
 }
