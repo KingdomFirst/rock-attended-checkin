@@ -77,6 +77,12 @@
             $name.val('');
         });
 
+        $(document).keydown(function (e) {
+            if (e.keyCode === 77 && e.ctrlKey) {
+                window.location.href = "/attendedcheckin/admin"
+            }
+        });
+
         // set focus to the input unless on a touch device
         var isTouchDevice = 'ontouchstart' in document.documentElement;
         if (!isTouchDevice) {
