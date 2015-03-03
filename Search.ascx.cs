@@ -20,17 +20,14 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web.UI;
-using System.Web.UI.HtmlControls;
-using System.Web.UI.WebControls;
 using Rock;
 using Rock.Attribute;
 using Rock.CheckIn;
-using Rock.Constants;
 using Rock.Model;
 using Rock.Web.Cache;
 using Rock.Web.UI.Controls;
 
-namespace cc.newspring.AttendedCheckin
+namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 {
     /// <summary>
     /// Search block for Attended Check-in

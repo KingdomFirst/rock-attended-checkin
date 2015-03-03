@@ -18,21 +18,18 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.UI;
-using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
 using Rock;
 using Rock.Attribute;
 using Rock.CheckIn;
-using Rock.Constants;
 using Rock.Data;
 using Rock.Model;
 using Rock.Web.Cache;
 using Rock.Web.UI.Controls;
 
-namespace cc.newspring.AttendedCheckin
+namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 {
     /// <summary>
     /// Admin block for Attended Check-in
@@ -172,13 +169,13 @@ namespace cc.newspring.AttendedCheckin
 
             List<int> selectedGroupTypeIds = hfGroupTypes.Value.SplitDelimitedValues().Select( int.Parse ).Distinct().ToList();
             if ( !selectedGroupTypeIds.Any() || !CurrentCheckInState.Kiosk.KioskGroupTypes.Any( gt => selectedGroupTypeIds.Contains( gt.GroupType.Id ) ) )
-            {   
+            {
                 hfGroupTypes.Value = string.Empty;
                 foreach ( DataListItem item in dlMinistry.Items )
                 {
                     ( (Button)item.FindControl( "lbMinistry" ) ).RemoveCssClass( "active" );
                 }
-                
+
                 // Pop a warning message
                 maAlert.Show( "Please select at least one check-in type.", ModalAlertType.Warning );
                 pnlContent.Update();

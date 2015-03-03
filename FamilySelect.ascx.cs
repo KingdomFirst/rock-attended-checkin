@@ -29,7 +29,7 @@ using Rock.Model;
 using Rock.Web.Cache;
 using Rock.Web.UI.Controls;
 
-namespace cc.newspring.AttendedCheckin
+namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 {
     /// <summary>
     /// Family Select block for Attended Check-in

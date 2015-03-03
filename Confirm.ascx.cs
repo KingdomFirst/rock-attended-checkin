@@ -31,7 +31,7 @@ using Rock.Model;
 using Rock.Web.UI;
 using Rock.Web.UI.Controls;
 
-namespace cc.newspring.AttendedCheckin
+namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 {
     /// <summary>
     /// Confirmation block for Attended Check-in
