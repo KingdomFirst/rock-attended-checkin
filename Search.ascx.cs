@@ -139,8 +139,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         }
                     }
 
-                    int searchNumber;
-                    if ( int.TryParse( searchInput, out searchNumber ) )
+                    double searchNumber;
+                    if ( Double.TryParse( searchInput, out searchNumber ) )
                     {
                         CurrentCheckInState.CheckIn.SearchType = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.CHECKIN_SEARCH_TYPE_PHONE_NUMBER );
                     }
