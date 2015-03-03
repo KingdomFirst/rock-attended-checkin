@@ -360,7 +360,8 @@ namespace cc.newspring.AttendedCheckin
                 }
 
                 var lbLocation = (LinkButton)e.Item.FindControl( "lbLocation" );
-                lbLocation.Text = string.Format( "{0} ({1})", displayName, KioskLocationAttendance.Read( locationId ).CurrentCount.ToString() );
+
+                lbLocation.Text = string.Format( "{0} ({1})", displayName.Truncate( 18 ), KioskLocationAttendance.Read( locationId ).CurrentCount.ToString() );
                 lbLocation.CommandArgument = locationId.ToString();
 
                 if ( optionSelected )
@@ -382,14 +383,13 @@ namespace cc.newspring.AttendedCheckin
                 var schedule = (CheckInSchedule)e.Item.DataItem;
                 var lbSchedule = (LinkButton)e.Item.FindControl( "lbSchedule" );
                 lbSchedule.CommandArgument = schedule.Schedule.Id.ToString();
-                lbSchedule.Text = schedule.Schedule.Name;
                 if ( schedule.Selected )
                 {
                     lbSchedule.AddCssClass( "active" );
                 }
 
                 var scheduleAttendance = ScheduleAttendanceList.Where( s => s.ScheduleId == schedule.Schedule.Id );
-                lbSchedule.Text += string.Format( " ({0})", scheduleAttendance.Select( s => s.AttendanceCount ).FirstOrDefault() );
+                lbSchedule.Text = string.Format( "{0} ({1})", schedule.Schedule.Name.Truncate( 18 ), scheduleAttendance.Select( s => s.AttendanceCount ).FirstOrDefault() );
             }
         }
 
@@ -883,10 +883,10 @@ namespace cc.newspring.AttendedCheckin
                 ScheduleAttendanceList.Clear();
                 foreach ( var schedule in location.Schedules )
                 {
-                    ScheduleAttendance sa = new ScheduleAttendance();
-                    sa.ScheduleId = schedule.Schedule.Id;
-                    sa.AttendanceCount = attendanceQuery.Where( l => l.ScheduleId == sa.ScheduleId ).Count();
-                    ScheduleAttendanceList.Add( sa );
+                    var attendance = new ScheduleAttendance();
+                    attendance.ScheduleId = schedule.Schedule.Id;
+                    attendance.AttendanceCount = attendanceQuery.Where( l => l.ScheduleId == attendance.ScheduleId ).Count();
+                    ScheduleAttendanceList.Add( attendance );
                 }
             }
         }
