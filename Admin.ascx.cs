@@ -183,8 +183,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
             ClearMobileCookie();
             CurrentGroupTypeIds = groupTypeIds;
-            CurrentCheckInState = null;
-            CurrentWorkflow = null;
+            //CurrentCheckInState = null;
+            //CurrentWorkflow = null;
             SaveState();
             NavigateToNextPage();
         }
