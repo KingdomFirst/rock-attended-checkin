@@ -42,6 +42,7 @@
                                         <span class='checkin-sub-title'>
                                             <%# Eval("SubCaption") %>
                                         </span>
+                                        <div class='fa fa-refresh fa-spin'></div>
                                     </asp:LinkButton>
                                 </ItemTemplate>
                             </asp:ListView>
@@ -313,7 +314,6 @@
         $('.family').unbind('click').on('click', function () {
             $(this).toggleClass('active');
             $(this).siblings('.family').removeClass('active');
-            $(this).append("<i class='fa fa-refresh fa-spin' />");
         });
 
         $('.person').unbind('click').on('click', function () {
@@ -340,8 +340,13 @@
             return false;
         });
 
-        $('.processing').unbind('click').on('click', function () {
-            $(this).append("<i class='fa fa-refresh fa-spin' />");
+        // $('.processing').unbind('click').on('click', function () {
+        //     $(this).append("<i class='fa fa-refresh fa-spin' />");
+        // });
+        $('.family.btn-primary').unbind('click').on('click', function(){
+            if (!$(this).hasClass('btn-loading')) {
+                $(this).addClass('btn-loading');
+            }
         });
     };
 

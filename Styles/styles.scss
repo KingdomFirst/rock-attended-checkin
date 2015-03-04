@@ -13,6 +13,11 @@ html {
 .push-bottom { margin-bottom: $base-spacing-unit; }
 .push-left { margin-left: $base-spacing-unit; }
 
+.push-quarter-top { margin-top: $base-spacing-unit/4; }
+.push-quarter-right { margin-right: $base-spacing-unit/4; }
+.push-quarter-bottom { margin-bottom: $base-spacing-unit/4; }
+.push-quarter-left { margin-left: $base-spacing-unit/4; }
+
 .flush { margin: 0px !important; }
 .flush-sides { margin-left: 0px !important; margin-right: 0px !important; }
 .flush-ends { margin-top: 0px !important; margin-bottom: 0px !important; }
@@ -258,7 +263,7 @@ table thead {
     }
 
     td {
-        padding: 8px 15px !important;
+        padding: 6px 15px !important;
     }
 }
 
@@ -510,4 +515,28 @@ span.month, span.year {
 .grid-itemcount,
 .modal:not(.bootbox) .modal-footer {
     display: none;
+}
+
+.family {
+    position: relative;
+
+    .fa-spin {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        height: 24px;
+        width: 24px;
+        margin-top: -12px;
+        margin-left: -12px;
+        opacity: 0;
+    }
+
+    &.btn-loading {
+        color: transparent;
+
+        .fa-spin {
+            color: white;
+            opacity: 1;
+        }
+    }
 }
