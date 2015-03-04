@@ -41,6 +41,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [TextField( "Not Found Text", "What text should display when the nothing is found?", true, "Please add them using one of the buttons on the right" )]
     public partial class FamilySelect : CheckInBlock
     {
+        #region Variables
+
         private int? KioskCampusId
         {
             get
@@ -61,6 +63,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }
             }
         }
+
+        #endregion
 
         #region Control Methods
 
@@ -123,6 +127,12 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 familyList.FirstOrDefault().Selected = true;
             }
 
+            if ( familyList.Any() )
+            {
+                dpFamilyPager.Visible = true;
+                dpFamilyPager.SetPageProperties( 0, dpFamilyPager.MaximumRows, false );
+            }
+
             lvFamily.DataSource = familyList;
             lvFamily.DataBind();
             pnlFamily.Update();
@@ -140,7 +150,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             pnlPerson.Visible = hasValidResults;
             pnlVisitor.Visible = hasValidResults;
             actions.Visible = hasValidResults;
-            lbCheckout.Visible = hasValidResults;
+            //lbCheckout.Visible = hasValidResults;
 
             if ( !hasValidResults )
             {
@@ -221,7 +231,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         protected void lvFamily_ItemCommand( object sender, ListViewCommandEventArgs e )
         {
             int id = int.Parse( e.CommandArgument.ToString() );
-            var family = CurrentCheckInState.CheckIn.Families.Where( f => f.Group.Id == 147 ).FirstOrDefault();
+            var family = CurrentCheckInState.CheckIn.Families.Where( f => f.Group.Id == id ).FirstOrDefault();
 
             foreach ( ListViewDataItem li in ( (ListView)sender ).Items )
             {
@@ -240,21 +250,12 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 family.Selected = false;
                 lvPerson.DataSource = null;
                 lvPerson.DataBind();
+                dpPersonPager.Visible = false;
+                pnlPerson.Update();
                 lvVisitor.DataSource = null;
                 lvVisitor.DataBind();
-                return;
-            }
-
-            if ( lvPerson.DataSource != null )
-            {
-                dpPersonPager.Visible = true;
-                dpPersonPager.SetPageProperties( 0, dpPersonPager.MaximumRows, false );
-            }
-
-            if ( lvVisitor.DataSource != null )
-            {
-                dpVisitorPager.Visible = true;
-                dpVisitorPager.SetPageProperties( 0, dpVisitorPager.MaximumRows, false );
+                dpVisitorPager.Visible = false;
+                pnlVisitor.Update();
             }
         }
 
@@ -562,7 +563,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                 mdlAddPerson.Hide();
                 ShowHideResults( checkInFamily.People.Count > 0 );
-                ProcessFamily();
+                //ProcessFamily();
             }
         }
 
@@ -616,7 +617,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                     mdlAddPerson.Hide();
                     ShowHideResults( family.People.Count > 0 );
-                    ProcessFamily();
+                    //ProcessFamily();
                     pnlContent.Update();
                 }
                 else
@@ -885,11 +886,12 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var errors = new List<string>();
             if ( ProcessActivity( "Person Search", out errors ) )
             {
+                IEnumerable<CheckInPerson> memberDataSource = null;
+                IEnumerable<CheckInPerson> visitorDataSource = null;
+
                 var family = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault();
                 if ( family != null )
                 {
-                    IEnumerable<CheckInPerson> memberDataSource = null;
-                    IEnumerable<CheckInPerson> visitorDataSource = null;
                     if ( family.People.Any() )
                     {
                         if ( family.People.Where( f => f.FamilyMember ).Any() )
@@ -906,14 +908,28 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                             visitorDataSource = familyVisitors.OrderBy( p => p.Person.FullNameReversed ).ToList();
                         }
                     }
-
-                    lvPerson.DataSource = memberDataSource;
-                    lvPerson.DataBind();
-                    pnlPerson.Update();
-                    lvVisitor.DataSource = visitorDataSource;
-                    lvVisitor.DataBind();
-                    pnlVisitor.Update();
                 }
+
+                lvPerson.DataSource = memberDataSource;
+                lvPerson.DataBind();
+                lvVisitor.DataSource = visitorDataSource;
+                lvVisitor.DataBind();
+
+                if ( memberDataSource != null )
+                {
+                    dpPersonPager.Visible = true;
+                    dpPersonPager.SetPageProperties( 0, dpPersonPager.MaximumRows, false );
+                }
+
+                if ( lvVisitor.DataSource != null )
+                {
+                    dpVisitorPager.Visible = true;
+                    dpVisitorPager.SetPageProperties( 0, dpVisitorPager.MaximumRows, false );
+                }
+
+                // Force an update
+                pnlPerson.Update();
+                pnlVisitor.Update();
             }
             else
             {
