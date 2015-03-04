@@ -36,13 +36,13 @@
                             <asp:ListView ID="lvFamily" runat="server" OnPagePropertiesChanging="lvFamily_PagePropertiesChanging"
                                 OnItemCommand="lvFamily_ItemCommand" OnItemDataBound="lvFamily_ItemDataBound">
                                 <ItemTemplate>
-                                    <asp:LinkButton ID="lbSelectFamily" runat="server" CommandArgument='<%# Eval("Group.Id") %>' CausesValidation="false"
-                                        CssClass="btn btn-primary btn-lg btn-block btn-checkin-select family">
+                                    <Rock:BootstrapButton ID="lbSelectFamily" runat="server" CommandArgument='<%# Eval("Group.Id") %>' CausesValidation="false"
+                                        CssClass="btn btn-primary btn-lg btn-block btn-checkin-select">
 						                <%# Eval("Caption") %><br />
                                         <span class='checkin-sub-title'>
                                             <%# Eval("SubCaption") %>
                                         </span>
-                                    </asp:LinkButton>
+                                    </Rock:BootstrapButton>
                                 </ItemTemplate>
                             </asp:ListView>
                             <asp:DataPager ID="dpFamilyPager" runat="server" PageSize="4" PagedControlID="lvFamily">
@@ -63,13 +63,13 @@
 
                             <asp:ListView ID="lvPerson" runat="server" OnItemDataBound="lvPerson_ItemDataBound" OnPagePropertiesChanging="lvPerson_PagePropertiesChanging">
                                 <ItemTemplate>
-                                    <asp:LinkButton ID="lbSelectPerson" runat="server" data-id='<%# Eval("Person.Id") %>' CssClass="btn btn-primary btn-lg btn-block btn-checkin-select person">
+                                    <Rock:BootstrapButton ID="lbSelectPerson" runat="server" data-id='<%# Eval("Person.Id") %>' CssClass="btn btn-primary btn-lg btn-block btn-checkin-select person">
 						                <%# Eval("Person.FullName") %><br />
 						                <span class='checkin-sub-title'>
 							                Birthday: <%# Eval("Person.BirthMonth") + "/" + Eval("Person.BirthDay") + " " ?? "N/A " %>
                                             <%# Convert.ToInt32( Eval( "Person.Age" ) ) <= 18 ? "Age: " + Eval( "Person.Age" ) : string.Empty %>
 						                </span>
-                                    </asp:LinkButton>
+                                    </Rock:BootstrapButton>
                                 </ItemTemplate>
                                 <EmptyDataTemplate>
                                     <div class="text-center large-font">
@@ -95,13 +95,13 @@
 
                             <asp:ListView ID="lvVisitor" runat="server" OnItemDataBound="lvVisitor_ItemDataBound" OnPagePropertiesChanging="lvVisitor_PagePropertiesChanging">
                                 <ItemTemplate>
-                                    <asp:LinkButton ID="lbSelectVisitor" runat="server" data-id='<%# Eval("Person.Id") %>' CssClass="btn btn-primary btn-lg btn-block btn-checkin-select visitor">
+                                    <Rock:BootstrapButton ID="lbSelectVisitor" runat="server" data-id='<%# Eval("Person.Id") %>' CssClass="btn btn-primary btn-lg btn-block btn-checkin-select visitor">
 						                <%# Eval("Person.FullName") %><br />
 						                <span class='checkin-sub-title'>
 							                Birthday: <%# Eval("Person.BirthMonth") + "/" + Eval("Person.BirthDay") + " " ?? "N/A " %>
                                             <%# Convert.ToInt32( Eval( "Person.Age" ) ) <= 18 ? "Age: " + Eval( "Person.Age" ) : string.Empty %>
 						                </span>
-                                    </asp:LinkButton>
+                                    </Rock:BootstrapButton>
                                 </ItemTemplate>
                             </asp:ListView>
                             <asp:DataPager ID="dpVisitorPager" runat="server" PageSize="4" PagedControlID="lvVisitor">
@@ -299,11 +299,6 @@
 
         $('.modal:visible').css('z-index', Number($('.modal-backdrop').css('z-index')) + 1);
 
-        $('.family').unbind('click').on('click', function () {
-            $(this).toggleClass('active');
-            $(this).siblings('.family').removeClass('active');
-        });
-
         $('.person').unbind('click').on('click', function () {
             $(this).toggleClass('active');
             var selectedIds = $('#hfSelectedPerson').val();
@@ -326,10 +321,6 @@
                 $('#hfSelectedVisitor').val(buttonId + selectedIds);
             }
             return false;
-        });
-
-        $('#<%= pnlFamily.ClientID %>').on('click', 'a', function () {
-            $('.nothing-eligible').html("<i class='fa fa-refresh fa-spin fa-2x'></i>");
         });
     };
 
