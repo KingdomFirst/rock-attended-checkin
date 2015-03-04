@@ -18,21 +18,18 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.UI;
-using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
 using Rock;
 using Rock.Attribute;
 using Rock.CheckIn;
-using Rock.Constants;
 using Rock.Data;
 using Rock.Model;
 using Rock.Web.Cache;
 using Rock.Web.UI.Controls;
 
-namespace cc.newspring.AttendedCheckin
+namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 {
     /// <summary>
     /// Admin block for Attended Check-in
@@ -56,16 +53,18 @@ namespace cc.newspring.AttendedCheckin
             {
                 RockPage.AddScriptLink( "~/Blocks/CheckIn/Scripts/geo-min.js" );
 
-                bool enableLocationSharing = bool.Parse( GetAttributeValue( "EnableLocationSharing" ) ?? "false" );
-                if ( enableLocationSharing )
-                {
-                    lbRetry.Visible = true;
-                    AddGeoLocationScript();
-                }
-                else
-                {
-                    AttemptKioskMatchByIpOrName();
-                }
+                AttemptKioskMatchByIpOrName();
+
+                //bool enableLocationSharing = bool.Parse( GetAttributeValue( "EnableLocationSharing" ) ?? "false" );
+                //if ( !enableLocationSharing )
+                //{
+                //    AttemptKioskMatchByIpOrName();
+                //}
+                //else
+                //{
+                //    lbRetry.Visible = true;
+                //    AddGeoLocationScript();
+                //}
 
                 string script = string.Format( @"
                 <script>
@@ -84,18 +83,12 @@ namespace cc.newspring.AttendedCheckin
                 ", this.Page.ClientScript.GetPostBackEventReference( lbRefresh, "" ) );
                 phScript.Controls.Add( new LiteralControl( script ) );
 
-                if ( CurrentKioskId.HasValue && !UserBackedUp && CurrentGroupTypeIds != null )
-                {
-                    NavigateToNextPage();
-                }
-                else if ( !CurrentKioskId.HasValue )
-                {
-                    maAlert.Show( "This device has not been set up for check-in.", ModalAlertType.Warning );
-                    lbOk.Visible = false;
-                    pnlHeader.Update();
-                    return;
-                }
+                //if ( CurrentKioskId.HasValue && !UserBackedUp && CurrentGroupTypeIds != null )
+                //{
+                //    NavigateToNextPage();
+                //}
 
+                // Initiate the check-in variables
                 lbOk.Focus();
                 SaveState();
             }
@@ -146,10 +139,6 @@ namespace cc.newspring.AttendedCheckin
                 CurrentKioskId = device.Id;
                 BindGroupTypes( hfGroupTypes.Value );
             }
-            else
-            {
-                lblHeader.Visible = false;
-            }
         }
 
         #endregion Control Methods
@@ -171,15 +160,14 @@ namespace cc.newspring.AttendedCheckin
             }
 
             List<int> selectedGroupTypeIds = hfGroupTypes.Value.SplitDelimitedValues().Select( int.Parse ).Distinct().ToList();
-            if ( !selectedGroupTypeIds.Any() || !CurrentCheckInState.Kiosk.KioskGroupTypes.Any( gt => selectedGroupTypeIds.Contains( gt.GroupType.Id ) ) )
-            {   
+            if ( !selectedGroupTypeIds.Any() )
+            {
                 hfGroupTypes.Value = string.Empty;
                 foreach ( DataListItem item in dlMinistry.Items )
                 {
                     ( (Button)item.FindControl( "lbMinistry" ) ).RemoveCssClass( "active" );
                 }
-                
-                // Pop a warning message
+
                 maAlert.Show( "Please select at least one check-in type.", ModalAlertType.Warning );
                 pnlContent.Update();
                 return;
@@ -195,8 +183,8 @@ namespace cc.newspring.AttendedCheckin
 
             ClearMobileCookie();
             CurrentGroupTypeIds = groupTypeIds;
-            CurrentCheckInState = null;
-            CurrentWorkflow = null;
+            //CurrentCheckInState = null;
+            //CurrentWorkflow = null;
             SaveState();
             NavigateToNextPage();
         }
@@ -212,7 +200,6 @@ namespace cc.newspring.AttendedCheckin
         /// </summary>
         private void AddGeoLocationScript()
         {
-            /*
             string geoScript = string.Format( @"
             <script>
                 $(document).ready(function (e) {{
@@ -247,8 +234,7 @@ namespace cc.newspring.AttendedCheckin
                 }});
             </script>
             ", this.Page.ClientScript.GetPostBackEventReference( lbCheckGeoLocation, "" ) );
-                phScript.Controls.Add( new LiteralControl( geoScript ) );
-            */
+            phScript.Controls.Add( new LiteralControl( geoScript ) );
         }
 
         /// <summary>
@@ -365,10 +351,8 @@ namespace cc.newspring.AttendedCheckin
                 var kiosk = new DeviceService( new RockContext() ).Get( (int)CurrentKioskId );
                 if ( kiosk != null )
                 {
-                    var groupTypes = GetDeviceGroupTypes( kiosk.Id );
                     hfGroupTypes.Value = selectedGroupTypes;
-
-                    dlMinistry.DataSource = groupTypes;
+                    dlMinistry.DataSource = GetDeviceGroupTypes( kiosk.Id );
                     dlMinistry.DataBind();
                 }
             }

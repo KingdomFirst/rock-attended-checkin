@@ -20,17 +20,14 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web.UI;
-using System.Web.UI.HtmlControls;
-using System.Web.UI.WebControls;
 using Rock;
 using Rock.Attribute;
 using Rock.CheckIn;
-using Rock.Constants;
 using Rock.Model;
 using Rock.Web.Cache;
 using Rock.Web.UI.Controls;
 
-namespace cc.newspring.AttendedCheckin
+namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 {
     /// <summary>
     /// Search block for Attended Check-in
@@ -76,6 +73,7 @@ namespace cc.newspring.AttendedCheckin
                 {
                     DateTimeOffset activeAt = CurrentCheckInState.Kiosk.FilteredGroupTypes( CurrentGroupTypeIds ).Select( g => g.NextActiveTime ).Min();
                     maWarning.Show( "There are no active schedules for this kiosk.", ModalAlertType.Information );
+                    pnlContent.Update();
                     return;
                 }
                 else if ( CurrentCheckInState != null && !string.IsNullOrWhiteSpace( CurrentCheckInState.CheckIn.SearchValue ) )
@@ -141,8 +139,8 @@ namespace cc.newspring.AttendedCheckin
                         }
                     }
 
-                    int searchNumber;
-                    if ( int.TryParse( searchInput, out searchNumber ) )
+                    double searchNumber;
+                    if ( Double.TryParse( searchInput, out searchNumber ) )
                     {
                         CurrentCheckInState.CheckIn.SearchType = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.CHECKIN_SEARCH_TYPE_PHONE_NUMBER );
                     }

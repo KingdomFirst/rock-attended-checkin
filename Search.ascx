@@ -1,4 +1,4 @@
-﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="Search.ascx.cs" Inherits="cc.newspring.AttendedCheckin.Search" %>
+﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="Search.ascx.cs" Inherits="RockWeb.Plugins.cc_newspring.AttendedCheckin.Search" %>
 
 <asp:UpdatePanel ID="pnlContent" runat="server" UpdateMode="Conditional">
     <ContentTemplate>
@@ -75,6 +75,12 @@
         $('.tenkey a.clear').unbind('click').click(function () {
             $name = $("input[id$='tbSearchBox']");
             $name.val('');
+        });
+
+        $(document).keydown(function (e) {
+            if (e.keyCode === 77 && e.ctrlKey) {
+                window.location.href = "/attendedcheckin/admin"
+            }
         });
 
         // set focus to the input unless on a touch device

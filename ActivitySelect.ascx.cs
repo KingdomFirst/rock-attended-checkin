@@ -29,7 +29,7 @@ using Rock.Model;
 using Rock.Web.Cache;
 using Rock.Web.UI.Controls;
 
-namespace cc.newspring.AttendedCheckin
+namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 {
     [DisplayName( "Activity Select" )]
     [Category( "Check-in > Attended" )]
@@ -37,33 +37,7 @@ namespace cc.newspring.AttendedCheckin
     [BooleanField( "Display Group Names", "By default location names are shown.  Check this option to show the group names instead.", false )]
     public partial class ActivitySelect : CheckInBlock
     {
-        /// <summary>
-        /// Check-In information class used to bind the selected grid.
-        /// </summary>
-        protected class Activity
-        {
-            public DateTime? StartTime { get; set; }
-
-            public int GroupId { get; set; }
-
-            public string Location { get; set; }
-
-            public int LocationId { get; set; }
-
-            public string Schedule { get; set; }
-
-            public int ScheduleId { get; set; }
-
-            public Activity()
-            {
-                StartTime = new DateTime?();
-                GroupId = 0;
-                Location = string.Empty;
-                LocationId = 0;
-                Schedule = string.Empty;
-                ScheduleId = 0;
-            }
-        }
+        #region Variables
 
         /// <summary>
         /// Gets the error when a page's parameter string is invalid.
@@ -95,6 +69,8 @@ namespace cc.newspring.AttendedCheckin
         }
 
         protected List<ScheduleAttendance> ScheduleAttendanceList = new List<ScheduleAttendance>();
+
+        #endregion
 
         #region Control Methods
 
@@ -360,7 +336,8 @@ namespace cc.newspring.AttendedCheckin
                 }
 
                 var lbLocation = (LinkButton)e.Item.FindControl( "lbLocation" );
-                lbLocation.Text = string.Format( "{0} ({1})", displayName, KioskLocationAttendance.Read( locationId ).CurrentCount.ToString() );
+
+                lbLocation.Text = string.Format( "{0} ({1})", displayName.Truncate( 18 ), KioskLocationAttendance.Read( locationId ).CurrentCount.ToString() );
                 lbLocation.CommandArgument = locationId.ToString();
 
                 if ( optionSelected )
@@ -382,14 +359,13 @@ namespace cc.newspring.AttendedCheckin
                 var schedule = (CheckInSchedule)e.Item.DataItem;
                 var lbSchedule = (LinkButton)e.Item.FindControl( "lbSchedule" );
                 lbSchedule.CommandArgument = schedule.Schedule.Id.ToString();
-                lbSchedule.Text = schedule.Schedule.Name;
                 if ( schedule.Selected )
                 {
                     lbSchedule.AddCssClass( "active" );
                 }
 
                 var scheduleAttendance = ScheduleAttendanceList.Where( s => s.ScheduleId == schedule.Schedule.Id );
-                lbSchedule.Text += string.Format( " ({0})", scheduleAttendance.Select( s => s.AttendanceCount ).FirstOrDefault() );
+                lbSchedule.Text = string.Format( "{0} ({1})", schedule.Schedule.Name.Truncate( 18 ), scheduleAttendance.Select( s => s.AttendanceCount ).FirstOrDefault() );
             }
         }
 
@@ -883,10 +859,10 @@ namespace cc.newspring.AttendedCheckin
                 ScheduleAttendanceList.Clear();
                 foreach ( var schedule in location.Schedules )
                 {
-                    ScheduleAttendance sa = new ScheduleAttendance();
-                    sa.ScheduleId = schedule.Schedule.Id;
-                    sa.AttendanceCount = attendanceQuery.Where( l => l.ScheduleId == sa.ScheduleId ).Count();
-                    ScheduleAttendanceList.Add( sa );
+                    var attendance = new ScheduleAttendance();
+                    attendance.ScheduleId = schedule.Schedule.Id;
+                    attendance.AttendanceCount = attendanceQuery.Where( l => l.ScheduleId == attendance.ScheduleId ).Count();
+                    ScheduleAttendanceList.Add( attendance );
                 }
             }
         }
@@ -984,5 +960,37 @@ namespace cc.newspring.AttendedCheckin
         }
 
         #endregion Internal Methods
+
+        #region Classes
+
+        /// <summary>
+        /// Check-In information class used to bind the selected grid.
+        /// </summary>
+        protected class Activity
+        {
+            public DateTime? StartTime { get; set; }
+
+            public int GroupId { get; set; }
+
+            public string Location { get; set; }
+
+            public int LocationId { get; set; }
+
+            public string Schedule { get; set; }
+
+            public int ScheduleId { get; set; }
+
+            public Activity()
+            {
+                StartTime = new DateTime?();
+                GroupId = 0;
+                Location = string.Empty;
+                LocationId = 0;
+                Schedule = string.Empty;
+                ScheduleId = 0;
+            }
+        }
+
+        #endregion
     }
 }

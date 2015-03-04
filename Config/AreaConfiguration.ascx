@@ -1,4 +1,4 @@
-﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="AreaConfiguration.ascx.cs" Inherits="cc.newspring.AttendedCheckin.Config.AreaConfiguration" %>
+﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="AreaConfiguration.ascx.cs" Inherits="RockWeb.Plugins.cc_newspring.AttendedCheckin.AreaConfiguration" %>
 
 <asp:UpdatePanel ID="upDetail" runat="server">
     <ContentTemplate>

@@ -30,7 +30,7 @@ using Rock.Web.Cache;
 using Rock.Web.UI;
 using Rock.Web.UI.Controls;
 
-namespace cc.newspring.AttendedCheckin.Config
+namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 {
     /// <summary>
     ///
