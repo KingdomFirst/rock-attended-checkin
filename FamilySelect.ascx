@@ -196,7 +196,7 @@
                                                     <asp:TemplateField>
                                                         <ItemTemplate>
                                                             <asp:LinkButton ID="lbAdd" runat="server" CssClass="btn btn-lg btn-primary processing" CommandName="Add"
-                                                                Text="Add" CommandArgument="<%# ((GridViewRow) Container).RowIndex %>" CausesValidation="false"><i class="fa fa-plus"></i>
+                                                                Text="Add" CommandArgument="<%# ((GridViewRow) Container).RowIndex %>" CausesValidation="false">
                                                             </asp:LinkButton>
                                                         </ItemTemplate>
                                                     </asp:TemplateField>
@@ -210,7 +210,7 @@
                             <div class="row">
                                 <div class="soft-quarter-sides">
                                     <div class="col-xs-12 text-right">
-                                        <asp:LinkButton ID="lbNewPerson" runat="server" Text="None of these, add a new person" CssClass="btn btn-lg btn-primary btn-checkin-select processing"
+                                        <asp:LinkButton ID="lbNewPerson" runat="server" Text="None of these, add a new person" CssClass="btn btn-lg btn-primary btn-checkin-select"
                                             OnClick="lbNewPerson_Click" ValidationGroup="Person" CausesValidation="true" />
                                     </div>
                                 </div>
@@ -314,6 +314,9 @@
         $('.family').unbind('click').on('click', function () {
             $(this).toggleClass('active');
             $(this).siblings('.family').removeClass('active');
+            if (!$(this).hasClass('btn-loading')) {
+                $(this).addClass('btn-loading');
+            }
         });
 
         $('.person').unbind('click').on('click', function () {
@@ -338,15 +341,6 @@
                 $('#hfSelectedVisitor').val(buttonId + selectedIds);
             }
             return false;
-        });
-
-        // $('.processing').unbind('click').on('click', function () {
-        //     $(this).append("<i class='fa fa-refresh fa-spin' />");
-        // });
-        $('.family.btn-primary').unbind('click').on('click', function(){
-            if (!$(this).hasClass('btn-loading')) {
-                $(this).addClass('btn-loading');
-            }
         });
     };
 
