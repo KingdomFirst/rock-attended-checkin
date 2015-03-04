@@ -266,6 +266,12 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbAddVisitor_Click( object sender, EventArgs e )
         {
+            if ( !CurrentCheckInState.CheckIn.Families.Any( f => f.Selected ) )
+            {
+                maWarning.Show( "No family selected.  Please use the Add Family button.", ModalAlertType.Warning );
+                return;
+            }
+
             lblAddPersonHeader.Text = "Add Visitor";
             newPersonType.Value = "Visitor";
             SetRequiredFields();
@@ -279,6 +285,12 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbAddFamilyMember_Click( object sender, EventArgs e )
         {
+            if ( !CurrentCheckInState.CheckIn.Families.Any( f => f.Selected ) )
+            {
+                maWarning.Show( "No family selected.  Please use the Add Family button.", ModalAlertType.Warning );
+                return;
+            }
+
             lblAddPersonHeader.Text = "Add Family Member";
             newPersonType.Value = "Person";
             SetRequiredFields();
@@ -516,23 +528,15 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         protected void lbNewPerson_Click( object sender, EventArgs e )
         {
             // Make sure all required fields are filled out
-            Page.Validate( "Person" );
-            if ( !Page.IsValid )
+            //Page.Validate( "Person" );
+            //if ( !Page.IsValid )
+            //{
+            //    return;
+            //}
+            
+            var checkInFamily = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault();
+            if ( checkInFamily != null )
             {
-                return;
-            }
-            else
-            {
-                var checkInFamily = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault();
-                if ( checkInFamily == null )
-                {
-                    checkInFamily = new CheckInFamily();
-                    var familyGroup = CreateFamily( tbLastNamePerson.Text );
-
-                    checkInFamily.Group = familyGroup;
-                    checkInFamily.Caption = familyGroup.Name;
-                }
-
                 var checkInPerson = new CheckInPerson();
                 checkInPerson.Person = CreatePerson( tbFirstNamePerson.Text, tbLastNamePerson.Text, ddlSuffix.SelectedValueAsId(), dpDOBPerson.SelectedDate, (int?)ddlGenderPerson.SelectedValueAsEnum<Gender>(),
                     ddlAbilityPerson.SelectedValue, ddlAbilityPerson.SelectedItem.Attributes["optiongroup"] );
@@ -562,9 +566,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 dpDOBPerson.Required = false;
 
                 mdlAddPerson.Hide();
-                ShowHideResults( checkInFamily.People.Count > 0 );
-                //ProcessFamily();
-            }
+                ShowHideResults( checkInFamily.People.Count > 0 ); 
+            }          
         }
 
         /// <summary>
@@ -617,7 +620,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                     mdlAddPerson.Hide();
                     ShowHideResults( family.People.Count > 0 );
-                    //ProcessFamily();
                     pnlContent.Update();
                 }
                 else
@@ -642,11 +644,11 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         protected void lbSaveFamily_Click( object sender, EventArgs e )
         {
             // Make sure all required fields are filled out
-            Page.Validate( "Family" );
-            if ( !Page.IsValid )
-            {
-                return;
-            }
+            //Page.Validate( "Family" );
+            //if ( !Page.IsValid )
+            //{
+            //    return;
+            //}
 
             var newFamilyList = (List<SerializedPerson>)ViewState["newFamily"] ?? new List<SerializedPerson>();
             int? currentPage = ViewState["currentPage"] as int?;
