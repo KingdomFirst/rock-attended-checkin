@@ -20,53 +20,11 @@
         $('input[type=text]').first().focus();
     };
 
-    var hasOverFlow = function (el) {
-        var curOverflow = el.style.overflow;
-
-        if (!curOverflow || curOverflow === 'visible') {
-            el.style.overflow = 'hidden';
-        }
-
-        var isOverflowing = el.clientWidth < el.scrollWidth || el.clientHeight < el.scrollHeight;
-        el.style.overflow = curOverflow;
-
-        return isOverflowing;
-    };
-
-    // var addShadowIfOverflows = function (element) {
-    //     if (!hasOverFlow(element)) {
-    //         $(element).css('box-shadow', 'none');
-    //         return;
-    //     }
-
-    //     var bottomShadowCss = 'inset 0 -15px 15px #999999';
-    //     $(element).css('box-shadow', bottomShadowCss);
-    // };
-
-    var handleGridOverflowShadows = function () {
-        var grids = $('.grid');
-        var hasGrids = grids.length > 0;
-
-        if (!hasGrids) {
-            return;
-        }
-
-        var handleGrids = function () {
-            for (var i = 0 ; i < grids.length; i++) {
-                addShadowIfOverflows(grids.get(i));
-            }
-        };
-
-        setTimeout(handleGrids, 100);
-        $(window).resize(handleGrids);
-    };
-
     return {
         init: function () {
             loadStyles();
             fixDatePickerZIndex();
-            fixFocus();
-            handleGridOverflowShadows();
+            fixFocus();    
         }
     };
 })();

@@ -313,7 +313,7 @@
         $('.family').unbind('click').on('click', function () {
             $(this).toggleClass('active');
             $(this).siblings('.family').removeClass('active');
-            $(this).html("<i class='fa fa-refresh fa-spin' />");
+            $(this).append("<i class='fa fa-refresh fa-spin' />");
         });
 
         $('.person').unbind('click').on('click', function () {
@@ -341,7 +341,7 @@
         });
 
         $('.processing').unbind('click').on('click', function () {
-            $(this).html("<i class='fa fa-refresh fa-spin' />");
+            $(this).append("<i class='fa fa-refresh fa-spin' />");
         });
     };
 

@@ -497,6 +497,7 @@ span.month, span.year {
     height: auto;
     bottom: auto;
     max-height: 90%;
+    overflow: hidden;
     // top: $base-spacing-unit/3;
     // right: $base-spacing-unit/3;
     // bottom: $base-spacing-unit/3;

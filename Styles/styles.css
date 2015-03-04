@@ -1,4 +1,4 @@
-html {
+﻿html {
   text-rendering: optimizeLegibility !important;
   -webkit-font-smoothing: antialiased !important; }
 
@@ -453,7 +453,8 @@ span.month, span.year {
   position: fixed;
   height: auto;
   bottom: auto;
-  max-height: 90%; }
+  max-height: 90%;
+  overflow: hidden; }
 
 .modal-header, .grid-pagesize, .grid-itemcount, .modal:not(.bootbox) .modal-footer {
   display: none; }
