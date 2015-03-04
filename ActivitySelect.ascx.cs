@@ -337,7 +337,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                 var lbLocation = (LinkButton)e.Item.FindControl( "lbLocation" );
 
-                lbLocation.Text = string.Format( "{0} ({1})", displayName.Truncate( 18 ), KioskLocationAttendance.Read( locationId ).CurrentCount.ToString() );
+                lbLocation.Text = string.Format( "{0} ({1})", displayName.Truncate( 21 ), KioskLocationAttendance.Read( locationId ).CurrentCount.ToString() );
                 lbLocation.CommandArgument = locationId.ToString();
 
                 if ( optionSelected )
@@ -365,7 +365,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }
 
                 var scheduleAttendance = ScheduleAttendanceList.Where( s => s.ScheduleId == schedule.Schedule.Id );
-                lbSchedule.Text = string.Format( "{0} ({1})", schedule.Schedule.Name.Truncate( 18 ), scheduleAttendance.Select( s => s.AttendanceCount ).FirstOrDefault() );
+                lbSchedule.Text = string.Format( "{0} ({1})", schedule.Schedule.Name.Truncate( 21 ), scheduleAttendance.Select( s => s.AttendanceCount ).FirstOrDefault() );
             }
         }
 
