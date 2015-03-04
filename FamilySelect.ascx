@@ -221,76 +221,78 @@
 
         <Rock:ModalDialog ID="mdlNewFamily" runat="server" Content-DefaultButton="lbSaveFamily">
             <Content>
-                <div class="row checkin-header">
-                    <div class="col-xs-3 checkin-actions">
-                        <Rock:BootstrapButton ID="lbCloseFamily" runat="server" Text="Cancel" CssClass="btn btn-lg btn-primary" OnClick="lbCloseFamily_Click" EnableViewState="false" />
+                <div class="soft-quarter-ends">
+                    <div class="row checkin-header">
+                        <div class="col-xs-3 checkin-actions">
+                            <Rock:BootstrapButton ID="lbCloseFamily" runat="server" Text="Cancel" CssClass="btn btn-lg btn-primary" OnClick="lbCloseFamily_Click" EnableViewState="false" />
+                        </div>
+
+                        <div class="col-xs-6 text-center">
+                            <h2>New Family</h2>
+                        </div>
+
+                        <div class="col-xs-3 checkin-actions text-right">
+                            <Rock:BootstrapButton ID="lbSaveFamily" CssClass="btn btn-lg btn-primary" runat="server" Text="Save" OnClick="lbSaveFamily_Click" ValidationGroup="Family" CausesValidation="true" />
+                        </div>
                     </div>
 
-                    <div class="col-xs-6 text-center">
-                        <h2>New Family</h2>
-                    </div>
+                    <div class="checkin-body">
+                        <asp:ListView ID="lvNewFamily" runat="server" OnPagePropertiesChanging="lvNewFamily_PagePropertiesChanging" OnItemDataBound="lvNewFamily_ItemDataBound">
+                            <LayoutTemplate>
+                                <div class="row large-font">
+                                    <div class="col-xs-2">
+                                        <label>First Name</label>
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <label>Last Name</label>
+                                    </div>
+                                    <div class="col-xs-1">
+                                        <label>Suffix</label>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <label>Date of Birth</label>
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <label>Gender</label>
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <label>Ability/Grade</label>
+                                    </div>
+                                </div>
+                                <asp:PlaceHolder ID="itemPlaceholder" runat="server" />
+                            </LayoutTemplate>
+                            <ItemTemplate>
+                                <div class="row expanded">
+                                    <div class="col-xs-2">
+                                        <Rock:RockTextBox ID="tbFirstName" runat="server" RequiredErrorMessage="First Name is Required" Text='<%# ((SerializedPerson)Container.DataItem).FirstName %>' ValidationGroup="Family" DisplayRequiredIndicator="true" />
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <Rock:RockTextBox ID="tbLastName" runat="server" RequiredErrorMessage="Last Name is Required" Text='<%# ((SerializedPerson)Container.DataItem).LastName %>' ValidationGroup="Family" DisplayRequiredIndicator="true" />
+                                    </div>
+                                    <div class="col-xs-1">
+                                        <Rock:RockDropDownList ID="ddlSuffix" runat="server" />
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <Rock:DatePicker ID="dpBirthDate" runat="server" RequiredErrorMessage="Date of Birth is Required" SelectedDate='<%# ((SerializedPerson)Container.DataItem).BirthDate %>' ValidationGroup="Family" DisplayRequiredIndicator="true" CssClass="date-picker" />
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <Rock:RockDropDownList ID="ddlGender" runat="server" RequiredErrorMessage="Gender is Required" ValidationGroup="Family" />
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <Rock:RockDropDownList ID="ddlAbilityGrade" runat="server" />
+                                    </div>
+                                </div>
+                            </ItemTemplate>
+                        </asp:ListView>
 
-                    <div class="col-xs-3 checkin-actions text-right">
-                        <Rock:BootstrapButton ID="lbSaveFamily" CssClass="btn btn-lg btn-primary" runat="server" Text="Save" OnClick="lbSaveFamily_Click" ValidationGroup="Family" CausesValidation="true" />
-                    </div>
-                </div>
-
-                <div class="checkin-body">
-                    <asp:ListView ID="lvNewFamily" runat="server" OnPagePropertiesChanging="lvNewFamily_PagePropertiesChanging" OnItemDataBound="lvNewFamily_ItemDataBound">
-                        <LayoutTemplate>
-                            <div class="row large-font">
-                                <div class="col-xs-2">
-                                    <label>First Name</label>
-                                </div>
-                                <div class="col-xs-2">
-                                    <label>Last Name</label>
-                                </div>
-                                <div class="col-xs-1">
-                                    <label>Suffix</label>
-                                </div>
-                                <div class="col-xs-3">
-                                    <label>Date of Birth</label>
-                                </div>
-                                <div class="col-xs-2">
-                                    <label>Gender</label>
-                                </div>
-                                <div class="col-xs-2">
-                                    <label>Ability/Grade</label>
-                                </div>
+                        <div class="row">
+                            <div class="col-xs-offset-9 col-xs-3 text-right">
+                                <asp:DataPager ID="dpNewFamily" runat="server" PageSize="4" PagedControlID="lvNewFamily">
+                                    <Fields>
+                                        <asp:NextPreviousPagerField ButtonType="Button" ButtonCssClass="pagination btn btn-lg btn-primary btn-checkin-select" />
+                                    </Fields>
+                                </asp:DataPager>
                             </div>
-                            <asp:PlaceHolder ID="itemPlaceholder" runat="server" />
-                        </LayoutTemplate>
-                        <ItemTemplate>
-                            <div class="row expanded">
-                                <div class="col-xs-2">
-                                    <Rock:RockTextBox ID="tbFirstName" runat="server" RequiredErrorMessage="First Name is Required" Text='<%# ((SerializedPerson)Container.DataItem).FirstName %>' ValidationGroup="Family" DisplayRequiredIndicator="true" />
-                                </div>
-                                <div class="col-xs-2">
-                                    <Rock:RockTextBox ID="tbLastName" runat="server" RequiredErrorMessage="Last Name is Required" Text='<%# ((SerializedPerson)Container.DataItem).LastName %>' ValidationGroup="Family" DisplayRequiredIndicator="true" />
-                                </div>
-                                <div class="col-xs-1">
-                                    <Rock:RockDropDownList ID="ddlSuffix" runat="server" />
-                                </div>
-                                <div class="col-xs-3">
-                                    <Rock:DatePicker ID="dpBirthDate" runat="server" RequiredErrorMessage="Date of Birth is Required" SelectedDate='<%# ((SerializedPerson)Container.DataItem).BirthDate %>' ValidationGroup="Family" DisplayRequiredIndicator="true" CssClass="date-picker" />
-                                </div>
-                                <div class="col-xs-2">
-                                    <Rock:RockDropDownList ID="ddlGender" runat="server" RequiredErrorMessage="Gender is Required" ValidationGroup="Family" />
-                                </div>
-                                <div class="col-xs-2">
-                                    <Rock:RockDropDownList ID="ddlAbilityGrade" runat="server" />
-                                </div>
-                            </div>
-                        </ItemTemplate>
-                    </asp:ListView>
-
-                    <div class="row">
-                        <div class="col-xs-offset-9 col-xs-3 text-right">
-                            <asp:DataPager ID="dpNewFamily" runat="server" PageSize="4" PagedControlID="lvNewFamily">
-                                <Fields>
-                                    <asp:NextPreviousPagerField ButtonType="Button" ButtonCssClass="pagination btn btn-lg btn-primary btn-checkin-select" />
-                                </Fields>
-                            </asp:DataPager>
                         </div>
                     </div>
                 </div>

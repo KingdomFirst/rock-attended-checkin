@@ -119,6 +119,12 @@ html {
 
 .three-col-with-controls td:nth-child(3) ~ td {
     width: 100px;
+    padding-right: 0px !important;
+    padding-left: 12px !important;
+
+    &:last-child {
+        padding-right: 12px !important;
+    }
 }
 
 /* Typography */
@@ -144,6 +150,10 @@ button.close {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.btn-checkin-select {
+    margin-bottom: 12px;
 }
 
 .btn.active {
@@ -219,11 +229,13 @@ button.close {
 .grid, .grid-table {
     overflow-y: auto;
     margin-bottom: 20px;
-    border-radius: 5px;
+    // border-radius: 5px;
 }
 
 table.table {
-    background-color: rgba(10,10,10,0.5);
+    background-color: rgba(10,10,10,0.6);
+    // background-color: white;
+    // color: black;
     font-size: 21px;
     margin-bottom: 0;
 }
@@ -236,7 +248,18 @@ table {
 }
 
 table thead {
-    background-color: rgba(10,10,10,0.3);
+    background-color: rgba(10,10,10,0.4);
+    color: white;
+}
+
+.table-condensed {
+    th {
+        padding: 15px !important;
+    }
+
+    td {
+        padding: 8px 15px !important;
+    }
 }
 
 table td {
@@ -252,17 +275,73 @@ table td.expanded:first-child {
     padding-left: 0;
 }
 
+.table-no-border {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table > tbody > tr > td {
+    border-top: 1px solid rgba(255,255,255, .04);
+}
+
+.table > thead > tr > th {
+    border-bottom: 1px solid rgba(255,255,255, .05);
+}
+
 .cozy table > tbody > tr td {
     padding: 10px 8px;
+    border-top: 0px;
+    max-width: 125px;
+}
+
+.cozy table {
+    background-color: transparent;
+
+    tr {
+        display: inline-block;
+        width: 100%;
+        background-color: rgba(10,10,10,.6);
+        margin-bottom: 10px;
+        border-radius: 5px;
+        overflow: hidden;
+
+        td {
+            word-break: break-word;
+
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            hyphens: auto;
+            // white-space: nowrap;
+            // overflow: hidden;
+            // text-overflow: ellipsis;
+        }
+
+        td:nth-child(3n+1) {
+            width: 25%;
+            max-width: 80px;
+            overflow: hidden;
+        }
+
+        td:nth-child(3n+2) {
+            width: 55%;
+            overflow: hidden;
+        }
+
+        td:nth-child(3n+3) {
+            width: 20%;
+            overflow: hidden;
+        }
+    }
 }
 
 td.day, th.prev, th.next, th.today, th.datepicker-switch {
     cursor: pointer;
 }
 
-td.day:hover, th.prev:hover, th.next:hover, th.today:hover, th.datepicker-switch:hover, span.month:hover, span.year:hover {
-    background-color: #eeeeee;
-}
+// td.day:hover, th.prev:hover, th.next:hover, th.today:hover, th.datepicker-switch:hover, span.month:hover, span.year:hover {
+//     background-color: #eeeeee;
+// }
 
 th.datepicker-switch {
     text-align: center;
@@ -356,8 +435,8 @@ tfoot {
 }
 
 .in-the-middle {
-    top: 180px;
-    bottom: 80px;
+    top: 124px;
+    bottom: 60px;
 }
 
 .at-the-bottom {

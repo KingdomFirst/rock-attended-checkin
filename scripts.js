@@ -33,15 +33,15 @@
         return isOverflowing;
     };
 
-    var addShadowIfOverflows = function (element) {
-        if (!hasOverFlow(element)) {
-            $(element).css('box-shadow', 'none');
-            return;
-        }
+    // var addShadowIfOverflows = function (element) {
+    //     if (!hasOverFlow(element)) {
+    //         $(element).css('box-shadow', 'none');
+    //         return;
+    //     }
 
-        var bottomShadowCss = 'inset 0 -15px 15px #999999';
-        $(element).css('box-shadow', bottomShadowCss);
-    };
+    //     var bottomShadowCss = 'inset 0 -15px 15px #999999';
+    //     $(element).css('box-shadow', bottomShadowCss);
+    // };
 
     var handleGridOverflowShadows = function () {
         var grids = $('.grid');

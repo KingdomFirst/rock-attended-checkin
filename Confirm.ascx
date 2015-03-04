@@ -42,7 +42,6 @@
                                         <asp:BoundField DataField="Schedule" HeaderText="Time" />
                                         <asp:BoundField DataField="ScheduleId" Visible="false" />
                                         <Rock:EditField HeaderText="Edit" ControlStyle-CssClass="btn btn-lg btn-primary" OnClick="gPersonList_Edit" />
-                                        <Rock:DeleteField HeaderText="Delete" ControlStyle-CssClass="btn btn-lg btn-primary" OnClick="gPersonList_Delete" />
                                         <asp:TemplateField HeaderText="Print">
                                             <ItemTemplate>
                                                 <asp:LinkButton ID="btnPrint" runat="server" CssClass="btn btn-lg btn-primary" CommandName="Print" CommandArgument="<%# Container.DataItemIndex %>">
@@ -50,6 +49,7 @@
                                                 </asp:LinkButton>
                                             </ItemTemplate>
                                         </asp:TemplateField>
+                                        <Rock:DeleteField HeaderText="Delete" ControlStyle-CssClass="btn btn-lg btn-primary btn-negative" OnClick="gPersonList_Delete" />
                                     </Columns>
                                 </Rock:Grid>
                             </div>

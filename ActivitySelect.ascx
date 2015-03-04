@@ -32,7 +32,7 @@
                 <div class="col-xs-3">
                     <asp:UpdatePanel ID="pnlGroupTypes" runat="server" UpdateMode="Conditional">
                         <ContentTemplate>
-                            <h3>GroupType</h3>
+                            <h3 class="text-center">GroupType</h3>
                             <asp:ListView ID="lvGroupType" runat="server" OnItemCommand="lvGroupType_ItemCommand" OnPagePropertiesChanging="lvGroupType_PagePropertiesChanging" OnItemDataBound="lvGroupType_ItemDataBound">
                                 <ItemTemplate>
                                     <asp:LinkButton ID="lbGroupType" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" CausesValidation="false" />
@@ -50,7 +50,7 @@
                 <div class="col-xs-3">
                     <asp:UpdatePanel ID="pnlLocations" runat="server" UpdateMode="Conditional">
                         <ContentTemplate>
-                            <h3 id="hdrLocations" runat="server">Location</h3>
+                            <h3 id="hdrLocations" runat="server" class="text-center">Location</h3>
                             <asp:ListView ID="lvLocation" runat="server" OnPagePropertiesChanging="lvLocation_PagePropertiesChanging" OnItemCommand="lvLocation_ItemCommand" OnItemDataBound="lvLocation_ItemDataBound">
                                 <ItemTemplate>
                                     <asp:LinkButton ID="lbLocation" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select"></asp:LinkButton>
@@ -68,7 +68,7 @@
                 <div class="col-xs-3">
                     <asp:UpdatePanel ID="pnlSchedules" runat="server" UpdateMode="Conditional">
                         <ContentTemplate>
-                            <h3>Schedule</h3>
+                            <h3 class="text-center">Schedule</h3>
                             <asp:Repeater ID="rSchedule" runat="server" OnItemCommand="rSchedule_ItemCommand" OnItemDataBound="rSchedule_ItemDataBound">
                                 <ItemTemplate>
                                     <asp:LinkButton ID="lbSchedule" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" CausesValidation="false" />
@@ -79,7 +79,7 @@
                 </div>
 
                 <div class="col-xs-3 selected-grid">
-                    <h3>Selected</h3>
+                    <h3 class="text-center">Selected</h3>
                     <asp:UpdatePanel ID="pnlSelected" runat="server" UpdateMode="Conditional">
                         <ContentTemplate>
                             <div class="grid cozy">
@@ -91,7 +91,7 @@
                                         <asp:BoundField DataField="GroupId" Visible="false" />
                                         <asp:BoundField DataField="Location" />
                                         <asp:BoundField DataField="LocationId" Visible="false" />
-                                        <Rock:DeleteField OnClick="gSelectedGrid_Delete" ControlStyle-CssClass="btn btn-primary " />
+                                        <Rock:DeleteField OnClick="gSelectedGrid_Delete" ControlStyle-CssClass="btn btn-primary btn-negative" />
                                     </Columns>
                                 </Rock:Grid>
                             </div>
