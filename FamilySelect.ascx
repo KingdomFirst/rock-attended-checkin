@@ -194,7 +194,7 @@
                                                     <asp:BoundField DataField="Attribute" HeaderText="Ability/Grade" SortExpression="Attribute" />
                                                     <asp:TemplateField>
                                                         <ItemTemplate>
-                                                            <asp:LinkButton ID="lbAdd" runat="server" CssClass="btn btn-lg btn-primary" CommandName="Add"
+                                                            <asp:LinkButton ID="lbAdd" runat="server" CssClass="btn btn-lg btn-primary processing" CommandName="Add"
                                                                 Text="Add" CommandArgument="<%# ((GridViewRow) Container).RowIndex %>" CausesValidation="false"><i class="fa fa-plus"></i>
                                                             </asp:LinkButton>
                                                         </ItemTemplate>
@@ -209,7 +209,8 @@
                             <div class="row">
                                 <div class="soft-quarter-sides">
                                     <div class="col-xs-12 text-right">
-                                        <asp:LinkButton ID="lbNewPerson" runat="server" Text="None of these, add a new person" CssClass="btn btn-lg btn-primary btn-checkin-select" OnClick="lbNewPerson_Click" ValidationGroup="Person" CausesValidation="true" />
+                                        <asp:LinkButton ID="lbNewPerson" runat="server" Text="None of these, add a new person" CssClass="btn btn-lg btn-primary btn-checkin-select processing"
+                                            OnClick="lbNewPerson_Click" ValidationGroup="Person" CausesValidation="true" />
                                     </div>
                                 </div>
                             </div>
@@ -310,9 +311,9 @@
         $('.modal:visible').css('z-index', Number($('.modal-backdrop').css('z-index')) + 1);
 
         $('.family').unbind('click').on('click', function () {
-            $(this).toggleClass('active');            
+            $(this).toggleClass('active');
             $(this).siblings('.family').removeClass('active');
-            $(this).append("<i class='fa fa-refresh fa-spin' />");
+            $(this).html("<i class='fa fa-refresh fa-spin' />");
         });
 
         $('.person').unbind('click').on('click', function () {
@@ -337,6 +338,10 @@
                 $('#hfSelectedVisitor').val(buttonId + selectedIds);
             }
             return false;
+        });
+
+        $('.processing').unbind('click').on('click', function () {
+            $(this).html("<i class='fa fa-refresh fa-spin' />");
         });
     };
 
