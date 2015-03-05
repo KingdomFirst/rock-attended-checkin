@@ -1060,12 +1060,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 familyGroup.Name = familyName + " Family";
                 new GroupService( rockContext ).Add( familyGroup );
             }
-            else
-            {
-                familyGroup = new GroupService( rockContext ).Get( familyGroup.Guid );
-            }
 
             // Add group members
+            var newGroupMembers = new List<GroupMember>( 0 );
             foreach ( var person in newPeople )
             {
                 var groupMember = new GroupMember();
@@ -1083,7 +1080,17 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         r.Guid == new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_FAMILY_MEMBER_CHILD ) ).Id;
                 }
 
-                familyGroup.Members.Add( groupMember );
+                newGroupMembers.Add( groupMember );
+            }
+
+            // New family group, can save as part of tracked entity
+            if ( familyGroup.Id == 0 )
+            {
+                familyGroup.Members = newGroupMembers;
+            }
+            else // use GroupMemberService to save to an existing group
+            {
+                new GroupMemberService( rockContext ).AddRange( newGroupMembers );
             }
 
             rockContext.SaveChanges();
