@@ -110,14 +110,9 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         if ( !string.IsNullOrWhiteSpace( personsAbility ) )
                                         {
                                             // check groups for a ability
-                                            var newGroups = validGroups.Where( g => g.Group.Attributes.ContainsKey( "AbilityLevel" ) && g.Group.GetAttributeValue( "AbilityLevel" ) == personsAbility ).ToList();
-                                            closestAbilityGroup = newGroups.FirstOrDefault();
+                                            var abilityGroups = validGroups.Where( g => g.Group.Attributes.ContainsKey( "AbilityLevel" ) && g.Group.GetAttributeValue( "AbilityLevel" ) == personsAbility ).ToList();
+                                            closestAbilityGroup = abilityGroups.FirstOrDefault();
                                         }
-                                        // This breaks when a child has an age set but not an ability level
-                                        //else
-                                        //{
-                                        //    validGroups = validGroups.Where( g => !g.Group.Attributes.ContainsKey( "AbilityLevel" ) ).ToList();
-                                        //}
 
                                         CheckInGroup closestGradeGroup = null;
                                         if ( person.Person.GradeOffset != null )
