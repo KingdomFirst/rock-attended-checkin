@@ -74,7 +74,7 @@
                                 </ItemTemplate>
                                 <EmptyDataTemplate>
                                     <div class="text-center large-font">
-                                        <asp:Literal ID="lblPersonTitle" runat="server" Text="No one in this family is eligible for check-in." />
+                                        <asp:Literal ID="lblPersonTitle" runat="server" Text="No family member(s) are eligible for check-in." />
                                     </div>
                                 </EmptyDataTemplate>
                             </asp:ListView>
@@ -104,6 +104,11 @@
 						                </span>
                                     </asp:LinkButton>
                                 </ItemTemplate>
+                                <EmptyDataTemplate>
+                                    <div class="text-center large-font">
+                                        <asp:Literal ID="lblPersonTitle" runat="server" Text="No visitor(s) are eligible for check-in." />
+                                    </div>
+                                </EmptyDataTemplate>
                             </asp:ListView>
                             <asp:DataPager ID="dpVisitorPager" runat="server" PageSize="4" PagedControlID="lvVisitor">
                                 <Fields>

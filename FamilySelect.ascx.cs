@@ -578,7 +578,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     //ddlGenderPerson.Required = false;
                     //dpDOBPerson.Required = false;
 
-                    //DisplayFamily();
                     ProcessFamily();
                     mdlAddPerson.Hide();
                 }
@@ -633,8 +632,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                         checkInPerson.Selected = true;
                         family.People.Add( checkInPerson );
-
-                        //DisplayFamily();
                         ProcessFamily();
                     }
 
