@@ -337,7 +337,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                 var lbLocation = (LinkButton)e.Item.FindControl( "lbLocation" );
 
-                lbLocation.Text = string.Format( "{0} ({1})", displayName.Truncate( 21 ), KioskLocationAttendance.Read( locationId ).CurrentCount.ToString() );
+                lbLocation.Text = displayName.Truncate( 21 );
                 lbLocation.CommandArgument = locationId.ToString();
 
                 if ( optionSelected )
