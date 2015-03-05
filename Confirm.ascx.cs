@@ -41,6 +41,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [Description( "Attended Check-In Confirmation Block" )]
     [LinkedPage( "Activity Select Page" )]
     [BooleanField( "Print Individual Labels", "Select this option to print one label per person's group, location, & schedule.", false )]
+    [BinaryFileFieldTypeField( "Designated Parent Label", "Select a label to print once per print job.  Unselect to print with every print job.", false )]
     public partial class Confirm : CheckInBlock
     {
         #region Control Methods
@@ -421,17 +422,19 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                             string printContent = labelCache.FileContent;
                                             foreach ( var mergeField in label.MergeFields )
                                             {
-                                                if ( !string.IsNullOrWhiteSpace( mergeField.Value ) )
-                                                {
-                                                    printContent = Regex.Replace( printContent, string.Format( @"(?<=\^FD){0}(?=\^FS)", mergeField.Key ), mergeField.Value );
-                                                }
-                                                else
-                                                {
-                                                    // Remove the box preceding merge field
-                                                    printContent = Regex.Replace( printContent, string.Format( @"\^FO.*\^FS\s*(?=\^FT.*\^FD{0}\^FS)", mergeField.Key ), string.Empty );
-                                                    // Remove the merge field
-                                                    printContent = Regex.Replace( printContent, string.Format( @"\^FD{0}\^FS", mergeField.Key ), "^FD^FS" );
-                                                }
+                                                printContent = Regex.Replace( printContent, string.Format( @"(?<=\^FD){0}(?=\^FS)", mergeField.Key ), mergeField.Value );
+
+                                                //if ( !string.IsNullOrWhiteSpace( mergeField.Value ) )
+                                                //{
+                                                //    printContent = Regex.Replace( printContent, string.Format( @"(?<=\^FD){0}(?=\^FS)", mergeField.Key ), mergeField.Value );
+                                                //}
+                                                //else
+                                                //{
+                                                //    // Remove the box preceding merge field
+                                                //    printContent = Regex.Replace( printContent, string.Format( @"\^FO.*\^FS\s*(?=\^FT.*\^FD{0}\^FS)", mergeField.Key ), string.Empty );
+                                                //    // Remove the merge field
+                                                //    printContent = Regex.Replace( printContent, string.Format( @"\^FD{0}\^FS", mergeField.Key ), "^FD^FS" );
+                                                //}
                                             }
 
                                             if ( socket.Connected )
@@ -515,6 +518,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         #endregion Internal Methods
 
         #region Classes
+
         /// <summary>
         /// Check-In information class used to bind the selected grid.
         /// </summary>
