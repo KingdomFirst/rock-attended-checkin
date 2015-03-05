@@ -1083,7 +1083,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 newGroupMembers.Add( groupMember );
             }
 
-            // New family group, can save as part of tracked entity
+            // New family group, save as part of tracked entity
             if ( familyGroup.Id == 0 )
             {
                 familyGroup.Members = newGroupMembers;

@@ -154,7 +154,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             if ( CurrentCheckInState == null )
             {
-                maAlert.Show( "Check-in state timed out.  Please try again.", ModalAlertType.Warning );
+                maAlert.Show( "Check-in state timed out.  Please refresh the page.", ModalAlertType.Warning );
                 pnlContent.Update();
                 return;
             }
