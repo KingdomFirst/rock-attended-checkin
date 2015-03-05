@@ -162,11 +162,14 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         if ( roomBalanceByGroup )
                                         {   // only one location per group should exist
                                             var lowestCountGroup = validGroups.OrderBy( g => g.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum() ).FirstOrDefault();
-                                            var lowCount = lowestCountGroup.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).FirstOrDefault();
-                                            var bestGroupCount = bestGroup.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).FirstOrDefault();
-                                            if ( lowCount < bestGroupCount )
+                                            if ( lowestCountGroup != null )
                                             {
-                                                bestGroup = lowestCountGroup;
+                                                var lowCount = lowestCountGroup.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).FirstOrDefault();
+                                                var bestGroupCount = bestGroup.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).FirstOrDefault();
+                                                if ( lowCount < bestGroupCount )
+                                                {
+                                                    bestGroup = lowestCountGroup;
+                                                }
                                             }
                                         }
                                     }
