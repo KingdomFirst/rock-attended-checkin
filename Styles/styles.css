@@ -467,6 +467,9 @@ span.month, span.year {
   max-height: 90%;
   overflow: hidden; }
 
+.modal-content {
+  background-color: #fff !important; }
+
 .modal-header, .grid-pagesize, .grid-itemcount, .modal:not(.bootbox) .modal-footer {
   display: none; }
 
