@@ -180,7 +180,7 @@
 
                             <div class="row flush-sides">
                                 <div class="grid full-width soft-quarter-sides">
-                                    <Rock:Grid ID="rGridPersonResults" runat="server" OnRowCommand="rGridPersonResults_AddExistingPerson" EnableResponsiveTable="false"
+                                    <Rock:Grid ID="rGridPersonResults" runat="server" OnRowCommand="rGridPersonResults_AddExistingPerson" EnableResponsiveTable="true"
                                         OnGridRebind="rGridPersonResults_GridRebind" ShowActionRow="false" PageSize="4" DataKeyNames="Id" AllowSorting="true">
                                         <Columns>
                                             <asp:BoundField DataField="Id" Visible="false" />

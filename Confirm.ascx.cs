@@ -514,7 +514,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
         #endregion Internal Methods
 
-
         #region Classes
         /// <summary>
         /// Check-In information class used to bind the selected grid.

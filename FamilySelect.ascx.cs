@@ -126,6 +126,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             {
                 familyList.FirstOrDefault().Selected = true;
             }
+            // maybe rebind person/visitor here?
 
             if ( familyList.Any() )
             {
@@ -557,7 +558,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                     if ( !newPersonType.Value.Equals( "Visitor" ) )
                     {   // Family Member
-                        AddGroupMembers( checkInFamily.Group, new List<Person>() { checkInPerson.Person } );
+                        AddGroupMembers( checkInFamily.Group, newPeople );
                         hfSelectedPerson.Value += checkInPerson.Person.Id + ",";
                         checkInPerson.FamilyMember = true;
                     }
@@ -897,7 +898,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <summary>
         /// Processes the family.
         /// </summary>
-        private void ProcessFamily()
+        private void ProcessFamily( bool processWorkflow = true )
         {
             var errors = new List<string>();
             if ( ProcessActivity( "Person Search", out errors ) )
@@ -908,13 +909,11 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 var family = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault();
                 if ( family != null )
                 {
-                    //if ( family.People.Any( f => !f.ExcludedByFilter ) )
-                    if ( family.People.Any() )
+                    if ( family.People.Any( f => !f.ExcludedByFilter ) )
                     {
                         if ( family.People.Where( f => f.FamilyMember ).Any() )
                         {
-                            //var familyMembers = family.People.Where( f => f.FamilyMember && !f.ExcludedByFilter ).ToList();
-                            var familyMembers = family.People.Where( f => f.FamilyMember ).ToList();
+                            var familyMembers = family.People.Where( f => f.FamilyMember && !f.ExcludedByFilter ).ToList();
                             hfSelectedPerson.Value = string.Join( ",", familyMembers.Select( f => f.Person.Id ).ToList() ) + ",";
                             familyMembers.ForEach( p => p.Selected = true );
                             memberDataSource = familyMembers.OrderBy( p => p.Person.FullNameReversed ).ToList();
@@ -922,8 +921,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                         if ( family.People.Where( f => !f.FamilyMember ).Any() )
                         {
-                            //var familyVisitors = family.People.Where( f => !f.FamilyMember && !f.ExcludedByFilter ).ToList();
-                            var familyVisitors = family.People.Where( f => !f.FamilyMember ).ToList();
+                            var familyVisitors = family.People.Where( f => !f.FamilyMember && !f.ExcludedByFilter ).ToList();
                             visitorDataSource = familyVisitors.OrderBy( p => p.Person.FullNameReversed ).ToList();
                             if ( familyVisitors.Any( f => f.Selected ) )
                             {
@@ -945,7 +943,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     dpPersonPager.SetPageProperties( 0, dpPersonPager.MaximumRows, false );
                 }
 
-                if ( lvVisitor.DataSource != null )
+                if ( visitorDataSource != null )
                 {
                     dpVisitorPager.Visible = true;
                     dpVisitorPager.SetPageProperties( 0, dpVisitorPager.MaximumRows, false );
@@ -1061,6 +1059,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                 familyGroup.Name = familyName + " Family";
                 new GroupService( rockContext ).Add( familyGroup );
+            }
+            else
+            {
+                familyGroup = new GroupService( rockContext ).Get( familyGroup.Guid );
             }
 
             // Add group members
