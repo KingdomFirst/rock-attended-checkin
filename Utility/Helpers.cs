@@ -70,15 +70,31 @@ namespace cc.newspring.AttendedCheckIn.Utility
         /// Loads the ability and grade items.
         /// </summary>
         /// <param name="thisDDL">The this DDL.</param>
-        public static void LoadAbilityAndGradeItems( this DropDownList thisDDL )
+        public static void LoadAbilityAndGradeItems( this RockDropDownList thisDDL )
         {
             thisDDL.Items.Clear();
             thisDDL.DataTextField = "Text";
             thisDDL.DataValueField = "Value";
             thisDDL.Items.Add( new ListItem( Rock.Constants.None.Text, Rock.Constants.None.IdValue ) );
 
-            thisDDL.LoadItems( GetAbilityItems(), "Ability" );
-            thisDDL.LoadItems( GetGradeItems(), "Grade" );
+            var abilityItems = GetAbilityItems();
+            var gradeItems = GetGradeItems();
+
+            thisDDL.LoadItems( abilityItems, "Ability" );
+            thisDDL.LoadItems( gradeItems, "Grade" );
+
+            if ( abilityItems.Any() && gradeItems.Any() )
+            {
+                thisDDL.Label = "Ability/Grade";
+            }
+            else if ( abilityItems.Any() )
+            {
+                thisDDL.Label = "Ability";
+            }
+            else
+            {
+                thisDDL.Label = "Grade";
+            }
         }
     }
 }
