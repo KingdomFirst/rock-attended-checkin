@@ -174,7 +174,7 @@
                                 <Rock:RockDropDownList ID="ddlSuffix" runat="server" CssClass="col-xs-12" Label="Suffix" />
                             </div>
                             <div class="col-xs-3">
-                                <Rock:DatePicker ID="dpDOBPerson" runat="server" Label="Date of Birth" CssClass="col-xs-12 date-picker" ValidationGroup="Person" />
+                                <Rock:DatePicker ID="dpDOBPerson" runat="server" Label="Date of Birth" CssClass="col-xs-12 date-picker" ValidationGroup="Person" data-show-age="true" />
                             </div>
                             <div class="col-xs-2">
                                 <Rock:RockDropDownList ID="ddlGenderPerson" runat="server" Label="Gender" CssClass="col-xs-12" ValidationGroup="Person" />
@@ -280,7 +280,7 @@
                                         <Rock:RockDropDownList ID="ddlSuffix" runat="server" />
                                     </div>
                                     <div class="col-xs-3">
-                                        <Rock:DatePicker ID="dpBirthDate" runat="server" SelectedDate='<%# ((SerializedPerson)Container.DataItem).BirthDate %>' ValidationGroup="Family" CssClass="date-picker" />
+                                        <Rock:DatePicker ID="dpBirthDate" runat="server" SelectedDate='<%# ((SerializedPerson)Container.DataItem).BirthDate %>' ValidationGroup="Family" CssClass="date-picker" data-show-age="true" />
                                     </div>
                                     <div class="col-xs-2">
                                         <Rock:RockDropDownList ID="ddlGender" runat="server" ValidationGroup="Family" />
