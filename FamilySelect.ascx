@@ -128,7 +128,7 @@
                     <h3 id="actions" runat="server" class="text-center">Actions</h3>
 
                     <asp:LinkButton ID="lbAddVisitor" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClick="lbAddVisitor_Click" Text="Add Visitor" CausesValidation="false" EnableViewState="false" />
-                    <asp:LinkButton ID="lbAddFamilyMember" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClick="lbAddFamilyMember_Click" Text="Add Child" CausesValidation="false" EnableViewState="false" />
+                    <asp:LinkButton ID="lbAddFamilyMember" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClick="lbAddFamilyMember_Click" Text="Add Person" CausesValidation="false" EnableViewState="false" />
                     <asp:LinkButton ID="lbNewFamily" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClick="lbNewFamily_Click" Text="New Family" CausesValidation="false" EnableViewState="false" />
                 </div>
 
