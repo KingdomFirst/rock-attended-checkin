@@ -64,7 +64,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
         }
 
-        #endregion
+        #endregion Variables
 
         #region Control Methods
 
@@ -567,6 +567,13 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         AddVisitorRelationships( checkInFamily, checkInPerson.Person.Id );
                         hfSelectedVisitor.Value += checkInPerson.Person.Id + ",";
                         checkInPerson.FamilyMember = false;
+
+                        // If a child, make the family group explicitly so the child role type can be selected. If no 
+                        // family group is explicitly made, Rock makes one with Adult role type by default
+                        if ( dpDOBPerson.SelectedDate.Age() < 18 )
+                        {
+                            AddGroupMembers( null, newPeople );
+                        }                        
                     }
 
                     checkInPerson.Selected = true;
@@ -1066,6 +1073,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 groupMember.IsSystem = false;
                 groupMember.GroupId = familyGroup.Id;
                 groupMember.PersonId = person.Id;
+
                 if ( person.Age >= 18 )
                 {
                     groupMember.GroupRoleId = familyGroupType.Roles.FirstOrDefault( r =>
