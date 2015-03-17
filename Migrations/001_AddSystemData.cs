@@ -313,16 +313,9 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             // Attended Check-in:Save Attendance:Create Labels:Active
             RockMigrationHelper.AddActionTypeAttributeValue( "BBE6E76D-6C8E-4B8E-931C-DD3CBE9619A4", "36EB15CE-095C-41ED-9C0F-9EA345599D54", @"False" );
 
-            // Custom check-in config block
-            RockMigrationHelper.UpdateBlockType( "Area Configuration", "Attended Check-In Area Config", "~/Plugins/cc_newspring/AttendedCheckIn/Config/AreaConfiguration.ascx", "Check-in > Attended", "FADD6974-FE07-49EF-AA8D-5AE5976D85D2" );
-            Sql( @"
-                DECLARE @NewConfigBlockTypeId int = (SELECT [ID] FROM [BlockType] WHERE [Guid] = 'FADD6974-FE07-49EF-AA8D-5AE5976D85D2')
-                DECLARE @OldConfigBlockTypeId int = (SELECT [ID] FROM [BlockType] WHERE [Guid] = '2506B048-F62C-4945-B09A-1E053F66C592')
-                UPDATE [Block] SET [BlockTypeId] = @NewConfigBlockTypeId WHERE [BlockTypeId] = @OldConfigBlockTypeId AND [Name] = 'Check-in Configuration'
-            " );
-
-            RockMigrationHelper.AddBlockTypeAttribute( "FADD6974-FE07-49EF-AA8D-5AE5976D85D2", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Create Check-in Hierarchy", "CreateCheck-inHierarchy", "", "", 0, @"False", "3B3BF9E2-51AE-44BD-B142-1F3D711E59F0" );
-            RockMigrationHelper.AddBlockTypeAttribute( "FADD6974-FE07-49EF-AA8D-5AE5976D85D2", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Display Check-in Groups", "DisplayCheck-inGroups", "", "", 0, @"False", "1AB938CC-BD49-4410-BC60-A57EDD7752FE" );
+            // Check-in config options
+            // RockMigrationHelper.AddBlockTypeAttribute( "FADD6974-FE07-49EF-AA8D-5AE5976D85D2", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Create Check-in Hierarchy", "CreateCheck-inHierarchy", "", "", 0, @"False", "3B3BF9E2-51AE-44BD-B142-1F3D711E59F0" );
+            // RockMigrationHelper.AddBlockTypeAttribute( "FADD6974-FE07-49EF-AA8D-5AE5976D85D2", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Display Check-in Groups", "DisplayCheck-inGroups", "", "", 0, @"False", "1AB938CC-BD49-4410-BC60-A57EDD7752FE" );
 
             // Add checkin note types
             Sql( @"
@@ -422,14 +415,6 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             Sql( @"
                 DELETE FROM [NoteType] WHERE [Guid] = '2BBA0589-6EC2-47F6-8745-34E95E3AC019'
             " );
-
-            // Revert check-in block
-            Sql( @"
-                DECLARE @NewConfigBlockTypeId int = (SELECT [ID] FROM [BlockType] WHERE [Guid] = 'FADD6974-FE07-49EF-AA8D-5AE5976D85D2')
-                DECLARE @OldConfigBlockTypeId int = (SELECT [ID] FROM [BlockType] WHERE [Guid] = '2506B048-F62C-4945-B09A-1E053F66C592')
-                UPDATE [Block] SET [BlockTypeId] = @OldConfigBlockTypeId WHERE [BlockTypeId] = @NewConfigBlockTypeId AND [Name] = 'Check-in Configuration'
-            " );
-            RockMigrationHelper.DeleteBlockType( "FADD6974-FE07-49EF-AA8D-5AE5976D85D2" );
         }
     }
 }
