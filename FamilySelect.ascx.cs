@@ -168,8 +168,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
 
             // Check if the add buttons can be displayed
-            bool showAddButtons = true;
-            bool.TryParse( GetAttributeValue( "EnableAddButtons" ), out showAddButtons );
+            bool showAddButtons = GetAttributeValue( "EnableAddButtons" ).AsBoolean();
 
             lbAddFamilyMember.Visible = showAddButtons;
             lbAddVisitor.Visible = showAddButtons;
@@ -568,12 +567,12 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         hfSelectedVisitor.Value += checkInPerson.Person.Id + ",";
                         checkInPerson.FamilyMember = false;
 
-                        // If a child, make the family group explicitly so the child role type can be selected. If no 
+                        // If a child, make the family group explicitly so the child role type can be selected. If no
                         // family group is explicitly made, Rock makes one with Adult role type by default
                         if ( dpDOBPerson.SelectedDate.Age() < 18 )
                         {
                             AddGroupMembers( null, newPeople );
-                        }                        
+                        }
                     }
 
                     checkInPerson.Selected = true;

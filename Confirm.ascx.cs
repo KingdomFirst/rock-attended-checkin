@@ -295,8 +295,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             if ( SaveAttendance() )
             {
                 string designatedParentLabel = GetAttributeValue( "DesignatedParentLabel" );
-                bool printIndividualLabels = bool.Parse( GetAttributeValue( "PrintIndividualLabels" ) ?? "false" );
-                if ( !printIndividualLabels )
+                if ( GetAttributeValue( "PrintIndividualLabels" ).AsBoolean() )
                 {
                     // separate labels by person and that's it
                     PrintLabels();

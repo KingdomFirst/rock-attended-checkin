@@ -55,17 +55,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                 AttemptKioskMatchByIpOrName();
 
-                //bool enableLocationSharing = bool.Parse( GetAttributeValue( "EnableLocationSharing" ) ?? "false" );
-                //if ( !enableLocationSharing )
-                //{
-                //    AttemptKioskMatchByIpOrName();
-                //}
-                //else
-                //{
-                //    lbRetry.Visible = true;
-                //    AddGeoLocationScript();
-                //}
-
                 string script = string.Format( @"
                 <script>
                     $(document).ready(function (e) {{

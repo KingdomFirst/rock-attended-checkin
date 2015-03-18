@@ -159,8 +159,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 LoadAttributeControl( allergyAttribute.Id, person.Person.Id );
             }
 
-            bool showGroupNames = bool.Parse( GetAttributeValue( "DisplayGroupNames" ) );
-            if ( showGroupNames )
+            if ( GetAttributeValue( "DisplayGroupNames" ).AsBoolean() )
             {
                 hdrLocations.InnerText = "Group";
             }
@@ -314,25 +313,24 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="e">The <see cref="ListViewItemEventArgs"/> instance containing the event data.</param>
         protected void lvLocation_ItemDataBound( object sender, ListViewItemEventArgs e )
         {
-            bool showGroupNames = bool.Parse( GetAttributeValue( "DisplayGroupNames" ) ?? "false" );
             if ( e.Item.ItemType == ListViewItemType.DataItem )
             {
                 int locationId = 0;
                 string displayName = string.Empty;
-                bool optionSelected = false;
-                if ( !showGroupNames )
-                {
+                bool itemSelected = false;
+                if ( GetAttributeValue( "DisplayGroupNames" ).AsBoolean() )
+                {   // parse group items
+                    var group = (CheckInGroup)e.Item.DataItem;
+                    displayName = group.Group.Name;
+                    itemSelected = group.Selected;
+                    locationId = group.Locations.Select( l => l.Location.Id ).FirstOrDefault();
+                }
+                else
+                {   // parse location items
                     var location = (CheckInLocation)e.Item.DataItem;
                     locationId = location.Location.Id;
                     displayName = location.Location.Name;
-                    optionSelected = location.Selected;
-                }
-                else
-                {
-                    var group = (CheckInGroup)e.Item.DataItem;
-                    displayName = group.Group.Name;
-                    optionSelected = group.Selected;
-                    locationId = group.Locations.Select( l => l.Location.Id ).FirstOrDefault();
+                    itemSelected = location.Selected;
                 }
 
                 var lbLocation = (LinkButton)e.Item.FindControl( "lbLocation" );
@@ -340,7 +338,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 lbLocation.Text = displayName.Truncate( 21 );
                 lbLocation.CommandArgument = locationId.ToString();
 
-                if ( optionSelected )
+                if ( itemSelected )
                 {
                     lbLocation.AddCssClass( "active" );
                 }
@@ -700,20 +698,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                 int placeInList = 1;
                 List<Rock.Lava.ILiquidizable> locationItems = null;
-                bool showGroupNames = bool.Parse( GetAttributeValue( "DisplayGroupNames" ) ?? "false" );
-                if ( !showGroupNames )
-                {
-                    var allLocations = groupType.Groups.SelectMany( g => g.Locations ).OrderBy( l => l.Location.Name ).ToList();
-                    if ( locationId > 0 )
-                    {
-                        var selectedLocation = allLocations.FirstOrDefault( l => l.Location.Id == locationId );
-                        placeInList = allLocations.IndexOf( selectedLocation ) + 1;
-                    }
-
-                    // Show Group Names not set, locationItems is Type <CheckInLocation>
-                    locationItems = allLocations.Cast<Rock.Lava.ILiquidizable>().ToList();
-                }
-                else
+                if ( GetAttributeValue( "DisplayGroupNames" ).AsBoolean() )
                 {
                     var allGroups = groupType.Groups.OrderBy( g => g.Group.Name ).ToList();
                     if ( groupId > 0 )
@@ -722,8 +707,20 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         placeInList = allGroups.IndexOf( selectedGroup ) + 1;
                     }
 
-                    // Show Group Names is set, locationItems is Type <CheckInGroup>
+                    // Show group names, locationItems is Type <CheckInGroup>
                     locationItems = allGroups.Cast<Rock.Lava.ILiquidizable>().ToList();
+                }
+                else
+                {
+                    var allLocations = groupType.Groups.SelectMany( g => g.Locations ).OrderBy( l => l.Location.Name ).ToList();
+                    if ( locationId > 0 )
+                    {
+                        var selectedLocation = allLocations.FirstOrDefault( l => l.Location.Id == locationId );
+                        placeInList = allLocations.IndexOf( selectedLocation ) + 1;
+                    }
+
+                    // Show location names, locationItems is Type <CheckInLocation>
+                    locationItems = allLocations.Cast<Rock.Lava.ILiquidizable>().ToList();
                 }
 
                 var pageToGoTo = placeInList / dpLocation.PageSize;

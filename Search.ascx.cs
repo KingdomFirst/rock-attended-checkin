@@ -86,7 +86,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 ", CurrentKioskId, CurrentGroupTypeIds.AsDelimited( "," ) );
                 phScript.Controls.Add( new LiteralControl( script ) );
 
-                if ( bool.Parse( GetAttributeValue( "ShowKeyPad" ) ) == true )
+                if ( GetAttributeValue( "DisplayCountryCode" ).AsBoolean() )
                 {
                     pnlKeyPad.Visible = true;
                 }
