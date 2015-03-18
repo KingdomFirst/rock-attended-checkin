@@ -70,7 +70,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
         protected List<ScheduleAttendance> ScheduleAttendanceList = new List<ScheduleAttendance>();
 
-        #endregion
+        #endregion Variables
 
         #region Control Methods
 
@@ -547,72 +547,61 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
 
             CheckInPerson currentPerson = GetPerson();
+            var rockContext = new RockContext();
+            Person person = new PersonService( rockContext ).Get( currentPerson.Person.Id );
+            person.LoadAttributes();
 
-            var changes = currentPerson.Person.FirstName == tbFirstName.Text;
-            changes = changes || currentPerson.Person.LastName == tbLastName.Text;
-            changes = changes || currentPerson.Person.SuffixValueId == ddlSuffix.SelectedValueAsId();
-            changes = changes || currentPerson.Person.NickName == tbNickname.Text;
-            changes = changes || currentPerson.Person.BirthDate == dpDOB.SelectedDate;
+            person.FirstName = tbFirstName.Text;
+            currentPerson.Person.FirstName = tbFirstName.Text;
 
-            if ( changes )
+            person.LastName = tbLastName.Text;
+            currentPerson.Person.LastName = tbLastName.Text;
+
+            person.SuffixValueId = ddlSuffix.SelectedValueAsId();
+            currentPerson.Person.SuffixValueId = ddlSuffix.SelectedValueAsId();
+
+            var DOB = dpDOB.SelectedDate;
+            if ( DOB != null )
             {
-                var rockContext = new RockContext();
-                Person person = new PersonService( rockContext ).Get( currentPerson.Person.Id );
-                person.LoadAttributes();
-
-                person.FirstName = tbFirstName.Text;
-                currentPerson.Person.FirstName = tbFirstName.Text;
-
-                person.LastName = tbLastName.Text;
-                currentPerson.Person.LastName = tbLastName.Text;
-
-                person.SuffixValueId = ddlSuffix.SelectedValueAsId();
-                currentPerson.Person.SuffixValueId = ddlSuffix.SelectedValueAsId();
-
-                var DOB = dpDOB.SelectedDate;
-                if ( DOB != null )
-                {
-                    person.BirthDay = ( (DateTime)DOB ).Day;
-                    currentPerson.Person.BirthDay = ( (DateTime)DOB ).Day;
-                    person.BirthMonth = ( (DateTime)DOB ).Month;
-                    currentPerson.Person.BirthMonth = ( (DateTime)DOB ).Month;
-                    person.BirthYear = ( (DateTime)DOB ).Year;
-                    currentPerson.Person.BirthYear = ( (DateTime)DOB ).Year;
-                }
-
-                person.NickName = tbNickname.Text.Length > 0 ? tbNickname.Text : tbFirstName.Text;
-                currentPerson.Person.NickName = tbNickname.Text.Length > 0 ? tbNickname.Text : tbFirstName.Text;
-
-                var optionGroup = ddlAbility.SelectedItem.Attributes["optiongroup"];
-                if ( !string.IsNullOrEmpty( optionGroup ) )
-                {
-                    // Selected ability level
-                    if ( optionGroup == "Ability" )
-                    {
-                        person.SetAttributeValue( "AbilityLevel", ddlAbility.SelectedValue );
-                        currentPerson.Person.SetAttributeValue( "AbilityLevel", ddlAbility.SelectedValue );
-
-                        person.GradeOffset = null;
-                        currentPerson.Person.GradeOffset = null;
-
-                        person.SaveAttributeValues();
-                    }
-                    // Selected a grade
-                    else if ( optionGroup == "Grade" )
-                    {
-                        person.GradeOffset = ddlAbility.SelectedValueAsId();
-                        currentPerson.Person.GradeOffset = ddlAbility.SelectedValueAsId();
-
-                        person.Attributes.Remove( "AbilityLevel" );
-                        currentPerson.Person.Attributes.Remove( "AbilityLevel" );
-
-                        person.SaveAttributeValues();
-                    }
-                }
-
-                rockContext.SaveChanges();
+                person.BirthDay = ( (DateTime)DOB ).Day;
+                currentPerson.Person.BirthDay = ( (DateTime)DOB ).Day;
+                person.BirthMonth = ( (DateTime)DOB ).Month;
+                currentPerson.Person.BirthMonth = ( (DateTime)DOB ).Month;
+                person.BirthYear = ( (DateTime)DOB ).Year;
+                currentPerson.Person.BirthYear = ( (DateTime)DOB ).Year;
             }
 
+            person.NickName = tbNickname.Text.Length > 0 ? tbNickname.Text : tbFirstName.Text;
+            currentPerson.Person.NickName = tbNickname.Text.Length > 0 ? tbNickname.Text : tbFirstName.Text;
+            var optionGroup = ddlAbility.SelectedItem.Attributes["optiongroup"];
+
+            if ( !string.IsNullOrEmpty( optionGroup ) )
+            {
+                // Selected ability level
+                if ( optionGroup == "Ability" )
+                {
+                    person.SetAttributeValue( "AbilityLevel", ddlAbility.SelectedValue );
+                    currentPerson.Person.SetAttributeValue( "AbilityLevel", ddlAbility.SelectedValue );
+
+                    person.GradeOffset = null;
+                    currentPerson.Person.GradeOffset = null;
+                }
+                // Selected a grade
+                else if ( optionGroup == "Grade" )
+                {
+                    person.GradeOffset = ddlAbility.SelectedValueAsId();
+                    currentPerson.Person.GradeOffset = ddlAbility.SelectedValueAsId();
+
+                    person.Attributes.Remove( "AbilityLevel" );
+                    currentPerson.Person.Attributes.Remove( "AbilityLevel" );
+                }
+            }
+
+            person.SetAttributeValue( "IsSpecialNeeds", cbSpecialNeeds.Checked.ToTrueFalse() );
+            currentPerson.Person.SetAttributeValue( "IsSpecialNeeds", cbSpecialNeeds.Checked.ToTrueFalse() );
+            person.SaveAttributeValues();           
+
+            rockContext.SaveChanges();
             mdlInfo.Hide();
         }
 
@@ -891,7 +880,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             {
                 ddlAbility.SelectedValue = person.Person.GradeOffset.ToString();
             }
-            else if ( person.Person.Attributes.ContainsKey( "AbilityLevel" ) )
+            else if ( person.Person.AttributeValues.ContainsKey( "AbilityLevel" ) )
             {
                 var personAbility = person.Person.GetAttributeValue( "AbilityLevel" );
                 if ( !string.IsNullOrWhiteSpace( personAbility ) )
@@ -899,6 +888,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     ddlAbility.SelectedValue = personAbility;
                 }
             }
+
+            cbSpecialNeeds.Checked = person.Person.GetAttributeValue( "IsSpecialNeeds" ).AsBoolean();
         }
 
         /// <summary>
@@ -988,6 +979,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
         }
 
-        #endregion
+        #endregion Classes
     }
 }

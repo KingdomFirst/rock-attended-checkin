@@ -175,11 +175,14 @@
                             <div class="col-xs-1">
                                 <Rock:RockDropDownList ID="ddlSuffix" runat="server" Label="Suffix" />
                             </div>
-                            <div class="col-xs-3">
+                            <div class="col-xs-2">
                                 <Rock:DatePicker ID="dpDOB" runat="server" Label="Date of Birth" ValidationGroup="Person" CssClass="date-picker" data-show-age="true" />
                             </div>
                             <div class="col-xs-2">
                                 <Rock:RockDropDownList ID="ddlAbility" runat="server" Label="Ability/Grade" />
+                            </div>
+                            <div class="col-xs-1">
+                                <Rock:RockCheckBox ID="cbSpecialNeeds" runat="server" Label="Special Needs" />
                             </div>
                         </div>
                     </div>

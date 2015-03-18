@@ -173,7 +173,7 @@
                             <div class="col-xs-1">
                                 <Rock:RockDropDownList ID="ddlSuffix" runat="server" CssClass="col-xs-12" Label="Suffix" />
                             </div>
-                            <div class="col-xs-3">
+                            <div class="col-xs-2">
                                 <Rock:DatePicker ID="dpDOBPerson" runat="server" Label="Date of Birth" CssClass="col-xs-12 date-picker" ValidationGroup="Person" data-show-age="true" />
                             </div>
                             <div class="col-xs-2">
@@ -181,6 +181,9 @@
                             </div>
                             <div class="col-xs-2">
                                 <Rock:RockDropDownList ID="ddlAbilityPerson" runat="server" Label="Ability/Grade" CssClass="col-xs-12" />
+                            </div>
+                            <div class="col-xs-1">
+                                <Rock:RockCheckBox ID="cbSpecialNeeds" Label="Special Needs" runat="server" />
                             </div>
 
                             <div class="row flush-sides">
@@ -196,6 +199,7 @@
                                             <asp:BoundField DataField="Age" HeaderText="Age" SortExpression="Age" />
                                             <asp:BoundField DataField="Gender" HeaderText="Gender" SortExpression="Gender" />
                                             <asp:BoundField DataField="Attribute" HeaderText="Ability/Grade" SortExpression="Attribute" />
+                                            <asp:BoundField DataField="IsSpecialNeeds" HeaderText="Special Needs" SortExpression="IsSpecialNeeds" />
                                             <asp:TemplateField>
                                                 <ItemTemplate>
                                                     <Rock:BootstrapButton ID="lbAdd" runat="server" CssClass="btn btn-lg btn-primary" CommandName="Add"
@@ -256,7 +260,7 @@
                                     <div class="col-xs-1">
                                         <label>Suffix</label>
                                     </div>
-                                    <div class="col-xs-3">
+                                    <div class="col-xs-2">
                                         <label>Date of Birth</label>
                                     </div>
                                     <div class="col-xs-2">
@@ -264,6 +268,9 @@
                                     </div>
                                     <div class="col-xs-2">
                                         <label>Ability/Grade</label>
+                                    </div>
+                                    <div class="col-xs-1">
+                                        <label>Special Needs</label>
                                     </div>
                                 </div>
                                 <asp:PlaceHolder ID="itemPlaceholder" runat="server" />
@@ -279,7 +286,7 @@
                                     <div class="col-xs-1">
                                         <Rock:RockDropDownList ID="ddlSuffix" runat="server" />
                                     </div>
-                                    <div class="col-xs-3">
+                                    <div class="col-xs-2">
                                         <Rock:DatePicker ID="dpBirthDate" runat="server" SelectedDate='<%# ((SerializedPerson)Container.DataItem).BirthDate %>' ValidationGroup="Family" CssClass="date-picker" data-show-age="true" />
                                     </div>
                                     <div class="col-xs-2">
@@ -287,6 +294,9 @@
                                     </div>
                                     <div class="col-xs-2">
                                         <Rock:RockDropDownList ID="ddlAbilityGrade" runat="server" />
+                                    </div>
+                                    <div class="col-xs-1">
+                                        <Rock:RockCheckBox ID="cbSpecialNeeds" runat="server" />
                                     </div>
                                 </div>
                             </ItemTemplate>
