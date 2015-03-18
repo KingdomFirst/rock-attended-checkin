@@ -83,17 +83,20 @@ namespace cc.newspring.AttendedCheckIn.Utility
             thisDDL.LoadItems( abilityItems, "Ability" );
             thisDDL.LoadItems( gradeItems, "Grade" );
 
-            if ( abilityItems.Any() && gradeItems.Any() )
+            if ( !string.IsNullOrWhiteSpace( thisDDL.Label ) )
             {
-                thisDDL.Label = "Ability/Grade";
-            }
-            else if ( abilityItems.Any() )
-            {
-                thisDDL.Label = "Ability";
-            }
-            else
-            {
-                thisDDL.Label = "Grade";
+                if ( abilityItems.Any() && gradeItems.Any() )
+                {
+                    thisDDL.Label = "Ability/Grade";
+                }
+                else if ( abilityItems.Any() )
+                {
+                    thisDDL.Label = "Ability";
+                }
+                else
+                {
+                    thisDDL.Label = "Grade";
+                }
             }
         }
     }
