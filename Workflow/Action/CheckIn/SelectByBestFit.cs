@@ -75,7 +75,8 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                             }
                             else
                             {
-                                validGroups = validGroupTypes.SelectMany( gt => gt.Groups.Where( g => !g.ExcludedByFilter ) ).ToList();
+                                //validGroups = validGroupTypes.SelectMany( gt => gt.Groups.Where( g => !g.ExcludedByFilter ) ).ToList();
+                                validGroups = validGroupTypes.SelectMany( gt => gt.Groups ).ToList();
                             }
 
                             if ( validGroups.Any() )
@@ -129,12 +130,11 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                                     Group = g,
                                                     GradeRange = g.Group.GetAttributeValue( "GradeRange" )
                                                         .Split( delimiter, StringSplitOptions.None )
-                                                        .Select( av => av.AsType<decimal>() )
-                                                        .ToList()
+                                                        .Select( decimal.Parse )
                                                 }
                                                 ).ToList();
 
-                                            if ( gradeFilteredGroups.Count > 0 )
+                                            if ( gradeFilteredGroups.Any() )
                                             {
                                                 decimal grade = (decimal)person.Person.GradeOffset;
                                                 closestGradeGroup = gradeFilteredGroups.Aggregate( ( x, y ) => ( x.GradeRange.Max() - x.GradeRange.Min() - grade ) < ( y.GradeRange.Max() - y.GradeRange.Min() - grade ) ? x : y )
@@ -152,11 +152,11 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                                     Group = g,
                                                     AgeRange = g.Group.GetAttributeValue( "AgeRange" )
                                                         .Split( delimiter, StringSplitOptions.None )
-                                                        .Select( av => av.AsType<decimal>() )
+                                                        .Select( decimal.Parse )
                                                 }
                                                 ).ToList();
 
-                                            if ( ageFilteredGroups.Count > 0 )
+                                            if ( ageFilteredGroups.Any() )
                                             {
                                                 decimal age = (decimal)person.Person.AgePrecise;
                                                 closestAgeGroup = ageFilteredGroups.Aggregate( ( x, y ) => ( x.AgeRange.Max() - x.AgeRange.Min() - age ) < ( y.AgeRange.Max() - y.AgeRange.Min() - age ) ? x : y )
