@@ -28,6 +28,8 @@ namespace cc.newspring.AttendedCheckIn.Migrations
     [MigrationNumber( 1, "1.2.0" )]
     public class AddSystemData : Migration
     {
+        public string SpecialNeedsAttributeGuid = "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF";
+
         /// <summary>
         /// The commands to run to migrate plugin to the specific version
         /// </summary>
@@ -323,6 +325,45 @@ namespace cc.newspring.AttendedCheckIn.Migrations
                 INSERT [NoteType] (IsSystem, EntityTypeId, Name, Guid)
                 SELECT 0, @PersonEntityTypeId, 'Check-In', '2BBA0589-6EC2-47F6-8745-34E95E3AC019'
             " );
+
+            // Add special needs attribute
+            Sql( string.Format( @"
+                INSERT INTO [dbo].[Attribute]
+                   ([IsSystem]
+                   ,[FieldTypeId]
+                   ,[EntityTypeId]
+                   ,[Key]
+                   ,[Name]
+                   ,[Description]
+                   ,[Order]
+                   ,[IsGridColumn]
+                   ,[IsMultiValue]
+                   ,[IsRequired]
+                   ,[DefaultValue]
+                   ,[Guid])
+                VALUES
+                   (0
+                   ,(SELECT [Id] FROM [FieldType] WHERE [Class] = 'Rock.Field.Types.BooleanFieldType')
+                   ,(SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person')
+                   ,'IsSpecialNeeds'
+                   ,'Is Special Needs'
+                   ,'Flag to indicate if special needs are present'
+                   ,0
+                   ,0
+                   ,0
+                   ,0
+                   ,'False'
+                   ,'{0}')", SpecialNeedsAttributeGuid ) );
+
+            // Make special needs appear under childhood info category
+            Sql( string.Format( @"
+                INSERT INTO [AttributeCategory]
+                   ([AttributeId]
+                   ,[CategoryId])
+                VALUES
+                   ((SELECT [Id] FROM [Attribute] WHERE [Guid] = '{0}')
+                   ,(SELECT [Id] FROM [Category] WHERE [Name] = 'Childhood Information'))
+            ", SpecialNeedsAttributeGuid ) );
         }
 
         /// <summary>
@@ -330,6 +371,14 @@ namespace cc.newspring.AttendedCheckIn.Migrations
         /// </summary>
         public override void Down()
         {
+            // Remove special needs attribute from category
+            Sql( string.Format( @"
+                DELETE FROM [AttributeCategory] WHERE [AttributeId] = (SELECT [Id] FROM [Attribute] WHERE [Guid] = '{0}')
+            ", SpecialNeedsAttributeGuid ) );
+
+            // Remove attibute
+            RockMigrationHelper.DeleteAttribute( SpecialNeedsAttributeGuid );
+
             // Delete Workflow Type
             Sql( @"DELETE [WorkflowType] WHERE [Guid] = '6E8CD562-A1DA-4E13-A45C-853DB56E0014'" );
             RockMigrationHelper.DeleteEntityType( "B1A855F8-7ED6-49AE-8EEA-D1DCB6C7E944" );
