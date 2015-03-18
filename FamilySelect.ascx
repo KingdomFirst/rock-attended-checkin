@@ -68,7 +68,7 @@
 						                <%# Eval("Person.FullName") %><br />
 						                <span class='checkin-sub-title'>
 							                Birthday: <%# Eval("Person.BirthMonth") + "/" + Eval("Person.BirthDay") + " " ?? "N/A " %>
-                                            <%# Convert.ToInt32( Eval( "Person.Age" ) ) <= 18 ? "Age: " + Eval( "Person.Age" ) : string.Empty %>
+                                            <%# Convert.ToInt32( Eval( "Person.Age" ) ) <= 18 ? "Age: " + Eval( "Person.Age" ) : "Age: Adult" %>
 						                </span>
                                     </asp:LinkButton>
                                 </ItemTemplate>
@@ -100,7 +100,7 @@
 						                <%# Eval("Person.FullName") %><br />
 						                <span class='checkin-sub-title'>
 							                Birthday: <%# Eval("Person.BirthMonth") + "/" + Eval("Person.BirthDay") + " " ?? "N/A " %>
-                                            <%# Convert.ToInt32( Eval( "Person.Age" ) ) <= 18 ? "Age: " + Eval( "Person.Age" ) : string.Empty %>
+                                            <%# Convert.ToInt32( Eval( "Person.Age" ) ) <= 18 ? "Age: " + Eval( "Person.Age" ) : "Age: Adult" %>
 						                </span>
                                     </asp:LinkButton>
                                 </ItemTemplate>
