@@ -83,11 +83,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 ", this.Page.ClientScript.GetPostBackEventReference( lbRefresh, "" ) );
                 phScript.Controls.Add( new LiteralControl( script ) );
 
-                //if ( CurrentKioskId.HasValue && !UserBackedUp && CurrentGroupTypeIds != null )
-                //{
-                //    NavigateToNextPage();
-                //}
-
                 // Initiate the check-in variables
                 lbOk.Focus();
                 SaveState();
@@ -155,6 +150,14 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             if ( CurrentCheckInState == null )
             {
                 maAlert.Show( "Check-in state timed out.  Please refresh the page.", ModalAlertType.Warning );
+                pnlContent.Update();
+                return;
+            }
+
+            // return if kiosk isn't active
+            if ( !CurrentCheckInState.Kiosk.HasLocations( CurrentGroupTypeIds ) || !CurrentCheckInState.Kiosk.HasActiveLocations( CurrentGroupTypeIds ) )
+            {
+                maAlert.Show( "There are no active schedules for this kiosk.", ModalAlertType.Information );
                 pnlContent.Update();
                 return;
             }

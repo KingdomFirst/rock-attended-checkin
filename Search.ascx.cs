@@ -69,14 +69,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
             if ( !Page.IsPostBack )
             {
-                if ( !CurrentCheckInState.Kiosk.HasLocations( CurrentGroupTypeIds ) || !CurrentCheckInState.Kiosk.HasActiveLocations( CurrentGroupTypeIds ) )
-                {
-                    DateTimeOffset activeAt = CurrentCheckInState.Kiosk.FilteredGroupTypes( CurrentGroupTypeIds ).Select( g => g.NextActiveTime ).Min();
-                    maWarning.Show( "There are no active schedules for this kiosk.", ModalAlertType.Information );
-                    pnlContent.Update();
-                    return;
-                }
-                else if ( CurrentCheckInState != null && !string.IsNullOrWhiteSpace( CurrentCheckInState.CheckIn.SearchValue ) )
+                if ( CurrentCheckInState != null && !string.IsNullOrWhiteSpace( CurrentCheckInState.CheckIn.SearchValue ) )
                 {
                     tbSearchBox.Text = CurrentCheckInState.CheckIn.SearchValue;
                 }
