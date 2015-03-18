@@ -50,8 +50,8 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
         /// <exception cref="System.NotImplementedException"></exception>
         public override bool Execute( RockContext rockContext, Rock.Model.WorkflowAction action, Object entity, out List<string> errorMessages )
         {
-            bool roomBalanceByGroup = bool.Parse( GetAttributeValue( action, "RoomBalanceByGroup" ) ?? "false" );
-            bool roomBalanceByLocation = bool.Parse( GetAttributeValue( action, "RoomBalanceByLocation" ) ?? "false" );
+            bool roomBalanceByGroup = GetAttributeValue( action, "RoomBalanceByGroup" ).AsBoolean();
+            bool roomBalanceByLocation = GetAttributeValue( action, "RoomBalanceByLocation" ).AsBoolean();
             var checkInState = GetCheckInState( entity, out errorMessages );
 
             if ( checkInState == null )
