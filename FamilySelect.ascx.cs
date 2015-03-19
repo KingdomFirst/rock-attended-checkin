@@ -38,6 +38,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [Category( "Check-in > Attended" )]
     [Description( "Attended Check-In Family Select Block" )]
     [BooleanField( "Enable Add Buttons", "Show the add people/visitor/family buttons on the family select page?", true )]
+    [DefinedValueField( "2E6540EA-63F0-40FE-BE50-F2A84735E600", "Default Connection Status", "Select the default connection status for people added in checkin", true, false, "B91BA046-BC1E-400C-B85D-638C1F4E0CE2" )]
     [TextField( "Not Found Text", "What text should display when the nothing is found?", true, "Please add them using one of the buttons on the right" )]
     public partial class FamilySelect : CheckInBlock
     {
@@ -988,8 +989,15 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             {
                 var rockContext = new RockContext();
                 var personService = new PersonService( rockContext );
-                var connectionStatus = DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_CONNECTION_STATUS ) );
-                var statusAttendee = connectionStatus.DefinedValues.FirstOrDefault( dv => dv.Guid.Equals( new Guid( Rock.SystemGuid.DefinedValue.PERSON_CONNECTION_STATUS_ATTENDEE ) ) );
+
+                var defaultStatusGuid = GetAttributeValue( "DefaultConnectionStatus" ).AsGuid();
+                var connectionStatus = DefinedValueCache.Read( defaultStatusGuid, rockContext );
+
+                var recordStatus = DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_RECORD_STATUS ) );
+                var activeRecord = recordStatus.DefinedValues.FirstOrDefault( dv => dv.Guid.Equals( new Guid( Rock.SystemGuid.DefinedValue.PERSON_RECORD_STATUS_ACTIVE ) ) );
+
+                var recordType = DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_RECORD_TYPE ) );
+                var personType = recordType.DefinedValues.FirstOrDefault( dv => dv.Guid.Equals( new Guid( Rock.SystemGuid.DefinedValue.PERSON_RECORD_TYPE_PERSON ) ) );
 
                 foreach ( SerializedPerson np in serializedPeople.Where( p => p.IsValid() ) )
                 {
@@ -1009,9 +1017,19 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         person.BirthYear = ( (DateTime)np.BirthDate ).Year;
                     }
 
-                    if ( statusAttendee != null )
+                    if ( connectionStatus != null )
                     {
-                        person.ConnectionStatusValueId = statusAttendee.Id;
+                        person.ConnectionStatusValueId = connectionStatus.Id;
+                    }
+
+                    if ( activeRecord != null )
+                    {
+                        person.RecordStatusValueId = activeRecord.Id;
+                    }
+
+                    if ( personType != null )
+                    {
+                        person.RecordTypeValueId = personType.Id;
                     }
 
                     if ( hasGrade )
