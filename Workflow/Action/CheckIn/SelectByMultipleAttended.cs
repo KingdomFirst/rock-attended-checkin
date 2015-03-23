@@ -147,9 +147,13 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         if ( schedule != null )
                                         {
                                             schedule.Selected = true;
+                                            schedule.LastCheckIn = groupAttendance.StartDateTime;
                                             location.Selected = true;
+                                            location.LastCheckIn = groupAttendance.StartDateTime;
                                             group.Selected = true;
+                                            group.LastCheckIn = groupAttendance.StartDateTime;
                                             groupType.Selected = true;
+                                            group.LastCheckIn = groupAttendance.StartDateTime;
                                         }
                                     }
                                 }
