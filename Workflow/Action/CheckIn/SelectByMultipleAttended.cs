@@ -82,51 +82,67 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
 
                         foreach ( var groupAttendance in lastDateAttendances )
                         {
-                            var groupType = person.GroupTypes.Where( gt => !gt.ExcludedByFilter )
-                                .FirstOrDefault( t => t.GroupType.Id == groupAttendance.Group.GroupTypeId );
-
+                            // Start with unfiltered groups for kids with abnormal age and grade parameters (1%)
+                            var groupType = person.GroupTypes.FirstOrDefault( t => t.GroupType.Id == groupAttendance.Group.GroupTypeId );
                             if ( groupType != null )
                             {
                                 CheckInGroup group = null;
-
                                 if ( groupType.Groups.Count == 1 )
                                 {
+                                    // Only a single group is open
                                     group = groupType.Groups.FirstOrDefault();
-                                }
-                                else if ( roomBalanceByGroup )
-                                {
-                                    group = groupType.Groups.Where( g => !g.ExcludedByFilter )
-                                        .OrderBy( g => g.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum() ).FirstOrDefault();
                                 }
                                 else
                                 {
-                                    group = groupType.Groups.Where( g => !g.ExcludedByFilter )
-                                        .FirstOrDefault( g => g.Group.Id == groupAttendance.GroupId );
+                                    // Pick the group they last attended
+                                    group = groupType.Groups.FirstOrDefault( g => g.Group.Id == groupAttendance.GroupId );
+                                }
+
+                                if ( roomBalanceByGroup )
+                                {
+                                    // Respect filtering when room balancing
+                                    var filteredGroups = groupType.Groups.Where( g => !g.ExcludedByFilter ).ToList();
+                                    if ( filteredGroups.Any() )
+                                    {
+                                        group = filteredGroups.OrderBy( g => g.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum() ).FirstOrDefault();
+                                    }
                                 }
 
                                 if ( group != null )
                                 {
                                     CheckInLocation location = null;
-
                                     if ( group.Locations.Count == 1 )
                                     {
+                                        // Only a single location is open
                                         location = group.Locations.FirstOrDefault();
-                                    }
-                                    else if ( roomBalanceByLocation )
-                                    {
-                                        location = group.Locations.Where( l => !l.ExcludedByFilter && l.Schedules.Any( s => !s.ExcludedByFilter && s.Schedule.IsCheckInActive ) )
-                                            .OrderBy( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).FirstOrDefault();
                                     }
                                     else
                                     {
-                                        location = group.Locations.Where( l => !l.ExcludedByFilter )
-                                            .FirstOrDefault( l => l.Location.Id == groupAttendance.LocationId );
+                                        // Pick the location they last attended
+                                        location = group.Locations.FirstOrDefault( l => l.Location.Id == groupAttendance.LocationId );
+                                    }
+
+                                    if ( roomBalanceByLocation )
+                                    {
+                                        // Respect filtering when room balancing
+                                        var filteredLocations = group.Locations.Where( l => !l.ExcludedByFilter && l.Schedules.Any( s => !s.ExcludedByFilter && s.Schedule.IsCheckInActive ) ).ToList();
+                                        if ( filteredLocations.Any() )
+                                        {
+                                            location = filteredLocations.OrderBy( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).FirstOrDefault();
+                                        }
                                     }
 
                                     if ( location != null )
                                     {
-                                        var schedule = location.Schedules.Where( s => !s.ExcludedByFilter )
-                                            .FirstOrDefault( s => s.Schedule.Id == groupAttendance.ScheduleId );
+                                        CheckInSchedule schedule = null;
+                                        if ( location.Schedules.Count == 1 )
+                                        {
+                                            schedule = location.Schedules.FirstOrDefault();
+                                        }
+                                        else
+                                        {
+                                            schedule = location.Schedules.FirstOrDefault( s => s.Schedule.Id == groupAttendance.ScheduleId );
+                                        }
 
                                         if ( schedule != null )
                                         {
