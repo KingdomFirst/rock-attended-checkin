@@ -130,13 +130,15 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                                     Group = g,
                                                     GradeOffsets = g.Group.GetAttributeValue( "GradeRange" )
                                                         .Split( delimiter, StringSplitOptions.None )
+                                                        .Where( av => !string.IsNullOrEmpty( av ) )
                                                         .Select( av => gradeValues.FirstOrDefault( v => v.Guid == new Guid( av ) ) )
                                                         .Select( av => av.Value.AsDecimal() )
                                                         .ToList()
                                                 }
                                                 ).ToList();
 
-                                            if ( filteredGroups.Any() )
+                                            // Only check groups that have valid grade offsets
+                                            if ( filteredGroups.Any( g => g.GradeOffsets.Any() ) )
                                             {
                                                 decimal baseVariance = 100;
                                                 decimal gradeOffset = (decimal)person.Person.GradeOffset.Value;
@@ -164,12 +166,13 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                                     Group = g,
                                                     AgeRange = g.Group.GetAttributeValue( "AgeRange" )
                                                         .Split( delimiter, StringSplitOptions.None )
+                                                        .Where( av => !string.IsNullOrEmpty( av ) )
                                                         .Select( av => av.AsType<decimal>() )
                                                         .ToList()
                                                 }
                                                 ).ToList();
 
-                                            if ( filteredGroups.Any() )
+                                            if ( filteredGroups.Any( g => g.AgeRange.Any() ) )
                                             {
                                                 decimal baseVariance = 100;
                                                 decimal personAge = (decimal)person.Person.AgePrecise;
