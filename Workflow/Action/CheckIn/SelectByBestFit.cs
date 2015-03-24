@@ -153,6 +153,19 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                                         baseVariance = gradeVariance;
                                                     }
                                                 }
+
+                                                /* ======================================================== *
+                                                    find the next closest grade group (that doesn't match)
+                                                * ========================================================= *
+                                                    if (grade > max)
+                                                       grade - max
+                                                    else if (grade < min)
+                                                       min - grade
+                                                    else 0;
+
+                                                // add a tiny variance to offset larger groups:
+                                                    result += ((max - min)/100)
+                                                * ========================================================= */
                                             }
                                         }
 
