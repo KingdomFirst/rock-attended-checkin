@@ -36,10 +36,14 @@
                                     <Columns>
                                         <asp:BoundField DataField="PersonId" Visible="false" />
                                         <asp:BoundField DataField="Name" HeaderText="Name" />
-                                        <asp:BoundField DataField="GroupId" Visible="false" />
-                                        <asp:BoundField DataField="Location" HeaderText="Assigned To" />
+                                        <asp:BoundField DataField="GroupId" Visible="false" />                                        
+                                        <asp:BoundField DataField="Location" HeaderText="Assigned To">
+                                            <ItemStyle CssClass='<%= ((Checkins)Container.DataItem).LocationChecked ? "fa fa-check-circle-o" : "" %>' />
+                                        </asp:BoundField>
                                         <asp:BoundField DataField="LocationId" Visible="false" />
-                                        <asp:BoundField DataField="Schedule" HeaderText="Time" />
+                                        <asp:BoundField DataField="Schedule" HeaderText="Time">
+                                            <ItemStyle CssClass='<%= ((Checkins)Container.DataItem).ScheduleChecked ? "fa fa-check-circle-o" : "" %>' />
+                                        </asp:BoundField>
                                         <asp:BoundField DataField="ScheduleId" Visible="false" />
                                         <Rock:EditField HeaderText="Edit" ControlStyle-CssClass="btn btn-lg btn-primary" OnClick="gPersonList_Edit" />
                                         <asp:TemplateField HeaderText="Print">

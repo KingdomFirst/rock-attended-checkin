@@ -102,12 +102,19 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                             {
                                 var checkIn = new Checkins();
                                 checkIn.PersonId = person.Person.Id;
-                                checkIn.Name = person.Person.FullName;
+                                checkIn.Name = person.Person.FullName;                                
                                 checkIn.GroupId = group.Group.Id;
                                 checkIn.Location = location.Location.Name;
                                 checkIn.LocationId = location.Location.Id;
                                 checkIn.Schedule = schedule.Schedule.Name;
                                 checkIn.ScheduleId = schedule.Schedule.Id;
+
+                                if ( location.LastCheckIn != null && schedule.LastCheckIn != null )
+                                {
+                                    checkIn.LocationChecked = true;
+                                    checkIn.ScheduleChecked = true;
+                                }
+
                                 checkInList.Add( checkIn );
                             }
                         }
@@ -423,6 +430,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                             {
                                                 printContent = Regex.Replace( printContent, string.Format( @"(?<=\^FD){0}(?=\^FS)", mergeField.Key ), mergeField.Value );
 
+                                                // don't print empty field content
                                                 //if ( !string.IsNullOrWhiteSpace( mergeField.Value ) )
                                                 //{
                                                 //    printContent = Regex.Replace( printContent, string.Format( @"(?<=\^FD){0}(?=\^FS)", mergeField.Key ), mergeField.Value );
@@ -528,14 +536,18 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             public string Name { get; set; }
 
             public int GroupId { get; set; }
-
+            
+            public int LocationId { get; set; }
+            
             public string Location { get; set; }
 
-            public int LocationId { get; set; }
+            public bool LocationChecked { get; set; }                        
+
+            public int ScheduleId { get; set; }
 
             public string Schedule { get; set; }
 
-            public int ScheduleId { get; set; }
+            public bool ScheduleChecked { get; set; }
 
             public Checkins()
             {
