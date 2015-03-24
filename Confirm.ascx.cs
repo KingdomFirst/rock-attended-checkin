@@ -56,12 +56,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
             RockPage.AddScriptLink( this.Page, "~/Scripts/CheckinClient/cordova-2.4.0.js", false );
             RockPage.AddScriptLink( this.Page, "~/Scripts/CheckinClient/ZebraPrint.js", false );
-
-            if ( CurrentWorkflow == null || CurrentCheckInState == null )
-            {
-                NavigateToHomePage();
-                return;
-            }
         }
 
         /// <summary>
@@ -72,8 +66,15 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             base.OnLoad( e );
 
+            if ( CurrentWorkflow == null || CurrentCheckInState == null )
+            {
+                NavigateToHomePage();
+                return;
+            }
+
             if ( !Page.IsPostBack )
             {
+                gPersonList.UseAccessibleHeader = true;
                 BindGrid();
             }
         }
@@ -101,18 +102,18 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                             foreach ( var schedule in location.Schedules.Where( s => s.Selected ) )
                             {
                                 var checkIn = new Checkins();
-                                checkIn.PersonId = person.Person.Id;
-                                checkIn.Name = person.Person.FullName;                                
-                                checkIn.GroupId = group.Group.Id;
+
+                                checkIn.Name = person.Person.FullName;
                                 checkIn.Location = location.Location.Name;
-                                checkIn.LocationId = location.Location.Id;
                                 checkIn.Schedule = schedule.Schedule.Name;
+                                checkIn.PersonId = person.Person.Id;
+                                checkIn.GroupId = group.Group.Id;
+                                checkIn.LocationId = location.Location.Id;
                                 checkIn.ScheduleId = schedule.Schedule.Id;
 
-                                if ( location.LastCheckIn != null && schedule.LastCheckIn != null )
+                                if ( schedule.LastCheckIn != null && schedule.LastCheckIn.Value.Date.Equals( DateTime.Today ) )
                                 {
-                                    checkIn.LocationChecked = true;
-                                    checkIn.ScheduleChecked = true;
+                                    checkIn.CheckedIn = true;
                                 }
 
                                 checkInList.Add( checkIn );
@@ -128,6 +129,22 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
             gPersonList.DataSource = checkInList.OrderBy( c => c.Name ).ThenBy( c => c.Schedule ).ToList();
             gPersonList.DataBind();
+        }
+
+        /// <summary>
+        /// Handles the RowDataBound event of the gPersonList control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="GridViewRowEventArgs"/> instance containing the event data.</param>
+        protected void gPersonList_RowDataBound( object sender, GridViewRowEventArgs e )
+        {
+            if ( e.Row.RowType == DataControlRowType.DataRow )
+            {
+                if ( ( (Checkins)e.Row.DataItem ).CheckedIn )
+                {
+                    e.Row.Cells[3].Text = "<span class=\"fa fa-check\"/>";
+                }
+            }
         }
 
         #endregion Control Methods
@@ -536,18 +553,16 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             public string Name { get; set; }
 
             public int GroupId { get; set; }
-            
-            public int LocationId { get; set; }
-            
-            public string Location { get; set; }
 
-            public bool LocationChecked { get; set; }                        
+            public int LocationId { get; set; }
+
+            public string Location { get; set; }
 
             public int ScheduleId { get; set; }
 
             public string Schedule { get; set; }
 
-            public bool ScheduleChecked { get; set; }
+            public bool CheckedIn { get; set; }
 
             public Checkins()
             {
