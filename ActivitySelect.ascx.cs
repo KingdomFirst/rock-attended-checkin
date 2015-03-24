@@ -75,27 +75,18 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         #region Control Methods
 
         /// <summary>
-        /// Raises the <see cref="E:System.Web.UI.Control.Init" /> event.
-        /// </summary>
-        /// <param name="e">An <see cref="T:System.EventArgs" /> object that contains the event data.</param>
-        protected override void OnInit( EventArgs e )
-        {
-            base.OnInit( e );
-
-            if ( CurrentWorkflow == null || CurrentCheckInState == null )
-            {
-                NavigateToHomePage();
-                return;
-            }
-        }
-
-        /// <summary>
         /// Raises the <see cref="E:System.Web.UI.Control.Load" /> event.
         /// </summary>
         /// <param name="e">The <see cref="T:System.EventArgs" /> object that contains the event data.</param>
         protected override void OnLoad( EventArgs e )
         {
             base.OnLoad( e );
+
+            if ( CurrentWorkflow == null || CurrentCheckInState == null )
+            {
+                NavigateToHomePage();
+                return;
+            }
 
             var personId = Request.QueryString["personId"].AsType<int?>();
             var person = GetPerson( personId );
@@ -599,7 +590,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
             person.SetAttributeValue( "IsSpecialNeeds", cbSpecialNeeds.Checked.ToTrueFalse() );
             currentPerson.Person.SetAttributeValue( "IsSpecialNeeds", cbSpecialNeeds.Checked.ToTrueFalse() );
-            person.SaveAttributeValues();           
+            person.SaveAttributeValues();
 
             rockContext.SaveChanges();
             mdlInfo.Hide();

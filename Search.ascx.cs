@@ -45,27 +45,18 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         #region Control Methods
 
         /// <summary>
-        /// Raises the <see cref="E:System.Web.UI.Control.Init" /> event.
-        /// </summary>
-        /// <param name="e">An <see cref="T:System.EventArgs" /> object that contains the event data.</param>
-        protected override void OnInit( EventArgs e )
-        {
-            base.OnInit( e );
-
-            if ( CurrentKioskId == null || CurrentCheckInState == null )
-            {
-                NavigateToLinkedPage( "AdminPage" );
-                return;
-            }
-        }
-
-        /// <summary>
         /// Raises the <see cref="E:System.Web.UI.Control.Load" /> event.
         /// </summary>
         /// <param name="e">The <see cref="T:System.EventArgs" /> object that contains the event data.</param>
         protected override void OnLoad( EventArgs e )
         {
             base.OnLoad( e );
+
+            if ( CurrentKioskId == null || CurrentCheckInState == null )
+            {
+                NavigateToLinkedPage( "AdminPage" );
+                return;
+            }
 
             if ( !Page.IsPostBack )
             {
