@@ -131,11 +131,6 @@
                     <asp:LinkButton ID="lbAddFamilyMember" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClick="lbAddFamilyMember_Click" Text="Add Person" CausesValidation="false" EnableViewState="false" />
                     <asp:LinkButton ID="lbNewFamily" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClick="lbNewFamily_Click" Text="New Family" CausesValidation="false" EnableViewState="false" />
                 </div>
-
-                <%--<div>
-                    <Rock:BootstrapButton ID="lbCheckout" runat="server" CssClass="btn btn-lg btn-primary btn-lg btn-block btn-checkin-select checkout" OnClick="lbCheckout_Click"
-                        Text="Checkout" EnableViewState="false" />
-                </div>--%>
             </div>
         </asp:Panel>
 

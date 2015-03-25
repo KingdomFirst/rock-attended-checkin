@@ -143,7 +143,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             pnlPerson.Visible = hasValidResults;
             pnlVisitor.Visible = hasValidResults;
             actions.Visible = hasValidResults;
-            //lbCheckout.Visible = hasValidResults;
 
             if ( !hasValidResults )
             {
@@ -304,16 +303,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             lvNewFamily.DataBind();
             mdlNewFamily.Show();
         }
-
-        /// <summary>
-        /// Handles the Click event of the lbCheckout control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
-        protected void lbCheckout_Click( object sender, EventArgs e )
-        {
-        }
-
+        
         /// <summary>
         /// Handles the PagePropertiesChanging event of the lvFamily control.
         /// </summary>
