@@ -72,7 +72,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                         .Where( a =>
                             a.PersonAlias.PersonId == person.Person.Id &&
                             personGroupTypeIds.Contains( a.Group.GroupTypeId ) &&
-                            a.StartDateTime >= sixMonthsAgo )
+                            a.StartDateTime >= sixMonthsAgo && a.DidAttend == true )
                         .ToList();
 
                     if ( personAttendances.Any() )
