@@ -177,8 +177,8 @@
                             <div class="col-xs-2">
                                 <Rock:RockDropDownList ID="ddlAbilityPerson" runat="server" Label="Ability/Grade" CssClass="col-xs-12" />
                             </div>
-                            <div class="col-xs-1">
-                                <Rock:RockCheckBox ID="cbSpecialNeeds" Label="Special Needs" runat="server" />
+                            <div class="col-xs-1 shift-up centered">
+                                <Rock:RockCheckBox ID="cbSpecialNeeds" Label="Special Needs" runat="server" CssClass="" />
                             </div>
 
                             <div class="row flush-sides">
@@ -186,15 +186,14 @@
                                     <Rock:Grid ID="rGridPersonResults" runat="server" OnRowCommand="rGridPersonResults_AddExistingPerson" EnableResponsiveTable="true"
                                         OnGridRebind="rGridPersonResults_GridRebind" ShowActionRow="false" PageSize="4" DataKeyNames="Id" AllowSorting="true">
                                         <Columns>
-                                            <asp:BoundField DataField="Id" Visible="false" />
-                                            <asp:BoundField DataField="FirstName" HeaderText="First Name" SortExpression="FirstName" />
-                                            <asp:BoundField DataField="LastName" HeaderText="Last Name" SortExpression="LastName" />
-                                            <asp:BoundField DataField="SuffixValue" HeaderText="Suffix" SortExpression="SuffixValue" />
-                                            <asp:BoundField DataField="BirthDate" HeaderText="DOB" SortExpression="BirthDate" DataFormatString="{0:MM/dd/yy}" HtmlEncode="false" />
-                                            <asp:BoundField DataField="Age" HeaderText="Age" SortExpression="Age" />
-                                            <asp:BoundField DataField="Gender" HeaderText="Gender" SortExpression="Gender" />
-                                            <asp:BoundField DataField="Attribute" HeaderText="Ability/Grade" SortExpression="Attribute" />
-                                            <asp:BoundField DataField="IsSpecialNeeds" HeaderText="Special Needs" SortExpression="IsSpecialNeeds" />
+                                            <Rock:RockBoundField HeaderStyle-CssClass="col-xs-2" ItemStyle-CssClass="col-xs-2" HeaderText="First Name" DataField="FirstName" SortExpression="FirstName" />
+                                            <Rock:RockBoundField HeaderStyle-CssClass="col-xs-2" ItemStyle-CssClass="col-xs-2" HeaderText="Last Name" DataField="LastName" SortExpression="LastName" />
+                                            <Rock:RockBoundField HeaderStyle-CssClass="col-xs-1" ItemStyle-CssClass="col-xs-1" HeaderText="Suffix" DataField="SuffixValue" SortExpression="SuffixValue" />
+                                            <Rock:RockBoundField HeaderStyle-CssClass="col-xs-1" ItemStyle-CssClass="col-xs-1" HeaderText="DOB" DataField="BirthDate" DataFormatString="{0:MM/dd/yy}"  HtmlEncode="false" SortExpression="BirthDate" />
+                                            <Rock:RockBoundField HeaderStyle-CssClass="col-xs-1" ItemStyle-CssClass="col-xs-1" HeaderText="Age" DataField="Age" SortExpression="Age" />
+                                            <Rock:RockBoundField HeaderStyle-CssClass="col-xs-2" ItemStyle-CssClass="col-xs-2" HeaderText="Gender" DataField="Gender" SortExpression="Gender" />
+                                            <Rock:RockBoundField HeaderStyle-CssClass="col-xs-2" ItemStyle-CssClass="col-xs-2" HeaderText="Ability/Grade" DataField="Attribute" SortExpression="Attribute" />
+                                            <Rock:RockBoundField HeaderStyle-CssClass="col-xs-1" ItemStyle-CssClass="col-xs-1" HeaderText="Special Needs" DataField="IsSpecialNeeds" SortExpression="IsSpecialNeeds" />
                                             <asp:TemplateField>
                                                 <ItemTemplate>
                                                     <Rock:BootstrapButton ID="lbAdd" runat="server" CssClass="btn btn-lg btn-primary" CommandName="Add"
@@ -318,8 +317,6 @@
 <script type="text/javascript">
 
     var setControlEvents = function () {
-
-        $('.modal:visible').css('z-index', Number($('.modal-backdrop').css('z-index')) + 1);
 
         $('.family').unbind('click').on('click', function () {
             $(this).toggleClass('active');

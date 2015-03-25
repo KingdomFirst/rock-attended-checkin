@@ -82,16 +82,13 @@
                     <h3 class="text-center">Selected</h3>
                     <asp:UpdatePanel ID="pnlSelected" runat="server" UpdateMode="Conditional">
                         <ContentTemplate>
-                            <div class="grid cozy">
-                                <Rock:Grid ID="gSelectedGrid" runat="server" ShowHeader="false" ShowFooter="false" EnableResponsiveTable="false" DisplayType="Light"
+                            <div class="grid">
+                                <Rock:Grid ID="gSelectedGrid" runat="server" ShowHeader="false" ShowFooter="false" EnableResponsiveTable="true" DisplayType="Light"
                                     DataKeyNames="GroupId, LocationId, ScheduleId" EmptyDataText="No Locations Selected">
                                     <Columns>
-                                        <asp:BoundField DataField="Schedule" />
-                                        <asp:BoundField DataField="ScheduleId" Visible="false" />
-                                        <asp:BoundField DataField="GroupId" Visible="false" />
-                                        <asp:BoundField DataField="Location" />
-                                        <asp:BoundField DataField="LocationId" Visible="false" />
-                                        <Rock:DeleteField OnClick="gSelectedGrid_Delete" ControlStyle-CssClass="btn btn-primary btn-negative" />
+                                        <asp:BoundField ItemStyle-CssClass="col-xs-4" DataField="Schedule" />
+                                        <asp:BoundField ItemStyle-CssClass="col-xs-7" DataField="Location" />
+                                        <Rock:DeleteField ControlStyle-CssClass="col-xs-1 btn btn-lg btn-primary accent-bold-color accent-bold-color-bordered" OnClick="gSelectedGrid_Delete" />
                                     </Columns>
                                 </Rock:Grid>
                             </div>
@@ -110,6 +107,7 @@
             </div>
         </asp:Panel>
 
+        <!-- NOTES MODAL -->
         <Rock:ModalDialog ID="mdlNotes" runat="server" Content-DefaultButton="lbSaveNotes">
             <Content>
                 <div class="soft-quarter-ends">
@@ -144,6 +142,7 @@
             </Content>
         </Rock:ModalDialog>
 
+        <!-- EDIT INFO MODAL -->
         <Rock:ModalDialog ID="mdlInfo" runat="server" Content-DefaultButton="lbSaveEditInfo">
             <Content>
                 <div class="soft-quarter-ends">
@@ -181,7 +180,7 @@
                             <div class="col-xs-2">
                                 <Rock:RockDropDownList ID="ddlAbility" runat="server" Label="Ability/Grade" />
                             </div>
-                            <div class="col-xs-1">
+                            <div class="col-xs-1 shift-up centered">
                                 <Rock:RockCheckBox ID="cbSpecialNeeds" runat="server" Label="Special Needs" />
                             </div>
                         </div>
@@ -193,15 +192,3 @@
 </asp:UpdatePanel>
 
 <script type="text/javascript" src="../plugins/cc_newspring/attendedcheckin/scripts.js"></script>
-
-<script type="text/javascript">
-
-    var removeModalOverlay = function () {
-        $('.modal:visible').css('z-index', Number($('.modal-backdrop').css('z-index')) + 1);
-    };
-
-    $(document).ready(function () {
-        removeModalOverlay();
-    });
-    Sys.WebForms.PageRequestManager.getInstance().add_endRequest(removeModalOverlay);
-</script>

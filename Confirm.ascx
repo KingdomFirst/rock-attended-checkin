@@ -30,8 +30,8 @@
                     <asp:UpdatePanel ID="pnlSelectedGrid" runat="server">
                         <ContentTemplate>
                             <div class="grid in-the-middle">
-                                <Rock:Grid ID="gPersonList" runat="server" DataKeyNames="PersonId,GroupId,LocationId,ScheduleId,CheckedIn" DisplayType="Light"
-                                    CssClass="three-col-with-controls" EnableResponsiveTable="false" ShowFooter="false" EmptyDataText="No People Selected"
+                                <Rock:Grid ID="gPersonList" runat="server" DataKeyNames="PersonId,GroupId,LocationId,ScheduleId,CheckedIn"
+                                    DisplayType="Light" EnableResponsiveTable="true" ShowFooter="false" EmptyDataText="No People Selected" CssClass="three-col-with-controls"
                                     OnRowCommand="gPersonList_Print" OnRowDataBound="gPersonList_RowDataBound" OnGridRebind="gPersonList_GridRebind">
                                     <Columns>
                                         <Rock:RockBoundField HeaderStyle-CssClass="col-xs-3" HeaderText="Name" ItemStyle-CssClass="col-xs-3" DataField="Name" />
@@ -46,7 +46,7 @@
                                                 </asp:LinkButton>
                                             </ItemTemplate>
                                         </Rock:RockTemplateField>
-                                        <Rock:DeleteField HeaderStyle-CssClass="col-xs-1 centered" HeaderText="Delete" ControlStyle-CssClass="col-xs-1 btn btn-lg btn-primary btn-negative" OnClick="gPersonList_Delete" />
+                                        <Rock:DeleteField HeaderStyle-CssClass="col-xs-1 centered" HeaderText="Delete" ControlStyle-CssClass="col-xs-1 btn btn-lg btn-primary accent-bold-color accent-bold-color-bordered" OnClick="gPersonList_Delete" />
                                     </Columns>
                                 </Rock:Grid>
                                 <div class="col-xs-offset-9 col-xs-3 hard-right push-quarter-top">
