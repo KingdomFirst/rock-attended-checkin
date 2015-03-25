@@ -27,6 +27,7 @@ using System.Web.UI.WebControls;
 using Rock;
 using Rock.Attribute;
 using Rock.CheckIn;
+using Rock.Data;
 using Rock.Model;
 using Rock.Web.UI;
 using Rock.Web.UI.Controls;
@@ -111,11 +112,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                 checkIn.LocationId = location.Location.Id;
                                 checkIn.ScheduleId = schedule.Schedule.Id;
 
-                                if ( schedule.LastCheckIn != null && schedule.LastCheckIn.Value.Date.Equals( DateTime.Today ) )
-                                {
-                                    checkIn.CheckedIn = true;
-                                }
-
+                                // are they already checked in?
+                                checkIn.CheckedIn = schedule.LastCheckIn != null && schedule.LastCheckIn.Value.Date.Equals( DateTime.Today );
                                 checkInList.Add( checkIn );
                             }
                         }
@@ -201,6 +199,20 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var groupId = Convert.ToInt32( dataKeyValues["GroupId"] );
             var locationId = Convert.ToInt32( dataKeyValues["LocationId"] );
             var scheduleId = Convert.ToInt32( dataKeyValues["ScheduleId"] );
+            var alreadyCheckedIn = dataKeyValues["CheckedIn"].ToString().AsBoolean();
+
+            if ( alreadyCheckedIn )
+            {
+                var rockContext = new RockContext();
+                var personAttendance = new AttendanceService( rockContext ).Get( DateTime.Today, locationId, scheduleId, groupId, personId );
+                if ( personAttendance != null )
+                {
+                    personAttendance.DidAttend = false;
+                    rockContext.SaveChanges();
+                }
+
+                rockContext.Dispose();
+            }
 
             var selectedPerson = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault()
                 .People.Where( p => p.Person.Id == personId ).FirstOrDefault();
@@ -226,7 +238,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 selectedSchedule.Selected = false;
                 selectedSchedule.PreSelected = false;
 
-                // clear checkin rows without anything selected
+                // clear checkin rows that aren't selected
                 if ( !selectedLocation.Schedules.Any( s => s.Selected ) )
                 {
                     selectedLocation.Selected = false;
