@@ -8,80 +8,216 @@ html {
 }
 
 /* Global Helpers */
-.push-top { margin-top: $base-spacing-unit; }
-.push-right { margin-right: $base-spacing-unit; }
-.push-bottom { margin-bottom: $base-spacing-unit; }
-.push-left { margin-left: $base-spacing-unit; }
+.push-top {
+    margin-top: $base-spacing-unit;
+}
 
-.push-quarter-top { margin-top: $base-spacing-unit/4; }
-.push-quarter-right { margin-right: $base-spacing-unit/4; }
-.push-quarter-bottom { margin-bottom: $base-spacing-unit/4; }
-.push-quarter-left { margin-left: $base-spacing-unit/4; }
+.push-right {
+    margin-right: $base-spacing-unit;
+}
 
-.flush { margin: 0px !important; }
-.flush-sides { margin-left: 0px !important; margin-right: 0px !important; }
-.flush-ends { margin-top: 0px !important; margin-bottom: 0px !important; }
-.flush-top { margin-top: 0px !important; }
-.flush-right { margin-right: 0px !important; }
-.flush-bottom { margin-bottom: 0px !important; }
-.flush-left { margin-left: 0px !important; }
+.push-bottom {
+    margin-bottom: $base-spacing-unit;
+}
 
-.hard { padding: 0px !important; }
-.hard-top { padding-top: 0px !important; }
-.hard-right { padding-right: 0px !important; }
-.hard-bottom { padding-bottom: 0px !important; }
-.hard-left { padding-left: 0px !important; }
+.push-left {
+    margin-left: $base-spacing-unit;
+}
 
-.soft { padding: $base-spacing-unit; }
-.soft-ends { padding-top: $base-spacing-unit; padding-bottom: $base-spacing-unit; }
-.soft-sides { padding-left: $base-spacing-unit; padding-right: $base-spacing-unit; }
-.soft-top { padding-top: $base-spacing-unit; }
-.soft-right { padding-right: $base-spacing-unit; }
-.soft-bottom { padding-bottom: $base-spacing-unit; }
-.soft-left { padding-left: $base-spacing-unit; }
+.push-quarter-top {
+    margin-top: $base-spacing-unit/4;
+}
 
-.soft-half { padding: $base-spacing-unit/2; }
-.soft-half-ends { padding-top: $base-spacing-unit/2; padding-bottom: $base-spacing-unit/2; }
-.soft-half-sides { padding-left: $base-spacing-unit/2; padding-right: $base-spacing-unit/2; }
-.soft-half-top { padding-top: $base-spacing-unit/2; }
-.soft-half-right { padding-right: $base-spacing-unit/2; }
-.soft-half-bottom { padding-bottom: $base-spacing-unit/2; }
-.soft-half-left { padding-left: $base-spacing-unit/2; }
+.push-quarter-right {
+    margin-right: $base-spacing-unit/4;
+}
 
-.soft-quarter { padding: $base-spacing-unit/4; }
-.soft-quarter-ends { padding-top: $base-spacing-unit/4; padding-bottom: $base-spacing-unit/4; }
-.soft-quarter-sides { padding-left: $base-spacing-unit/4; padding-right: $base-spacing-unit/4; }
-.soft-quarter-top { padding-top: $base-spacing-unit/4; }
-.soft-quarter-right { padding-right: $base-spacing-unit/4; }
-.soft-quarter-bottom { padding-bottom: $base-spacing-unit/4; }
-.soft-quarter-left { padding-left: $base-spacing-unit/4; }
+.push-quarter-bottom {
+    margin-bottom: $base-spacing-unit/4;
+}
+
+.push-quarter-left {
+    margin-left: $base-spacing-unit/4;
+}
+
+.flush {
+    margin: 0 !important;
+}
+
+.flush-sides {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+.flush-ends {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.flush-top {
+    margin-top: 0 !important;
+}
+
+.flush-right {
+    margin-right: 0 !important;
+}
+
+.flush-bottom {
+    margin-bottom: 0 !important;
+}
+
+.flush-left {
+    margin-left: 0 !important;
+}
+
+.hard {
+    padding: 0 !important;
+}
+
+.hard-top {
+    padding-top: 0 !important;
+}
+
+.hard-right {
+    padding-right: 0 !important;
+}
+
+.hard-bottom {
+    padding-bottom: 0 !important;
+}
+
+.hard-left {
+    padding-left: 0 !important;
+}
+
+.soft {
+    padding: $base-spacing-unit;
+}
+
+.soft-ends {
+    padding-top: $base-spacing-unit;
+    padding-bottom: $base-spacing-unit;
+}
+
+.soft-sides {
+    padding-left: $base-spacing-unit;
+    padding-right: $base-spacing-unit;
+}
+
+.soft-top {
+    padding-top: $base-spacing-unit;
+}
+
+.soft-right {
+    padding-right: $base-spacing-unit;
+}
+
+.soft-bottom {
+    padding-bottom: $base-spacing-unit;
+}
+
+.soft-left {
+    padding-left: $base-spacing-unit;
+}
+
+.soft-half {
+    padding: $base-spacing-unit/2;
+}
+
+.soft-half-ends {
+    padding-top: $base-spacing-unit/2;
+    padding-bottom: $base-spacing-unit/2;
+}
+
+.soft-half-sides {
+    padding-left: $base-spacing-unit/2;
+    padding-right: $base-spacing-unit/2;
+}
+
+.soft-half-top {
+    padding-top: $base-spacing-unit/2;
+}
+
+.soft-half-right {
+    padding-right: $base-spacing-unit/2;
+}
+
+.soft-half-bottom {
+    padding-bottom: $base-spacing-unit/2;
+}
+
+.soft-half-left {
+    padding-left: $base-spacing-unit/2;
+}
+
+.soft-quarter {
+    padding: $base-spacing-unit/4;
+}
+
+.soft-quarter-ends {
+    padding-top: $base-spacing-unit/4;
+    padding-bottom: $base-spacing-unit/4;
+}
+
+.soft-quarter-sides {
+    padding-left: $base-spacing-unit/4;
+    padding-right: $base-spacing-unit/4;
+}
+
+.soft-quarter-top {
+    padding-top: $base-spacing-unit/4;
+}
+
+.soft-quarter-right {
+    padding-right: $base-spacing-unit/4;
+}
+
+.soft-quarter-bottom {
+    padding-bottom: $base-spacing-unit/4;
+}
+
+.soft-quarter-left {
+    padding-left: $base-spacing-unit/4;
+}
 
 /* Layout */
 
 .container.body-content {
-    // padding: 0 20px 0 20px;
     width: 100%;
 }
 
 .checkin-header {
     padding: $base-spacing-unit/4;
-    // margin-top: 30px;
-    margin-top: 0px;
+    margin-top: 0;
+
+    h2 {
+        margin-top: $base-spacing-unit/4;
+    }
 }
 
 .checkin-header input {
     width: 100%;
     height: 65px;
     margin-top: 1px;
-    margin-bottom: 0px;
-    border: 0px;
+    margin-bottom: 0;
+    border: 0;
     letter-spacing: -1px;
 
-    &::-webkit-input-placeholder { color: rgba(0,0,0,.2); }
-    &:-moz-placeholder { color: rgba(0,0,0,.2); }
-    &::-moz-placeholder { color: rgba(0,0,0,.2); }
-    &:-ms-input-placeholder { color: rgba(0,0,0,.2); }
+    &::-webkit-input-placeholder {
+        color: rgba(0,0,0,.2);
+    }
 
+    &:-moz-placeholder {
+        color: rgba(0,0,0,.2);
+    }
+
+    &::-moz-placeholder {
+        color: rgba(0,0,0,.2);
+    }
+
+    &:-ms-input-placeholder {
+        color: rgba(0,0,0,.2);
+    }
 }
 
 .checkin-header input + a > .fa {
@@ -108,12 +244,6 @@ html {
     margin-top: 10px;
 }
 
-.checkin-header {
-    h2 {
-        margin-top: $base-spacing-unit/4;
-    }
-}
-
 .checkin-footer {
     position: relative;
 }
@@ -138,11 +268,30 @@ h1, h2, h3, h4, h5 {
     margin-bottom: $base-spacing-unit/2;
 }
 
-h1 { font-size: $font-size*2; line-height: $font-size*2; }
-h2 { font-size: $font-size*1.7; line-height: $font-size*1.7; }
-h3 { font-size: $font-size*1.3; line-height: $font-size*1.3; }
-h4 { font-size: $font-size*1.2; line-height: $font-size*1.2; }
-h5 { font-size: $font-size*1.1; line-height: $font-size*1.1; }
+h1 {
+    font-size: $font-size*2;
+    line-height: $font-size*2;
+}
+
+h2 {
+    font-size: $font-size*1.7;
+    line-height: $font-size*1.7;
+}
+
+h3 {
+    font-size: $font-size*1.3;
+    line-height: $font-size*1.3;
+}
+
+h4 {
+    font-size: $font-size*1.2;
+    line-height: $font-size*1.2;
+}
+
+h5 {
+    font-size: $font-size*1.1;
+    line-height: $font-size*1.1;
+}
 
 /* Buttons */
 
@@ -154,10 +303,14 @@ button.close {
     width: 100%;
     white-space: nowrap;
     overflow: hidden;
+    -ms-text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
     text-overflow: ellipsis;
+    letter-spacing: -.5px;
 }
 
 .btn-checkin-select {
+    padding-top: 15px;
     margin-bottom: 12px;
 }
 
@@ -165,10 +318,16 @@ button.close {
     box-shadow: none;
 }
 
+.btn:focus, .btn:active {
+    outline: none;
+}
+
 .btn-primary .checkin-sub-title {
     width: 100%;
     white-space: nowrap;
     overflow: hidden;
+    -o-text-overflow: ellipsis;
+    -ms-text-overflow: ellipsis;
     text-overflow: ellipsis;
     margin-left: 0;
 }
@@ -191,12 +350,13 @@ button.close {
 
 /* Date Picker */
 .datepicker {
-    padding: 0px;
+    padding: 0;
     overflow: hidden;
 
     thead {
         tr:first-child {
             background-color: rgba(0,0,0,.7);
+
             th {
                 color: white;
 
@@ -218,13 +378,13 @@ button.close {
         border-bottom: 1px solid #eee;
 
         &:last-child {
-            border-right: 0px;
+            border-right: 0;
         }
     }
 
     tr:last-child {
         .day {
-            border-bottom: 0px;
+            border-bottom: 0;
         }
     }
 }
@@ -234,13 +394,11 @@ button.close {
 .grid, .grid-table {
     overflow-y: auto;
     margin-bottom: 20px;
-    // border-radius: 5px;
+    border-radius: 5px;
 }
 
 table.table {
     background-color: rgba(10,10,10,0.6);
-    // background-color: white;
-    // color: black;
     font-size: 21px;
     margin-bottom: 0;
 }
@@ -271,7 +429,7 @@ table td {
     text-align: left;
 }
 
-table td.expanded{
+table td.expanded {
     padding-left: 20px;
     min-width: 275px;
 }
@@ -295,7 +453,7 @@ table td.expanded:first-child {
 
 .cozy table > tbody > tr td {
     padding: 10px 8px;
-    border-top: 0px;
+    border-top: 0;
     max-width: 125px;
 }
 
@@ -311,15 +469,12 @@ table td.expanded:first-child {
         overflow: hidden;
 
         td {
+            -ms-word-break: break-word;
             word-break: break-word;
-
             -webkit-hyphens: auto;
             -moz-hyphens: auto;
             -ms-hyphens: auto;
             hyphens: auto;
-            // white-space: nowrap;
-            // overflow: hidden;
-            // text-overflow: ellipsis;
         }
 
         td:nth-child(3n+1) {
@@ -344,10 +499,6 @@ td.day, th.prev, th.next, th.today, th.datepicker-switch {
     cursor: pointer;
 }
 
-// td.day:hover, th.prev:hover, th.next:hover, th.today:hover, th.datepicker-switch:hover, span.month:hover, span.year:hover {
-//     background-color: #eeeeee;
-// }
-
 th.datepicker-switch {
     text-align: center;
 }
@@ -361,11 +512,11 @@ tfoot {
 }
 
 .grid-paging {
-    padding: 0px !important;
+    padding: 0 !important;
 }
 
 .pagination {
-    margin: 0px;
+    margin: 0;
     width: 100%;
 
     li {
@@ -377,14 +528,14 @@ tfoot {
             float: none;
             width: 100%;
             text-align: center;
-            border: 0px;
+            border: 0;
             border-right: 1px solid rgba(0,0,0,.1);
             font-size: $font-size*.82;
         }
 
         &:last-child {
             a {
-                border-right: 0px;
+                border-right: 0;
             }
         }
     }
@@ -393,8 +544,7 @@ tfoot {
 /* Modal Colors */
 
 .modal-content .checkin-header {
-    // border-bottom: 1px solid #222222;
-    padding: 0px;
+    padding: 0;
 }
 
 .modal-content .checkin-header h2 {
@@ -430,7 +580,7 @@ tfoot {
 /* Miscellaneous */
 
 .tenkey a.digit {
-    line-height: 58px;
+    line-height: 64px;
 }
 
 .in-the-middle, .at-the-bottom {
@@ -465,7 +615,7 @@ span.month, span.year {
 }
 
 .expanded {
-    margin-bottom: 10px;    
+    margin-bottom: 10px;
 }
 
 .centered {
@@ -474,20 +624,13 @@ span.month, span.year {
     text-align: center;
 }
 
-.checkout {
-    position:absolute;
-    min-width: 275px;
-    width: auto;
-    right: 20px;
-    bottom: 0px;
-}
 
 /*
     Modal Styles
 */
 
 .modal {
-    h1,h2,h3,h4,h5,p,li,label,td,th {
+    h1, h2, h3, h4, h5, p, li, label, td, th {
         color: $dark-color;
     }
 
@@ -502,19 +645,14 @@ span.month, span.year {
     bottom: auto;
     max-height: 90%;
     overflow: hidden;
-    // top: $base-spacing-unit/3;
-    // right: $base-spacing-unit/3;
-    // bottom: $base-spacing-unit/3;
-    // left: $base-spacing-unit/3;
-    // overflow: hidden;
 }
 
 .modal-content {
     background-color: #fff !important;
 }
 
-.modal-header, 
-.grid-pagesize, 
+.modal-header,
+.grid-pagesize,
 .grid-itemcount,
 .modal:not(.bootbox) .modal-footer {
     display: none;
