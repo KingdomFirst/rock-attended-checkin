@@ -254,7 +254,7 @@ html {
 
 .three-col-with-controls td:nth-child(3) ~ td {
     width: 100px;
-    padding-right: 0px !important;
+    padding-right: 0 !important;
     padding-left: 12px !important;
 
     &:last-child {
@@ -578,6 +578,11 @@ tfoot {
 }
 
 /* Miscellaneous */
+
+.shift-up {
+    position: relative;
+    top: -25px;
+}
 
 .tenkey a.digit {
     line-height: 64px;

@@ -186,15 +186,13 @@
 .datepicker, .modal-content {
   color: #000000; }
 
-/*.three-col-with-controls td:nth-child(3) ~ td {
-    width: 100px;
-    padding-right: 0 !important;
-    padding-left: 12px !important;
+.three-col-with-controls td:nth-child(3) ~ td {
+  width: 100px;
+  padding-right: 0 !important;
+  padding-left: 12px !important; }
+  .three-col-with-controls td:nth-child(3) ~ td:last-child {
+    padding-right: 12px !important; }
 
-    &:last-child {
-        padding-right: 12px !important;
-    }
-}*/
 /* Typography */
 h1, h2, h3, h4, h5 {
   margin-bottom: 30px; }
@@ -330,35 +328,35 @@ table td.expanded:first-child {
 .table > thead > tr > th {
   border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
 
-.grid table > tbody > tr td {
+.cozy table > tbody > tr td {
   padding: 10px 8px;
   border-top: 0;
   max-width: 125px; }
 
-.grid table {
+.cozy table {
   background-color: transparent; }
-  .grid table tr {
+  .cozy table tr {
     display: inline-block;
     width: 100%;
     background-color: rgba(10, 10, 10, 0.6);
     margin-bottom: 10px;
     border-radius: 5px;
     overflow: hidden; }
-    .grid table tr td {
+    .cozy table tr td {
       -ms-word-break: break-word;
       word-break: break-word;
       -webkit-hyphens: auto;
       -moz-hyphens: auto;
       -ms-hyphens: auto;
       hyphens: auto; }
-    .grid table tr td:nth-child(3n+1) {
+    .cozy table tr td:nth-child(3n+1) {
       width: 25%;
       max-width: 80px;
       overflow: hidden; }
-    .grid table tr td:nth-child(3n+2) {
+    .cozy table tr td:nth-child(3n+2) {
       width: 55%;
       overflow: hidden; }
-    .grid table tr td:nth-child(3n+3) {
+    .cozy table tr td:nth-child(3n+3) {
       width: 20%;
       overflow: hidden; }
 
@@ -422,6 +420,10 @@ tfoot {
   background-color: #ffffff; }
 
 /* Miscellaneous */
+.shift-up {
+  position: relative;
+  top: -25px; }
+
 .tenkey a.digit {
   line-height: 64px; }
 
@@ -456,13 +458,6 @@ span.month, span.year {
   margin-left: auto;
   margin-right: auto;
   text-align: center; }
-
-.checkout {
-  position: absolute;
-  min-width: 275px;
-  width: auto;
-  right: 20px;
-  bottom: 0; }
 
 /*
     Modal Styles
