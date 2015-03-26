@@ -451,7 +451,7 @@ table td.expanded:first-child {
     border-bottom: 1px solid rgba(255,255,255, .05);
 }
 
-.cozy table > tbody > tr td {
+/*.cozy table > tbody > tr td {
     padding: 10px 8px;
     border-top: 0;
     max-width: 125px;
@@ -493,7 +493,7 @@ table td.expanded:first-child {
             overflow: hidden;
         }
     }
-}
+}*/
 
 td.day, th.prev, th.next, th.today, th.datepicker-switch {
     cursor: pointer;
