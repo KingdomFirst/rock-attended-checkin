@@ -45,7 +45,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <value>
         /// The invalid parameter error.
         /// </value>
-        protected string InvalidParameterError
+        private static string InvalidParameterError
         {
             get
             {
@@ -54,21 +54,33 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         }
 
         /// <summary>
-        /// The check in note type identifier
+        /// Gets the allergy attribute unique identifier.
         /// </summary>
-        protected int CheckInNoteTypeId;
+        /// <value>
+        /// The allergy attribute unique identifier.
+        /// </value>
+        private static Guid AllergyAttributeGuid
+        {
+            get
+            {
+                return new Guid( "DBD192C9-0AA1-46EC-92AB-A3DA8E056D31" );
+            }
+        }
 
         /// <summary>
-        /// A list of attendance counts per schedule
+        /// A container for a schedule and attendance count
         /// </summary>
-        protected class ScheduleAttendance
+        private class ScheduleAttendance
         {
             public int ScheduleId { get; set; }
 
             public int AttendanceCount { get; set; }
         }
 
-        protected List<ScheduleAttendance> ScheduleAttendanceList = new List<ScheduleAttendance>();
+        /// <summary>
+        /// A list of attendance counts per schedule
+        /// </summary>
+        private List<ScheduleAttendance> ScheduleAttendanceList = new List<ScheduleAttendance>();
 
         #endregion Variables
 
@@ -115,39 +127,12 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     BindLocations( person.GroupTypes );
                     BindSchedules( person.GroupTypes );
                     BindSelectedGrid();
-
-                    // look up check-in notes
-                    var rockContext = new RockContext();
-                    var personTypeId = new Person().TypeId;
-                    CheckInNoteTypeId = new NoteTypeService( rockContext ).Queryable()
-                        .Where( t => t.Name == "Check-In" && t.EntityTypeId == personTypeId )
-                        .Select( t => t.Id ).FirstOrDefault();
-
-                    ViewState["checkInNoteTypeId"] = CheckInNoteTypeId;
-
-                    var checkInNote = new NoteService( rockContext )
-                        .GetByNoteTypeId( CheckInNoteTypeId )
-                        .FirstOrDefault( n => n.EntityId == person.Person.Id );
-
-                    if ( checkInNote != null )
-                    {
-                        tbNoteText.Text = checkInNote.Text;
-                    }
                 }
                 else
                 {
                     maWarning.Show( InvalidParameterError, ModalAlertType.Warning );
                     NavigateToPreviousPage();
                 }
-            }
-
-            // reload the attribute field.
-            var allergyAttribute = new AttributeService( new RockContext() )
-                .GetByEntityTypeId( new Person().TypeId )
-                .FirstOrDefault( a => a.Name.ToUpper() == "ALLERGY" );
-            if ( allergyAttribute != null )
-            {
-                LoadAttributeControl( allergyAttribute.Id, person.Person.Id );
             }
 
             if ( GetAttributeValue( "DisplayGroupNames" ).AsBoolean() )
@@ -448,78 +433,13 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         }
 
         /// <summary>
-        /// Handles the Click event of the lbAddNote control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
-        protected void lbAddNote_Click( object sender, EventArgs e )
-        {
-            mdlNotes.Show();
-        }
-
-        /// <summary>
-        /// Handles the Click event of the lbAddNoteSave control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
-        protected void lbSaveNotes_Click( object sender, EventArgs e )
-        {
-            var person = GetPerson();
-            var rockContext = new RockContext();
-            var checkInNote = new NoteService( rockContext ).GetByNoteTypeId( int.Parse( ViewState["checkInNoteTypeId"].ToString() ) )
-                .FirstOrDefault( n => n.EntityId == person.Person.Id );
-            if ( checkInNote == null )
-            {
-                checkInNote = new Note();
-                checkInNote.IsSystem = false;
-                checkInNote.EntityId = person.Person.Id;
-                checkInNote.NoteTypeId = int.Parse( ViewState["checkInNoteTypeId"].ToString() );
-                rockContext.Notes.Add( checkInNote );
-            }
-
-            checkInNote.Text = tbNoteText.Text;
-
-            var allergyAttributeId = new AttributeService( rockContext )
-                .GetByEntityTypeId( new Person().TypeId )
-                .Where( a => a.Name.ToUpper() == "ALLERGY" )
-                .Select( a => (int?)a.Id ).FirstOrDefault();
-            if ( allergyAttributeId != null )
-            {
-                var allergyAttribute = Rock.Web.Cache.AttributeCache.Read( (int)allergyAttributeId );
-
-                var allergyAttributeControl = phAttributes.FindControl( string.Format( "attribute_field_{0}", allergyAttributeId ) );
-                if ( allergyAttributeControl != null )
-                {
-                    person.Person.LoadAttributes();
-                    person.Person.SetAttributeValue( "Allergy", allergyAttribute.FieldType.Field
-                        .GetEditValue( allergyAttributeControl, allergyAttribute.QualifierValues ) );
-                    person.Person.SaveAttributeValues( rockContext );
-                    hfAllergyAttributeId.Value = string.Empty;
-                }
-            }
-
-            rockContext.SaveChanges();
-            mdlNotes.Hide();
-        }
-
-        /// <summary>
-        /// Handles the Click event of the lbCloseNotes control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
-        protected void lbCloseNotes_Click( object sender, EventArgs e )
-        {
-            mdlNotes.Hide();
-        }
-
-        /// <summary>
         /// Handles the Click event of the lbEditInfo control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbEditInfo_Click( object sender, EventArgs e )
         {
-            ResetEditInfo();
+            SetEditInfo();
             mdlInfo.Show();
         }
 
@@ -588,10 +508,41 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }
             }
 
-            person.SetAttributeValue( "IsSpecialNeeds", cbSpecialNeeds.Checked.ToTrueFalse() );
-            currentPerson.Person.SetAttributeValue( "IsSpecialNeeds", cbSpecialNeeds.Checked.ToTrueFalse() );
-            person.SaveAttributeValues();
+            if ( cbSpecialNeeds.Checked )
+            {
+                person.SetAttributeValue( "IsSpecialNeeds", cbSpecialNeeds.Checked.ToTrueFalse() );
+                currentPerson.Person.SetAttributeValue( "IsSpecialNeeds", cbSpecialNeeds.Checked.ToTrueFalse() );
+            }
 
+            // store the allergies
+            var allergyAttribute = Rock.Web.Cache.AttributeCache.Read( AllergyAttributeGuid );
+            var allergyAttributeControl = phAttributes.FindControl( string.Format( "attribute_field_{0}", allergyAttribute.Id ) );
+            if ( allergyAttributeControl != null )
+            {
+                person.SetAttributeValue( "Allergy", allergyAttribute.FieldType.Field
+                    .GetEditValue( allergyAttributeControl, allergyAttribute.QualifierValues ) );
+            }
+
+            // store the check-in notes
+            int? checkinNoteTypeId = ViewState["checkInNoteTypeId"].ToStringSafe().AsType<int?>();
+            if ( checkinNoteTypeId != null )
+            {
+                var checkInNote = new NoteService( rockContext )
+                    .GetByNoteTypeId( (int)checkinNoteTypeId )
+                    .FirstOrDefault( n => n.EntityId == person.Id );
+                if ( checkInNote == null )
+                {
+                    checkInNote = new Note();
+                    checkInNote.IsSystem = false;
+                    checkInNote.EntityId = person.Id;
+                    checkInNote.NoteTypeId = (int)checkinNoteTypeId;
+                    rockContext.Notes.Add( checkInNote );
+                }
+
+                checkInNote.Text = tbNoteText.Text;
+            }
+
+            person.SaveAttributeValues();
             rockContext.SaveChanges();
             mdlInfo.Hide();
         }
@@ -805,24 +756,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         }
 
         /// <summary>
-        /// Loads the attribute control.
-        /// </summary>
-        /// <param name="allergyAttributeId">The allergy attribute identifier.</param>
-        /// <param name="personId">The person identifier.</param>
-        protected void LoadAttributeControl( int allergyAttributeId, int personId )
-        {
-            var attribute = AttributeCache.Read( allergyAttributeId );
-            var person = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected )
-                .People.FirstOrDefault( p => p.Person.Id == personId );
-
-            phAttributes.Controls.Clear();
-            person.Person.LoadAttributes();
-            var attributeValue = person.Person.GetAttributeValue( attribute.Key );
-            attribute.AddControl( phAttributes.Controls, attributeValue, "", true, true );
-            hfAllergyAttributeId.Value = attribute.Id.ToString();
-        }
-
-        /// <summary>
         /// Gets the attendance count for all of the schedules for a location. This will show on the schedule buttons.
         /// </summary>
         /// <param name="location"></param>
@@ -847,40 +780,77 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <summary>
         /// Resets the edit info modal.
         /// </summary>
-        private void ResetEditInfo()
+        private void SetEditInfo()
         {
             var person = GetPerson();
-            ddlAbility.LoadAbilityAndGradeItems();
-            ddlSuffix.BindToDefinedType( DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_SUFFIX ) ), true );
-
-            tbFirstName.Text = person.Person.FirstName;
-            tbLastName.Text = person.Person.LastName;
-            tbNickname.Text = person.Person.NickName;
-            dpDOB.SelectedDate = person.Person.BirthDate;
-
-            tbFirstName.Required = true;
-            tbLastName.Required = true;
-            dpDOB.Required = true;
-
-            if ( person.Person.SuffixValueId.HasValue )
+            if ( person != null )
             {
-                ddlSuffix.SelectedValue = person.Person.SuffixValueId.ToString();
-            }
+                ddlAbility.LoadAbilityAndGradeItems();
+                ddlSuffix.BindToDefinedType( DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_SUFFIX ) ), true );
 
-            if ( person.Person.GradeOffset.HasValue )
-            {
-                ddlAbility.SelectedValue = person.Person.GradeOffset.ToString();
-            }
-            else if ( person.Person.AttributeValues.ContainsKey( "AbilityLevel" ) )
-            {
-                var personAbility = person.Person.GetAttributeValue( "AbilityLevel" );
-                if ( !string.IsNullOrWhiteSpace( personAbility ) )
+                tbFirstName.Text = person.Person.FirstName;
+                tbLastName.Text = person.Person.LastName;
+                tbNickname.Text = person.Person.NickName;
+                dpDOB.SelectedDate = person.Person.BirthDate;
+                cbSpecialNeeds.Checked = person.Person.GetAttributeValue( "IsSpecialNeeds" ).AsBoolean();
+
+                tbFirstName.Required = true;
+                tbLastName.Required = true;
+                dpDOB.Required = true;
+
+                if ( person.Person.SuffixValueId.HasValue )
                 {
-                    ddlAbility.SelectedValue = personAbility;
+                    ddlSuffix.SelectedValue = person.Person.SuffixValueId.ToString();
+                }
+
+                if ( person.Person.GradeOffset.HasValue )
+                {
+                    ddlAbility.SelectedValue = person.Person.GradeOffset.ToString();
+                }
+                else if ( person.Person.AttributeValues.ContainsKey( "AbilityLevel" ) )
+                {
+                    var personAbility = person.Person.GetAttributeValue( "AbilityLevel" );
+                    if ( !string.IsNullOrWhiteSpace( personAbility ) )
+                    {
+                        ddlAbility.SelectedValue = personAbility;
+                    }
+                }
+
+                // load the allergy field
+                var allergyAttribute = AttributeCache.Read( AllergyAttributeGuid );
+                if ( allergyAttribute != null )
+                {
+                    phAttributes.Controls.Clear();
+                    person.Person.LoadAttributes();
+                    var attributeValue = person.Person.GetAttributeValue( allergyAttribute.Key );
+                    allergyAttribute.AddControl( phAttributes.Controls, attributeValue, "", true, true );
+                    hfAllergyAttributeId.Value = allergyAttribute.Id.ToString();
+                }
+
+                // load check-in notes
+                var rockContext = new RockContext();
+                int? checkInNoteTypeId = ViewState["checkinNoteTypeId"].ToStringSafe().AsType<int?>();
+                if ( checkInNoteTypeId == null )
+                {
+                    checkInNoteTypeId = new NoteTypeService( rockContext ).Queryable()
+                        .Where( t => t.Name == "Check-In" && t.EntityTypeId == person.Person.TypeId )
+                        .Select( t => (int?)t.Id ).FirstOrDefault();
+
+                    ViewState["checkInNoteTypeId"] = checkInNoteTypeId;
+                }
+
+                var checkInNotes = new NoteService( rockContext )
+                        .GetByNoteTypeId( (int)checkInNoteTypeId )
+                        .FirstOrDefault( n => n.EntityId == person.Person.Id );
+                if ( checkInNotes != null )
+                {
+                    tbNoteText.Text = checkInNotes.Text;
                 }
             }
-
-            cbSpecialNeeds.Checked = person.Person.GetAttributeValue( "IsSpecialNeeds" ).AsBoolean();
+            else
+            {
+                maWarning.Show( InvalidParameterError, ModalAlertType.Warning );
+            }
         }
 
         /// <summary>

@@ -86,9 +86,9 @@
                                 <Rock:Grid ID="gSelectedGrid" runat="server" ShowHeader="false" ShowFooter="false" EnableResponsiveTable="true" DisplayType="Light"
                                     DataKeyNames="GroupId, LocationId, ScheduleId" EmptyDataText="No Locations Selected">
                                     <Columns>
-                                        <asp:BoundField ItemStyle-CssClass="col-xs-4" DataField="Schedule" />
-                                        <asp:BoundField ItemStyle-CssClass="col-xs-7" DataField="Location" />
-                                        <Rock:DeleteField ControlStyle-CssClass="col-xs-1 btn btn-lg btn-primary accent-bold-color accent-bold-color-bordered" OnClick="gSelectedGrid_Delete" />
+                                        <asp:BoundField ItemStyle-CssClass="col-xs-3" DataField="Schedule" />
+                                        <asp:BoundField ItemStyle-CssClass="col-xs-8" DataField="Location" />
+                                        <Rock:DeleteField ItemStyle-CssClass="col-xs-1" ControlStyle-CssClass="btn btn-lg accent-bold-color accent-bold-color-bordered" OnClick="gSelectedGrid_Delete" />
                                     </Columns>
                                 </Rock:Grid>
                             </div>
@@ -98,17 +98,17 @@
             </div>
 
             <div class="row checkin-footer at-the-bottom">
-                <div class="col-xs-3 col-xs-offset-6">
+                <div class="col-xs-3 col-xs-offset-9">
                     <asp:LinkButton ID="lbEditInfo" runat="server" Text="Edit Info" CssClass="btn btn-primary btn-block btn-checkin-select" OnClick="lbEditInfo_Click" CausesValidation="false" />
                 </div>
-                <div class="col-xs-3">
+                <%--<div class="col-xs-3">
                     <asp:LinkButton ID="lbAddNote" runat="server" Text="Add/Edit Note" CssClass="btn btn-primary btn-block btn-checkin-select" OnClick="lbAddNote_Click" CausesValidation="false" />
-                </div>
+                </div>--%>
             </div>
         </asp:Panel>
 
         <!-- NOTES MODAL -->
-        <Rock:ModalDialog ID="mdlNotes" runat="server" Content-DefaultButton="lbSaveNotes">
+        <%--<Rock:ModalDialog ID="mdlNotes" runat="server" Content-DefaultButton="lbSaveNotes">
             <Content>
                 <div class="soft-quarter-ends">
                     <div class="checkin-header row">
@@ -140,7 +140,7 @@
                     </div>
                 </div>
             </Content>
-        </Rock:ModalDialog>
+        </Rock:ModalDialog>--%>
 
         <!-- EDIT INFO MODAL -->
         <Rock:ModalDialog ID="mdlInfo" runat="server" Content-DefaultButton="lbSaveEditInfo">
@@ -148,7 +148,8 @@
                 <div class="soft-quarter-ends">
                     <div class="row checkin-header">
                         <div class="col-xs-3 checkin-actions">
-                            <Rock:BootstrapButton ID="lbCloseEditInfo" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbCloseEditInfo_Click" Text="Cancel" EnableViewState="false" />
+                            <Rock:BootstrapButton ID="lbCloseEditInfo" runat="server" CssClass="btn btn-lg btn-primary"
+                                OnClick="lbCloseEditInfo_Click" Text="Cancel" EnableViewState="false" />
                         </div>
 
                         <div class="col-xs-6 text-center">
@@ -156,7 +157,8 @@
                         </div>
 
                         <div class="col-xs-3 checkin-actions text-right">
-                            <Rock:BootstrapButton ID="lbSaveEditInfo" ValidationGroup="Person" CausesValidation="true" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbSaveEditInfo_Click" Text="Save" EnableViewState="false" />
+                            <Rock:BootstrapButton ID="lbSaveEditInfo" ValidationGroup="Person" CausesValidation="true" CssClass="btn btn-lg btn-primary" runat="server"
+                                OnClick="lbSaveEditInfo_Click" Text="Save" EnableViewState="false" />
                         </div>
                     </div>
 
@@ -182,6 +184,16 @@
                             </div>
                             <div class="col-xs-1 shift-up centered">
                                 <Rock:RockCheckBox ID="cbSpecialNeeds" runat="server" Label="Special Needs" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <asp:PlaceHolder ID="phAttributes" runat="server" EnableViewState="false"></asp:PlaceHolder>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <Rock:RockTextBox ID="tbNoteText" runat="server" Label="Notes" MaxLength="60" Rows="3" />
                             </div>
                         </div>
                     </div>
