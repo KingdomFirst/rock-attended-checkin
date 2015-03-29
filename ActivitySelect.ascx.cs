@@ -54,20 +54,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         }
 
         /// <summary>
-        /// Gets the allergy attribute unique identifier.
-        /// </summary>
-        /// <value>
-        /// The allergy attribute unique identifier.
-        /// </value>
-        private static Guid AllergyAttributeGuid
-        {
-            get
-            {
-                return new Guid( "DBD192C9-0AA1-46EC-92AB-A3DA8E056D31" );
-            }
-        }
-
-        /// <summary>
         /// A container for a schedule and attendance count
         /// </summary>
         private class ScheduleAttendance
@@ -100,13 +86,22 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 return;
             }
 
-            var personId = Request.QueryString["personId"].AsType<int?>();
-            var person = GetCurrentPerson( personId );
+            var person = GetCurrentPerson();
 
             if ( person != null )
             {
-                var first = person.Person.NickName ?? person.Person.FirstName;
-                lblPersonName.Text = string.Format( "{0} {1}", first, person.Person.LastName );
+                // Set the nickname
+                var nickName = person.Person.NickName ?? person.Person.FirstName;
+                lblPersonName.Text = string.Format( "{0} {1}", nickName, person.Person.LastName );
+
+                // Load the allergy field
+                var allergyAttribute = AttributeCache.Read( new Guid( Rock.SystemGuid.Attribute.PERSON_ALLERGY ) );
+                if ( allergyAttribute != null )
+                {
+                    phAttributes.Controls.Clear();
+                    var attributeValue = person.Person.GetAttributeValue( allergyAttribute.Key );
+                    allergyAttribute.AddControl( phAttributes.Controls, attributeValue, "", true, true );
+                }
             }
 
             if ( !Page.IsPostBack )
@@ -570,7 +565,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
 
             // store the allergies
-            var allergyAttribute = Rock.Web.Cache.AttributeCache.Read( AllergyAttributeGuid );
+            var allergyAttribute = Rock.Web.Cache.AttributeCache.Read( new Guid( Rock.SystemGuid.Attribute.PERSON_ALLERGY ) );
             var allergyAttributeControl = phAttributes.FindControl( string.Format( "attribute_field_{0}", allergyAttribute.Id ) );
             if ( allergyAttributeControl != null )
             {
@@ -796,7 +791,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <summary>
         /// Binds the edit info modal.
         /// </summary>
-        protected void BindInfo( int personId )
+        protected void BindInfo()
         {
             var person = GetCurrentPerson();
             if ( person != null )
@@ -832,17 +827,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     }
                 }
 
-                // load the allergy field
-                var allergyAttribute = AttributeCache.Read( AllergyAttributeGuid );
-                if ( allergyAttribute != null )
-                {
-                    phAttributes.Controls.Clear();
-                    person.Person.LoadAttributes();
-                    var attributeValue = person.Person.GetAttributeValue( allergyAttribute.Key );
-                    allergyAttribute.AddControl( phAttributes.Controls, attributeValue, "", true, true );
-                    hfAllergyAttributeId.Value = allergyAttribute.Id.ToString();
-                }
-
                 // load check-in notes
                 var rockContext = new RockContext();
                 int? checkInNoteTypeId = ViewState["checkinNoteTypeId"].ToStringSafe().AsType<int?>();
@@ -862,6 +846,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 {
                     tbNoteText.Text = checkInNotes.Text;
                 }
+
+                // Note: Allergy control is dynamic and must be initialized on PageLoad
             }
             else
             {

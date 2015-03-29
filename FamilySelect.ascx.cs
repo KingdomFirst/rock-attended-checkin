@@ -65,14 +65,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
         }
 
-        private static Guid AllergyAttributeGuid
-        {
-            get
-            {
-                return new Guid( "DBD192C9-0AA1-46EC-92AB-A3DA8E056D31" );
-            }
-        }
-
         #endregion Variables
 
         #region Control Methods
@@ -401,7 +393,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 return;
             }
 
-            BindInfo( selectedPeopleIds.FirstOrDefault() );
             mdlInfo.Show();
         }
 
@@ -477,8 +468,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
 
             // store the allergies
-            var allergyAttribute = Rock.Web.Cache.AttributeCache.Read( AllergyAttributeGuid );
+            var allergyAttribute = Rock.Web.Cache.AttributeCache.Read( new Guid( Rock.SystemGuid.Attribute.PERSON_ALLERGY ) );
             var allergyAttributeControl = phAttributes.FindControl( string.Format( "attribute_field_{0}", allergyAttribute.Id ) );
+            var first = phAttributes.Controls[0];
             if ( allergyAttributeControl != null )
             {
                 person.SetAttributeValue( "Allergy", allergyAttribute.FieldType.Field
@@ -1097,16 +1089,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     }
                 }
 
-                // load the allergy field
-                var allergyAttribute = AttributeCache.Read( AllergyAttributeGuid );
-                if ( allergyAttribute != null )
-                {
-                    phAttributes.Controls.Clear();
-                    person.Person.LoadAttributes();
-                    var attributeValue = person.Person.GetAttributeValue( allergyAttribute.Key );
-                    allergyAttribute.AddControl( phAttributes.Controls, attributeValue, "", true, true );
-                }
-
                 // load check-in notes
                 var rockContext = new RockContext();
                 int? checkInNoteTypeId = ViewState["checkinNoteTypeId"].ToStringSafe().AsType<int?>();
@@ -1126,6 +1108,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 {
                     tbNoteText.Text = checkInNotes.Text;
                 }
+
+                // Note: Allergy control is dynamic and must be initialized on PageLoad
             }
         }
 
