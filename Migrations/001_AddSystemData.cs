@@ -387,6 +387,8 @@ namespace cc.newspring.AttendedCheckIn.Migrations
                    ((SELECT [Id] FROM [Attribute] WHERE [Guid] = '{0}')
                    ,(SELECT [Id] FROM [Category] WHERE [Name] = 'Childhood Information'))
             ", SpecialNeedsAttributeGuid ) );
+
+            RockMigrationHelper.AddGroupType( "Check in By Special Needs", "", "Group", "Member", false, true, true, "", 0, "0572A5FE-20A4-4BF1-95CD-C71DB5281392", 0, "6BCED84C-69AD-4F5A-9197-5C0F9C02DD34", "2CB16E13-141F-419F-BACD-8283AB6B3299", false );
         }
 
         /// <summary>
