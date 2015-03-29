@@ -101,46 +101,8 @@
                 <div class="col-xs-3 col-xs-offset-9">
                     <asp:LinkButton ID="lbEditInfo" runat="server" Text="Edit Info" CssClass="btn btn-primary btn-block btn-checkin-select" OnClick="lbEditInfo_Click" CausesValidation="false" />
                 </div>
-                <%--<div class="col-xs-3">
-                    <asp:LinkButton ID="lbAddNote" runat="server" Text="Add/Edit Note" CssClass="btn btn-primary btn-block btn-checkin-select" OnClick="lbAddNote_Click" CausesValidation="false" />
-                </div>--%>
             </div>
         </asp:Panel>
-
-        <!-- NOTES MODAL -->
-        <%--<Rock:ModalDialog ID="mdlNotes" runat="server" Content-DefaultButton="lbSaveNotes">
-            <Content>
-                <div class="soft-quarter-ends">
-                    <div class="checkin-header row">
-                        <div class="col-xs-3 checkin-actions">
-                            <Rock:BootstrapButton ID="lbCloseNotes" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbCloseNotes_Click" Text="Cancel" EnableViewState="false" />
-                        </div>
-                        <div class="col-xs-6 text-center">
-                            <h2>Add Notes</h2>
-                        </div>
-                        <div class="col-xs-3 checkin-actions text-right">
-                            <asp:LinkButton ID="lbSaveNotes" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbSaveNotes_Click" Text="Save" EnableViewState="false" />
-                        </div>
-                    </div>
-
-                    <div class="checkin-body">
-                        <div class="row">
-                            <div class="col-xs-12">
-                                <asp:PlaceHolder ID="phAttributes" runat="server" EnableViewState="false"></asp:PlaceHolder>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xs-12">
-                                <div class="form-group">
-                                    <label>Notes</label>
-                                    <Rock:RockTextBox ID="tbNoteText" runat="server" MaxLength="60" Rows="3" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </Content>
-        </Rock:ModalDialog>--%>
 
         <!-- EDIT INFO MODAL -->
         <Rock:ModalDialog ID="mdlInfo" runat="server" Content-DefaultButton="lbSaveEditInfo">
@@ -187,13 +149,11 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-xs-12">
-                                <asp:PlaceHolder ID="phAttributes" runat="server" EnableViewState="false"></asp:PlaceHolder>
+                            <div class="col-xs-6">
+                                <Rock:RockTextBox ID="tbNoteText" runat="server" Label="Notes" MaxLength="60" />
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xs-12">
-                                <Rock:RockTextBox ID="tbNoteText" runat="server" Label="Notes" MaxLength="60" Rows="3" />
+                            <div class="col-xs-6">
+                                <asp:PlaceHolder ID="phAttributes" runat="server" EnableViewState="false"></asp:PlaceHolder>
                             </div>
                         </div>
                     </div>

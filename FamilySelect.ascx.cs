@@ -65,6 +65,14 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
         }
 
+        private static Guid AllergyAttributeGuid
+        {
+            get
+            {
+                return new Guid( "DBD192C9-0AA1-46EC-92AB-A3DA8E056D31" );
+            }
+        }
+
         #endregion Variables
 
         #region Control Methods
@@ -303,7 +311,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             lvNewFamily.DataBind();
             mdlNewFamily.Show();
         }
-        
+
         /// <summary>
         /// Handles the PagePropertiesChanging event of the lvFamily control.
         /// </summary>
@@ -369,6 +377,146 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 lvVisitor.DataBind();
                 pnlVisitor.Update();
             }
+        }
+
+        /// <summary>
+        /// Handles the Click event of the lbEditInfo control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        protected void lbEditInfo_Click( object sender, EventArgs e )
+        {
+            var selectedPeopleIds = ( hfSelectedPerson.Value + hfSelectedVisitor.Value )
+                .SplitDelimitedValues().Select( int.Parse ).ToList();
+
+            var family = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault();
+            if ( family == null )
+            {
+                maWarning.Show( "Please pick or add a family.", ModalAlertType.Warning );
+                return;
+            }
+            else if ( !selectedPeopleIds.Any() || selectedPeopleIds.Count > 1 )
+            {
+                maWarning.Show( "Please select a single person to edit.", ModalAlertType.Warning );
+                return;
+            }
+
+            BindInfo( selectedPeopleIds.FirstOrDefault() );
+            mdlInfo.Show();
+        }
+
+        /// <summary>
+        /// Handles the Click event of the lbSaveEditInfo control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        protected void lbSaveEditInfo_Click( object sender, EventArgs e )
+        {
+            if ( string.IsNullOrEmpty( tbFirstName.Text ) || string.IsNullOrEmpty( tbLastName.Text ) || string.IsNullOrEmpty( dpDOB.Text ) )
+            {
+                Page.Validate( "Person" );
+                mdlInfo.Show();
+                return;
+            }
+
+            CheckInPerson currentPerson = GetCurrentPerson();
+            var rockContext = new RockContext();
+            Person person = new PersonService( rockContext ).Get( currentPerson.Person.Id );
+            person.LoadAttributes();
+
+            person.FirstName = tbFirstName.Text;
+            currentPerson.Person.FirstName = tbFirstName.Text;
+
+            person.LastName = tbLastName.Text;
+            currentPerson.Person.LastName = tbLastName.Text;
+
+            person.SuffixValueId = ddlSuffix.SelectedValueAsId();
+            currentPerson.Person.SuffixValueId = ddlSuffix.SelectedValueAsId();
+
+            var DOB = dpDOB.SelectedDate;
+            if ( DOB != null )
+            {
+                person.BirthDay = ( (DateTime)DOB ).Day;
+                currentPerson.Person.BirthDay = ( (DateTime)DOB ).Day;
+                person.BirthMonth = ( (DateTime)DOB ).Month;
+                currentPerson.Person.BirthMonth = ( (DateTime)DOB ).Month;
+                person.BirthYear = ( (DateTime)DOB ).Year;
+                currentPerson.Person.BirthYear = ( (DateTime)DOB ).Year;
+            }
+
+            person.NickName = tbNickname.Text.Length > 0 ? tbNickname.Text : tbFirstName.Text;
+            currentPerson.Person.NickName = tbNickname.Text.Length > 0 ? tbNickname.Text : tbFirstName.Text;
+            var optionGroup = ddlAbility.SelectedItem.Attributes["optiongroup"];
+
+            if ( !string.IsNullOrEmpty( optionGroup ) )
+            {
+                // Selected ability level
+                if ( optionGroup == "Ability" )
+                {
+                    person.SetAttributeValue( "AbilityLevel", ddlAbility.SelectedValue );
+                    currentPerson.Person.SetAttributeValue( "AbilityLevel", ddlAbility.SelectedValue );
+
+                    person.GradeOffset = null;
+                    currentPerson.Person.GradeOffset = null;
+                }
+                // Selected a grade
+                else if ( optionGroup == "Grade" )
+                {
+                    person.GradeOffset = ddlAbility.SelectedValueAsId();
+                    currentPerson.Person.GradeOffset = ddlAbility.SelectedValueAsId();
+
+                    person.Attributes.Remove( "AbilityLevel" );
+                    currentPerson.Person.Attributes.Remove( "AbilityLevel" );
+                }
+            }
+
+            if ( cbSpecialNeeds.Checked )
+            {
+                person.SetAttributeValue( "IsSpecialNeeds", cbSpecialNeeds.Checked.ToTrueFalse() );
+                currentPerson.Person.SetAttributeValue( "IsSpecialNeeds", cbSpecialNeeds.Checked.ToTrueFalse() );
+            }
+
+            // store the allergies
+            var allergyAttribute = Rock.Web.Cache.AttributeCache.Read( AllergyAttributeGuid );
+            var allergyAttributeControl = phAttributes.FindControl( string.Format( "attribute_field_{0}", allergyAttribute.Id ) );
+            if ( allergyAttributeControl != null )
+            {
+                person.SetAttributeValue( "Allergy", allergyAttribute.FieldType.Field
+                    .GetEditValue( allergyAttributeControl, allergyAttribute.QualifierValues ) );
+            }
+
+            // store the check-in notes
+            int? checkinNoteTypeId = ViewState["checkInNoteTypeId"].ToStringSafe().AsType<int?>();
+            if ( checkinNoteTypeId != null )
+            {
+                var checkInNote = new NoteService( rockContext )
+                    .GetByNoteTypeId( (int)checkinNoteTypeId )
+                    .FirstOrDefault( n => n.EntityId == person.Id );
+                if ( checkInNote == null )
+                {
+                    checkInNote = new Note();
+                    checkInNote.IsSystem = false;
+                    checkInNote.EntityId = person.Id;
+                    checkInNote.NoteTypeId = (int)checkinNoteTypeId;
+                    rockContext.Notes.Add( checkInNote );
+                }
+
+                checkInNote.Text = tbNoteText.Text;
+            }
+
+            person.SaveAttributeValues();
+            rockContext.SaveChanges();
+            mdlInfo.Hide();
+        }
+
+        /// <summary>
+        /// Handles the Click event of the lbCloseEditInfo control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        protected void lbCloseEditInfo_Click( object sender, EventArgs e )
+        {
+            mdlInfo.Hide();
         }
 
         #endregion Click Events
@@ -891,6 +1039,94 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
             rGridPersonResults.DataSource = matchingPeople;
             rGridPersonResults.DataBind();
+        }
+
+        /// <summary>
+        /// Gets the person.
+        /// </summary>
+        /// <returns></returns>
+        private CheckInPerson GetCurrentPerson( int? parameterPersonId = null )
+        {
+            var personId = parameterPersonId ?? Request.QueryString["personId"].AsType<int?>();
+            var family = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
+
+            if ( personId == null || personId < 1 || family == null )
+            {
+                return null;
+            }
+
+            return family.People.FirstOrDefault( p => p.Person.Id == personId );
+        }
+
+        /// <summary>
+        /// Binds the edit info modal.
+        /// </summary>
+        protected void BindInfo()
+        {
+            var person = GetCurrentPerson();
+            if ( person != null )
+            {
+                ddlAbility.LoadAbilityAndGradeItems();
+                ddlSuffix.BindToDefinedType( DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_SUFFIX ) ), true );
+
+                tbFirstName.Text = person.Person.FirstName;
+                tbLastName.Text = person.Person.LastName;
+                tbNickname.Text = person.Person.NickName;
+                dpDOB.SelectedDate = person.Person.BirthDate;
+                cbSpecialNeeds.Checked = person.Person.GetAttributeValue( "IsSpecialNeeds" ).AsBoolean();
+
+                tbFirstName.Required = true;
+                tbLastName.Required = true;
+                dpDOB.Required = true;
+
+                if ( person.Person.SuffixValueId.HasValue )
+                {
+                    ddlSuffix.SelectedValue = person.Person.SuffixValueId.ToString();
+                }
+
+                if ( person.Person.GradeOffset.HasValue )
+                {
+                    ddlAbility.SelectedValue = person.Person.GradeOffset.ToString();
+                }
+                else if ( person.Person.AttributeValues.ContainsKey( "AbilityLevel" ) )
+                {
+                    var personAbility = person.Person.GetAttributeValue( "AbilityLevel" );
+                    if ( !string.IsNullOrWhiteSpace( personAbility ) )
+                    {
+                        ddlAbility.SelectedValue = personAbility;
+                    }
+                }
+
+                // load the allergy field
+                var allergyAttribute = AttributeCache.Read( AllergyAttributeGuid );
+                if ( allergyAttribute != null )
+                {
+                    phAttributes.Controls.Clear();
+                    person.Person.LoadAttributes();
+                    var attributeValue = person.Person.GetAttributeValue( allergyAttribute.Key );
+                    allergyAttribute.AddControl( phAttributes.Controls, attributeValue, "", true, true );
+                }
+
+                // load check-in notes
+                var rockContext = new RockContext();
+                int? checkInNoteTypeId = ViewState["checkinNoteTypeId"].ToStringSafe().AsType<int?>();
+                if ( checkInNoteTypeId == null )
+                {
+                    checkInNoteTypeId = new NoteTypeService( rockContext ).Queryable()
+                        .Where( t => t.Name == "Check-In" && t.EntityTypeId == person.Person.TypeId )
+                        .Select( t => (int?)t.Id ).FirstOrDefault();
+
+                    ViewState["checkInNoteTypeId"] = checkInNoteTypeId;
+                }
+
+                var checkInNotes = new NoteService( rockContext )
+                        .GetByNoteTypeId( (int)checkInNoteTypeId )
+                        .FirstOrDefault( n => n.EntityId == person.Person.Id );
+                if ( checkInNotes != null )
+                {
+                    tbNoteText.Text = checkInNotes.Text;
+                }
+            }
         }
 
         /// <summary>

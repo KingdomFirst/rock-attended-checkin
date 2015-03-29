@@ -88,7 +88,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var selectedPeopleList = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault()
                 .People.Where( p => p.Selected ).OrderBy( p => p.Person.FullNameReversed ).ToList();
 
-            var checkInList = new List<Checkins>();
+            var checkInList = new List<Activity>();
             foreach ( var person in selectedPeopleList )
             {
                 var selectedGroupTypes = person.GroupTypes.Where( gt => gt.Selected ).ToList();
@@ -102,7 +102,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         {
                             foreach ( var schedule in location.Schedules.Where( s => s.Selected ) )
                             {
-                                var checkIn = new Checkins();
+                                var checkIn = new Activity();
 
                                 checkIn.Name = person.Person.FullName;
                                 checkIn.Location = location.Location.Name;
@@ -121,7 +121,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }
                 else
                 {   // auto assignment didn't select anything
-                    checkInList.Add( new Checkins { PersonId = person.Person.Id, Name = person.Person.FullName, GroupId = 0, LocationId = 0, ScheduleId = 0 } );
+                    checkInList.Add( new Activity { PersonId = person.Person.Id, Name = person.Person.FullName, GroupId = 0, LocationId = 0, ScheduleId = 0 } );
                 }
             }
 
@@ -138,7 +138,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             if ( e.Row.RowType == DataControlRowType.DataRow )
             {
-                if ( ( (Checkins)e.Row.DataItem ).CheckedIn )
+                if ( ( (Activity)e.Row.DataItem ).CheckedIn )
                 {
                     e.Row.Cells[3].Text = "<span class=\"fa fa-check\"/>";
                 }
@@ -558,7 +558,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <summary>
         /// Check-In information class used to bind the selected grid.
         /// </summary>
-        protected class Checkins
+        protected class Activity
         {
             public int PersonId { get; set; }
 
@@ -576,7 +576,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
             public bool CheckedIn { get; set; }
 
-            public Checkins()
+            public Activity()
             {
                 PersonId = 0;
                 Name = string.Empty;
@@ -585,6 +585,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 LocationId = 0;
                 Schedule = string.Empty;
                 ScheduleId = 0;
+                CheckedIn = false;
             }
         }
 

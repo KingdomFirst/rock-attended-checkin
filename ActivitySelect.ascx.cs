@@ -101,7 +101,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
 
             var personId = Request.QueryString["personId"].AsType<int?>();
-            var person = GetPerson( personId );
+            var person = GetCurrentPerson( personId );
 
             if ( person != null )
             {
@@ -141,9 +141,64 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
         }
 
+        /// <summary>
+        /// Unsets the changes.
+        /// </summary>
+        private void UnsetChanges()
+        {
+            var person = GetCurrentPerson();
+
+            if ( person != null )
+            {
+                var groupTypes = person.GroupTypes.ToList();
+                groupTypes.ForEach( gt => gt.Selected = gt.PreSelected );
+
+                var groups = groupTypes.SelectMany( gt => gt.Groups ).ToList();
+                groups.ForEach( g => g.Selected = g.PreSelected );
+
+                var locations = groups.SelectMany( g => g.Locations ).ToList();
+                locations.ForEach( l => l.Selected = l.PreSelected );
+
+                var schedules = locations.SelectMany( l => l.Schedules ).ToList();
+                schedules.ForEach( s => s.Selected = s.PreSelected );
+            }
+            else
+            {
+                maWarning.Show( InvalidParameterError, ModalAlertType.Warning );
+            }
+        }
+
+        /// <summary>
+        /// Goes to the confirmation page with changes.
+        /// </summary>
+        private void GoNext()
+        {
+            var person = GetCurrentPerson();
+            if ( person != null )
+            {
+                var groupTypes = person.GroupTypes.ToList();
+                groupTypes.ForEach( gt => gt.PreSelected = gt.Selected );
+
+                var groups = groupTypes.SelectMany( gt => gt.Groups ).ToList();
+                groups.ForEach( g => g.PreSelected = g.Selected );
+
+                var locations = groups.SelectMany( g => g.Locations ).ToList();
+                locations.ForEach( l => l.PreSelected = l.Selected );
+
+                var schedules = locations.SelectMany( l => l.Schedules ).ToList();
+                schedules.ForEach( s => s.PreSelected = s.Selected );
+            }
+            else
+            {
+                maWarning.Show( InvalidParameterError, ModalAlertType.Warning );
+            }
+
+            ProcessSelection( maWarning );
+        }
+
         #endregion Control Methods
 
-        #region Edit Events
+        #region Click Events
 
         /// <summary>
         /// Handles the ItemCommand event of the rGroupType control.
@@ -152,7 +207,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="e">The <see cref="RepeaterCommandEventArgs"/> instance containing the event data.</param>
         protected void lvGroupType_ItemCommand( object source, ListViewCommandEventArgs e )
         {
-            var person = GetPerson();
+            var person = GetCurrentPerson();
             if ( person != null )
             {
                 foreach ( ListViewDataItem item in lvGroupType.Items )
@@ -185,7 +240,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="e">The <see cref="ListViewCommandEventArgs"/> instance containing the event data.</param>
         protected void lvLocation_ItemCommand( object sender, ListViewCommandEventArgs e )
         {
-            var person = GetPerson();
+            var person = GetCurrentPerson();
             if ( person != null )
             {
                 foreach ( ListViewDataItem item in lvLocation.Items )
@@ -217,7 +272,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="e">The <see cref="RepeaterCommandEventArgs"/> instance containing the event data.</param>
         protected void rSchedule_ItemCommand( object source, RepeaterCommandEventArgs e )
         {
-            var person = GetPerson();
+            var person = GetCurrentPerson();
             if ( person != null )
             {
                 foreach ( RepeaterItem item in rSchedule.Items )
@@ -374,7 +429,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="e">The <see cref="RowEventArgs" /> instance containing the event data.</param>
         protected void gSelectedGrid_Delete( object sender, RowEventArgs e )
         {
-            var person = GetPerson();
+            var person = GetCurrentPerson();
 
             if ( person != null )
             {
@@ -439,7 +494,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbEditInfo_Click( object sender, EventArgs e )
         {
-            SetEditInfo();
+            BindInfo();
             mdlInfo.Show();
         }
 
@@ -457,7 +512,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 return;
             }
 
-            CheckInPerson currentPerson = GetPerson();
+            CheckInPerson currentPerson = GetCurrentPerson();
             var rockContext = new RockContext();
             Person person = new PersonService( rockContext ).Get( currentPerson.Person.Id );
             person.LoadAttributes();
@@ -578,7 +633,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             GoNext();
         }
 
-        #endregion Edit Events
+        #endregion Click Events
 
         #region Internal Methods
 
@@ -704,7 +759,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// </summary>
         protected void BindSelectedGrid()
         {
-            var person = GetPerson();
+            var person = GetCurrentPerson();
 
             if ( person != null )
             {
@@ -739,50 +794,11 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         }
 
         /// <summary>
-        /// Gets the person.
+        /// Binds the edit info modal.
         /// </summary>
-        /// <returns></returns>
-        private CheckInPerson GetPerson( int? parameterPersonId = null )
+        protected void BindInfo( int personId )
         {
-            var personId = parameterPersonId ?? Request.QueryString["personId"].AsType<int?>();
-            var family = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
-
-            if ( personId == null || personId < 1 || family == null )
-            {
-                return null;
-            }
-
-            return family.People.FirstOrDefault( p => p.Person.Id == personId );
-        }
-
-        /// <summary>
-        /// Gets the attendance count for all of the schedules for a location. This will show on the schedule buttons.
-        /// </summary>
-        /// <param name="location"></param>
-        protected void GetScheduleAttendance( CheckInLocation location )
-        {
-            if ( location != null )
-            {
-                var rockContext = new RockContext();
-                var attendanceService = new AttendanceService( rockContext );
-                var attendanceQuery = attendanceService.GetByDateAndLocation( DateTime.Now, location.Location.Id );
-                ScheduleAttendanceList.Clear();
-                foreach ( var schedule in location.Schedules )
-                {
-                    var attendance = new ScheduleAttendance();
-                    attendance.ScheduleId = schedule.Schedule.Id;
-                    attendance.AttendanceCount = attendanceQuery.Where( l => l.ScheduleId == attendance.ScheduleId ).Count();
-                    ScheduleAttendanceList.Add( attendance );
-                }
-            }
-        }
-
-        /// <summary>
-        /// Resets the edit info modal.
-        /// </summary>
-        private void SetEditInfo()
-        {
-            var person = GetPerson();
+            var person = GetCurrentPerson();
             if ( person != null )
             {
                 ddlAbility.LoadAbilityAndGradeItems();
@@ -854,58 +870,42 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         }
 
         /// <summary>
-        /// Unsets the changes.
+        /// Gets the person.
         /// </summary>
-        private void UnsetChanges()
+        /// <returns></returns>
+        private CheckInPerson GetCurrentPerson( int? parameterPersonId = null )
         {
-            var person = GetPerson();
+            var personId = parameterPersonId ?? Request.QueryString["personId"].AsType<int?>();
+            var family = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
 
-            if ( person != null )
+            if ( personId == null || personId < 1 || family == null )
             {
-                var groupTypes = person.GroupTypes.ToList();
-                groupTypes.ForEach( gt => gt.Selected = gt.PreSelected );
-
-                var groups = groupTypes.SelectMany( gt => gt.Groups ).ToList();
-                groups.ForEach( g => g.Selected = g.PreSelected );
-
-                var locations = groups.SelectMany( g => g.Locations ).ToList();
-                locations.ForEach( l => l.Selected = l.PreSelected );
-
-                var schedules = locations.SelectMany( l => l.Schedules ).ToList();
-                schedules.ForEach( s => s.Selected = s.PreSelected );
+                return null;
             }
-            else
-            {
-                maWarning.Show( InvalidParameterError, ModalAlertType.Warning );
-            }
+
+            return family.People.FirstOrDefault( p => p.Person.Id == personId );
         }
 
         /// <summary>
-        /// Goes to the confirmation page with changes.
+        /// Gets the attendance count for all of the schedules for a location. This will show on the schedule buttons.
         /// </summary>
-        private void GoNext()
+        /// <param name="location"></param>
+        protected void GetScheduleAttendance( CheckInLocation location )
         {
-            var person = GetPerson();
-            if ( person != null )
+            if ( location != null )
             {
-                var groupTypes = person.GroupTypes.ToList();
-                groupTypes.ForEach( gt => gt.PreSelected = gt.Selected );
-
-                var groups = groupTypes.SelectMany( gt => gt.Groups ).ToList();
-                groups.ForEach( g => g.PreSelected = g.Selected );
-
-                var locations = groups.SelectMany( g => g.Locations ).ToList();
-                locations.ForEach( l => l.PreSelected = l.Selected );
-
-                var schedules = locations.SelectMany( l => l.Schedules ).ToList();
-                schedules.ForEach( s => s.PreSelected = s.Selected );
+                var rockContext = new RockContext();
+                var attendanceService = new AttendanceService( rockContext );
+                var attendanceQuery = attendanceService.GetByDateAndLocation( DateTime.Now, location.Location.Id );
+                ScheduleAttendanceList.Clear();
+                foreach ( var schedule in location.Schedules )
+                {
+                    var attendance = new ScheduleAttendance();
+                    attendance.ScheduleId = schedule.Schedule.Id;
+                    attendance.AttendanceCount = attendanceQuery.Where( l => l.ScheduleId == attendance.ScheduleId ).Count();
+                    ScheduleAttendanceList.Add( attendance );
+                }
             }
-            else
-            {
-                maWarning.Show( InvalidParameterError, ModalAlertType.Warning );
-            }
-
-            ProcessSelection( maWarning );
         }
 
         #endregion Internal Methods
