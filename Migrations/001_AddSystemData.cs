@@ -307,8 +307,8 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             RockMigrationHelper.AddActionTypeAttributeValue( "ED2150E5-6B9E-4266-B0FA-9C6836C0DC20", "F699D995-51EC-4EF7-8A03-B41D7C16A3C2", @"False" );
             // Attended Check-in:Activity Search:Filter Groups By Special Needs:RemoveNonSN - false
             RockMigrationHelper.AddActionTypeAttributeValue( "ED2150E5-6B9E-4266-B0FA-9C6836C0DC20", "2F00F31C-2042-43ED-BEB6-C051CA92DAC8", @"False" );
-            // Attended Check-in:Activity Search:Filter Groups By Special Needs:RemoveSN - false
-            RockMigrationHelper.AddActionTypeAttributeValue( "ED2150E5-6B9E-4266-B0FA-9C6836C0DC20", "9F72C20F-B927-4777-93A1-1EFEB8453960", @"False" );
+            // Attended Check-in:Activity Search:Filter Groups By Special Needs:RemoveSN - true
+            RockMigrationHelper.AddActionTypeAttributeValue( "ED2150E5-6B9E-4266-B0FA-9C6836C0DC20", "9F72C20F-B927-4777-93A1-1EFEB8453960", @"True" );
             // Attended Check-in:Activity Search:Filter Groups By Ability Level:Order
             RockMigrationHelper.AddActionTypeAttributeValue( "765E8CED-B9DF-46E4-B030-86417DAFD75F", "85C89ADB-3B22-4F67-836C-892F9796BD34", @"" );
             // Attended Check-in:Activity Search:Filter Groups By Ability Level:Active
