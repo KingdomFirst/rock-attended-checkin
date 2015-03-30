@@ -87,21 +87,11 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
 
             var person = GetCurrentPerson();
-
             if ( person != null )
             {
                 // Set the nickname
                 var nickName = person.Person.NickName ?? person.Person.FirstName;
                 lblPersonName.Text = string.Format( "{0} {1}", nickName, person.Person.LastName );
-
-                // Load the allergy field
-                var allergyAttribute = AttributeCache.Read( new Guid( Rock.SystemGuid.Attribute.PERSON_ALLERGY ) );
-                if ( allergyAttribute != null )
-                {
-                    phAttributes.Controls.Clear();
-                    var attributeValue = person.Person.GetAttributeValue( allergyAttribute.Key );
-                    allergyAttribute.AddControl( phAttributes.Controls, attributeValue, "", true, true );
-                }
             }
 
             if ( !Page.IsPostBack )
@@ -129,6 +119,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     NavigateToPreviousPage();
                 }
             }
+
+            // Instantiate the allergy control for reference later
+            AttributeCache.Read( new Guid( Rock.SystemGuid.Attribute.PERSON_ALLERGY ) )
+                .AddControl( phAttributes.Controls, string.Empty, "", true, true );
 
             if ( GetAttributeValue( "DisplayGroupNames" ).AsBoolean() )
             {
@@ -571,6 +565,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             {
                 person.SetAttributeValue( "Allergy", allergyAttribute.FieldType.Field
                     .GetEditValue( allergyAttributeControl, allergyAttribute.QualifierValues ) );
+                currentPerson.Person.SetAttributeValue( "Allergy", allergyAttribute.FieldType.Field
+                    .GetEditValue( allergyAttributeControl, allergyAttribute.QualifierValues ) );
             }
 
             // store the check-in notes
@@ -592,6 +588,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 checkInNote.Text = tbNoteText.Text;
             }
 
+            // Save the attribute change to the db (CheckinPerson already tracked)
             person.SaveAttributeValues();
             rockContext.SaveChanges();
             mdlInfo.Hide();
@@ -827,6 +824,15 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     }
                 }
 
+                // Note: Allergy control is dynamic and must be initialized on PageLoad
+                var personAllergyValues = person.Person.GetAttributeValue( "Allergy" );
+                if ( !string.IsNullOrWhiteSpace( personAllergyValues ) )
+                {
+                    phAttributes.Controls.Clear();
+                    AttributeCache.Read( new Guid( Rock.SystemGuid.Attribute.PERSON_ALLERGY ) )
+                        .AddControl( phAttributes.Controls, personAllergyValues, "", true, true );
+                }
+
                 // load check-in notes
                 var rockContext = new RockContext();
                 int? checkInNoteTypeId = ViewState["checkinNoteTypeId"].ToStringSafe().AsType<int?>();
@@ -845,9 +851,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 if ( checkInNotes != null )
                 {
                     tbNoteText.Text = checkInNotes.Text;
-                }
-
-                // Note: Allergy control is dynamic and must be initialized on PageLoad
+                }                
             }
             else
             {
@@ -856,7 +860,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         }
 
         /// <summary>
-        /// Gets the person.
+        /// Gets the current person.
         /// </summary>
         /// <returns></returns>
         private CheckInPerson GetCurrentPerson( int? parameterPersonId = null )

@@ -161,25 +161,25 @@
                     <div class="checkin-body">
                         <div class="row">
                             <div class="col-xs-2">
-                                <Rock:RockTextBox ID="tbFirstNamePerson" runat="server" CssClass="col-xs-12" Label="First Name" ValidationGroup="Person" />
+                                <Rock:RockTextBox ID="tbPersonFirstName" runat="server" CssClass="col-xs-12" Label="First Name" ValidationGroup="Person" />
                             </div>
                             <div class="col-xs-2">
-                                <Rock:RockTextBox ID="tbLastNamePerson" runat="server" CssClass="col-xs-12" Label="Last Name" ValidationGroup="Person" />
+                                <Rock:RockTextBox ID="tbPersonLastName" runat="server" CssClass="col-xs-12" Label="Last Name" ValidationGroup="Person" />
                             </div>
                             <div class="col-xs-1">
-                                <Rock:RockDropDownList ID="ddlSuffix" runat="server" CssClass="col-xs-12" Label="Suffix" />
+                                <Rock:RockDropDownList ID="ddlPersonSuffix" runat="server" CssClass="col-xs-12" Label="Suffix" />
                             </div>
                             <div class="col-xs-2">
-                                <Rock:DatePicker ID="dpDOBPerson" runat="server" Label="Date of Birth" CssClass="col-xs-12 date-picker" ValidationGroup="Person" data-show-age="true" />
+                                <Rock:DatePicker ID="dpPersonDOB" runat="server" Label="Date of Birth" CssClass="col-xs-12 date-picker" ValidationGroup="Person" data-show-age="true" />
                             </div>
                             <div class="col-xs-2">
-                                <Rock:RockDropDownList ID="ddlGenderPerson" runat="server" Label="Gender" CssClass="col-xs-12" ValidationGroup="Person" />
+                                <Rock:RockDropDownList ID="ddlPersonGender" runat="server" Label="Gender" CssClass="col-xs-12" ValidationGroup="Person" />
                             </div>
                             <div class="col-xs-2">
-                                <Rock:RockDropDownList ID="ddlAbilityPerson" runat="server" Label="Ability/Grade" CssClass="col-xs-12" />
+                                <Rock:RockDropDownList ID="ddlPersonAbilityGrade" runat="server" Label="Ability/Grade" CssClass="col-xs-12" />
                             </div>
                             <div class="col-xs-1 shift-up centered">
-                                <Rock:RockCheckBox ID="cbSpecialNeeds" Label="Special Needs" runat="server" CssClass="" />
+                                <Rock:RockCheckBox ID="cbPersonSpecialNeeds" Label="Special Needs" runat="server" CssClass="" />
                             </div>
 
                             <div class="row flush-sides">
@@ -334,25 +334,25 @@
                     <div class="checkin-body">
                         <div class="row">
                             <div class="col-xs-2">
-                                <Rock:RockTextBox ID="tbFirstName" runat="server" Label="First Name" ValidationGroup="Person" />
+                                <Rock:RockTextBox ID="tbFirstName" runat="server" Label="First Name" ValidationGroup="Person" Required="true" />
                             </div>
                             <div class="col-xs-2">
                                 <Rock:RockTextBox ID="tbNickname" runat="server" ValidationGroup="Person" Label="Nickname" />
                             </div>
                             <div class="col-xs-2">
-                                <Rock:RockTextBox ID="tbLastName" runat="server" Label="Last Name" ValidationGroup="Person" />
+                                <Rock:RockTextBox ID="tbLastName" runat="server" Label="Last Name" ValidationGroup="Person" Required="true" />
                             </div>
                             <div class="col-xs-1">
-                                <Rock:RockDropDownList ID="RockDropDownList1" runat="server" Label="Suffix" />
+                                <Rock:RockDropDownList ID="ddlSuffix" runat="server" Label="Suffix" />
                             </div>
                             <div class="col-xs-2">
-                                <Rock:DatePicker ID="dpDOB" runat="server" Label="Date of Birth" ValidationGroup="Person" CssClass="date-picker" data-show-age="true" />
+                                <Rock:DatePicker ID="dpDOB" runat="server" CssClass="date-picker" data-show-age="true" Label="Date of Birth" ValidationGroup="Person" Required="true" />
                             </div>
                             <div class="col-xs-2">
-                                <Rock:RockDropDownList ID="ddlAbility" runat="server" Label="Ability/Grade" />
+                                <Rock:RockDropDownList ID="ddlAbilityGrade" runat="server" Label="Ability/Grade" />
                             </div>
                             <div class="col-xs-1 shift-up centered">
-                                <Rock:RockCheckBox ID="cbEditSpecialNeeds" runat="server" Label="Special Needs" />
+                                <Rock:RockCheckBox ID="cbSpecialNeeds" runat="server" Label="Special Needs" />
                             </div>
                         </div>
                         <div class="row">
