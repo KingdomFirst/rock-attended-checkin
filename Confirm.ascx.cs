@@ -42,7 +42,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [Description( "Attended Check-In Confirmation Block" )]
     [LinkedPage( "Activity Select Page" )]
     [BooleanField( "Print Individual Labels", "Select this option to print one label per person's group, location, & schedule.", false )]
-    //[NewSpringField( "Designated Parent Label", "Select a label to print once per print job.  Unselect to print with every print job.", false )]
+    [BinaryFileField( "DE0E5C50-234B-474C-940C-C571F385E65F", "Designated Parent Label", "Select a label to print once per print job.  Unselect to print with every print job.", false )]
     public partial class Confirm : CheckInBlock
     {
         #region Control Methods
