@@ -81,7 +81,7 @@
 
         $(document).keydown(function (e) {
             if (e.keyCode === 77 && e.ctrlKey) {
-                window.location.href = "/attendedcheckin/admin";
+                window.location.href = "/attendedcheckin/admin?back=true";
                 return false;
             }
         });

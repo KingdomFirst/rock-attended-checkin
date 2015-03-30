@@ -51,11 +51,21 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             if ( !Page.IsPostBack )
             {
-                RockPage.AddScriptLink( "~/Blocks/CheckIn/Scripts/geo-min.js" );
+                if ( CurrentKioskId.HasValue && CurrentGroupTypeIds.Any() && !UserBackedUp )
+                {
+                    // Save the check-in state
+                    SaveState();
 
-                AttemptKioskMatchByIpOrName();
+                    // Navigate to the next page
+                    NavigateToNextPage();
+                }
+                else
+                {
+                    RockPage.AddScriptLink( "~/Blocks/CheckIn/Scripts/geo-min.js" );
 
-                string script = string.Format( @"
+                    AttemptKioskMatchByIpOrName();
+
+                    string script = string.Format( @"
                 <script>
                     $(document).ready(function (e) {{
                         if (localStorage) {{
@@ -70,11 +80,12 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     }});
                 </script>
                 ", this.Page.ClientScript.GetPostBackEventReference( lbRefresh, "" ) );
-                phScript.Controls.Add( new LiteralControl( script ) );
+                    phScript.Controls.Add( new LiteralControl( script ) );
 
-                // Initiate the check-in variables
-                lbOk.Focus();
-                SaveState();
+                    // Initiate the check-in variables
+                    lbOk.Focus();
+                    SaveState();
+                }
             }
             else
             {
