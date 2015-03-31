@@ -20,7 +20,7 @@
                 </div>
 
                 <div class="col-xs-2 checkin-actions text-right">
-                    <Rock:BootstrapButton ID="lbNext" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbNext_Click" EnableViewState="false" CausesValidation="False">
+                    <Rock:BootstrapButton ID="lbNext" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbNext_Click" EnableViewState="false">
                         <span class="fa fa-arrow-right" />
                     </Rock:BootstrapButton>
                 </div>
