@@ -451,50 +451,6 @@ table td.expanded:first-child {
     border-bottom: 1px solid rgba(255,255,255, .05);
 }
 
-/*.cozy table > tbody > tr td {
-    padding: 10px 8px;
-    border-top: 0;
-    max-width: 125px;
-}
-
-.cozy table {
-    background-color: transparent;
-
-    tr {
-        display: inline-block;
-        width: 100%;
-        background-color: rgba(10,10,10,.6);
-        margin-bottom: 10px;
-        border-radius: 5px;
-        overflow: hidden;
-
-        td {
-            -ms-word-break: break-word;
-            word-break: break-word;
-            -webkit-hyphens: auto;
-            -moz-hyphens: auto;
-            -ms-hyphens: auto;
-            hyphens: auto;
-        }
-
-        td:nth-child(3n+1) {
-            width: 25%;
-            max-width: 80px;
-            overflow: hidden;
-        }
-
-        td:nth-child(3n+2) {
-            width: 55%;
-            overflow: hidden;
-        }
-
-        td:nth-child(3n+3) {
-            width: 20%;
-            overflow: hidden;
-        }
-    }
-}*/
-
 td.day, th.prev, th.next, th.today, th.datepicker-switch {
     cursor: pointer;
 }
@@ -578,6 +534,11 @@ tfoot {
 }
 
 /* Miscellaneous */
+
+a.help {
+  margin-left: 6px;
+  outline: 0;
+}
 
 .shift-up {
     position: relative;
