@@ -330,7 +330,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             // Make sure we can save the attendance and get an attendance code
             if ( SaveAttendance() )
             {
-                string designatedParentLabel = GetAttributeValue( "DesignatedParentLabel" );
                 if ( GetAttributeValue( "PrintIndividualLabels" ).AsBoolean() )
                 {
                     // separate labels by person and that's it
@@ -393,7 +392,11 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// </summary>
         private void PrintLabels()
         {
+            var designatedParentLabelGuid = GetAttributeValue( "DesignatedParentLabel" );
+            var hasPrintedLabel = false;
+
             var errors = new List<string>();
+
             if ( ProcessActivity( "Create Labels", out errors ) )
             {
                 SaveState();
@@ -421,11 +424,13 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                 AddLabelScript( printFromClient.ToJson() );
                             }
 
-                            //
-                            // add check for parent label already printed
-                            //
-
                             var printFromServer = groupType.Labels.Where( l => l.PrintFrom == Rock.Model.PrintFrom.Server );
+
+                            if ( !string.IsNullOrEmpty( designatedParentLabelGuid ) && hasPrintedLabel )
+                            {
+                                printFromServer = printFromServer.Where( l => l.FileGuid != new Guid( designatedParentLabelGuid ) );
+                            }
+
                             if ( printFromServer.Any() )
                             {
                                 Socket socket = null;
@@ -485,6 +490,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                             }
                                         }
                                     }
+
+                                    hasPrintedLabel = hasPrintedLabel || label.FileGuid == new Guid( designatedParentLabelGuid );
                                 }
 
                                 if ( socket != null && socket.Connected )
