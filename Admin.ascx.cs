@@ -51,7 +51,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             if ( !Page.IsPostBack )
             {
-                if ( CurrentKioskId.HasValue && CurrentGroupTypeIds.Any() && !UserBackedUp )
+                if ( CurrentKioskId.HasValue && CurrentGroupTypeIds != null && CurrentGroupTypeIds.Any() && !UserBackedUp )
                 {
                     // Save the check-in state
                     SaveState();
