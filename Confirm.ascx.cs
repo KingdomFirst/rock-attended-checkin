@@ -42,11 +42,29 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [Description( "Attended Check-In Confirmation Block" )]
     [LinkedPage( "Activity Select Page" )]
     [BooleanField( "Print Individual Labels", "Select this option to print one label per person's group, location, & schedule.", false )]
-    [BinaryFileField( "DE0E5C50-234B-474C-940C-C571F385E65F", "Designated Parent Label", "Select a label to print once per print job.  Unselect to print with every print job.", false )]
+    [BinaryFileField( "DE0E5C50-234B-474C-940C-C571F385E65F", "Designated One-Time Label", "Select a label to print once per print job.  Unselect the label to print it with every print job.", false )]
     public partial class Confirm : CheckInBlock
     {
-        private bool AlreadyPrintedOnClient = false;
-        private bool AlreadyPrintedOnServer = false;
+        private bool RemoveLabelFromClientQueue = false;
+        private bool RemoveLabelFromServerQueue = false;
+
+        public bool RunSaveAttendance
+        {
+            get
+            {
+                var attendanceCodeSet = ViewState["RunSaveAttendance"].ToStringSafe();
+                if ( attendanceCodeSet != null )
+                {
+                    return attendanceCodeSet.AsBoolean();
+                }
+
+                return true;
+            }
+            set
+            {
+                ViewState["RunSaveAttendance"] = value;
+            }
+        }
 
         #region Control Methods
 
@@ -304,26 +322,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         #region Internal Methods
 
         /// <summary>
-        /// Save the attendance from the workflow action.
-        /// </summary>
-        /// <returns>Returns true if the attendance saved. Otherwise returns false.</returns>
-        private bool SaveAttendance()
-        {
-            var errors = new List<string>();
-            if ( ProcessActivity( "Save Attendance", out errors ) )
-            {
-                SaveState();
-            }
-            else
-            {
-                string errorMsg = "<ul><li>" + errors.AsDelimited( "</li><li>" ) + "</li></ul>";
-                maWarning.Show( errorMsg, Rock.Web.UI.Controls.ModalAlertType.Warning );
-            }
-
-            return !errors.Any();
-        }
-
-        /// <summary>
         /// Creates the labels.
         /// </summary>
         /// <param name="dataKeyArray">The data key array.</param>
@@ -331,61 +329,75 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         private void ProcessLabels( DataKeyArray checkinArray )
         {
             // Make sure we can save the attendance and get an attendance code
-            if ( SaveAttendance() )
+            if ( RunSaveAttendance )
             {
-                if ( GetAttributeValue( "PrintIndividualLabels" ).AsBoolean() )
+                var errors = new List<string>();
+                if ( ProcessActivity( "Save Attendance", out errors ) )
                 {
-                    // separate labels by person and that's it
-                    PrintLabels();
+                    SaveState();
                 }
                 else
                 {
-                    // checkinArray has all the data to be printed, whether single or multiple people are checking in
-                    foreach ( DataKey dataKey in checkinArray )
-                    {
-                        var personId = Convert.ToInt32( dataKey["PersonId"] );
-                        var groupId = Convert.ToInt32( dataKey["GroupId"] );
-                        var locationId = Convert.ToInt32( dataKey["LocationId"] );
-                        var scheduleId = Convert.ToInt32( dataKey["ScheduleId"] );
+                    string errorMsg = "<ul><li>" + errors.AsDelimited( "</li><li>" ) + "</li></ul>";
+                    maWarning.Show( errorMsg, Rock.Web.UI.Controls.ModalAlertType.Warning );
+                    return;
+                }
 
-                        // mark the person whose label is being printed
-                        var selectedPerson = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected )
-                            .People.FirstOrDefault( p => p.Person.Id == personId );
+                RunSaveAttendance = false;
+            }
 
-                        // unselect other people
-                        CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).SelectMany( f => f.People ).ToList().ForEach( p => p.Selected = false );
+            if ( GetAttributeValue( "PrintIndividualLabels" ).AsBoolean() )
+            {
+                // separate labels by person and that's it
+                PrintLabels();
+            }
+            else
+            {
+                // checkinArray has all the data to be printed, whether single or multiple people are checking in
+                foreach ( DataKey dataKey in checkinArray )
+                {
+                    var personId = Convert.ToInt32( dataKey["PersonId"] );
+                    var groupId = Convert.ToInt32( dataKey["GroupId"] );
+                    var locationId = Convert.ToInt32( dataKey["LocationId"] );
+                    var scheduleId = Convert.ToInt32( dataKey["ScheduleId"] );
 
-                        // unselect grouptypes
-                        selectedPerson.GroupTypes.ForEach( gt => gt.Selected = false );
+                    // mark the person whose label is being printed
+                    var selectedPerson = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected )
+                        .People.FirstOrDefault( p => p.Person.Id == personId );
 
-                        // unselect groups
-                        selectedPerson.GroupTypes.SelectMany( gt => gt.Groups ).ToList().ForEach( g => g.Selected = false );
+                    // unselect other people
+                    CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).SelectMany( f => f.People ).ToList().ForEach( p => p.Selected = false );
 
-                        // unselect locations
-                        selectedPerson.GroupTypes.SelectMany( gt => gt.Groups.SelectMany( g => g.Locations ) ).ToList().ForEach( l => l.Selected = false );
+                    // unselect grouptypes
+                    selectedPerson.GroupTypes.ForEach( gt => gt.Selected = false );
 
-                        // unselect schedules
-                        selectedPerson.GroupTypes.SelectMany( gt => gt.Groups.SelectMany( g => g.Locations.SelectMany( l => l.Schedules ) ) ).ToList()
-                            .ForEach( s => s.Selected = false );
+                    // unselect groups
+                    selectedPerson.GroupTypes.SelectMany( gt => gt.Groups ).ToList().ForEach( g => g.Selected = false );
 
-                        // set only the current label selection
-                        var selectedGroupType = selectedPerson.GroupTypes.FirstOrDefault( gt =>
-                            gt.Groups.Any( g => g.Locations.Any( l => l.Location.Id == locationId
-                                && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) ) ) );
-                        var selectedGroup = selectedGroupType.Groups.FirstOrDefault( g => g.Group.Id == groupId &&
-                            g.Locations.Any( l => l.Location.Id == locationId && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) ) );
-                        var selectedLocation = selectedGroup.Locations.FirstOrDefault( l => l.Location.Id == locationId
-                                && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) );
-                        var selectedSchedule = selectedLocation.Schedules.FirstOrDefault( s => s.Schedule.Id == scheduleId );
+                    // unselect locations
+                    selectedPerson.GroupTypes.SelectMany( gt => gt.Groups.SelectMany( g => g.Locations ) ).ToList().ForEach( l => l.Selected = false );
 
-                        selectedPerson.Selected = true;
-                        selectedGroupType.Selected = true;
-                        selectedGroup.Selected = true;
-                        selectedLocation.Selected = true;
-                        selectedSchedule.Selected = true;
+                    // unselect schedules
+                    selectedPerson.GroupTypes.SelectMany( gt => gt.Groups.SelectMany( g => g.Locations.SelectMany( l => l.Schedules ) ) ).ToList()
+                        .ForEach( s => s.Selected = false );
 
-                        PrintLabels();
-                    }
+                    // set only the current label selection
+                    var selectedGroupType = selectedPerson.GroupTypes.FirstOrDefault( gt =>
+                        gt.Groups.Any( g => g.Locations.Any( l => l.Location.Id == locationId
+                            && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) ) ) );
+                    var selectedGroup = selectedGroupType.Groups.FirstOrDefault( g => g.Group.Id == groupId &&
+                        g.Locations.Any( l => l.Location.Id == locationId && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) ) );
+                    var selectedLocation = selectedGroup.Locations.FirstOrDefault( l => l.Location.Id == locationId
+                            && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) );
+                    var selectedSchedule = selectedLocation.Schedules.FirstOrDefault( s => s.Schedule.Id == scheduleId );
+
+                    selectedPerson.Selected = true;
+                    selectedGroupType.Selected = true;
+                    selectedGroup.Selected = true;
+                    selectedLocation.Selected = true;
+                    selectedSchedule.Selected = true;
+
+                    PrintLabels();
                 }
             }
         }
@@ -418,7 +430,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         if ( groupType != null )
                         {
                             var printFromClient = groupType.Labels.Where( l => l.PrintFrom == Rock.Model.PrintFrom.Client );
-                            if ( AlreadyPrintedOnClient )
+                            if ( RemoveLabelFromClientQueue )
                             {
                                 printFromClient = printFromClient.Where( l => l.FileGuid != designatedLabelGuid );
                             }
@@ -428,11 +440,13 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                 var urlRoot = string.Format( "{0}://{1}", Request.Url.Scheme, Request.Url.Authority );
                                 printFromClient.ToList().ForEach( l => l.LabelFile = urlRoot + l.LabelFile );
                                 AddLabelScript( printFromClient.ToJson() );
-                                AlreadyPrintedOnClient = AlreadyPrintedOnClient || printFromClient.Any( l => l.FileGuid == designatedLabelGuid );
+
+                                // Remove from future client queues
+                                RemoveLabelFromClientQueue = RemoveLabelFromClientQueue || printFromClient.Any( l => l.FileGuid == designatedLabelGuid );
                             }
 
                             var printFromServer = groupType.Labels.Where( l => l.PrintFrom == Rock.Model.PrintFrom.Server );
-                            if ( AlreadyPrintedOnServer )
+                            if ( RemoveLabelFromServerQueue )
                             {
                                 printFromServer = printFromServer.Where( l => l.FileGuid != designatedLabelGuid );
                             }
@@ -497,7 +511,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                         }
                                     }
 
-                                    AlreadyPrintedOnServer = AlreadyPrintedOnServer || label.FileGuid == designatedLabelGuid;
+                                    // Remove from future server queue
+                                    RemoveLabelFromServerQueue = RemoveLabelFromServerQueue || label.FileGuid == designatedLabelGuid;
                                 }
 
                                 if ( socket != null && socket.Connected )
