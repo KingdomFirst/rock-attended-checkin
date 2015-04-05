@@ -503,6 +503,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                                 var ns = new NetworkStream( socket );
                                                 byte[] toSend = System.Text.Encoding.ASCII.GetBytes( printContent );
                                                 ns.Write( toSend, 0, toSend.Length );
+
+                                                // Remove from future server queue
+                                                RemoveLabelFromServerQueue = RemoveLabelFromServerQueue || label.FileGuid == designatedLabelGuid;
                                             }
                                             else
                                             {
@@ -510,9 +513,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                             }
                                         }
                                     }
-
-                                    // Remove from future server queue
-                                    RemoveLabelFromServerQueue = RemoveLabelFromServerQueue || label.FileGuid == designatedLabelGuid;
                                 }
 
                                 if ( socket != null && socket.Connected )
