@@ -48,12 +48,12 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         private bool RemoveLabelFromClientQueue = false;
         private bool RemoveLabelFromServerQueue = false;
 
-        public bool RunSaveAttendance
+        private bool RunSaveAttendance
         {
             get
             {
                 var attendanceCodeSet = ViewState["RunSaveAttendance"].ToStringSafe();
-                if ( attendanceCodeSet != null )
+                if ( !string.IsNullOrWhiteSpace( attendanceCodeSet ) )
                 {
                     return attendanceCodeSet.AsBoolean();
                 }
