@@ -42,7 +42,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [Description( "Attended Check-In Confirmation Block" )]
     [LinkedPage( "Activity Select Page" )]
     [BooleanField( "Print Individual Labels", "Select this option to print one label per person's group, location, & schedule.", false )]
-    [BinaryFileField( "DE0E5C50-234B-474C-940C-C571F385E65F", "Designated One-Time Label", "Select a label to print once per print job.  Unselect the label to print it with every print job.", false )]
+    [BinaryFileField( "DE0E5C50-234B-474C-940C-C571F385E65F", "Designated Single Label", "Select a label to print once per print job.  Unselect the label to print it with every print job.", false )]
     public partial class Confirm : CheckInBlock
     {
         private bool RemoveLabelFromClientQueue = false;
@@ -407,7 +407,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// </summary>
         private void PrintLabels()
         {
-            var designatedLabelGuid = GetAttributeValue( "DesignatedParentLabel" ).AsGuidOrNull();
+            var designatedLabelGuid = GetAttributeValue( "DesignatedSingleLabel" ).AsGuidOrNull();
             var errors = new List<string>();
 
             if ( ProcessActivity( "Create Labels", out errors ) )
