@@ -130,13 +130,13 @@
                     <asp:LinkButton ID="lbAddVisitor" runat="server" Text="Add Visitor" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClick="lbAddVisitor_Click" CausesValidation="false" EnableViewState="false" />
                     <asp:LinkButton ID="lbAddFamilyMember" runat="server" Text="Add Person" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClick="lbAddFamilyMember_Click" CausesValidation="false" EnableViewState="false" />
                     <asp:LinkButton ID="lbNewFamily" runat="server" Text="New Family" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClick="lbNewFamily_Click" CausesValidation="false" EnableViewState="false" />
-                    <asp:LinkButton ID="lbEditInfo" runat="server" Text="Edit Info" CssClass="btn btn-primary btn-block btn-checkin-select" OnClick="lbEditInfo_Click" CausesValidation="false" EnableViewState="false" />
+                    <%--<asp:LinkButton ID="lbEditInfo" runat="server" Text="Edit Info" CssClass="btn btn-primary btn-block btn-checkin-select" OnClick="lbEditInfo_Click" CausesValidation="false" EnableViewState="false" />--%>
                 </div>
             </div>
         </asp:Panel>
 
         <!-- ADD PERSON MODAL -->
-        <Rock:ModalDialog ID="mdlAddPerson" runat="server" Content-DefaultButton="lbPersonSearch">
+        <Rock:ModalDialog ID="mdlAddPerson" runat="server">
             <Content>
                 <div class="soft-quarter-ends">
                     <!-- Modal Header -->
@@ -211,7 +211,7 @@
                                 <div class="soft-quarter-sides">
                                     <div class="col-xs-12 text-right">
                                         <Rock:BootstrapButton ID="lbNewPerson" runat="server" Text="None of these, add a new person" CssClass="btn btn-lg btn-primary btn-checkin-select"
-                                            OnClick="lbNewPerson_Click" ValidationGroup="Person" CausesValidation="true">
+                                            OnClick="lbNewPerson_Click" ValidationGroup="Person">
                                         </Rock:BootstrapButton>
                                     </div>
                                 </div>
@@ -312,7 +312,7 @@
         </Rock:ModalDialog>
 
         <!-- EDIT INFO MODAL -->
-        <Rock:ModalDialog ID="mdlInfo" runat="server" Content-DefaultButton="lbSaveEditInfo">
+        <%--<Rock:ModalDialog ID="mdlInfo" runat="server" Content-DefaultButton="lbSaveEditInfo">
             <Content>
                 <div class="soft-quarter-ends">
                     <div class="row checkin-header">
@@ -366,7 +366,7 @@
                     </div>
                 </div>
             </Content>
-        </Rock:ModalDialog>
+        </Rock:ModalDialog>--%>
     </ContentTemplate>
 </asp:UpdatePanel>
 
