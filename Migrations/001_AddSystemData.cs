@@ -338,10 +338,6 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             // Attended Check-in:Save Attendance:Create Labels:Active
             RockMigrationHelper.AddActionTypeAttributeValue( "BBE6E76D-6C8E-4B8E-931C-DD3CBE9619A4", "36EB15CE-095C-41ED-9C0F-9EA345599D54", @"False" );
 
-            // Check-in config options
-            // RockMigrationHelper.AddBlockTypeAttribute( "FADD6974-FE07-49EF-AA8D-5AE5976D85D2", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Create Check-in Hierarchy", "CreateCheck-inHierarchy", "", "", 0, @"False", "3B3BF9E2-51AE-44BD-B142-1F3D711E59F0" );
-            // RockMigrationHelper.AddBlockTypeAttribute( "FADD6974-FE07-49EF-AA8D-5AE5976D85D2", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Display Check-in Groups", "DisplayCheck-inGroups", "", "", 0, @"False", "1AB938CC-BD49-4410-BC60-A57EDD7752FE" );
-
             // Add checkin note types
             Sql( @"
                 DECLARE @PersonEntityTypeId int = (SELECT [ID] FROM [EntityType] WHERE [Guid] = '72657ED8-D16E-492E-AC12-144C5E7567E7')
@@ -351,32 +347,23 @@ namespace cc.newspring.AttendedCheckIn.Migrations
 
             // Add special needs attribute
             Sql( string.Format( @"
-                INSERT INTO [dbo].[Attribute]
-                   ([IsSystem]
-                   ,[FieldTypeId]
-                   ,[EntityTypeId]
-                   ,[Key]
-                   ,[Name]
-                   ,[Description]
-                   ,[Order]
-                   ,[IsGridColumn]
-                   ,[IsMultiValue]
-                   ,[IsRequired]
-                   ,[DefaultValue]
-                   ,[Guid])
-                VALUES
-                   (0
-                   ,(SELECT [Id] FROM [FieldType] WHERE [Class] = 'Rock.Field.Types.BooleanFieldType')
-                   ,(SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person')
-                   ,'IsSpecialNeeds'
-                   ,'Is Special Needs'
-                   ,'Flag to indicate if special needs are present'
-                   ,0
-                   ,0
-                   ,0
-                   ,0
-                   ,'False'
-                   ,'{0}')", SpecialNeedsAttributeGuid ) );
+                INSERT INTO [dbo].[Attribute] ( [IsSystem],[FieldTypeId],[EntityTypeId],[EntityTypeQualifierColumn],[EntityTypeQualifierValue],[Key],[Name],[Description],[Order]
+                    ,[IsGridColumn],[IsMultiValue],[IsRequired],[DefaultValue],[Guid] )
+                VALUES (
+                    0
+                    ,(SELECT [Id] FROM [FieldType] WHERE [Class] = 'Rock.Field.Types.BooleanFieldType')
+                    ,(SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person')
+                    ,''
+                    ,''
+                    ,'IsSpecialNeeds'
+                    ,'Is Special Needs'
+                    ,'Flag to indicate if special needs are present'
+                    ,0
+                    ,0
+                    ,0
+                    ,0
+                    ,'False'
+                    ,'{0}')", SpecialNeedsAttributeGuid ) );
 
             // Make special needs appear under childhood info category
             Sql( string.Format( @"
@@ -389,6 +376,7 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             ", SpecialNeedsAttributeGuid ) );
 
             RockMigrationHelper.AddGroupType( "Check in By Special Needs", "", "Group", "Member", false, true, true, "", 0, "0572A5FE-20A4-4BF1-95CD-C71DB5281392", 0, "6BCED84C-69AD-4F5A-9197-5C0F9C02DD34", "2CB16E13-141F-419F-BACD-8283AB6B3299", false );
+            RockMigrationHelper.AddGroupTypeRole( "2CB16E13-141F-419F-BACD-8283AB6B3299", "Member", "", 0, null, null, "4DC318F0-5E6F-4F34-B3C5-08264B6DFD29", false );
         }
 
         /// <summary>
