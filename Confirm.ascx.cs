@@ -346,7 +346,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 RunSaveAttendance = false;
             }
 
-            if ( GetAttributeValue( "PrintIndividualLabels" ).AsBoolean() )
+            if ( !GetAttributeValue( "PrintIndividualLabels" ).AsBoolean() )
             {
                 // separate labels by person and that's it
                 PrintLabels();

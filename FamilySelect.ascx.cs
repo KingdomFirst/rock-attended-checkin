@@ -491,7 +491,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 {
                     var personAllergies = allergyAttribute.FieldType.Field.GetEditValue( allergyAttributeControl, allergyAttribute.QualifierValues );
                     person.SetAttributeValue( "Allergy", personAllergies );
-                    currentPerson.Person.SetAttributeValue( "Allergy", personAllergies );                    
+                    currentPerson.Person.SetAttributeValue( "Allergy", personAllergies );
                 }
 
                 // store the check-in notes
@@ -697,6 +697,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 {
                     var checkInPerson = new CheckInPerson();
                     checkInPerson.Person = newPeople.FirstOrDefault();
+                    checkInPerson.FirstTime = true;
 
                     if ( !newPersonType.Value.Equals( "Visitor" ) )
                     {   // Family Member
@@ -843,6 +844,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 foreach ( var person in newPeople )
                 {
                     var checkInPerson = new CheckInPerson();
+                    checkInPerson.FirstTime = true;
                     checkInPerson.Person = person;
                     checkInPerson.Selected = true;
                     checkInPerson.FamilyMember = true;
@@ -1114,7 +1116,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 // Note: Allergy control is dynamic and must be initialized on PageLoad
                 var personAllergyValues = person.Person.GetAttributeValue( "Allergy" );
                 if ( !string.IsNullOrWhiteSpace( personAllergyValues ) )
-                {   
+                {
                     phAttributes.Controls.Clear();
                     AttributeCache.Read( new Guid( Rock.SystemGuid.Attribute.PERSON_ALLERGY ) )
                         .AddControl( phAttributes.Controls, personAllergyValues, "", true, true );
