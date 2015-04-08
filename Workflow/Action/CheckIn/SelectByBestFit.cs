@@ -104,19 +104,19 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     if ( bestGroup == null )
                                     {
                                         CheckInGroup closestAbilityGroup = null;
-                                        bool useAbilityGroups = true;
+                                        bool useSpecialNeeds = true;
 
                                         // attributes on people already loaded
-                                        var personsAbility = person.Person.GetAttributeValue( "AbilityLevel" );
-                                        if ( !string.IsNullOrWhiteSpace( personsAbility ) )
+                                        var specialNeeds = person.Person.GetAttributeValue( "IsSpecialNeeds" );
+                                        if ( !string.IsNullOrWhiteSpace( specialNeeds ) )
                                         {
-                                            var abilityGroups = validGroups.Where( g => g.Group.Attributes.ContainsKey( "AbilityLevel" )
-                                                && g.Group.GetAttributeValue( "AbilityLevel" ) == personsAbility ).ToList();
+                                            var abilityGroups = validGroups.Where( g => g.Group.Attributes.ContainsKey( "IsSpecialNeeds" )
+                                                && g.Group.GetAttributeValue( "IsSpecialNeeds" ) == specialNeeds ).ToList();
                                             closestAbilityGroup = abilityGroups.FirstOrDefault();
                                         }
                                         else
                                         {
-                                            useAbilityGroups = false;
+                                            useSpecialNeeds = false;
                                         }
 
                                         CheckInGroup closestGradeGroup = null;
@@ -208,7 +208,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         if ( roomBalanceByGroup )
                                         {
                                             CheckInGroup lowestCountGroup = null;
-                                            if ( useAbilityGroups )
+                                            if ( useSpecialNeeds )
                                             {
                                                 lowestCountGroup = validGroups.Where( g => !g.ExcludedByFilter )
                                                     .OrderBy( g => g.Locations.Select( l => KioskLocationAttendance
