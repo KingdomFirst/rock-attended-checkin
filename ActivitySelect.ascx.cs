@@ -552,11 +552,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }
             }
 
-            if ( cbSpecialNeeds.Checked )
-            {
-                person.SetAttributeValue( "IsSpecialNeeds", cbSpecialNeeds.Checked.ToTrueFalse() );
-                currentPerson.Person.SetAttributeValue( "IsSpecialNeeds", cbSpecialNeeds.Checked.ToTrueFalse() );
-            }
+            // Always save the special needs value
+            person.SetAttributeValue( "IsSpecialNeeds", cbSpecialNeeds.Checked.ToTrueFalse() );
+            currentPerson.Person.SetAttributeValue( "IsSpecialNeeds", cbSpecialNeeds.Checked.ToTrueFalse() );
 
             // store the allergies
             var allergyAttribute = Rock.Web.Cache.AttributeCache.Read( new Guid( Rock.SystemGuid.Attribute.PERSON_ALLERGY ) );
