@@ -109,11 +109,13 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                                     Group = g,
                                                     AgeRange = g.Group.GetAttributeValue( "AgeRange" )
                                                         .Split( delimiter, StringSplitOptions.None )
-                                                        .Where( av => !string.IsNullOrEmpty( av ) )
+                                                        .Where( av => av.Any() && !string.IsNullOrEmpty( av ) )
                                                         .Select( av => av.AsType<decimal>() )
                                                         .ToList()
                                                 }
-                                            ).ToList();
+                                            )
+                                            .Where( g => g.AgeRange.Count > 0 )
+                                            .ToList();
 
                                         // Check ages
                                         CheckInGroup closestAgeGroup = null;
@@ -123,7 +125,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                             {
                                                 decimal baseVariance = 100;
                                                 decimal personAge = (decimal)person.Person.AgePrecise;
-                                                foreach ( var filtered in ageGroups )
+                                                foreach ( var filtered in ageGroups.Where( g => g.AgeRange.Any() ) )
                                                 {
                                                     var minAge = filtered.AgeRange.First();
                                                     var maxAge = filtered.AgeRange.Last();
@@ -188,18 +190,18 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         }
 
                                         // Check Special Needs
-                                        var specialNeeds = person.Person.GetAttributeValue( "IsSpecialNeeds" );
+                                        var specialNeeds = person.Person.GetAttributeValue( "IsSpecialNeeds" ).ToStringSafe();
 
                                         bool useSpecialNeeds = true;
                                         CheckInGroup closestNeedsGroup = null;
-                                        if ( !string.IsNullOrWhiteSpace( specialNeeds ) )
+                                        if ( specialNeeds.AsBoolean() )
                                         {
                                             var specialGroups = validGroups.Where( g => g.Group.Attributes.ContainsKey( "IsSpecialNeeds" )
                                                 && g.Group.GetAttributeValue( "IsSpecialNeeds" ) == specialNeeds ).ToList();
                                             if ( person.Person.Age != null )
                                             {
                                                 // get the special needs group by closest age
-                                                var intersectingGroups = ageGroups.Where( ag => specialGroups.Select( sg => sg.Group.Id ).Contains( ag.Group.Group.Id ) );
+                                                var intersectingGroups = ageGroups.Where( ag => specialGroups.Select( sg => sg.Group.Id ).Contains( ag.Group.Group.Id ) ).ToList();
                                                 decimal baseVariance = 100;
                                                 decimal personAge = (decimal)person.Person.AgePrecise;
                                                 foreach ( var filtered in intersectingGroups )
