@@ -126,7 +126,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                 var checkIn = new Activity();
 
                                 checkIn.Name = person.Person.FullName;
-                                checkIn.Location = location.Location.Name;
+                                checkIn.Group = group.Group.Name;
                                 checkIn.Schedule = schedule.Schedule.Name;
                                 checkIn.PersonId = person.Person.Id;
                                 checkIn.GroupId = group.Group.Id;
@@ -594,9 +594,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
             public int GroupId { get; set; }
 
-            public int LocationId { get; set; }
+            public string Group { get; set; }
 
-            public string Location { get; set; }
+            public int LocationId { get; set; }
 
             public int ScheduleId { get; set; }
 
@@ -609,7 +609,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 PersonId = 0;
                 Name = string.Empty;
                 GroupId = 0;
-                Location = string.Empty;
+                Group = string.Empty;
                 LocationId = 0;
                 Schedule = string.Empty;
                 ScheduleId = 0;
