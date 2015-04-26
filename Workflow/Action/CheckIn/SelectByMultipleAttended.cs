@@ -83,19 +83,19 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                         foreach ( var groupAttendance in lastDateAttendances )
                         {
                             // Start with unfiltered groups for kids with abnormal age and grade parameters (1%)
-                            var groupType = person.GroupTypes.FirstOrDefault( t => t.GroupType.Id == groupAttendance.Group.GroupTypeId );
+                            var groupType = person.GroupTypes.FirstOrDefault( t => t.GroupType.Id == groupAttendance.Group.GroupTypeId && !t.ExcludedByFilter );
                             if ( groupType != null )
                             {
                                 CheckInGroup group = null;
                                 if ( groupType.Groups.Count == 1 )
                                 {
                                     // Only a single group is open
-                                    group = groupType.Groups.FirstOrDefault();
+                                    group = groupType.Groups.FirstOrDefault( g => !g.ExcludedByFilter );
                                 }
                                 else
                                 {
                                     // Pick the group they last attended
-                                    group = groupType.Groups.FirstOrDefault( g => g.Group.Id == groupAttendance.GroupId );
+                                    group = groupType.Groups.FirstOrDefault( g => g.Group.Id == groupAttendance.GroupId && !g.ExcludedByFilter );
                                 }
 
                                 if ( roomBalanceByGroup )
@@ -114,12 +114,12 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     if ( group.Locations.Count == 1 )
                                     {
                                         // Only a single location is open
-                                        location = group.Locations.FirstOrDefault();
+                                        location = group.Locations.FirstOrDefault( l => !l.ExcludedByFilter );
                                     }
                                     else
                                     {
                                         // Pick the location they last attended
-                                        location = group.Locations.FirstOrDefault( l => l.Location.Id == groupAttendance.LocationId );
+                                        location = group.Locations.FirstOrDefault( l => l.Location.Id == groupAttendance.LocationId && !l.ExcludedByFilter );
                                     }
 
                                     if ( roomBalanceByLocation )
@@ -137,11 +137,11 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         CheckInSchedule schedule = null;
                                         if ( location.Schedules.Count == 1 )
                                         {
-                                            schedule = location.Schedules.FirstOrDefault();
+                                            schedule = location.Schedules.FirstOrDefault( s => !s.ExcludedByFilter );
                                         }
                                         else
                                         {
-                                            schedule = location.Schedules.FirstOrDefault( s => s.Schedule.Id == groupAttendance.ScheduleId );
+                                            schedule = location.Schedules.FirstOrDefault( s => s.Schedule.Id == groupAttendance.ScheduleId && !s.ExcludedByFilter );
                                         }
 
                                         if ( schedule != null )
