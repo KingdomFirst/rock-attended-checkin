@@ -568,23 +568,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
 
             // store the check-in notes
-            int? checkinNoteTypeId = ViewState["checkInNoteTypeId"].ToStringSafe().AsType<int?>();
-            if ( checkinNoteTypeId != null )
-            {
-                var checkInNote = new NoteService( rockContext )
-                    .GetByNoteTypeId( (int)checkinNoteTypeId )
-                    .FirstOrDefault( n => n.EntityId == person.Id );
-                if ( checkInNote == null )
-                {
-                    checkInNote = new Note();
-                    checkInNote.IsSystem = false;
-                    checkInNote.EntityId = person.Id;
-                    checkInNote.NoteTypeId = (int)checkinNoteTypeId;
-                    rockContext.Notes.Add( checkInNote );
-                }
-
-                checkInNote.Text = tbNoteText.Text;
-            }
+            person.SetAttributeValue( "LegalNotes", tbNoteText.Text );
+            currentPerson.Person.SetAttributeValue( "LegalNotes", tbNoteText.Text );
 
             // Save the attribute change to the db (CheckinPerson already tracked)
             person.SaveAttributeValues();
@@ -832,24 +817,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }
 
                 // load check-in notes
-                var rockContext = new RockContext();
-                int? checkInNoteTypeId = ViewState["checkinNoteTypeId"].ToStringSafe().AsType<int?>();
-                if ( checkInNoteTypeId == null )
-                {
-                    checkInNoteTypeId = new NoteTypeService( rockContext ).Queryable()
-                        .Where( t => t.Name == "Check-In" && t.EntityTypeId == person.Person.TypeId )
-                        .Select( t => (int?)t.Id ).FirstOrDefault();
-
-                    ViewState["checkInNoteTypeId"] = checkInNoteTypeId;
-                }
-
-                var checkInNotes = new NoteService( rockContext )
-                        .GetByNoteTypeId( (int)checkInNoteTypeId )
-                        .FirstOrDefault( n => n.EntityId == person.Person.Id );
-                if ( checkInNotes != null )
-                {
-                    tbNoteText.Text = checkInNotes.Text;
-                }                
+                var notes = person.Person.GetAttributeValue( "LegalNotes" ) ?? string.Empty;
+                tbNoteText.Text = notes;
             }
             else
             {
