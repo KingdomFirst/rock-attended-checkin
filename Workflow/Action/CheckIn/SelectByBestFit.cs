@@ -71,7 +71,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                             if ( validGroupTypes.Count() == 1 || validGroupTypes.Any( gt => gt.Selected ) )
                             {
                                 bestGroupType = validGroupTypes.OrderByDescending( gt => gt.Selected ).FirstOrDefault();
-                                validGroups = bestGroupType.Groups.Where( g => !g.ExcludedByFilter ).ToList();
+                                validGroups = bestGroupType.Groups.Where( g => !g.ExcludedByFilter || g.Selected ).ToList();
                             }
                             else
                             {
@@ -86,7 +86,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                 if ( validGroups.Count == 1 || validGroups.Any( g => g.Selected ) )
                                 {
                                     bestGroup = validGroups.OrderByDescending( g => g.Selected ).FirstOrDefault();
-                                    validLocations = bestGroup.Locations.Where( l => !l.ExcludedByFilter ).ToList();
+                                    validLocations = bestGroup.Locations.Where( l => !l.ExcludedByFilter || l.Selected ).ToList();
                                 }
                                 else
                                 {
@@ -258,17 +258,17 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         }
                                     }
 
-                                    validLocations = bestGroup.Locations.Where( l => !l.ExcludedByFilter ).ToList();
+                                    validLocations = bestGroup.Locations.Where( l => !l.ExcludedByFilter || l.Selected ).ToList();
                                 }
 
                                 if ( validLocations.Any() )
                                 {
                                     CheckInLocation bestLocation = null;
                                     List<CheckInSchedule> validSchedules;
-                                    if ( validLocations.Count() == 1 || validLocations.Any( g => g.Selected ) )
+                                    if ( validLocations.Count() == 1 || validLocations.Any( l => l.Selected ) )
                                     {
-                                        bestLocation = validLocations.OrderByDescending( g => g.Selected ).FirstOrDefault();
-                                        validSchedules = bestLocation.Schedules.Where( l => !l.ExcludedByFilter ).ToList();
+                                        bestLocation = validLocations.OrderByDescending( l => l.Selected ).FirstOrDefault();
+                                        validSchedules = bestLocation.Schedules.Where( s => !s.ExcludedByFilter || s.Selected ).ToList();
                                     }
                                     else
                                     {

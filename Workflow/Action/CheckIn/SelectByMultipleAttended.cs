@@ -77,28 +77,29 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
 
                     if ( personAttendances.Any() )
                     {
+                        var isSpecialNeeds = person.Person.GetAttributeValue( "IsSpecialNeeds" ).AsBoolean();
                         var lastDate = personAttendances.Max( a => a.StartDateTime ).Date;
                         var lastDateAttendances = personAttendances.Where( a => a.StartDateTime >= lastDate ).ToList();
 
                         foreach ( var groupAttendance in lastDateAttendances )
                         {
                             // Start with unfiltered groups for kids with abnormal age and grade parameters (1%)
-                            var groupType = person.GroupTypes.FirstOrDefault( t => t.GroupType.Id == groupAttendance.Group.GroupTypeId && !t.ExcludedByFilter );
+                            var groupType = person.GroupTypes.FirstOrDefault( t => t.GroupType.Id == groupAttendance.Group.GroupTypeId && ( !t.ExcludedByFilter || isSpecialNeeds ) );
                             if ( groupType != null )
                             {
                                 CheckInGroup group = null;
                                 if ( groupType.Groups.Count == 1 )
                                 {
                                     // Only a single group is open
-                                    group = groupType.Groups.FirstOrDefault( g => !g.ExcludedByFilter );
+                                    group = groupType.Groups.FirstOrDefault( g => !g.ExcludedByFilter || isSpecialNeeds );
                                 }
                                 else
                                 {
                                     // Pick the group they last attended
-                                    group = groupType.Groups.FirstOrDefault( g => g.Group.Id == groupAttendance.GroupId && !g.ExcludedByFilter );
+                                    group = groupType.Groups.FirstOrDefault( g => g.Group.Id == groupAttendance.GroupId && ( !g.ExcludedByFilter || isSpecialNeeds ) );
                                 }
 
-                                if ( roomBalanceByGroup )
+                                if ( roomBalanceByGroup && !isSpecialNeeds )
                                 {
                                     // Respect filtering when room balancing
                                     var filteredGroups = groupType.Groups.Where( g => !g.ExcludedByFilter ).ToList();
@@ -114,15 +115,15 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     if ( group.Locations.Count == 1 )
                                     {
                                         // Only a single location is open
-                                        location = group.Locations.FirstOrDefault( l => !l.ExcludedByFilter );
+                                        location = group.Locations.FirstOrDefault( l => !l.ExcludedByFilter || isSpecialNeeds );
                                     }
                                     else
                                     {
                                         // Pick the location they last attended
-                                        location = group.Locations.FirstOrDefault( l => l.Location.Id == groupAttendance.LocationId && !l.ExcludedByFilter );
+                                        location = group.Locations.FirstOrDefault( l => l.Location.Id == groupAttendance.LocationId && ( !l.ExcludedByFilter || isSpecialNeeds ) );
                                     }
 
-                                    if ( roomBalanceByLocation )
+                                    if ( roomBalanceByLocation && !isSpecialNeeds )
                                     {
                                         // Respect filtering when room balancing
                                         var filteredLocations = group.Locations.Where( l => !l.ExcludedByFilter && l.Schedules.Any( s => !s.ExcludedByFilter && s.Schedule.IsCheckInActive ) ).ToList();
@@ -137,11 +138,11 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         CheckInSchedule schedule = null;
                                         if ( location.Schedules.Count == 1 )
                                         {
-                                            schedule = location.Schedules.FirstOrDefault( s => !s.ExcludedByFilter );
+                                            schedule = location.Schedules.FirstOrDefault( s => !s.ExcludedByFilter || isSpecialNeeds );
                                         }
                                         else
                                         {
-                                            schedule = location.Schedules.FirstOrDefault( s => s.Schedule.Id == groupAttendance.ScheduleId && !s.ExcludedByFilter );
+                                            schedule = location.Schedules.FirstOrDefault( s => s.Schedule.Id == groupAttendance.ScheduleId && ( !s.ExcludedByFilter || isSpecialNeeds ) );
                                         }
 
                                         if ( schedule != null )
