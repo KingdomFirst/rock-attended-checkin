@@ -150,7 +150,7 @@
                         </div>
                         <div class="row">
                             <div class="col-xs-6">
-                                <Rock:RockTextBox ID="tbNoteText" runat="server" Label="Notes" MaxLength="60" />
+                                <Rock:RockTextBox ID="tbNoteText" runat="server" Label="Notes" MaxLength="40" />
                             </div>
                             <div class="col-xs-6">
                                 <asp:PlaceHolder ID="phAttributes" runat="server" EnableViewState="false"></asp:PlaceHolder>

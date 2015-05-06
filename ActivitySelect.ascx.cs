@@ -121,8 +121,13 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
 
             // Instantiate the allergy control for reference later
-            AttributeCache.Read( new Guid( Rock.SystemGuid.Attribute.PERSON_ALLERGY ) )
+            var control = AttributeCache.Read( new Guid( Rock.SystemGuid.Attribute.PERSON_ALLERGY ) )
                 .AddControl( phAttributes.Controls, string.Empty, "", true, true );
+
+            if ( control is RockTextBox )
+            {
+                ( (RockTextBox)control ).MaxLength = 80;
+            }
 
             if ( GetAttributeValue( "DisplayGroupNames" ).AsBoolean() )
             {
@@ -812,8 +817,13 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 if ( !string.IsNullOrWhiteSpace( personAllergyValues ) )
                 {
                     phAttributes.Controls.Clear();
-                    AttributeCache.Read( new Guid( Rock.SystemGuid.Attribute.PERSON_ALLERGY ) )
+                    var control = AttributeCache.Read( new Guid( Rock.SystemGuid.Attribute.PERSON_ALLERGY ) )
                         .AddControl( phAttributes.Controls, personAllergyValues, "", true, true );
+
+                    if ( control is RockTextBox )
+                    {
+                        ( (RockTextBox)control ).MaxLength = 80;
+                    }
                 }
 
                 // load check-in notes
