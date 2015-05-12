@@ -401,8 +401,7 @@ a.help {
 
 .in-the-middle, .at-the-bottom {
   position: absolute;
-  left: 12px;
-  right: 12px; }
+  left: 0; }
 
 .in-the-middle {
   top: 120px; }
