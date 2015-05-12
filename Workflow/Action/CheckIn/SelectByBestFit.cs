@@ -103,7 +103,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     // Select group by best fit
                                     if ( bestGroup == null )
                                     {
-                                        var ageGroups = validGroups.Where( g => g.Group.Attributes.ContainsKey( "AgeRange" ) )
+                                        var ageGroups = validGroups.Where( g => g.Group.Attributes.ContainsKey( "AgeRange" ) && !string.IsNullOrEmpty( g.Group.AttributeValues["AgeRange"].Value ) )
                                                 .Select( g => new
                                                 {
                                                     Group = g,
