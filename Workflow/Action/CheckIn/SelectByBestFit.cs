@@ -144,7 +144,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         if ( person.Person.GradeOffset != null )
                                         {
                                             var gradeValues = DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.SCHOOL_GRADES ) ).DefinedValues;
-                                            var gradeGroups = validGroups.Where( g => g.Group.Attributes.ContainsKey( "GradeRange" ) )
+                                            var gradeGroups = validGroups.Where( g => g.Group.Attributes.ContainsKey( "GradeRange" ) && !string.IsNullOrEmpty( g.Group.AttributeValues["GradeRange"].Value ) )
                                                 .Select( g => new
                                                 {
                                                     Group = g,
