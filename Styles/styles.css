@@ -399,15 +399,16 @@ a.help {
 .tenkey a.digit {
   line-height: 64px; }
 
-.in-the-middle, .at-the-bottom {
-  position: absolute;
-  left: 0; }
-
 .in-the-middle {
+  position: absolute;
+  left: 12px;
+  right: 12px;
   top: 120px; }
 
 .at-the-bottom {
-  bottom: 0; }
+  position: absolute;
+  bottom: 0;
+  left: 0; }
 
 .datepicker-months, .datepicker-years {
   max-width: 300px; }

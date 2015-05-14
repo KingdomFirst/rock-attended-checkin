@@ -549,18 +549,17 @@ a.help {
     line-height: 64px;
 }
 
-.in-the-middle, .at-the-bottom {
+.in-the-middle {
     position: absolute;
     left: 12px;
     right: 12px;
-}
-
-.in-the-middle {
     top: 120px;
 }
 
 .at-the-bottom {
+    position: absolute;
     bottom: 0;
+    left: 0;
 }
 
 .datepicker-months, .datepicker-years {
