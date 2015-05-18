@@ -20,9 +20,6 @@
             <asp:UpdatePanel ID="pnlHeader" runat="server" UpdateMode="Conditional">
                 <ContentTemplate>
                     <div class="row checkin-header">
-                        <!-- <div class="col-xs-2 checkin-actions">
-                            <a id="lbRetry" runat="server" class="btn btn-lg btn-primary" visible="false" href="javascript:window.location.href=window.location.href">Retry</a>
-                        </div> -->
                         <div class="col-xs-8 col-xs-offset-2 text-center">
                             <h1>Admin</h1>
                         </div>

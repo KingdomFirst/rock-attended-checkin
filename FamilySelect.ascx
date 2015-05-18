@@ -130,7 +130,6 @@
                     <asp:LinkButton ID="lbAddVisitor" runat="server" Text="Add Visitor" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClick="lbAddVisitor_Click" CausesValidation="false" EnableViewState="false" />
                     <asp:LinkButton ID="lbAddFamilyMember" runat="server" Text="Add Person" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClick="lbAddFamilyMember_Click" CausesValidation="false" EnableViewState="false" />
                     <asp:LinkButton ID="lbNewFamily" runat="server" Text="New Family" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClick="lbNewFamily_Click" CausesValidation="false" EnableViewState="false" />
-                    <%--<asp:LinkButton ID="lbEditInfo" runat="server" Text="Edit Info" CssClass="btn btn-primary btn-block btn-checkin-select" OnClick="lbEditInfo_Click" CausesValidation="false" EnableViewState="false" />--%>
                 </div>
             </div>
         </asp:Panel>
@@ -310,63 +309,6 @@
                 </div>
             </Content>
         </Rock:ModalDialog>
-
-        <!-- EDIT INFO MODAL -->
-        <%--<Rock:ModalDialog ID="mdlInfo" runat="server" Content-DefaultButton="lbSaveEditInfo">
-            <Content>
-                <div class="soft-quarter-ends">
-                    <div class="row checkin-header">
-                        <div class="col-xs-3 checkin-actions">
-                            <Rock:BootstrapButton ID="lbCloseEditInfo" runat="server" CssClass="btn btn-lg btn-primary"
-                                OnClick="lbCloseEditInfo_Click" Text="Cancel" EnableViewState="false" />
-                        </div>
-
-                        <div class="col-xs-6 text-center">
-                            <h2>Edit Info</h2>
-                        </div>
-
-                        <div class="col-xs-3 checkin-actions text-right">
-                            <Rock:BootstrapButton ID="lbSaveEditInfo" ValidationGroup="Person" CausesValidation="true" CssClass="btn btn-lg btn-primary" runat="server"
-                                OnClick="lbSaveEditInfo_Click" Text="Save" EnableViewState="false" />
-                        </div>
-                    </div>
-
-                    <div class="checkin-body">
-                        <div class="row">
-                            <div class="col-xs-2">
-                                <Rock:RockTextBox ID="tbFirstName" runat="server" Label="First Name" ValidationGroup="Person" Required="true" />
-                            </div>
-                            <div class="col-xs-2">
-                                <Rock:RockTextBox ID="tbNickname" runat="server" ValidationGroup="Person" Label="Nickname" />
-                            </div>
-                            <div class="col-xs-2">
-                                <Rock:RockTextBox ID="tbLastName" runat="server" Label="Last Name" ValidationGroup="Person" Required="true" />
-                            </div>
-                            <div class="col-xs-1">
-                                <Rock:RockDropDownList ID="ddlSuffix" runat="server" Label="Suffix" />
-                            </div>
-                            <div class="col-xs-2">
-                                <Rock:DatePicker ID="dpDOB" runat="server" CssClass="date-picker" data-show-age="true" Label="Date of Birth" ValidationGroup="Person" Required="true" />
-                            </div>
-                            <div class="col-xs-2">
-                                <Rock:RockDropDownList ID="ddlAbilityGrade" runat="server" Label="Ability/Grade" />
-                            </div>
-                            <div class="col-xs-1 shift-up centered">
-                                <Rock:RockCheckBox ID="cbSpecialNeeds" runat="server" Label="Special Needs" />
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xs-6">
-                                <Rock:RockTextBox ID="tbNoteText" runat="server" Label="Notes" MaxLength="60" />
-                            </div>
-                            <div class="col-xs-6">
-                                <asp:PlaceHolder ID="phAttributes" runat="server" EnableViewState="false"></asp:PlaceHolder>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </Content>
-        </Rock:ModalDialog>--%>
     </ContentTemplate>
 </asp:UpdatePanel>
 
