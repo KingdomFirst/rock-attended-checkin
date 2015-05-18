@@ -42,7 +42,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [Category( "Check-in > Attended" )]
     [Description( "Attended Check-In Confirmation Block" )]
     [LinkedPage( "Activity Select Page" )]
-	[BooleanField( "Display Group Names", "By default location names are shown in the grid.  Check this option to show the group names instead.", false )]    
+    [BooleanField( "Display Group Names", "By default location names are shown in the grid.  Check this option to show the group names instead.", false )]
     [BooleanField( "Print Individual Labels", "Select this option to print one label per person's group, location, & schedule.", false )]
     [BinaryFileField( "DE0E5C50-234B-474C-940C-C571F385E65F", "Designated Single Label", "Select a label to print once per print job.  Unselect the label to print it with every print job.", false )]
     public partial class Confirm : CheckInBlock
@@ -128,7 +128,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                 var checkIn = new Activity();
 
                                 checkIn.Name = person.Person.FullName;
-								var showGroup = GetAttributeValue( "DisplayGroupNames" ).AsBoolean();
+                                var showGroup = GetAttributeValue( "DisplayGroupNames" ).AsBoolean();
                                 checkIn.Location = showGroup ? group.Group.Name : location.Location.Name;
                                 checkIn.Schedule = schedule.Schedule.Name;
                                 checkIn.PersonId = person.Person.Id;
@@ -190,6 +190,23 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbNext_Click( object sender, EventArgs e )
         {
+            if ( RunSaveAttendance )
+            {
+                var errors = new List<string>();
+                if ( ProcessActivity( "Save Attendance", out errors ) )
+                {
+                    SaveState();
+                }
+                else
+                {
+                    string errorMsg = "<ul><li>" + errors.AsDelimited( "</li><li>" ) + "</li></ul>";
+                    maWarning.Show( errorMsg, Rock.Web.UI.Controls.ModalAlertType.Warning );
+                    return;
+                }
+
+                RunSaveAttendance = false;
+            }
+
             // reset search criteria
             CurrentCheckInState.CheckIn.SearchValue = string.Empty;
             ProcessSelection( maWarning );
@@ -234,8 +251,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     personAttendance.DidAttend = false;
                     rockContext.SaveChanges();
                 }
-
-                rockContext.Dispose();
             }
 
             var selectedPerson = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault()
@@ -541,7 +556,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 		    }}
 
 		    function printLabels() {{
-                console.log('printing tags');
 		        ZebraPrintPlugin.printTags(
             	    JSON.stringify(labelData),
             	    function(result) {{
@@ -560,7 +574,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         );
 			        }}
                 );
-	        }}", jsonObject );
+	        }}
+            ", jsonObject );
             ScriptManager.RegisterStartupScript( this, this.GetType(), "addLabelScript", script, true );
         }
 
