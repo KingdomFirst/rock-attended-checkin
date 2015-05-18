@@ -66,7 +66,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
             {
                 foreach ( var person in family.People.Where( p => p.Selected ) )
                 {
-                    var personGroupTypeIds = person.GroupTypes.Select( gt => gt.GroupType.Id );
+                    var personGroupTypeIds = person.GroupTypes.Select( gt => gt.GroupType.Id ).ToList();
 
                     var personAttendances = attendanceService.Queryable()
                         .Where( a =>
@@ -140,9 +140,14 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         {
                                             schedule = location.Schedules.FirstOrDefault( s => !s.ExcludedByFilter || isSpecialNeeds );
                                         }
-                                        else
+                                        else if ( groupAttendance.ScheduleId != null )
                                         {
                                             schedule = location.Schedules.FirstOrDefault( s => s.Schedule.Id == groupAttendance.ScheduleId && ( !s.ExcludedByFilter || isSpecialNeeds ) );
+                                        }
+                                        else
+                                        {
+                                            // if the schedule doesn't exactly match but everything else does, select it
+                                            schedule = location.Schedules.FirstOrDefault( s => ( !s.ExcludedByFilter && !isSpecialNeeds ) );
                                         }
 
                                         if ( schedule != null )
