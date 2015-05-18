@@ -75,7 +75,8 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         location.PreSelected = true;
                                         location.Selected = true;
 
-                                        var schedule = location.Schedules.FirstOrDefault( s => s.Selected || s.LastCheckIn == person.LastCheckIn );
+                                        // if the schedule doesn't match but everything else has up to this point, select it
+                                        var schedule = location.Schedules.FirstOrDefault( s => s.Selected || s.LastCheckIn == person.LastCheckIn || s != null );
                                         if ( schedule != null )
                                         {
                                             schedule.PreSelected = true;
