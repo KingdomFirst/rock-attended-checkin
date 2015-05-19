@@ -1,4 +1,4 @@
-﻿var AttendedCheckin = (function () {
+﻿var AttendedCheckin = function () {
     var _previousDOB = '';
 
     var loadStyles = function () {
@@ -7,13 +7,9 @@
         $('head').append(styleLink);
     };
 
-    var fixDatePickerZIndex = function () {
-        // The date picker is getting lost behind other elements and the z-index is set by js in core
-        $('body').on('focus', '.date-picker', function () {
-            setTimeout(function () {
-                $('.datepicker').css('z-index', 2000);
-            }, 100);
-        });
+    var setFocus = function () {
+        $('.btn').blur();
+        $('input[type=text]').first().focus();
     };
 
     var calculateAge = function (birthday) {
@@ -23,7 +19,7 @@
     };
 
     var showAgeOnBirthdatePicker = function () {
-        $('body').on('change', '[data-show-age=true]', function (event) {
+        $('body').on('change', '[data-show-age=true]', function () {
             var input = $(this);
             var newVal = input.val();
 
@@ -51,19 +47,13 @@
         });
     };
 
-    var fixFocus = function () {
-        $('.btn').blur();
-        $('input[type=text]').first().focus();
-    };
-
     return {
         init: function () {
             loadStyles();
-            fixDatePickerZIndex();
-            fixFocus();
+            setFocus();
             showAgeOnBirthdatePicker();
         }
     };
-})();
+}();
 
 $(document).ready(AttendedCheckin.init);

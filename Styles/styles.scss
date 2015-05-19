@@ -24,6 +24,22 @@ html {
     margin-left: $base-spacing-unit;
 }
 
+.push-half-top {
+    margin-top: $base-spacing-unit/2;
+}
+
+.push-half-right {
+    margin-right: $base-spacing-unit/2;
+}
+
+.push-half-bottom {
+    margin-bottom: $base-spacing-unit/2;
+}
+
+.push-half-left {
+    margin-left: $base-spacing-unit/2;
+}
+
 .push-quarter-top {
     margin-top: $base-spacing-unit/4;
 }
@@ -549,14 +565,7 @@ a.help {
     line-height: 64px;
 }
 
-.in-the-middle {
-    position: absolute;
-    left: 12px;
-    right: 12px;
-    top: 120px;
-}
-
-.at-the-bottom {
+.bottom-corner {
     position: absolute;
     bottom: 0;
     left: 0;
@@ -601,15 +610,12 @@ span.month, span.year {
 
     &.modal-overflow {
         top: 5%;
+        position: fixed;
+        height: auto;
+        bottom: auto;
+        max-height: 90%;
+        overflow: hidden;
     }
-}
-
-.modal.modal-overflow {
-    position: fixed;
-    height: auto;
-    bottom: auto;
-    max-height: 90%;
-    overflow: hidden;
 }
 
 .modal-content {

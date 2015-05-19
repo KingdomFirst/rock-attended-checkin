@@ -7,7 +7,7 @@
 
             <Rock:ModalAlert ID="maWarning" runat="server" />
 
-            <div class="row checkin-header">
+            <div class="row checkin-header push-quarter-bottom">
                 <div class="col-xs-2 checkin-actions">
                     <Rock:BootstrapButton ID="lbBack" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbBack_Click" EnableViewState="false">
                     <span class="fa fa-arrow-left"></span>
@@ -29,7 +29,7 @@
                 <div class="row">
                     <asp:UpdatePanel ID="pnlSelectedGrid" runat="server">
                         <ContentTemplate>
-                            <div class="grid in-the-middle">
+                            <div class="grid hard-top push-quarter-left push-quarter-right">
                                 <Rock:Grid ID="gPersonList" runat="server" DataKeyNames="PersonId,GroupId,LocationId,ScheduleId,CheckedIn"
                                     DisplayType="Light" EnableResponsiveTable="true" ShowFooter="false" EmptyDataText="No People Selected" CssClass="three-col-with-controls"
                                     OnRowCommand="gPersonList_Print" OnRowDataBound="gPersonList_RowDataBound" OnGridRebind="gPersonList_GridRebind">

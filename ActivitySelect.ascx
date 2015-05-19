@@ -97,7 +97,7 @@
                 </div>
             </div>
 
-            <div class="checkin-footer at-the-bottom col-xs-3 col-xs-offset-9">
+            <div class="checkin-footer bottom-corner col-xs-3 col-xs-offset-9">
                 <div class="">
                     <asp:LinkButton ID="lbEditInfo" runat="server" Text="Edit Info" CssClass="btn btn-primary btn-block btn-checkin-select" OnClick="lbEditInfo_Click" CausesValidation="false" />
                 </div>
