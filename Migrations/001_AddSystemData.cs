@@ -338,13 +338,6 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             // Attended Check-in:Save Attendance:Create Labels:Active
             RockMigrationHelper.AddActionTypeAttributeValue( "BBE6E76D-6C8E-4B8E-931C-DD3CBE9619A4", "36EB15CE-095C-41ED-9C0F-9EA345599D54", @"False" );
 
-            // Add checkin note types
-            Sql( @"
-                DECLARE @PersonEntityTypeId int = (SELECT [ID] FROM [EntityType] WHERE [Guid] = '72657ED8-D16E-492E-AC12-144C5E7567E7')
-                INSERT [NoteType] (IsSystem, EntityTypeId, Name, Guid)
-                SELECT 0, @PersonEntityTypeId, 'Check-In', '2BBA0589-6EC2-47F6-8745-34E95E3AC019'
-            " );
-
             // Add special needs attribute
             Sql( string.Format( @"
                 INSERT INTO [dbo].[Attribute] ( [IsSystem],[FieldTypeId],[EntityTypeId],[EntityTypeQualifierColumn],[EntityTypeQualifierValue],[Key],[Name],[Description],[Order]
@@ -472,11 +465,6 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             // Delete Attended check-in site
             RockMigrationHelper.DeleteLayout( "3BD6CFC1-0BF2-43C8-AD38-44E711D6ACE0" );
             RockMigrationHelper.DeleteSite( "30FB46F7-4814-4691-852A-04FB56CC07F0" );
-
-            // Delete check-in note type
-            Sql( @"
-                DELETE FROM [NoteType] WHERE [Guid] = '2BBA0589-6EC2-47F6-8745-34E95E3AC019'
-            " );
         }
     }
 }
