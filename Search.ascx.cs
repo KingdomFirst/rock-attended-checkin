@@ -52,7 +52,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             base.OnLoad( e );
 
-            if ( CurrentKioskId == null || CurrentCheckInState == null )
+            if ( !KioskCurrentlyActive )
             {
                 NavigateToLinkedPage( "AdminPage" );
                 return;
@@ -77,7 +77,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 ", CurrentKioskId, CurrentGroupTypeIds.AsDelimited( "," ) );
                 phScript.Controls.Add( new LiteralControl( script ) );
 
-                if ( GetAttributeValue( "DisplayCountryCode" ).AsBoolean() )
+                if ( GetAttributeValue( "ShowKeyPad" ).AsBoolean() )
                 {
                     pnlKeyPad.Visible = true;
                 }
@@ -97,7 +97,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbSearch_Click( object sender, EventArgs e )
         {
-            if ( CurrentCheckInState != null && CurrentCheckInState.Kiosk != null )
+            if ( KioskCurrentlyActive )
             {
                 CurrentCheckInState.CheckIn.Families.Clear();
                 CurrentCheckInState.CheckIn.UserEnteredSearch = true;

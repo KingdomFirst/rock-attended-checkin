@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data.Entity;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
@@ -51,6 +52,15 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             if ( !Page.IsPostBack )
             {
+                // Set the check-in state from values passed on query string
+                CurrentKioskId = PageParameter( "KioskId" ).AsIntegerOrNull();
+
+                CurrentGroupTypeIds = ( PageParameter( "GroupTypeIds" ) ?? "" )
+                    .Split( new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries )
+                    .ToList()
+                    .Select( s => s.AsInteger() )
+                    .ToList();
+
                 if ( CurrentKioskId.HasValue && CurrentGroupTypeIds != null && CurrentGroupTypeIds.Any() && !UserBackedUp )
                 {
                     // Save the check-in state
@@ -134,6 +144,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 CurrentKioskId = device.Id;
                 BindGroupTypes( hfGroupTypes.Value );
             }
+            else
+            {
+                // add a message or disable Ok here?
+            }
         }
 
         #endregion Control Methods
@@ -176,20 +190,38 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 return;
             }
 
-            // Set selected grouptypes
-            var groupTypeIds = selectedGroupTypeIds;
-
             if ( CurrentKioskId == null || CurrentKioskId == 0 )
             {
                 CurrentKioskId = hfKiosk.ValueAsInt();
             }
 
             ClearMobileCookie();
-            CurrentGroupTypeIds = groupTypeIds;
+            //CurrentTheme = ddlTheme.SelectedValue;
+            CurrentGroupTypeIds = selectedGroupTypeIds;
             CurrentCheckInState = null;
             CurrentWorkflow = null;
             SaveState();
             NavigateToNextPage();
+        }
+
+        /// <summary>
+        /// Handles the ItemDataBound event of the dlMinistry control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="RepeaterItemEventArgs"/> instance containing the event data.</param>
+        protected void dlMinistry_ItemDataBound( object sender, DataListItemEventArgs e )
+        {
+            var selectedGroupTypes = hfGroupTypes.Value.SplitDelimitedValues().Select( int.Parse ).ToList();
+            if ( selectedGroupTypes.Count > 0 )
+            {
+                if ( e.Item.ItemType == ListItemType.Item || e.Item.ItemType == ListItemType.AlternatingItem )
+                {
+                    if ( selectedGroupTypes.Contains( ( (GroupType)e.Item.DataItem ).Id ) )
+                    {
+                        ( (Button)e.Item.FindControl( "lbMinistry" ) ).AddCssClass( "active" );
+                    }
+                }
+            }
         }
 
         #endregion Events
@@ -351,13 +383,18 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             if ( CurrentKioskId > 0 )
             {
-                var kiosk = new DeviceService( new RockContext() ).Get( (int)CurrentKioskId );
-                if ( kiosk != null )
+                using ( var rockContext = new RockContext() )
                 {
-                    hfGroupTypes.Value = selectedGroupTypes;
-                    dlMinistry.DataSource = GetDeviceGroupTypes( kiosk.Id );
-                    dlMinistry.DataBind();
+                    var kioskExists = new DeviceService( rockContext ).Queryable().Any( d => d.Id == (int)CurrentKioskId );
+                    if ( kioskExists )
+                    {
+                        hfGroupTypes.Value = selectedGroupTypes;
+                        dlMinistry.DataSource = GetDeviceGroupTypes( (int)CurrentKioskId, rockContext );
+                        dlMinistry.DataBind();
+                    }
                 }
+
+                // #TODO check if selected values match what's on the page
             }
         }
 
@@ -366,11 +403,11 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// </summary>
         /// <param name="deviceId">The device identifier.</param>
         /// <returns></returns>
-        private List<GroupType> GetDeviceGroupTypes( int deviceId )
+        private List<GroupType> GetDeviceGroupTypes( int deviceId, RockContext rockContext )
         {
             var groupTypes = new Dictionary<int, GroupType>();
 
-            var locationService = new LocationService( new RockContext() );
+            var locationService = new LocationService( rockContext );
 
             // Get all locations (and their children) associated with device
             var locationIds = locationService
@@ -379,39 +416,21 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 .ToList();
 
             // Requery using EF
-            foreach ( var groupType in locationService.Queryable()
+            foreach ( var groupType in locationService
+                .Queryable().AsNoTracking()
                 .Where( l => locationIds.Contains( l.Id ) )
                 .SelectMany( l => l.GroupLocations )
+                .Where( gl => gl.Group.GroupType.TakesAttendance && gl.Schedules.Any() )
                 .Select( gl => gl.Group.GroupType )
                 .ToList() )
-            {
-                if ( !groupTypes.ContainsKey( groupType.Id ) )
-                {
-                    groupTypes.Add( groupType.Id, groupType );
-                }
+            {                
+                groupTypes.AddOrIgnore( groupType.Id, groupType );
             }
 
-            return groupTypes.Select( g => g.Value ).ToList();
-        }
-
-        /// <summary>
-        /// Handles the ItemDataBound event of the dlMinistry control.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="RepeaterItemEventArgs"/> instance containing the event data.</param>
-        protected void dlMinistry_ItemDataBound( object sender, DataListItemEventArgs e )
-        {
-            var selectedGroupTypes = hfGroupTypes.Value.SplitDelimitedValues().Select( int.Parse ).ToList();
-            if ( selectedGroupTypes.Count > 0 )
-            {
-                if ( e.Item.ItemType == ListItemType.Item || e.Item.ItemType == ListItemType.AlternatingItem )
-                {
-                    if ( selectedGroupTypes.Contains( ( (GroupType)e.Item.DataItem ).Id ) )
-                    {
-                        ( (Button)e.Item.FindControl( "lbMinistry" ) ).AddCssClass( "active" );
-                    }
-                }
-            }
+            return groupTypes
+                .Select( g => g.Value )
+                .OrderBy( g => g.Order )
+                .ToList();
         }
 
         #endregion Internal Methods
