@@ -37,6 +37,8 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
     [ExportMetadata( "ComponentName", "Select By Multiple Services Attended" )]
     [BooleanField( "Room Balance By Group", "Select the group with the least number of current people. Best for groups having a 1:1 ratio with locations.", false )]
     [BooleanField( "Room Balance By Location", "Select the location with the least number of current people. Best for groups having 1 to many ratio with locations.", false )]
+    [IntegerField( "Previous Months Attendance", "Select the number of previous months to look for attendance history.  The default value is 3 months.", false, 3 )]
+    [IntegerField( "Max Assignments", "Select the maximum number of assignments based on previous attendance.  The default value is 5.", false, 5 )]
     public class SelectByMultipleAttended : CheckInActionComponent
     {
         /// <summary>
@@ -50,36 +52,41 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
         /// <exception cref="System.NotImplementedException"></exception>
         public override bool Execute( RockContext rockContext, Rock.Model.WorkflowAction action, Object entity, out List<string> errorMessages )
         {
-            bool roomBalanceByGroup = GetAttributeValue( action, "RoomBalanceByGroup" ).AsBoolean();
-            bool roomBalanceByLocation = GetAttributeValue( action, "RoomBalanceByLocation" ).AsBoolean();
             var checkInState = GetCheckInState( entity, out errorMessages );
-
             if ( checkInState == null )
             {
                 return false;
             }
 
-            var sixMonthsAgo = Rock.RockDateTime.Today.AddMonths( -6 );
+            bool roomBalanceByGroup = GetAttributeValue( action, "RoomBalanceByGroup" ).AsBoolean();
+            bool roomBalanceByLocation = GetAttributeValue( action, "RoomBalanceByLocation" ).AsBoolean();
+            int previousMonthsNumber = GetAttributeValue( action, "PreviousMonthsAttendance" ).AsIntegerOrNull() ?? 3;
+            int maxAssignments = GetAttributeValue( action, "MaxAssignments" ).AsIntegerOrNull() ?? 5;
+
+            var cutoffDate = Rock.RockDateTime.Today.AddMonths( previousMonthsNumber * -1 );
             var attendanceService = new AttendanceService( rockContext );
 
-            foreach ( var family in checkInState.CheckIn.Families.Where( f => f.Selected ) )
+            var family = checkInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
+            if ( family != null )
             {
-                foreach ( var person in family.People.Where( p => p.Selected ) )
+                foreach ( var person in family.People.Where( p => p.Selected && !p.FirstTime ).ToList() )
                 {
                     var personGroupTypeIds = person.GroupTypes.Select( gt => gt.GroupType.Id ).ToList();
 
-                    var personAttendances = attendanceService.Queryable()
+                    var lastDateAttendances = attendanceService.Queryable()
                         .Where( a =>
                             a.PersonAlias.PersonId == person.Person.Id &&
                             personGroupTypeIds.Contains( a.Group.GroupTypeId ) &&
-                            a.StartDateTime >= sixMonthsAgo && a.DidAttend == true )
+                            a.StartDateTime >= cutoffDate && a.DidAttend == true )
+                        .OrderByDescending( a => a.StartDateTime ).Take( maxAssignments )
                         .ToList();
 
-                    if ( personAttendances.Any() )
+                    if ( lastDateAttendances.Any() )
                     {
                         var isSpecialNeeds = person.Person.GetAttributeValue( "IsSpecialNeeds" ).AsBoolean();
-                        var lastDate = personAttendances.Max( a => a.StartDateTime ).Date;
-                        var lastDateAttendances = personAttendances.Where( a => a.StartDateTime >= lastDate ).ToList();
+
+                        var lastAttended = lastDateAttendances.Max( a => a.StartDateTime ).Date;
+                        lastDateAttendances = lastDateAttendances.Where( a => a.StartDateTime >= lastAttended ).ToList();
 
                         foreach ( var groupAttendance in lastDateAttendances )
                         {
@@ -164,6 +171,10 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                             groupType.Selected = true;
                                             groupType.PreSelected = true;
                                             group.LastCheckIn = groupAttendance.StartDateTime;
+                                            groupType.LastCheckIn = groupAttendance.StartDateTime;
+                                            groupType.Selected = true;
+                                            groupType.PreSelected = true;
+                                            person.LastCheckIn = groupAttendance.StartDateTime;
                                         }
                                     }
                                 }
