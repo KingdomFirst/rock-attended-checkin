@@ -50,48 +50,48 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
             var checkInState = GetCheckInState( entity, out errorMessages );
             if ( checkInState != null )
             {
-                var family = checkInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault();
-                if ( family != null )
+                return false;
+            }
+
+            var family = checkInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
+            if ( family != null )
+            {
+                foreach ( var person in family.People.Where( f => f.Selected && !f.FirstTime ).ToList() )
                 {
-                    foreach ( var person in family.People.Where( f => f.Selected ) )
+                    if ( person.LastCheckIn != null )
                     {
-                        if ( person.LastCheckIn != null )
+                        var groupType = person.GroupTypes.FirstOrDefault( gt => gt.Selected || gt.LastCheckIn == person.LastCheckIn );
+                        if ( groupType != null )
                         {
-                            var groupType = person.GroupTypes.FirstOrDefault( gt => gt.Selected || gt.LastCheckIn == person.LastCheckIn );
-                            if ( groupType != null )
+                            groupType.PreSelected = true;
+                            groupType.Selected = true;
+
+                            var group = groupType.Groups.FirstOrDefault( g => g.Selected || g.LastCheckIn == person.LastCheckIn );
+                            if ( group != null )
                             {
-                                groupType.PreSelected = true;
-                                groupType.Selected = true;
+                                group.PreSelected = true;
+                                group.Selected = true;
 
-                                var group = groupType.Groups.FirstOrDefault( g => g.Selected || g.LastCheckIn == person.LastCheckIn );
-                                if ( group != null )
+                                var location = group.Locations.FirstOrDefault( l => l.Selected || l.LastCheckIn == person.LastCheckIn );
+                                if ( location != null )
                                 {
-                                    group.PreSelected = true;
-                                    group.Selected = true;
+                                    location.PreSelected = true;
+                                    location.Selected = true;
 
-                                    var location = group.Locations.FirstOrDefault( l => l.Selected || l.LastCheckIn == person.LastCheckIn );
-                                    if ( location != null )
+                                    var schedule = location.Schedules.FirstOrDefault( s => s.Selected || s.LastCheckIn == person.LastCheckIn );
+                                    if ( schedule != null )
                                     {
-                                        location.PreSelected = true;
-                                        location.Selected = true;
-
-                                        var schedule = location.Schedules.FirstOrDefault( s => s.Selected || s.LastCheckIn == person.LastCheckIn );
-                                        if ( schedule != null )
-                                        {
-                                            schedule.PreSelected = true;
-                                            schedule.Selected = true;
-                                        }
+                                        schedule.PreSelected = true;
+                                        schedule.Selected = true;
                                     }
                                 }
                             }
                         }
                     }
                 }
-
-                return true;
             }
 
-            return false;
+            return true;
         }
     }
 }

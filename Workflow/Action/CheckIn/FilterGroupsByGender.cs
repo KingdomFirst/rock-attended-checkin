@@ -50,42 +50,41 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
         public override bool Execute( RockContext rockContext, Rock.Model.WorkflowAction action, Object entity, out List<string> errorMessages )
         {
             var checkInState = GetCheckInState( entity, out errorMessages );
-            if ( checkInState != null )
+            if ( checkInState == null )
             {
-                var family = checkInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault();
-                if ( family != null )
+                return false;
+            }
+
+            var family = checkInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault();
+            if ( family != null )
+            {
+                var remove = GetAttributeValue( action, "Remove" ).AsBoolean();
+
+                foreach ( var person in family.People )
                 {
-                    var remove = GetAttributeValue( action, "Remove" ).AsBoolean();
-
-                    foreach ( var person in family.People )
+                    string personsGender = person.Person.Gender.ToString( "d" );
+                    foreach ( var groupType in person.GroupTypes.ToList() )
                     {
-                        string personsGender = person.Person.Gender.ToString( "d" );
-
-                        foreach ( var groupType in person.GroupTypes.ToList() )
+                        foreach ( var group in groupType.Groups.ToList() )
                         {
-                            foreach ( var group in groupType.Groups.ToList() )
+                            var groupAttributes = group.Group.GetAttributeValues( "Gender" );
+                            if ( groupAttributes.Any() && !groupAttributes.Contains( personsGender ) )
                             {
-                                var groupAttributes = group.Group.GetAttributeValues( "Gender" );
-                                if ( groupAttributes.Any() && !groupAttributes.Contains( personsGender ) )
+                                if ( remove )
                                 {
-                                    if ( remove )
-                                    {
-                                        groupType.Groups.Remove( group );
-                                    }
-                                    else
-                                    {
-                                        group.ExcludedByFilter = true;
-                                    }
+                                    groupType.Groups.Remove( group );
+                                }
+                                else
+                                {
+                                    group.ExcludedByFilter = true;
                                 }
                             }
                         }
                     }
                 }
-
-                return true;
             }
 
-            return false;
+            return true;
         }
     }
 }
