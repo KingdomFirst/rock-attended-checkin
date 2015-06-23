@@ -55,17 +55,17 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             if ( !KioskCurrentlyActive )
             {
                 NavigateToLinkedPage( "AdminPage" );
-                return;
             }
-
-            if ( !Page.IsPostBack )
+            else
             {
-                if ( CurrentCheckInState != null && !string.IsNullOrWhiteSpace( CurrentCheckInState.CheckIn.SearchValue ) )
+                if ( !Page.IsPostBack )
                 {
-                    tbSearchBox.Text = CurrentCheckInState.CheckIn.SearchValue;
-                }
+                    if ( CurrentCheckInState != null && !string.IsNullOrWhiteSpace( CurrentCheckInState.CheckIn.SearchValue ) )
+                    {
+                        tbSearchBox.Text = CurrentCheckInState.CheckIn.SearchValue;
+                    }
 
-                string script = string.Format( @"
+                    string script = string.Format( @"
                 <script>
                     $(document).ready(function (e) {{
                         if (localStorage) {{
@@ -75,14 +75,15 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     }});
                 </script>
                 ", CurrentKioskId, CurrentGroupTypeIds.AsDelimited( "," ) );
-                phScript.Controls.Add( new LiteralControl( script ) );
+                    phScript.Controls.Add( new LiteralControl( script ) );
 
-                if ( GetAttributeValue( "ShowKeyPad" ).AsBoolean() )
-                {
-                    pnlKeyPad.Visible = true;
+                    if ( GetAttributeValue( "ShowKeyPad" ).AsBoolean() )
+                    {
+                        pnlKeyPad.Visible = true;
+                    }
+
+                    tbSearchBox.Focus();
                 }
-
-                tbSearchBox.Focus();
             }
         }
 

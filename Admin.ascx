@@ -54,13 +54,14 @@
 <script type="text/javascript">
 
     var setClickEvents = function () {
-        $('.btn-grouptype').off('click').on('click', function () {
+        $('.btn-grouptype').off('click').on('click', function (event) {
+            event.stopPropagation();
             $(this).toggleClass('active').blur();
             var selectedIds = $('input[id$="hfGroupTypes"]').val();
             var buttonId = this.getAttribute('data-id');
             if (selectedIds.length && selectedIds.indexOf(buttonId) >= 0) {
-                var replacedIds = selectedIds.replace(buttonId, '');
-                $('input[id$="hfGroupTypes"]').val(replacedIds + ',');
+                var buttonIdRegex = new RegExp(buttonId + ',*', "g");
+                $('input[id$="hfGroupTypes"]').val(selectedIds.replace(buttonIdRegex, ''));
             } else {
                 $('input[id$="hfGroupTypes"]').val(buttonId + ',' + selectedIds);
             }

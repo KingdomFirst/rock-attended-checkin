@@ -3,9 +3,10 @@
 <asp:UpdatePanel ID="pnlContent" runat="server" UpdateMode="Conditional">
     <ContentTemplate>
 
+        <Rock:ModalAlert ID="maWarning" runat="server" />
+
         <asp:Panel ID="pnlSelections" runat="server" CssClass="attended">
 
-            <Rock:ModalAlert ID="maWarning" runat="server" />
             <asp:HiddenField ID="newPersonType" runat="server" />
 
             <div class="row checkin-header">
@@ -36,14 +37,7 @@
                             <asp:ListView ID="lvFamily" runat="server" OnPagePropertiesChanging="lvFamily_PagePropertiesChanging"
                                 OnItemCommand="lvFamily_ItemCommand" OnItemDataBound="lvFamily_ItemDataBound">
                                 <ItemTemplate>
-                                    <asp:LinkButton ID="lbSelectFamily" runat="server" CommandArgument='<%# Eval("Group.Id") %>' CausesValidation="false"
-                                        CssClass="btn btn-primary btn-lg btn-block btn-checkin-select family">
-						                <%# Eval("Caption") %><br />
-                                        <span class='checkin-sub-title'>
-                                            <%# Eval("SubCaption") %>
-                                        </span>
-                                        <div class='fa fa-refresh fa-spin'></div>
-                                    </asp:LinkButton>
+                                    <asp:LinkButton ID="lbSelectFamily" runat="server" CausesValidation="false" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select family" />                                    
                                 </ItemTemplate>
                             </asp:ListView>
                             <asp:DataPager ID="dpFamilyPager" runat="server" PageSize="4" PagedControlID="lvFamily">
@@ -62,15 +56,9 @@
 
                             <h3 class="text-center">People</h3>
 
-                            <asp:ListView ID="lvPerson" runat="server" OnItemDataBound="lvPerson_ItemDataBound" OnPagePropertiesChanging="lvPerson_PagePropertiesChanging">
+                            <asp:ListView ID="lvPerson" runat="server" OnItemDataBound="lvPeople_ItemDataBound" OnPagePropertiesChanging="lvPerson_PagePropertiesChanging">
                                 <ItemTemplate>
-                                    <asp:LinkButton ID="lbSelectPerson" runat="server" data-id='<%# Eval("Person.Id") %>' CssClass="btn btn-primary btn-lg btn-block btn-checkin-select person">
-						                <%# Eval("Person.FullName") %><br />
-						                <span class='checkin-sub-title'>
-							                Birthday: <%# Eval("Person.BirthMonth") + "/" + Eval("Person.BirthDay") + " " ?? "N/A " %>
-                                            <%# Convert.ToInt32( Eval( "Person.Age" ) ) <= 18 ? "Age: " + Eval( "Person.Age" ) : "Age: Adult" %>
-						                </span>
-                                    </asp:LinkButton>
+                                    <asp:LinkButton ID="lbSelectPerson" runat="server" data-id='<%# Eval("Person.Id") %>' CssClass="btn btn-primary btn-lg btn-block btn-checkin-select person" />
                                 </ItemTemplate>
                                 <EmptyDataTemplate>
                                     <div class="text-center large-font">
@@ -94,15 +82,9 @@
 
                             <h3 class="text-center">Visitors</h3>
 
-                            <asp:ListView ID="lvVisitor" runat="server" OnItemDataBound="lvVisitor_ItemDataBound" OnPagePropertiesChanging="lvVisitor_PagePropertiesChanging">
+                            <asp:ListView ID="lvVisitor" runat="server" OnItemDataBound="lvPeople_ItemDataBound" OnPagePropertiesChanging="lvVisitor_PagePropertiesChanging">
                                 <ItemTemplate>
-                                    <asp:LinkButton ID="lbSelectVisitor" runat="server" data-id='<%# Eval("Person.Id") %>' CssClass="btn btn-primary btn-lg btn-block btn-checkin-select visitor">
-						                <%# Eval("Person.FullName") %><br />
-						                <span class='checkin-sub-title'>
-							                Birthday: <%# Eval("Person.BirthMonth") + "/" + Eval("Person.BirthDay") + " " ?? "N/A " %>
-                                            <%# Convert.ToInt32( Eval( "Person.Age" ) ) <= 18 ? "Age: " + Eval( "Person.Age" ) : "Age: Adult" %>
-						                </span>
-                                    </asp:LinkButton>
+                                    <asp:LinkButton ID="lbSelectPerson" runat="server" data-id='<%# Eval("Person.Id") %>' CssClass="btn btn-primary btn-lg btn-block btn-checkin-select visitor" />
                                 </ItemTemplate>
                                 <EmptyDataTemplate>
                                     <div class="text-center large-font">
@@ -124,6 +106,7 @@
                     <asp:Literal ID="lblNothingFound" runat="server" EnableViewState="false" />
                 </h3>
 
+                <!-- Add Buttons -->
                 <div id="divActions" runat="server" class="col-xs-3">
                     <h3 id="actions" runat="server" class="text-center">Actions</h3>
 
@@ -326,26 +309,30 @@
             }
         });
 
-        $('.person').unbind('click').on('click', function () {
+        $('.person').unbind('click').on('click', function (event) {
+            event.stopPropagation();
             $(this).toggleClass('active');
             var selectedIds = $('#hfSelectedPerson').val();
-            var buttonId = this.getAttribute('data-id') + ',';
-            if (typeof selectedIds == "string" && (selectedIds.indexOf(buttonId) >= 0)) {
-                $('#hfSelectedPerson').val(selectedIds.replace(buttonId, ''));
+            var buttonId = this.getAttribute('data-id');
+            if (selectedIds.indexOf(buttonId) >= 0) {
+                var buttonIdRegex = new RegExp(buttonId + ',*', "g");
+                $('#hfSelectedPerson').val(selectedIds.replace(buttonIdRegex, ''));
             } else {
-                $('#hfSelectedPerson').val(buttonId + selectedIds);
+                $('#hfSelectedPerson').val(buttonId + ',' + selectedIds);
             }
             return false;
         });
 
-        $('.visitor').unbind('click').on('click', function () {
+        $('.visitor').unbind('click').on('click', function (event) {
+            event.stopPropagation();
             $(this).toggleClass('active');
             var selectedIds = $('#hfSelectedVisitor').val();
-            var buttonId = this.getAttribute('data-id') + ',';
-            if (typeof selectedIds == "string" && (selectedIds.indexOf(buttonId) >= 0)) {
-                $('#hfSelectedVisitor').val(selectedIds.replace(buttonId, ''));
+            var buttonId = this.getAttribute('data-id');
+            if (selectedIds.indexOf(buttonId) >= 0) {
+                var buttonIdRegex = new RegExp(buttonId + ',*', "g");
+                $('#hfSelectedPerson').val(selectedIds.replace(buttonIdRegex, ''));
             } else {
-                $('#hfSelectedVisitor').val(buttonId + selectedIds);
+                $('#hfSelectedVisitor').val(buttonId + ',' + selectedIds);
             }
             return false;
         });

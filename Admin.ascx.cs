@@ -142,7 +142,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             {
                 ClearMobileCookie();
                 CurrentKioskId = device.Id;
-                BindGroupTypes( hfGroupTypes.Value );
+                BindGroupTypes();
             }
             else
             {
@@ -168,18 +168,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 return;
             }
 
-            // return if kiosk isn't active
-            if ( !CurrentCheckInState.Kiosk.HasLocations( CurrentGroupTypeIds ) || !CurrentCheckInState.Kiosk.HasActiveLocations( CurrentGroupTypeIds ) )
+            var selectedGroupTypes = hfGroupTypes.Value.SplitDelimitedValues().Select( int.Parse ).Distinct().ToList();
+            if ( !selectedGroupTypes.Any() )
             {
-                maAlert.Show( "There are no active schedules for this kiosk.", ModalAlertType.Information );
-                pnlContent.Update();
-                return;
-            }
-
-            List<int> selectedGroupTypeIds = hfGroupTypes.Value.SplitDelimitedValues().Select( int.Parse ).Distinct().ToList();
-            if ( !selectedGroupTypeIds.Any() )
-            {
-                hfGroupTypes.Value = string.Empty;
                 foreach ( DataListItem item in dlMinistry.Items )
                 {
                     ( (Button)item.FindControl( "lbMinistry" ) ).RemoveCssClass( "active" );
@@ -190,14 +181,21 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 return;
             }
 
+            // return if kiosk isn't active
+            if ( !CurrentCheckInState.Kiosk.HasActiveLocations( selectedGroupTypes ) )
+            {
+                maAlert.Show( "There are no active schedules for this kiosk.", ModalAlertType.Information );
+                pnlContent.Update();
+                return;
+            }
+
             if ( CurrentKioskId == null || CurrentKioskId == 0 )
             {
                 CurrentKioskId = hfKiosk.ValueAsInt();
             }
 
             ClearMobileCookie();
-            //CurrentTheme = ddlTheme.SelectedValue;
-            CurrentGroupTypeIds = selectedGroupTypeIds;
+            CurrentGroupTypeIds = selectedGroupTypes;
             CurrentCheckInState = null;
             CurrentWorkflow = null;
             SaveState();
@@ -280,7 +278,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="e"></param>
         protected void lbRefresh_Click( object sender, EventArgs e )
         {
-            BindGroupTypes( hfGroupTypes.Value );
+            BindGroupTypes();
         }
 
         /// <summary>
@@ -370,16 +368,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <summary>
         /// Binds the group types.
         /// </summary>
-        private void BindGroupTypes()
-        {
-            BindGroupTypes( string.Empty );
-        }
-
-        /// <summary>
-        /// Binds the group types.
-        /// </summary>
         /// <param name="selectedValues">The selected values.</param>
-        private void BindGroupTypes( string selectedGroupTypes )
+        private void BindGroupTypes()
         {
             if ( CurrentKioskId > 0 )
             {
@@ -388,13 +378,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     var kioskExists = new DeviceService( rockContext ).Queryable().Any( d => d.Id == (int)CurrentKioskId );
                     if ( kioskExists )
                     {
-                        hfGroupTypes.Value = selectedGroupTypes;
                         dlMinistry.DataSource = GetDeviceGroupTypes( (int)CurrentKioskId, rockContext );
                         dlMinistry.DataBind();
                     }
                 }
-
-                // #TODO check if selected values match what's on the page
             }
         }
 
@@ -423,7 +410,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 .Where( gl => gl.Group.GroupType.TakesAttendance && gl.Schedules.Any() )
                 .Select( gl => gl.Group.GroupType )
                 .ToList() )
-            {                
+            {
                 groupTypes.AddOrIgnore( groupType.Id, groupType );
             }
 

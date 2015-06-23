@@ -88,57 +88,58 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             if ( CurrentWorkflow == null || CurrentCheckInState == null )
             {
                 NavigateToHomePage();
-                return;
             }
-
-            var person = GetCurrentPerson();
-            if ( person != null )
+            else
             {
-                // Set the nickname
-                var nickName = person.Person.NickName ?? person.Person.FirstName;
-                lblPersonName.Text = string.Format( "{0} {1}", nickName, person.Person.LastName );
-            }
-
-            if ( !Page.IsPostBack )
-            {
-                DisplayGroupNames = GetAttributeValue( "DisplayGroupNames" ).AsBoolean();
-
-                if ( person != null && person.GroupTypes.Any() )
+                var person = GetCurrentPerson();
+                if ( person != null )
                 {
-                    var selectedGroupType = person.GroupTypes.FirstOrDefault( gt => gt.Selected );
-                    if ( selectedGroupType != null )
+                    // Set the nickname
+                    var nickName = person.Person.NickName ?? person.Person.FirstName;
+                    lblPersonName.Text = string.Format( "{0} {1}", nickName, person.Person.LastName );
+                }
+
+                if ( !Page.IsPostBack )
+                {
+                    DisplayGroupNames = GetAttributeValue( "DisplayGroupNames" ).AsBoolean();
+
+                    if ( person != null && person.GroupTypes.Any() )
                     {
-                        ViewState["groupTypeId"] = selectedGroupType.GroupType.Id.ToString();
+                        var selectedGroupType = person.GroupTypes.FirstOrDefault( gt => gt.Selected );
+                        if ( selectedGroupType != null )
+                        {
+                            ViewState["groupTypeId"] = selectedGroupType.GroupType.Id.ToString();
+                        }
+
+                        ViewState["groupId"] = Request.QueryString["groupId"];
+                        ViewState["locationId"] = Request.QueryString["locationId"];
+                        ViewState["scheduleId"] = Request.QueryString["scheduleId"];
+
+                        BindGroupTypes( person.GroupTypes );
+                        BindLocations( person.GroupTypes );
+                        BindSchedules( person.GroupTypes );
+                        BindSelectedGrid();
                     }
-
-                    ViewState["groupId"] = Request.QueryString["groupId"];
-                    ViewState["locationId"] = Request.QueryString["locationId"];
-                    ViewState["scheduleId"] = Request.QueryString["scheduleId"];
-
-                    BindGroupTypes( person.GroupTypes );
-                    BindLocations( person.GroupTypes );
-                    BindSchedules( person.GroupTypes );
-                    BindSelectedGrid();
+                    else
+                    {
+                        maWarning.Show( InvalidParameterError, ModalAlertType.Warning );
+                        NavigateToPreviousPage();
+                    }
                 }
-                else
+
+                // Instantiate the allergy control for reference later
+                var control = AttributeCache.Read( new Guid( Rock.SystemGuid.Attribute.PERSON_ALLERGY ) )
+                    .AddControl( phAttributes.Controls, string.Empty, "", true, true );
+
+                if ( control is RockTextBox )
                 {
-                    maWarning.Show( InvalidParameterError, ModalAlertType.Warning );
-                    NavigateToPreviousPage();
+                    ( (RockTextBox)control ).MaxLength = 80;
                 }
-            }
 
-            // Instantiate the allergy control for reference later
-            var control = AttributeCache.Read( new Guid( Rock.SystemGuid.Attribute.PERSON_ALLERGY ) )
-                .AddControl( phAttributes.Controls, string.Empty, "", true, true );
-
-            if ( control is RockTextBox )
-            {
-                ( (RockTextBox)control ).MaxLength = 80;
-            }
-
-            if ( DisplayGroupNames )
-            {
-                hdrLocations.InnerText = "Group";
+                if ( DisplayGroupNames )
+                {
+                    hdrLocations.InnerText = "Group";
+                }
             }
         }
 
@@ -265,7 +266,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     if ( selectedGroup != null )
                     {
                         ViewState["groupId"] = selectedGroup.Group.Id;
-                    }                    
+                    }
                 }
 
                 pnlLocations.Update();

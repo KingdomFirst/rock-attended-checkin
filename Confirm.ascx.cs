@@ -93,13 +93,14 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             if ( CurrentWorkflow == null || CurrentCheckInState == null )
             {
                 NavigateToHomePage();
-                return;
             }
-
-            if ( !Page.IsPostBack )
+            else
             {
-                gPersonList.UseAccessibleHeader = true;
-                BindGrid();
+                if ( !Page.IsPostBack )
+                {
+                    gPersonList.UseAccessibleHeader = true;
+                    BindGrid();
+                }
             }
         }
 
