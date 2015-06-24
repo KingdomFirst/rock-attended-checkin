@@ -402,7 +402,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                 var lbLocation = (LinkButton)e.Item.FindControl( "lbLocation" );
 
-                lbLocation.Text = displayName.Truncate( 21 );
+                lbLocation.Text = displayName;
                 lbLocation.CommandName = displayName;
                 lbLocation.CommandArgument = locationId.ToString();
 
@@ -431,7 +431,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }
 
                 var scheduleAttendance = ScheduleAttendanceList.Where( s => s.ScheduleId == schedule.Schedule.Id );
-                lbSchedule.Text = string.Format( "{0} ({1})", schedule.Schedule.Name.Truncate( 21 ), scheduleAttendance.Select( s => s.AttendanceCount ).FirstOrDefault() );
+                lbSchedule.Text = string.Format( "{0} ({1})", schedule.Schedule.Name, scheduleAttendance.Select( s => s.AttendanceCount ).FirstOrDefault() );
             }
         }
 
