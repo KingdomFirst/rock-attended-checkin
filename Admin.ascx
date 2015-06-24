@@ -1,5 +1,7 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="Admin.ascx.cs" Inherits="RockWeb.Plugins.cc_newspring.AttendedCheckin.Admin" %>
 
+<script type="text/javascript" src="../plugins/cc_newspring/attendedcheckin/scripts.js"></script>
+
 <asp:UpdatePanel ID="pnlContent" runat="server" UpdateMode="Conditional">
     <ContentTemplate>
 
@@ -49,8 +51,6 @@
     </ContentTemplate>
 </asp:UpdatePanel>
 
-<script type="text/javascript" src="../plugins/cc_newspring/attendedcheckin/scripts.js"></script>
-
 <script type="text/javascript">
 
     var setClickEvents = function () {
@@ -69,6 +69,8 @@
         });
     };
 
-    $(document).ready(function () { setClickEvents(); });
+    $(document).ready(function () {
+        setClickEvents();
+    });
     Sys.WebForms.PageRequestManager.getInstance().add_endRequest(setClickEvents);
 </script>

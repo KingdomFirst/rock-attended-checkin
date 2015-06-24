@@ -1,5 +1,4 @@
 ﻿var AttendedCheckin = function () {
-    var _previousDOB = '';
 
     var loadStyles = function () {
         var relPath = '../plugins/cc_newspring/attendedcheckin/Styles/styles.min.css';
@@ -18,6 +17,7 @@
         return ageDate.getUTCFullYear() - 1970;
     };
 
+    var _previousDOB = '';
     var showAgeOnBirthdatePicker = function () {
         $('body').on('change', '[data-show-age=true]', function () {
             var input = $(this);

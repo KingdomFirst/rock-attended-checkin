@@ -1,5 +1,7 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="FamilySelect.ascx.cs" Inherits="RockWeb.Plugins.cc_newspring.AttendedCheckin.FamilySelect" %>
 
+<script type="text/javascript" src="../plugins/cc_newspring/attendedcheckin/scripts.js"></script>
+
 <asp:UpdatePanel ID="pnlContent" runat="server" UpdateMode="Conditional">
     <ContentTemplate>
 
@@ -37,7 +39,7 @@
                             <asp:ListView ID="lvFamily" runat="server" OnPagePropertiesChanging="lvFamily_PagePropertiesChanging"
                                 OnItemCommand="lvFamily_ItemCommand" OnItemDataBound="lvFamily_ItemDataBound">
                                 <ItemTemplate>
-                                    <asp:LinkButton ID="lbSelectFamily" runat="server" CausesValidation="false" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select family" />                                    
+                                    <asp:LinkButton ID="lbSelectFamily" runat="server" CausesValidation="false" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select family" />
                                 </ItemTemplate>
                             </asp:ListView>
                             <asp:DataPager ID="dpFamilyPager" runat="server" PageSize="4" PagedControlID="lvFamily">
@@ -295,11 +297,9 @@
     </ContentTemplate>
 </asp:UpdatePanel>
 
-<script type="text/javascript" src="../plugins/cc_newspring/attendedcheckin/scripts.js"></script>
-
 <script type="text/javascript">
 
-    var setControlEvents = function () {
+    var setClickEvents = function () {
 
         $('.family').unbind('click').on('click', function () {
             $(this).toggleClass('active');
@@ -339,7 +339,7 @@
     };
 
     $(document).ready(function () {
-        setControlEvents();
+        setClickEvents();
     });
-    Sys.WebForms.PageRequestManager.getInstance().add_endRequest(setControlEvents);
+    Sys.WebForms.PageRequestManager.getInstance().add_endRequest(setClickEvents);
 </script>
