@@ -1,5 +1,7 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="ActivitySelect.ascx.cs" Inherits="RockWeb.Plugins.cc_newspring.AttendedCheckin.ActivitySelect" %>
 
+<script type="text/javascript" src="../plugins/cc_newspring/attendedcheckin/scripts.js"></script>
+
 <asp:UpdatePanel ID="pnlContent" runat="server" UpdateMode="Conditional">
     <ContentTemplate>
 
@@ -162,5 +164,3 @@
         </Rock:ModalDialog>
     </ContentTemplate>
 </asp:UpdatePanel>
-
-<script type="text/javascript" src="../plugins/cc_newspring/attendedcheckin/scripts.js"></script>
