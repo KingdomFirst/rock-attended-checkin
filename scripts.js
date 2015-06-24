@@ -1,11 +1,10 @@
-﻿var AttendedCheckin = function () {
+﻿var loadCSSStyles = function () {
+    var relPath = '../plugins/cc_newspring/attendedcheckin/Styles/styles.min.css';
+    var styleLink = $('<link>').attr('rel', 'stylesheet').attr('href', relPath);
+    $('head').append(styleLink);
+}();
 
-    var loadStyles = function () {
-        var relPath = '../plugins/cc_newspring/attendedcheckin/Styles/styles.min.css';
-        var styleLink = $('<link>').attr('rel', 'stylesheet').attr('href', relPath);
-        $('head').append(styleLink);
-    };
-
+var setFormEvents = function () {
     var setFocus = function () {
         $('.btn').blur();
         $('input[type=text]').first().focus();
@@ -49,11 +48,12 @@
 
     return {
         init: function () {
-            loadStyles();
             setFocus();
             showAgeOnBirthdatePicker();
         }
     };
 }();
 
-$(document).ready(AttendedCheckin.init);
+loadCSSStyles();
+
+$(document).ready(setFormEvents.init);

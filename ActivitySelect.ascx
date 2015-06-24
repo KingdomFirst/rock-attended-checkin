@@ -20,7 +20,7 @@
 
                 <div class="col-xs-6 text-center">
                     <h1>
-                        <asp:Literal ID="lblPersonName" runat="server" EnableViewState="false" /></h1>
+                        <asp:Literal ID="lblPersonName" runat="server" /></h1>
                 </div>
 
                 <div class="col-xs-3 checkin-actions text-right">

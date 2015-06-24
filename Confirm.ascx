@@ -1,11 +1,5 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="Confirm.ascx.cs" Inherits="RockWeb.Plugins.cc_newspring.AttendedCheckin.Confirm" %>
 
-<%--<script>
-    var relPath = '../plugins/cc_newspring/attendedcheckin/Styles/styles.min.css';
-    var styleLink = $('<link>').attr('rel', 'stylesheet').attr('href', relPath);
-    $('head').append(styleLink);
-</script>--%>
-
 <script type="text/javascript" src="../plugins/cc_newspring/attendedcheckin/scripts.js"></script>
 
 <asp:UpdatePanel ID="pnlContent" runat="server" UpdateMode="Conditional">

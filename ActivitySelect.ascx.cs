@@ -25,6 +25,7 @@ using Rock;
 using Rock.Attribute;
 using Rock.CheckIn;
 using Rock.Data;
+using Rock.Lava;
 using Rock.Model;
 using Rock.Web.Cache;
 using Rock.Web.UI.Controls;
@@ -91,16 +92,16 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
             else
             {
-                var person = GetCurrentPerson();
-                if ( person != null )
-                {
-                    // Set the nickname
-                    var nickName = person.Person.NickName ?? person.Person.FirstName;
-                    lblPersonName.Text = string.Format( "{0} {1}", nickName, person.Person.LastName );
-                }
-
                 if ( !Page.IsPostBack )
                 {
+                    var person = GetCurrentPerson();
+                    if ( person != null )
+                    {
+                        // Set the nickname
+                        var nickName = person.Person.NickName ?? person.Person.FirstName;
+                        lblPersonName.Text = string.Format( "{0} {1}", nickName, person.Person.LastName );
+                    }
+
                     DisplayGroupNames = GetAttributeValue( "DisplayGroupNames" ).AsBoolean();
 
                     if ( person != null && person.GroupTypes.Any() )
@@ -167,7 +168,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
             if ( person != null )
             {
-                var groupTypes = person.GroupTypes.ToList();
+                var groupTypes = person.GroupTypes;
                 groupTypes.ForEach( gt => gt.Selected = gt.PreSelected );
 
                 var groups = groupTypes.SelectMany( gt => gt.Groups ).ToList();
@@ -210,7 +211,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 maWarning.Show( InvalidParameterError, ModalAlertType.Warning );
             }
 
-            ProcessSelection( maWarning );
+            SaveState();
+            NavigateToNextPage();
         }
 
         #endregion Control Methods
@@ -609,7 +611,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             currentPerson.Person.SetAttributeValue( "IsSpecialNeeds", cbSpecialNeeds.Checked.ToTrueFalse() );
 
             // store the allergies
-            var allergyAttribute = Rock.Web.Cache.AttributeCache.Read( new Guid( Rock.SystemGuid.Attribute.PERSON_ALLERGY ) );
+            var allergyAttribute = Rock.Web.Cache.AttributeCache.Read( new Guid( Rock.SystemGuid.Attribute.PERSON_ALLERGY ), rockContext );
             var allergyAttributeControl = phAttributes.FindControl( string.Format( "attribute_field_{0}", allergyAttribute.Id ) );
             if ( allergyAttributeControl != null )
             {
@@ -710,7 +712,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }
 
                 int placeInList = 1;
-                List<Rock.Lava.ILiquidizable> locationItems = null;
+                IEnumerable<ILiquidizable> locationItems = null;
                 if ( DisplayGroupNames )
                 {
                     var allGroups = groupType.Groups.OrderBy( g => g.Group.Name ).ToList();
@@ -721,7 +723,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     }
 
                     // Show group names; locationItems is Type <CheckInGroup>
-                    locationItems = allGroups.Cast<Rock.Lava.ILiquidizable>().ToList();
+                    locationItems = allGroups.Cast<ILiquidizable>();
                 }
                 else
                 {
@@ -733,7 +735,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     }
 
                     // Show location names; locationItems is Type <CheckInLocation>
-                    locationItems = allLocations.Cast<Rock.Lava.ILiquidizable>().ToList();
+                    locationItems = allLocations.Cast<ILiquidizable>();
                 }
 
                 var pageToGoTo = placeInList / dpLocation.PageSize;
@@ -772,7 +774,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     if ( location != null )
                     {
                         GetScheduleAttendance( location );
-                        rSchedule.DataSource = location.Schedules.ToList();
+                        rSchedule.DataSource = location.Schedules;
                         rSchedule.DataBind();
                         pnlSchedules.Update();
                     }
@@ -789,7 +791,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
             if ( person != null )
             {
-                var selectedGroupTypes = person.GroupTypes.Where( gt => gt.Selected ).ToList();
+                var selectedGroupTypes = person.GroupTypes.Where( gt => gt.Selected );
                 var selectedGroups = selectedGroupTypes.SelectMany( gt => gt.Groups.Where( g => g.Selected ) ).ToList();
 
                 var checkInList = new List<Activity>();
@@ -909,6 +911,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 var rockContext = new RockContext();
                 var attendanceService = new AttendanceService( rockContext );
                 var attendanceQuery = attendanceService.GetByDateAndLocation( DateTime.Now, location.Location.Id );
+
                 ScheduleAttendanceList.Clear();
                 foreach ( var schedule in location.Schedules )
                 {

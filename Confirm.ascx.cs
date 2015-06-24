@@ -181,7 +181,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbBack_Click( object sender, EventArgs e )
         {
-            GoBack();
+            NavigateToPreviousPage();
         }
 
         /// <summary>
@@ -201,7 +201,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 else
                 {
                     string errorMsg = "<ul><li>" + errors.AsDelimited( "</li><li>" ) + "</li></ul>";
-                    maWarning.Show( errorMsg, Rock.Web.UI.Controls.ModalAlertType.Warning );
+                    maWarning.Show( errorMsg.Replace( "'", @"\'" ), ModalAlertType.Warning );
                     return;
                 }
 
@@ -210,7 +210,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
             // reset search criteria
             CurrentCheckInState.CheckIn.SearchValue = string.Empty;
-            ProcessSelection( maWarning );
+
+            SaveState();
+            NavigateToNextPage();
         }
 
         /// <summary>

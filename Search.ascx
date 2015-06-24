@@ -63,8 +63,6 @@
     </ContentTemplate>
 </asp:UpdatePanel>
 
-
-
 <script>
 
     var setClickEvents = function () {

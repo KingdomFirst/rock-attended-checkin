@@ -151,7 +151,18 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             else
             {
                 family.People.ForEach( p => p.Selected = selectedPeopleIds.Contains( p.Person.Id ) );
-                ProcessSelection( maWarning );
+
+                var errors = new List<string>();
+                if ( ProcessActivity( "Activity Search", out errors ) )
+                {
+                    SaveState();
+                    NavigateToNextPage();
+                }
+                else
+                {
+                    string errorMsg = "<ul><li>" + errors.AsDelimited( "</li><li>" ) + "</li></ul>";
+                    maWarning.Show( errorMsg.Replace( "'", @"\'" ), ModalAlertType.Warning );
+                }
             }
         }
 
@@ -792,7 +803,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             else
             {
                 string errorMsg = "<ul><li>" + errors.AsDelimited( "</li><li>" ) + "</li></ul>";
-                maWarning.Show( errorMsg, Rock.Web.UI.Controls.ModalAlertType.Warning );
+                maWarning.Show( errorMsg.Replace( "'", @"\'" ), ModalAlertType.Warning );
             }
         }
 
