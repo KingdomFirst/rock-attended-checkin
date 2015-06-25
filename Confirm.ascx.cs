@@ -116,11 +116,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             foreach ( var person in selectedPeopleList )
             {
                 var selectedGroupTypes = person.GroupTypes.Where( gt => gt.Selected ).ToList();
-                var selectedGroups = selectedGroupTypes.SelectMany( gt => gt.Groups.Where( g => g.Selected ) ).ToList();
-
                 if ( selectedGroupTypes.Any() )
                 {
-                    foreach ( var group in selectedGroups )
+                    foreach ( var group in selectedGroupTypes.SelectMany( gt => gt.Groups.Where( g => g.Selected ) ) )
                     {
                         foreach ( var location in group.Locations.Where( l => l.Selected ) )
                         {
@@ -150,7 +148,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }
             }
 
-            gPersonList.DataSource = checkInList.OrderBy( c => c.Name ).ThenBy( c => c.Schedule ).ToList();
+            gPersonList.DataSource = checkInList.OrderBy( c => c.Name ).ThenBy( c => c.Schedule );
             gPersonList.DataBind();
         }
 
@@ -267,15 +265,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             else
             {
                 var selectedGroups = selectedPerson.GroupTypes.Where( gt => gt.Selected )
-                    .SelectMany( gt => gt.Groups.Where( g => g.Selected ) );
-                CheckInGroup selectedGroup = selectedGroups.Where( g => g.Selected && g.Group.Id == groupId
-                    && g.Locations.Any( l => l.Location.Id == locationId
-                        && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) ) ).FirstOrDefault();
-                CheckInLocation selectedLocation = selectedGroup.Locations.Where( l => l.Selected
-                    && l.Location.Id == locationId
-                        && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) ).FirstOrDefault();
-                CheckInSchedule selectedSchedule = selectedLocation.Schedules.Where( s => s.Selected
-                    && s.Schedule.Id == scheduleId ).FirstOrDefault();
+                    .SelectMany( gt => gt.Groups.Where( g => g.Selected ) ).ToList();
+                var selectedGroup = selectedGroups.Where( g => g.Selected && g.Group.Id == groupId ).FirstOrDefault();
+                var selectedLocation = selectedGroup.Locations.Where( l => l.Selected && l.Location.Id == locationId ).FirstOrDefault();
+                var selectedSchedule = selectedLocation.Schedules.Where( s => s.Selected && s.Schedule.Id == scheduleId ).FirstOrDefault();
 
                 selectedSchedule.Selected = false;
                 selectedSchedule.PreSelected = false;
@@ -295,6 +288,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                 if ( !selectedGroups.Any() )
                 {
+                    selectedPerson.GroupTypes.ForEach( gt => gt.Selected = false );
                     selectedPerson.Selected = false;
                     selectedPerson.PreSelected = false;
                 }
@@ -370,10 +364,12 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             if ( !GetAttributeValue( "PrintIndividualLabels" ).AsBoolean() )
             {
                 // separate labels by person and that's it
-                PrintLabels();
+                PrintLabels( CurrentCheckInState.CheckIn.Families );
             }
             else
             {
+                var selectedFamily = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
+
                 // checkinArray has all the data to be printed, whether single or multiple people are checking in
                 foreach ( DataKey dataKey in checkinArray )
                 {
@@ -383,11 +379,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     var scheduleId = Convert.ToInt32( dataKey["ScheduleId"] );
 
                     // mark the person whose label is being printed
-                    var selectedPerson = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected )
-                        .People.FirstOrDefault( p => p.Person.Id == personId );
+                    var selectedPerson = selectedFamily.People.FirstOrDefault( p => p.Person.Id == personId );
 
                     // unselect other people
-                    CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).SelectMany( f => f.People ).ToList().ForEach( p => p.Selected = false );
+                    selectedFamily.People.ForEach( p => p.Selected = false );
 
                     // unselect grouptypes
                     selectedPerson.GroupTypes.ForEach( gt => gt.Selected = false );
@@ -403,13 +398,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         .ForEach( s => s.Selected = false );
 
                     // set only the current label selection
-                    var selectedGroupType = selectedPerson.GroupTypes.FirstOrDefault( gt =>
-                        gt.Groups.Any( g => g.Locations.Any( l => l.Location.Id == locationId
-                            && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) ) ) );
-                    var selectedGroup = selectedGroupType.Groups.FirstOrDefault( g => g.Group.Id == groupId &&
-                        g.Locations.Any( l => l.Location.Id == locationId && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) ) );
-                    var selectedLocation = selectedGroup.Locations.FirstOrDefault( l => l.Location.Id == locationId
-                            && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) );
+                    var selectedGroupType = selectedPerson.GroupTypes.FirstOrDefault( gt => gt.Groups.Any( g => g.Group.Id == groupId ) );
+                    var selectedGroup = selectedGroupType.Groups.FirstOrDefault( g => g.Group.Id == groupId );
+                    var selectedLocation = selectedGroup.Locations.FirstOrDefault( l => l.Location.Id == locationId );
                     var selectedSchedule = selectedLocation.Schedules.FirstOrDefault( s => s.Schedule.Id == scheduleId );
 
                     selectedPerson.Selected = true;
@@ -418,15 +409,16 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     selectedLocation.Selected = true;
                     selectedSchedule.Selected = true;
 
-                    PrintLabels();
+                    PrintLabels( new List<CheckInFamily>() { selectedFamily } );
                 }
             }
         }
 
         /// <summary>
-        /// Prints the label.
+        /// Prints the labels.
         /// </summary>
-        private void PrintLabels()
+        /// <param name="families">The families.</param>
+        private void PrintLabels( List<CheckInFamily> familiesToPrint )
         {
             var designatedLabelGuid = GetAttributeValue( "DesignatedSingleLabel" ).AsGuidOrNull();
             var errors = new List<string>();
@@ -445,7 +437,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var printerIp = string.Empty;
             var printContent = new StringBuilder();
 
-            foreach ( var family in CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ) )
+            foreach ( var family in familiesToPrint.Where( p => p.Selected ) )
             {
                 foreach ( var person in family.People.Where( p => p.Selected ) )
                 {
