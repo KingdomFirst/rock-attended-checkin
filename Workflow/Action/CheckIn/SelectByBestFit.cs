@@ -63,14 +63,15 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
             var family = checkInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
             if ( family != null )
             {
-                foreach ( var person in family.People.Where( f => f.Selected ) )
+                // don't run for people who already have attendance assignments
+                foreach ( var person in family.People.Where( f => f.Selected && !f.GroupTypes.Any( gt => gt.Selected ) ) )
                 {
                     decimal baseVariance = 100;
                     char[] delimiter = { ',' };
 
                     var specialNeeds = person.Person.GetAttributeValue( "IsSpecialNeeds" ).ToStringSafe();
 
-                    var validGroupTypes = person.GroupTypes.ToList();
+                    var validGroupTypes = person.GroupTypes;
                     if ( validGroupTypes.Any() )
                     {
                         List<CheckInGroup> validGroups;
@@ -123,9 +124,9 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                                 .Split( delimiter, StringSplitOptions.None )
                                                 .Where( av => av.Any() && !string.IsNullOrEmpty( av ) )
                                                 .Select( av => av.AsType<decimal>() )
-                                                .ToList()
+                                            //.ToList()
                                         } )
-                                        .Where( g => g.AgeRange.Count > 0 )
+                                        //.Where( g => g.AgeRange.Count > 0 )
                                         .ToList();
 
                                     // Check ages
@@ -166,7 +167,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                                     .Where( av => !string.IsNullOrEmpty( av ) )
                                                     .Select( av => gradeValues.FirstOrDefault( v => v.Guid == new Guid( av ) ) )
                                                     .Select( av => av.Value.AsDecimal() )
-                                                    .ToList()
+                                                //.ToList()
                                             } )
                                             .ToList();
 
@@ -211,7 +212,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         if ( person.Person.Age != null )
                                         {
                                             // get the special needs group by closest age
-                                            var intersectingGroups = ageGroups.Where( ag => specialGroups.Select( sg => sg.Group.Id ).Contains( ag.Group.Group.Id ) ).ToList();
+                                            var intersectingGroups = ageGroups.Where( ag => specialGroups.Select( sg => sg.Group.Id ).Contains( ag.Group.Group.Id ) );
                                             decimal personAge = (decimal)person.Person.AgePrecise;
                                             foreach ( var filtered in intersectingGroups )
                                             {
