@@ -74,7 +74,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
 
                 foreach ( var previousAttender in family.People.Where( p => p.Selected && !p.FirstTime ).ToList() )
                 {
-                    var personGroupTypeIds = previousAttender.GroupTypes.Select( gt => gt.GroupType.Id ).ToList();
+                    var personGroupTypeIds = previousAttender.GroupTypes.Select( gt => gt.GroupType.Id );
 
                     var lastDateAttendances = attendanceService.Queryable()
                         .Where( a =>
@@ -86,13 +86,11 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
 
                     if ( lastDateAttendances.Any() )
                     {
-                        bool foundMatchingAssignment = false;
+                        bool createdMatchingAssignment = false;
                         var isSpecialNeeds = previousAttender.Person.GetAttributeValue( "IsSpecialNeeds" ).AsBoolean();
 
                         var lastAttended = lastDateAttendances.Max( a => a.StartDateTime ).Date;
-                        lastDateAttendances = lastDateAttendances.Where( a => a.StartDateTime >= lastAttended ).ToList();
-
-                        foreach ( var groupAttendance in lastDateAttendances )
+                        foreach ( var groupAttendance in lastDateAttendances.Where( a => a.StartDateTime >= lastAttended ) )
                         {
                             // Start with unfiltered groups for kids with abnormal age and grade parameters (1%)
                             var groupType = previousAttender.GroupTypes.FirstOrDefault( t => t.GroupType.Id == groupAttendance.Group.GroupTypeId && ( !t.ExcludedByFilter || isSpecialNeeds ) );
@@ -179,14 +177,14 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                             groupType.Selected = true;
                                             groupType.PreSelected = true;
                                             previousAttender.LastCheckIn = groupAttendance.StartDateTime;
-                                            foundMatchingAssignment = true;
+                                            createdMatchingAssignment = true;
                                         }
                                     }
                                 }
                             }
                         }
 
-                        if ( foundMatchingAssignment )
+                        if ( createdMatchingAssignment )
                         {
                             peopleWithoutAssignments--;
                         }
@@ -194,8 +192,9 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                 }
             }
 
-            //return peopleWithoutAssignments > 0;
-            return false;
+            // true condition will continue to the next auto-assignment
+            // false condition will stop processing auto-assignments
+            return peopleWithoutAssignments > 0;
         }
     }
 }
