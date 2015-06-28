@@ -54,6 +54,4 @@ var setFormEvents = function () {
     };
 }();
 
-loadCSSStyles();
-
 $(document).ready(setFormEvents.init);
