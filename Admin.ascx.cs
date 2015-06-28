@@ -168,6 +168,11 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 return;
             }
 
+            if ( CurrentKioskId == null || CurrentKioskId == 0 )
+            {
+                CurrentKioskId = hfKiosk.ValueAsInt();
+            }
+
             var selectedGroupTypes = hfGroupTypes.Value.SplitDelimitedValues().Select( int.Parse ).Distinct().ToList();
             if ( !selectedGroupTypes.Any() )
             {
@@ -187,11 +192,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 maAlert.Show( "There are no active schedules for this kiosk.", ModalAlertType.Information );
                 pnlContent.Update();
                 return;
-            }
-
-            if ( CurrentKioskId == null || CurrentKioskId == 0 )
-            {
-                CurrentKioskId = hfKiosk.ValueAsInt();
             }
 
             ClearMobileCookie();
