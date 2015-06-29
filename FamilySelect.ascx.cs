@@ -761,14 +761,14 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 List<CheckInPerson> memberDataSource = null;
                 List<CheckInPerson> visitorDataSource = null;
 
-                var family = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault();
+                var family = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
                 if ( family != null && family.People.Any( f => !f.ExcludedByFilter ) )
                 {
                     memberDataSource = family.People.Where( f => f.FamilyMember && !f.ExcludedByFilter )
                         .OrderByDescending( p => p.Person.AgePrecise ).ToList();
                     memberDataSource.ForEach( p => p.Selected = true );
 
-                    hfSelectedPerson.Value = string.Join( ",", memberDataSource.Select( f => f.Person.Id ).ToList() ) + ",";
+                    hfSelectedPerson.Value = string.Join( ",", memberDataSource.Select( f => f.Person.Id ) ) + ",";
 
                     visitorDataSource = family.People.Where( f => !f.FamilyMember && !f.ExcludedByFilter )
                         .OrderByDescending( p => p.Person.AgePrecise ).ToList();
