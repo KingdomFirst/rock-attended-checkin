@@ -84,8 +84,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                 if (localStorage.checkInGroupTypes) {{
                                     $('[id$=""hfGroupTypes""]').val(localStorage.checkInGroupTypes);
                                 }}
-                                {0};
                             }}
+                            {0};
                         }}
                     }});
                 </script>
@@ -120,11 +120,12 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             ipAddress = Request.ServerVariables["REMOTE_ADDR"];
             skipDeviceNameLookup = false;
 
+            var rockContext = new RockContext();
             var checkInDeviceTypeId = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.DEVICE_TYPE_CHECKIN_KIOSK ).Id;
-            var device = new DeviceService( new RockContext() ).GetByIPAddress( ipAddress, checkInDeviceTypeId, skipDeviceNameLookup );
+            var device = new DeviceService( rockContext ).GetByIPAddress( ipAddress, checkInDeviceTypeId, skipDeviceNameLookup );
 
             var checkInDeviceTypeGuid = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.DEVICE_TYPE_CHECKIN_KIOSK ).Guid;
-            var deviceList = new DeviceService( new RockContext() ).GetByDeviceTypeGuid( checkInDeviceTypeGuid ).ToList();
+            var deviceList = new DeviceService( rockContext ).GetByDeviceTypeGuid( checkInDeviceTypeGuid ).ToList();
 
             string hostName = string.Empty;
             try
@@ -142,7 +143,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             {
                 ClearMobileCookie();
                 CurrentKioskId = device.Id;
-                BindGroupTypes();
             }
             else
             {
@@ -302,7 +302,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             {
                 SetDeviceIdCookie( kiosk );
                 CurrentKioskId = kiosk.Id;
-                BindGroupTypes();
             }
         }
 
@@ -314,12 +313,13 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <returns></returns>
         public static Device GetCurrentKioskByGeoFencing( string sLatitude, string sLongitude )
         {
+            var rockContext = new RockContext();
             double latitude = double.Parse( sLatitude );
             double longitude = double.Parse( sLongitude );
-            var checkInDeviceTypeId = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.DEVICE_TYPE_CHECKIN_KIOSK ).Id;
+            var checkInDeviceType = DefinedValueCache.Read( new Guid( Rock.SystemGuid.DefinedValue.DEVICE_TYPE_CHECKIN_KIOSK ), rockContext );
 
             // We need to use the DeviceService until we can get the GeoFence to JSON Serialize/Deserialize.
-            Device kiosk = new DeviceService( new RockContext() ).GetByGeocode( latitude, longitude, checkInDeviceTypeId );
+            Device kiosk = new DeviceService( rockContext ).GetByGeocode( latitude, longitude, checkInDeviceType.Id );
 
             return kiosk;
         }
@@ -369,19 +369,12 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// Binds the group types.
         /// </summary>
         /// <param name="selectedValues">The selected values.</param>
-        private void BindGroupTypes()
+        private void BindGroupTypes( RockContext rockContext = null )
         {
             if ( CurrentKioskId > 0 )
             {
-                using ( var rockContext = new RockContext() )
-                {
-                    var kioskExists = new DeviceService( rockContext ).Queryable().Any( d => d.Id == (int)CurrentKioskId );
-                    if ( kioskExists )
-                    {
-                        dlMinistry.DataSource = GetDeviceGroupTypes( (int)CurrentKioskId, rockContext );
-                        dlMinistry.DataBind();
-                    }
-                }
+                dlMinistry.DataSource = GetDeviceGroupTypes( (int)CurrentKioskId, rockContext );
+                dlMinistry.DataBind();
             }
         }
 
@@ -390,8 +383,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// </summary>
         /// <param name="deviceId">The device identifier.</param>
         /// <returns></returns>
-        private List<GroupType> GetDeviceGroupTypes( int deviceId, RockContext rockContext )
+        private List<GroupType> GetDeviceGroupTypes( int deviceId, RockContext rockContext = null )
         {
+            rockContext = rockContext ?? new RockContext();
             var groupTypes = new Dictionary<int, GroupType>();
 
             var locationService = new LocationService( rockContext );
