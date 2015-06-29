@@ -1,6 +1,6 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="Search.ascx.cs" Inherits="RockWeb.Plugins.cc_newspring.AttendedCheckin.Search" %>
 
-<script type="text/javascript" src="../plugins/cc_newspring/attendedcheckin/scripts.js"></script>
+<script type="text/javascript" src="../plugins/cc_newspring/attendedcheckin/loadcss.js"></script>
 
 <asp:UpdatePanel ID="pnlContent" runat="server" UpdateMode="Conditional">
     <ContentTemplate>

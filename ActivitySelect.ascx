@@ -1,6 +1,6 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="ActivitySelect.ascx.cs" Inherits="RockWeb.Plugins.cc_newspring.AttendedCheckin.ActivitySelect" %>
 
-<script type="text/javascript" src="../plugins/cc_newspring/attendedcheckin/scripts.js"></script>
+<script type="text/javascript" src="../plugins/cc_newspring/attendedcheckin/loadcss.js"></script>
 
 <asp:UpdatePanel ID="pnlContent" runat="server" UpdateMode="Conditional">
     <ContentTemplate>
@@ -217,6 +217,5 @@
         setClickEvents();
     });
 
-    
     Sys.WebForms.PageRequestManager.getInstance().add_endRequest(setClickEvents);
 </script>
