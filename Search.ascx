@@ -63,7 +63,7 @@
     </ContentTemplate>
 </asp:UpdatePanel>
 
-<script>
+<script type="text/javascript">
 
     var setClickEvents = function () {
         $('.tenkey a.digit').unbind('click').click(function () {
