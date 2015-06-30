@@ -111,7 +111,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                 if ( roomBalanceByGroup && !isSpecialNeeds )
                                 {
                                     // Respect filtering when room balancing
-                                    var filteredGroups = groupType.Groups.Where( g => !g.ExcludedByFilter ).ToList();
+                                    var filteredGroups = groupType.Groups.Where( g => !g.ExcludedByFilter );
                                     if ( filteredGroups.Any() )
                                     {
                                         group = filteredGroups.OrderBy( g => g.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum() ).FirstOrDefault();
@@ -135,7 +135,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     if ( roomBalanceByLocation && !isSpecialNeeds )
                                     {
                                         // Respect filtering when room balancing
-                                        var filteredLocations = group.Locations.Where( l => !l.ExcludedByFilter && l.Schedules.Any( s => !s.ExcludedByFilter && s.Schedule.IsCheckInActive ) ).ToList();
+                                        var filteredLocations = group.Locations.Where( l => !l.ExcludedByFilter && l.Schedules.Any( s => !s.ExcludedByFilter && s.Schedule.IsCheckInActive ) );
                                         if ( filteredLocations.Any() )
                                         {
                                             location = filteredLocations.OrderBy( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).FirstOrDefault();
