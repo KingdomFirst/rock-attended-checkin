@@ -375,6 +375,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             {
                 dlMinistry.DataSource = GetDeviceGroupTypes( (int)CurrentKioskId, rockContext );
                 dlMinistry.DataBind();
+                lblHeader.Visible = true;
             }
         }
 
