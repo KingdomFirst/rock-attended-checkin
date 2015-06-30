@@ -70,9 +70,10 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
             var family = checkInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
             if ( family != null )
             {
+                // set the number of people checking in, including visitors or first-timers
                 peopleWithoutAssignments = family.People.Where( p => p.Selected ).Count();
 
-                foreach ( var previousAttender in family.People.Where( p => p.Selected && !p.FirstTime ).ToList() )
+                foreach ( var previousAttender in family.People.Where( p => p.Selected && !p.FirstTime ) )
                 {
                     var personGroupTypeIds = previousAttender.GroupTypes.Select( gt => gt.GroupType.Id );
 
@@ -102,20 +103,17 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     // Only a single group is open
                                     group = groupType.Groups.FirstOrDefault( g => !g.ExcludedByFilter || isSpecialNeeds );
                                 }
+                                else if ( roomBalanceByGroup && !isSpecialNeeds )
+                                {
+                                    // Respect filtering when room balancing
+                                    group = groupType.Groups.Where( g => !g.ExcludedByFilter )
+                                        .OrderBy( g => g.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum() )
+                                        .FirstOrDefault();
+                                }
                                 else
                                 {
                                     // Pick the group they last attended
                                     group = groupType.Groups.FirstOrDefault( g => g.Group.Id == groupAttendance.GroupId && ( !g.ExcludedByFilter || isSpecialNeeds ) );
-                                }
-
-                                if ( roomBalanceByGroup && !isSpecialNeeds )
-                                {
-                                    // Respect filtering when room balancing
-                                    var filteredGroups = groupType.Groups.Where( g => !g.ExcludedByFilter );
-                                    if ( filteredGroups.Any() )
-                                    {
-                                        group = filteredGroups.OrderBy( g => g.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum() ).FirstOrDefault();
-                                    }
                                 }
 
                                 if ( group != null )
@@ -126,20 +124,17 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         // Only a single location is open
                                         location = group.Locations.FirstOrDefault( l => !l.ExcludedByFilter || isSpecialNeeds );
                                     }
+                                    else if ( roomBalanceByLocation && !isSpecialNeeds )
+                                    {
+                                        // Respect filtering when room balancing
+                                        location = group.Locations.Where( l => !l.ExcludedByFilter && l.Schedules.Any( s => !s.ExcludedByFilter && s.Schedule.IsCheckInActive ) )
+                                            .OrderBy( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount )
+                                            .FirstOrDefault();
+                                    }
                                     else
                                     {
                                         // Pick the location they last attended
                                         location = group.Locations.FirstOrDefault( l => l.Location.Id == groupAttendance.LocationId && ( !l.ExcludedByFilter || isSpecialNeeds ) );
-                                    }
-
-                                    if ( roomBalanceByLocation && !isSpecialNeeds )
-                                    {
-                                        // Respect filtering when room balancing
-                                        var filteredLocations = group.Locations.Where( l => !l.ExcludedByFilter && l.Schedules.Any( s => !s.ExcludedByFilter && s.Schedule.IsCheckInActive ) );
-                                        if ( filteredLocations.Any() )
-                                        {
-                                            location = filteredLocations.OrderBy( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).FirstOrDefault();
-                                        }
                                     }
 
                                     if ( location != null )

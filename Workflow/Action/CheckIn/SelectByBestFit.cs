@@ -69,43 +69,44 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                     decimal baseVariance = 100;
                     char[] delimiter = { ',' };
 
+                    // variable must be a string to compare to group attribute value
                     var specialNeeds = person.Person.GetAttributeValue( "IsSpecialNeeds" ).ToStringSafe();
 
                     var validGroupTypes = person.GroupTypes;
-                    if ( validGroupTypes.Any() )
+                    if ( validGroupTypes.Count > 0 )
                     {
-                        List<CheckInGroup> validGroups;
+                        IEnumerable<CheckInGroup> validGroups;
                         CheckInGroupType bestGroupType = null;
-                        if ( validGroupTypes.Count == 1 || validGroupTypes.Any( gt => gt.Selected ) )
+                        if ( validGroupTypes.Count == 1 )
                         {
                             bestGroupType = validGroupTypes.OrderByDescending( gt => gt.Selected ).FirstOrDefault();
-                            validGroups = bestGroupType.Groups.Where( g => !g.ExcludedByFilter || g.Selected ).ToList();
+                            validGroups = bestGroupType.Groups.Where( g => !g.ExcludedByFilter || g.Selected );
                         }
                         else
                         {
                             // start with unfiltered groups for kids with abnormal age and grade parameters (1%)
-                            validGroups = validGroupTypes.SelectMany( gt => gt.Groups ).ToList();
+                            validGroups = validGroupTypes.SelectMany( gt => gt.Groups );
                         }
 
-                        if ( validGroups.Any() )
+                        // check how many groups exist without getting the whole list
+                        int numValidGroups = validGroups.Take( 2 ).Count();
+                        if ( numValidGroups > 0 )
                         {
                             CheckInGroup bestGroup = null;
-                            List<CheckInLocation> validLocations;
-                            if ( validGroups.Count == 1 || validGroups.Any( g => g.Selected ) )
+                            IEnumerable<CheckInLocation> validLocations;
+                            if ( numValidGroups == 1 )
                             {
                                 bestGroup = validGroups.OrderByDescending( g => g.Selected ).FirstOrDefault();
-                                validLocations = bestGroup.Locations.Where( l => !l.ExcludedByFilter || l.Selected ).ToList();
+                                validLocations = bestGroup.Locations.Where( l => !l.ExcludedByFilter || l.Selected );
                             }
                             else
                             {
-                                // Honor group assignments first
+                                // Select by group assignment first
                                 var checkInGroupIds = validGroups.Select( g => g.Group.Id ).ToList();
                                 var personAssignments = new GroupMemberService( rockContext ).Queryable()
                                     .Where( m => checkInGroupIds.Contains( m.GroupId ) && m.PersonId == person.Person.Id )
                                     .Select( m => m.GroupId ).ToList();
-
-                                // #TODO: honor multiple assignments, not just one
-                                if ( personAssignments.Any() )
+                                if ( personAssignments.Count > 0 )
                                 {
                                     bestGroup = validGroups.FirstOrDefault( g => personAssignments.Contains( g.Group.Id ) );
                                 }
@@ -115,14 +116,14 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                 {
                                     //var ageGroups = validGroups.Where( g => g.Group.AttributeValues.ContainsKey( "AgeRange" ) && !string.IsNullOrEmpty( g.Group.AttributeValues["AgeRange"].Value ) )
                                     var attributeGroups = validGroups.Where( g => g.Group.AttributeValues.ContainsKey( "AgeRange" )
-                                        && !string.IsNullOrEmpty( g.Group.AttributeValues["AgeRange"].Value ) ).ToList();
+                                        && !string.IsNullOrEmpty( g.Group.AttributeValues["AgeRange"].Value ) );
 
                                     var ageGroups = attributeGroups.Select( g => new
                                         {
                                             Group = g,
                                             AgeRange = g.Group.AttributeValues["AgeRange"].Value
                                                 .Split( delimiter, StringSplitOptions.None )
-                                                .Where( av => av.Any() && !string.IsNullOrEmpty( av ) )
+                                                .Where( av => !string.IsNullOrEmpty( av ) )
                                                 .Select( av => av.AsType<decimal>() )
                                             //.ToList()
                                         } )
@@ -131,21 +132,18 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
 
                                     // Check ages
                                     CheckInGroup closestAgeGroup = null;
-                                    if ( person.Person.Age != null )
+                                    if ( person.Person.Age != null && ageGroups.Count > 0 )
                                     {
-                                        if ( ageGroups.Any( g => g.AgeRange.Any() ) )
+                                        decimal personAge = (decimal)person.Person.AgePrecise;
+                                        foreach ( var ageGroup in ageGroups.Where( g => g.AgeRange.Any() ) )
                                         {
-                                            decimal personAge = (decimal)person.Person.AgePrecise;
-                                            foreach ( var filtered in ageGroups.Where( g => g.AgeRange.Any() ) )
+                                            var minAge = ageGroup.AgeRange.First();
+                                            var maxAge = ageGroup.AgeRange.Last();
+                                            var ageVariance = maxAge - minAge;
+                                            if ( maxAge >= personAge && minAge <= personAge && ageVariance < baseVariance )
                                             {
-                                                var minAge = filtered.AgeRange.First();
-                                                var maxAge = filtered.AgeRange.Last();
-                                                var ageVariance = maxAge - minAge;
-                                                if ( maxAge >= personAge && minAge <= personAge && ageVariance < baseVariance )
-                                                {
-                                                    closestAgeGroup = filtered.Group;
-                                                    baseVariance = ageVariance;
-                                                }
+                                                closestAgeGroup = ageGroup.Group;
+                                                baseVariance = ageVariance;
                                             }
                                         }
                                     }
@@ -172,23 +170,23 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                             .ToList();
 
                                         // Only check groups that have valid grade offsets
-                                        if ( gradeGroups.Any( g => g.GradeOffsets.Any() ) )
+                                        if ( person.Person.GradeOffset != null && gradeGroups.Count > 0 )
                                         {
                                             decimal gradeOffset = (decimal)person.Person.GradeOffset.Value;
-                                            foreach ( var filtered in gradeGroups )
+                                            foreach ( var gradeGroup in gradeGroups.Where( g => g.GradeOffsets.Any() ) )
                                             {
-                                                var minGradeOffset = filtered.GradeOffsets.First();
-                                                var maxGradeOffset = filtered.GradeOffsets.Last();
+                                                var minGradeOffset = gradeGroup.GradeOffsets.First();
+                                                var maxGradeOffset = gradeGroup.GradeOffsets.Last();
                                                 var gradeVariance = minGradeOffset - maxGradeOffset;
                                                 if ( minGradeOffset >= gradeOffset && maxGradeOffset <= gradeOffset && gradeVariance < baseVariance )
                                                 {
-                                                    closestGradeGroup = filtered.Group;
+                                                    closestGradeGroup = gradeGroup.Group;
                                                     baseVariance = gradeVariance;
                                                 }
                                             }
 
                                             /* ======================================================== *
-                                                find the next closest grade group (that doesn't match)
+                                                optional scenario: find the next closest grade group
                                             * ========================================================= *
                                                 if (grade > max)
                                                     grade - max
@@ -202,26 +200,24 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         }
                                     }
 
-                                    // Check Special Needs
-                                    bool useSpecialNeeds = true;
                                     CheckInGroup closestNeedsGroup = null;
                                     if ( specialNeeds.AsBoolean() )
                                     {
                                         var specialGroups = validGroups.Where( g => g.Group.AttributeValues.ContainsKey( "IsSpecialNeeds" )
                                             && g.Group.AttributeValues["IsSpecialNeeds"].Value == specialNeeds ).ToList();
-                                        if ( person.Person.Age != null )
+                                        if ( person.Person.Age != null && specialGroups.Count > 0 )
                                         {
                                             // get the special needs group by closest age
                                             var intersectingGroups = ageGroups.Where( ag => specialGroups.Select( sg => sg.Group.Id ).Contains( ag.Group.Group.Id ) );
                                             decimal personAge = (decimal)person.Person.AgePrecise;
-                                            foreach ( var filtered in intersectingGroups )
+                                            foreach ( var filteredGroup in intersectingGroups )
                                             {
-                                                var minAge = filtered.AgeRange.First();
-                                                var maxAge = filtered.AgeRange.Last();
+                                                var minAge = filteredGroup.AgeRange.First();
+                                                var maxAge = filteredGroup.AgeRange.Last();
                                                 var ageVariance = maxAge - minAge;
                                                 if ( maxAge >= personAge && minAge <= personAge && ageVariance < baseVariance )
                                                 {
-                                                    closestNeedsGroup = filtered.Group;
+                                                    closestNeedsGroup = filteredGroup.Group;
                                                     baseVariance = ageVariance;
                                                 }
                                             }
@@ -231,36 +227,21 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                             closestNeedsGroup = specialGroups.FirstOrDefault();
                                         }
                                     }
-                                    else
-                                    {
-                                        useSpecialNeeds = false;
-                                    }
 
                                     // assignment priority: Ability, then Grade, then Age, then 1st available
                                     bestGroup = closestNeedsGroup ?? closestGradeGroup ?? closestAgeGroup ?? validGroups.FirstOrDefault( g => !g.ExcludedByFilter );
+
                                     if ( roomBalanceByGroup )
                                     {
-                                        CheckInGroup lowestCountGroup = null;
-                                        if ( useSpecialNeeds )
-                                        {
-                                            lowestCountGroup = validGroups.Where( g => !g.ExcludedByFilter )
-                                                .OrderBy( g => g.Locations.Select( l => KioskLocationAttendance
-                                                    .Read( l.Location.Id ).CurrentCount ).Sum() )
-                                                .FirstOrDefault();
-                                        }
-                                        else
-                                        {
-                                            lowestCountGroup = validGroups.Where( g => !g.ExcludedByFilter && !g.Group.AttributeValues.ContainsKey( "AgeRange" ) )
-                                                .OrderBy( g => g.Locations.Select( l => KioskLocationAttendance
-                                                    .Read( l.Location.Id ).CurrentCount ).Sum() )
-                                                .FirstOrDefault();
-                                        }
+                                        CheckInGroup lowestCountGroup = validGroups.Where( g => !g.ExcludedByFilter )
+                                            .OrderBy( g => g.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum() )
+                                            .FirstOrDefault();
 
                                         if ( lowestCountGroup != null )
                                         {   // only one location per group should exist in room balance by group
-                                            var lowCount = lowestCountGroup.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).FirstOrDefault();
+                                            var lowestGroupCount = lowestCountGroup.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).FirstOrDefault();
                                             var bestGroupCount = bestGroup.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).FirstOrDefault();
-                                            if ( lowCount < bestGroupCount )
+                                            if ( lowestGroupCount < bestGroupCount )
                                             {
                                                 bestGroup = lowestCountGroup;
                                             }
@@ -268,34 +249,39 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     }
                                 }
 
-                                validLocations = bestGroup.Locations.Where( l => !l.ExcludedByFilter || l.Selected ).ToList();
+                                validLocations = bestGroup.Locations.Where( l => !l.ExcludedByFilter || l.Selected );
                             }
 
-                            if ( validLocations.Any() )
+                            // check how many locations exist without getting the whole list
+                            int numValidLocations = validLocations.Take( 2 ).Count();
+                            if ( numValidLocations > 0 )
                             {
                                 CheckInLocation bestLocation = null;
-                                List<CheckInSchedule> validSchedules;
-                                if ( validLocations.Count == 1 || validLocations.Any( l => l.Selected ) )
+                                IEnumerable<CheckInSchedule> validSchedules;
+                                if ( numValidLocations == 1 )
                                 {
                                     bestLocation = validLocations.OrderByDescending( l => l.Selected ).FirstOrDefault();
-                                    validSchedules = bestLocation.Schedules.Where( s => !s.ExcludedByFilter || s.Selected ).ToList();
+                                    validSchedules = bestLocation.Schedules.Where( s => !s.ExcludedByFilter || s.Selected );
                                 }
                                 else
                                 {
                                     if ( roomBalanceByLocation )
                                     {
                                         bestLocation = validLocations.Where( l => l.Schedules.Any( s => !s.ExcludedByFilter && s.Schedule.IsCheckInActive ) )
-                                            .OrderBy( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).FirstOrDefault();
-                                        validSchedules = bestLocation.Schedules.Where( s => !s.ExcludedByFilter && s.Schedule.IsCheckInActive ).ToList();
+                                            .OrderBy( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount )
+                                            .FirstOrDefault();
+                                        validSchedules = bestLocation.Schedules.Where( s => !s.ExcludedByFilter || s.Selected );
                                     }
                                     else
                                     {
                                         bestLocation = validLocations.FirstOrDefault( l => l.Schedules.Any( s => !s.ExcludedByFilter && s.Schedule.IsCheckInActive ) );
-                                        validSchedules = validLocations.SelectMany( l => l.Schedules.Where( s => !s.ExcludedByFilter && s.Schedule.IsCheckInActive ) ).ToList();
+                                        validSchedules = validLocations.SelectMany( l => l.Schedules.Where( s => !s.ExcludedByFilter && s.Schedule.IsCheckInActive ) );
                                     }
                                 }
 
-                                if ( validSchedules.Any() )
+                                // check how many schedules exist without getting the whole list
+                                int numValidSchedules = validSchedules.Take( 2 ).Count();
+                                if ( numValidSchedules > 0 )
                                 {
                                     var bestSchedule = validSchedules.OrderByDescending( s => s.Selected ).FirstOrDefault();
                                     bestSchedule.Selected = true;
