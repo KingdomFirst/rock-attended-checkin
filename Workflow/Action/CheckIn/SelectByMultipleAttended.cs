@@ -35,10 +35,10 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
     [Description( "Select multiple services this person last checked into" )]
     [Export( typeof( ActionComponent ) )]
     [ExportMetadata( "ComponentName", "Select By Multiple Services Attended" )]
-    [BooleanField( "Room Balance By Group", "Select the group with the least number of current people. Best for groups having a 1:1 ratio with locations.", false )]
-    [BooleanField( "Room Balance By Location", "Select the location with the least number of current people. Best for groups having 1 to many ratio with locations.", false )]
-    [IntegerField( "Previous Months Attendance", "Select the number of previous months to look for attendance history.  The default value is 3 months.", false, 3 )]
-    [IntegerField( "Max Assignments", "Select the maximum number of auto-assignments based on previous attendance.  The default value is 5.", false, 5 )]
+    [BooleanField( "Room Balance", "Auto-assign the location with the least number of current people. This only applies when a person fits into multiple groups or locations.", false, "", 0 )]
+    [IntegerField( "Balancing Override", "Enter the maximum difference between two locations before room balancing overrides previous attendance.  The default value is 10.", false, 10, "", 1 )]
+    [IntegerField( "Previous Months Attendance", "Enter the number of previous months to look for attendance history.  The default value is 3 months.", false, 3, "", 2 )]
+    [IntegerField( "Max Assignments", "Enter the maximum number of auto-assignments based on previous attendance.  The default value is 5.", false, 5, "", 3 )]
     public class SelectByMultipleAttended : CheckInActionComponent
     {
         /// <summary>
@@ -59,8 +59,8 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
             }
 
             int peopleWithoutAssignments = 0;
-            bool roomBalanceByGroup = GetAttributeValue( action, "RoomBalanceByGroup" ).AsBoolean();
-            bool roomBalanceByLocation = GetAttributeValue( action, "RoomBalanceByLocation" ).AsBoolean();
+            bool roomBalance = GetAttributeValue( action, "RoomBalance" ).AsBoolean();
+            int balanceOverride = GetAttributeValue( action, "DifferentialOverride" ).AsIntegerOrNull() ?? 10;
             int previousMonthsNumber = GetAttributeValue( action, "PreviousMonthsAttendance" ).AsIntegerOrNull() ?? 3;
             int maxAssignments = GetAttributeValue( action, "MaxAssignments" ).AsIntegerOrNull() ?? 5;
 
@@ -93,8 +93,8 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                         var lastAttended = lastDateAttendances.Max( a => a.StartDateTime ).Date;
                         foreach ( var groupAttendance in lastDateAttendances.Where( a => a.StartDateTime >= lastAttended ) )
                         {
-                            // Start with unfiltered groups for kids with abnormal age and grade parameters (1%)
-                            var groupType = previousAttender.GroupTypes.FirstOrDefault( t => t.GroupType.Id == groupAttendance.Group.GroupTypeId && ( !t.ExcludedByFilter || isSpecialNeeds ) );
+                            // Start with filtered groups unless they have abnormal age and grade parameters (1%)
+                            var groupType = previousAttender.GroupTypes.FirstOrDefault( gt => gt.GroupType.Id == groupAttendance.Group.GroupTypeId && ( !gt.ExcludedByFilter || isSpecialNeeds ) );
                             if ( groupType != null )
                             {
                                 CheckInGroup group = null;
@@ -103,17 +103,24 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     // Only a single group is open
                                     group = groupType.Groups.FirstOrDefault( g => !g.ExcludedByFilter || isSpecialNeeds );
                                 }
-                                else if ( roomBalanceByGroup && !isSpecialNeeds )
-                                {
-                                    // Respect filtering when room balancing
-                                    group = groupType.Groups.Where( g => !g.ExcludedByFilter )
-                                        .OrderBy( g => g.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum() )
-                                        .FirstOrDefault();
-                                }
                                 else
                                 {
                                     // Pick the group they last attended
                                     group = groupType.Groups.FirstOrDefault( g => g.Group.Id == groupAttendance.GroupId && ( !g.ExcludedByFilter || isSpecialNeeds ) );
+
+                                    if ( roomBalance && !isSpecialNeeds )
+                                    {
+                                        var currentAttendance = group.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum();
+                                        var lowestAttendedGroup = groupType.Groups.Where( g => !g.ExcludedByFilter )
+                                            .Select( g => new { Group = g, Attendance = g.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum() } )
+                                            .OrderBy( g => g.Attendance )
+                                            .FirstOrDefault();
+
+                                        if ( lowestAttendedGroup != null && lowestAttendedGroup.Attendance < ( currentAttendance - balanceOverride ) )
+                                        {
+                                            group = lowestAttendedGroup.Group;
+                                        }
+                                    }
                                 }
 
                                 if ( group != null )
@@ -124,17 +131,24 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         // Only a single location is open
                                         location = group.Locations.FirstOrDefault( l => !l.ExcludedByFilter || isSpecialNeeds );
                                     }
-                                    else if ( roomBalanceByLocation && !isSpecialNeeds )
-                                    {
-                                        // Respect filtering when room balancing
-                                        location = group.Locations.Where( l => !l.ExcludedByFilter && l.Schedules.Any( s => !s.ExcludedByFilter && s.Schedule.IsCheckInActive ) )
-                                            .OrderBy( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount )
-                                            .FirstOrDefault();
-                                    }
                                     else
                                     {
                                         // Pick the location they last attended
                                         location = group.Locations.FirstOrDefault( l => l.Location.Id == groupAttendance.LocationId && ( !l.ExcludedByFilter || isSpecialNeeds ) );
+
+                                        if ( roomBalance && !isSpecialNeeds )
+                                        {
+                                            var currentAttendance = KioskLocationAttendance.Read( location.Location.Id ).CurrentCount;
+                                            var lowestLocation = group.Locations.Where( l => !l.ExcludedByFilter )
+                                                .Select( l => new { Location = l, Attendance = KioskLocationAttendance.Read( location.Location.Id ).CurrentCount } )
+                                                .OrderBy( l => l.Attendance )
+                                                .FirstOrDefault();
+
+                                            if ( lowestLocation != null && lowestLocation.Attendance < ( currentAttendance - balanceOverride ) )
+                                            {
+                                                location = lowestLocation.Location;
+                                            }
+                                        }
                                     }
 
                                     if ( location != null )
