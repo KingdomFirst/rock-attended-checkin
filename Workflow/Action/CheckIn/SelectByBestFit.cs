@@ -219,15 +219,18 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     bestGroup = closestNeedsGroup ?? closestGradeGroup ?? closestAgeGroup ?? validGroups.FirstOrDefault( g => !g.ExcludedByFilter );
 
                                     // room balance if needed
-                                    var currentGroupAttendance = bestGroup.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum();
-                                    var lowestGroup = validGroups.Where( g => !g.ExcludedByFilter )
-                                        .Select( g => new { Group = g, Attendance = g.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum() } )
-                                        .OrderBy( g => g.Attendance )
-                                        .FirstOrDefault();
-
-                                    if ( lowestGroup != null && lowestGroup.Attendance < currentGroupAttendance )
+                                    if ( bestGroup != null )
                                     {
-                                        bestGroup = lowestGroup.Group;
+                                        var currentGroupAttendance = bestGroup.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum();
+                                        var lowestGroup = validGroups.Where( g => !g.ExcludedByFilter )
+                                            .Select( g => new { Group = g, Attendance = g.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum() } )
+                                            .OrderBy( g => g.Attendance )
+                                            .FirstOrDefault();
+
+                                        if ( lowestGroup != null && lowestGroup.Attendance < currentGroupAttendance )
+                                        {
+                                            bestGroup = lowestGroup.Group;
+                                        }
                                     }
                                 }
 
@@ -250,6 +253,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     bestLocation = validLocations.Where( l => l.Schedules.Any( s => !s.ExcludedByFilter && s.Schedule.IsCheckInActive ) )
                                         .OrderBy( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount )
                                         .FirstOrDefault();
+
                                     validSchedules = bestLocation.Schedules.Where( s => !s.ExcludedByFilter || s.Selected );
                                 }
 

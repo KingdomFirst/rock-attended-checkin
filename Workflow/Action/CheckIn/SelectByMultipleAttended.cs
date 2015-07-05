@@ -108,7 +108,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     // Pick the group they last attended
                                     group = groupType.Groups.FirstOrDefault( g => g.Group.Id == groupAttendance.GroupId && ( !g.ExcludedByFilter || isSpecialNeeds ) );
 
-                                    if ( roomBalance && !isSpecialNeeds )
+                                    if ( group != null && roomBalance && !isSpecialNeeds )
                                     {
                                         var currentAttendance = group.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum();
                                         var lowestAttendedGroup = groupType.Groups.Where( g => !g.ExcludedByFilter )
@@ -136,17 +136,17 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         // Pick the location they last attended
                                         location = group.Locations.FirstOrDefault( l => l.Location.Id == groupAttendance.LocationId && ( !l.ExcludedByFilter || isSpecialNeeds ) );
 
-                                        if ( roomBalance && !isSpecialNeeds )
+                                        if ( location != null && roomBalance && !isSpecialNeeds )
                                         {
                                             var currentAttendance = KioskLocationAttendance.Read( location.Location.Id ).CurrentCount;
-                                            var lowestLocation = group.Locations.Where( l => !l.ExcludedByFilter )
+                                            var lowestAttendedLocation = group.Locations.Where( l => !l.ExcludedByFilter )
                                                 .Select( l => new { Location = l, Attendance = KioskLocationAttendance.Read( location.Location.Id ).CurrentCount } )
                                                 .OrderBy( l => l.Attendance )
                                                 .FirstOrDefault();
 
-                                            if ( lowestLocation != null && lowestLocation.Attendance < ( currentAttendance - balanceOverride ) )
+                                            if ( lowestAttendedLocation != null && lowestAttendedLocation.Attendance < ( currentAttendance - balanceOverride ) )
                                             {
-                                                location = lowestLocation.Location;
+                                                location = lowestAttendedLocation.Location;
                                             }
                                         }
                                     }
