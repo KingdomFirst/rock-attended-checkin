@@ -722,7 +722,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
             if ( selectedFamily != null )
             {
-            	selectedFamily.Selected = true;
+                selectedFamily.Selected = true;
             }
             else
             {
@@ -975,7 +975,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             var newPeopleList = new List<Person>();
             var rockContext = new RockContext();
-            bool contextChanged = false;
             var personService = new PersonService( rockContext );
 
             var defaultStatusGuid = GetAttributeValue( "DefaultConnectionStatus" ).AsGuid();
@@ -1040,16 +1039,12 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                     person.SetAttributeValue( "IsSpecialNeeds", personData.IsSpecialNeeds.ToTrueFalse() );
                     person.SaveAttributeValues( rockContext );
-                    contextChanged = true;
                 }
 
                 newPeopleList.Add( person );
             }
 
-            if ( contextChanged )
-            {
-            	rockContext.SaveChanges();
-            }
+            rockContext.SaveChanges();
 
             return newPeopleList;
         }
@@ -1072,6 +1067,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 familyGroup.GroupTypeId = familyGroupType.Id;
                 familyGroup.IsSecurityRole = false;
                 familyGroup.IsSystem = false;
+                familyGroup.IsPublic = true;
                 familyGroup.IsActive = true;
 
                 // Get oldest person's last name
@@ -1089,6 +1085,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             {
                 var groupMember = new GroupMember();
                 groupMember.IsSystem = false;
+                groupMember.IsNotified = false;
                 groupMember.GroupId = familyGroup.Id;
                 groupMember.PersonId = person.Id;
 
