@@ -83,7 +83,6 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             RockMigrationHelper.AddBlockAttributeValue( "182C9AA0-E76F-4AAF-9F61-5418EE5A0CDB", "BF8AAB12-57A2-4F50-992C-428C5DDCB89B", @"AF83D0B2-2995-4E46-B0DF-1A4763637A68" ); // Next Page
             RockMigrationHelper.AddBlockAttributeValue( "182C9AA0-E76F-4AAF-9F61-5418EE5A0CDB", "C4E992EA-62AE-4211-BE5A-9EEF5131235C", @"6E8CD562-A1DA-4E13-A45C-853DB56E0014" ); // Workflow Type
             RockMigrationHelper.AddBlockAttributeValue( "182C9AA0-E76F-4AAF-9F61-5418EE5A0CDB", "EBE397EF-07FF-4B97-BFF3-152D139F9B80", @"8F618315-F554-4751-AB7F-00CC5658120A" ); // Home Page
-            RockMigrationHelper.AddBlockAttributeValue( "182C9AA0-E76F-4AAF-9F61-5418EE5A0CDB", "C7D8DFB3-C327-4CEC-B3C0-6F87DFC53719", @"Family Search" ); // Workflow Activity
 
             // Page: Family Select
             RockMigrationHelper.AddPage( "32A132A6-63A2-4840-B4A5-23D80994CCBD", "3BD6CFC1-0BF2-43C8-AD38-44E711D6ACE0", "Family Select", "Family select for Attended Check-in", "AF83D0B2-2995-4E46-B0DF-1A4763637A68", "" ); // Site:Rock Attended Check-in
@@ -99,7 +98,6 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             RockMigrationHelper.AddBlockAttributeValue( "82929409-8551-413C-972A-98EDBC23F420", "81A02B6F-F760-4110-839C-4507CF285A7E", @"BE996C9B-3DFE-407F-BD53-D6F58D85A035" ); // Next Page
             RockMigrationHelper.AddBlockAttributeValue( "82929409-8551-413C-972A-98EDBC23F420", "338CAD91-3272-465B-B768-0AC2F07A0B40", @"6E8CD562-A1DA-4E13-A45C-853DB56E0014" ); // Workflow Type
             RockMigrationHelper.AddBlockAttributeValue( "82929409-8551-413C-972A-98EDBC23F420", "2DF1D39B-DFC7-4FB2-B638-3D99C3C4F4DF", @"8F618315-F554-4751-AB7F-00CC5658120A" ); // Home Page
-            RockMigrationHelper.AddBlockAttributeValue( "82929409-8551-413C-972A-98EDBC23F420", "937AD363-7D21-4A2E-B788-1404FF59C6BD", @"Activity Search" ); // Workflow Activity
             RockMigrationHelper.AddBlockAttributeValue( "BDD502FF-40D2-42E6-845E-95C49C3505B3", "2254B67B-9CB1-47DE-A63D-D0B56051ECD4", @"~/attendedcheckin/search" ); // New Location
             RockMigrationHelper.AddBlockAttributeValue( "BDD502FF-40D2-42E6-845E-95C49C3505B3", "1CAC7B16-041A-4F40-8AEE-A39DFA076C14", @"300" ); // Idle Seconds
 
@@ -166,12 +164,6 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             // Attended Check-in:Activity Search:Filter Groups By Special Needs:RemoveSN - false
             RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "F940F6E5-6784-4925-8DF6-E59A911FDCBE", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Remove (or exclude) Special Needs Groups", "RemoveSpecialNeedsGroups", "If set to true, special-needs groups will be removed if the person is NOT special needs. This basically prevents non-special-needs kids from getting put into special needs classes. Default true.", 0, @"True", "9F72C20F-B927-4777-93A1-1EFEB8453960" );
 
-            // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.FilterGroupsByGender:Active
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "DC7DB1FD-8CC8-4AC4-B0A5-B5F85FF03540", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Active", "Active", "Should Service be used?", 0, @"False", "1EFECBBD-0F94-4BFF-BE4D-C5B90082746D" );
-            // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.FilterGroupsByGender:Remove
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "DC7DB1FD-8CC8-4AC4-B0A5-B5F85FF03540", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Remove", "Remove", "Select 'Yes' if groups should be be removed.  Select 'No' if they should just be marked as excluded.", 0, @"False", "C908BE27-C2C9-4880-A755-D9983EEFE7E8" );
-            // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.FilterGroupsByGender:Order
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "DC7DB1FD-8CC8-4AC4-B0A5-B5F85FF03540", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "Order", "Order", "The order that this service should be used (priority)", 0, @"", "AA84866B-F294-4209-890A-0901DE7C1B15" );
             // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByBestFit:Active
             RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "B1A855F8-7ED6-49AE-8EEA-D1DCB6C7E944", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Active", "Active", "Should Service be used?", 0, @"False", "83F299E7-F2C9-4F0A-BA51-23D6CD0F9433" );
             // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByBestFit:Order

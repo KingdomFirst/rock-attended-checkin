@@ -36,7 +36,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
     [Description( "Selects the grouptype, group, location and schedule for each person based on their best fit." )]
     [Export( typeof( ActionComponent ) )]
     [ExportMetadata( "ComponentName", "Select By Best Fit" )]
-    [BooleanField( "Prioritize Group Membership", "Auto-assign the group and location where the person is a group member. The default value is false.", false, "", 0 )]
+    [BooleanField( "Prioritize Group Membership", "Auto-assign the group and location where the person is a group member. The default value is no.", false, "", 0 )]
     [BooleanField( "Room Balance", "Auto-assign the location with the least number of current people. This only applies when a person fits into multiple groups or locations.", false, "", 1 )]
     [IntegerField( "Balancing Override", "Enter the maximum difference between two locations before room balancing overrides previous attendance.  The default value is 10.", false, 10, "", 2 )]
     public class SelectByBestFit : CheckInActionComponent
