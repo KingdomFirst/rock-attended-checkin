@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data.Entity;
 using System.Linq;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -539,9 +540,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                         if ( !newPersonType.Value.Equals( "Visitor" ) )
                         {
-                            // New family member, add them to the current family
+                            // New family member, add them to the current family if they don't exist
                             var groupMemberService = new GroupMemberService( rockContext );
-                            if ( !groupMemberService.GetByGroupIdAndPersonId( selectedFamily.Group.Id, personId ).Any() )
+                            if ( !selectedFamily.Group.Members.Any( gm => gm.PersonId == personId ) )
                             {
                                 var familyMember = new GroupMember();
                                 familyMember.GroupId = selectedFamily.Group.Id;
@@ -855,7 +856,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             var rockContext = new RockContext();
             var personService = new PersonService( rockContext );
-            var people = personService.Queryable();
+            var peopleQry = personService.Queryable().AsNoTracking();
 
             var abilityLevelValues = DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_ABILITY_LEVEL_TYPE ), rockContext ).DefinedValues;
 
@@ -863,21 +864,21 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var lastNameIsEmpty = string.IsNullOrEmpty( tbPersonLastName.Text );
             if ( !firstNameIsEmpty && !lastNameIsEmpty )
             {
-                people = personService.GetByFullName( string.Format( "{0} {1}", tbPersonFirstName.Text, tbPersonLastName.Text ), false );
+                peopleQry = personService.GetByFullName( string.Format( "{0} {1}", tbPersonFirstName.Text, tbPersonLastName.Text ), false );
             }
             else if ( !lastNameIsEmpty )
             {
-                people = people.Where( p => p.LastName.Equals( tbPersonLastName.Text ) );
+                peopleQry = peopleQry.Where( p => p.LastName.Equals( tbPersonLastName.Text ) );
             }
             else if ( !firstNameIsEmpty )
             {
-                people = people.Where( p => p.FirstName.Equals( tbPersonFirstName.Text ) );
+                peopleQry = peopleQry.Where( p => p.FirstName.Equals( tbPersonFirstName.Text ) );
             }
 
             if ( ddlPersonSuffix.SelectedValueAsInt().HasValue )
             {
                 var suffixValueId = ddlPersonSuffix.SelectedValueAsId();
-                people = people.Where( p => p.SuffixValueId == suffixValueId );
+                peopleQry = peopleQry.Where( p => p.SuffixValueId == suffixValueId );
             }
 
             if ( !string.IsNullOrEmpty( dpPersonDOB.Text ) )
@@ -885,7 +886,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 DateTime searchDate;
                 if ( DateTime.TryParse( dpPersonDOB.Text, out searchDate ) )
                 {
-                    people = people.Where( p => p.BirthYear == searchDate.Year
+                    peopleQry = peopleQry.Where( p => p.BirthYear == searchDate.Year
                         && p.BirthMonth == searchDate.Month && p.BirthDay == searchDate.Day );
                 }
             }
@@ -893,14 +894,14 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             if ( ddlPersonGender.SelectedValueAsEnum<Gender>() != 0 )
             {
                 var gender = ddlPersonGender.SelectedValueAsEnum<Gender>();
-                people = people.Where( p => p.Gender == gender );
+                peopleQry = peopleQry.Where( p => p.Gender == gender );
             }
 
             // Get the list of people with attributes so we can filter by grade and ability level
-            var resultSet = people.ToList();
+            var resultSet = peopleQry.ToList();
             resultSet.ForEach( p => p.LoadAttributes() );
 
-            var peopleQueryable = resultSet.AsQueryable();
+            var resultQry = resultSet.AsQueryable();
 
             // Set a filter if an ability/grade was selected
             var optionGroup = ddlPersonAbilityGrade.SelectedItem.Attributes["optiongroup"];
@@ -908,24 +909,24 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             {
                 if ( optionGroup.Equals( "Ability" ) )
                 {
-                    peopleQueryable = peopleQueryable.Where( p => p.AttributeValues.ContainsKey( "AbilityLevel" )
+                    resultQry = resultQry.Where( p => p.AttributeValues.ContainsKey( "AbilityLevel" )
                         && p.AttributeValues["AbilityLevel"].Value == ddlPersonAbilityGrade.SelectedValue );
                 }
                 else if ( optionGroup.Equals( "Grade" ) )
                 {
                     var grade = ddlPersonAbilityGrade.SelectedValueAsId();
-                    peopleQueryable = peopleQueryable.Where( p => p.GradeOffset == (int?)grade );
+                    resultQry = resultQry.Where( p => p.GradeOffset == (int?)grade );
                 }
             }
 
             if ( cbPersonSpecialNeeds.Checked )
             {
-                peopleQueryable = peopleQueryable.Where( p => p.AttributeValues.ContainsKey( "IsSpecialNeeds" )
+                resultQry = resultQry.Where( p => p.AttributeValues.ContainsKey( "IsSpecialNeeds" )
                     && p.AttributeValues["IsSpecialNeeds"].Value == "True" ).AsQueryable();
             }
 
             // Load person grid
-            rGridPersonResults.DataSource = peopleQueryable.Select( p => new
+            rGridPersonResults.DataSource = resultQry.Select( p => new
                 {
                     p.Id,
                     p.FirstName,

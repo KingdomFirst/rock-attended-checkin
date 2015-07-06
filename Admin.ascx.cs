@@ -125,7 +125,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var device = new DeviceService( rockContext ).GetByIPAddress( ipAddress, checkInDeviceTypeId, skipDeviceNameLookup );
 
             var checkInDeviceTypeGuid = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.DEVICE_TYPE_CHECKIN_KIOSK ).Guid;
-            var deviceList = new DeviceService( rockContext ).GetByDeviceTypeGuid( checkInDeviceTypeGuid ).ToList();
+            var deviceList = new DeviceService( rockContext ).GetByDeviceTypeGuid( checkInDeviceTypeGuid ).AsNoTracking().ToList();
 
             string hostName = string.Empty;
             try
