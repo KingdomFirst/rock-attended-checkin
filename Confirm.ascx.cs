@@ -47,8 +47,51 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [BinaryFileField( "DE0E5C50-234B-474C-940C-C571F385E65F", "Designated Single Label", "Select a label to print once per print job.  Unselect the label to print it with every print job.", false )]
     public partial class Confirm : CheckInBlock
     {
-        private bool RemoveLabelFromClientQueue = false;
-        private bool RemoveLabelFromServerQueue = false;
+        #region Fields
+
+        private bool RemoveLabelFromClientQueue 
+        {
+            get
+            {
+                var labelAlreadyPrinted = ViewState["RemoveLabelFromClientQueue"].ToStringSafe();
+                if ( !string.IsNullOrWhiteSpace( labelAlreadyPrinted ) )
+                {
+                    return labelAlreadyPrinted.AsBoolean();
+                }
+
+                return false;
+            }
+            set
+            {
+                ViewState["RemoveLabelFromClientQueue"] = value;
+            }
+        }
+
+
+
+        /// <summary>
+        /// Gets or sets a value indicating whether [remove label from server queue].
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if [remove label from server queue]; otherwise, <c>false</c>.
+        /// </value>
+        private bool RemoveLabelFromServerQueue
+        {
+            get
+            {
+                var labelAlreadyPrinted = ViewState["RemoveLabelFromServerQueue"].ToStringSafe();
+                if ( !string.IsNullOrWhiteSpace( labelAlreadyPrinted ) )
+                {
+                    return labelAlreadyPrinted.AsBoolean();
+                }
+
+                return false;
+            }
+            set
+            {
+                ViewState["RemoveLabelFromServerQueue"] = value;
+            }
+        }
 
         private bool RunSaveAttendance
         {
@@ -67,6 +110,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 ViewState["RunSaveAttendance"] = value;
             }
         }
+
+        #endregion
 
         #region Control Methods
 
