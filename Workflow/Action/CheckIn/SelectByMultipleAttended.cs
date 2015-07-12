@@ -203,7 +203,13 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
 
             // true condition will continue to the next auto-assignment
             // false condition will stop processing auto-assignments
-            return peopleWithoutAssignments > 0;
+            if ( action.Activity.AttributeValues.Any() && action.Activity.AttributeValues.ContainsKey( "ContinueAssignments" ) )
+            {
+                var continueAssignments = peopleWithoutAssignments > 0;
+                action.Activity.AttributeValues["ContinueAssignments"].Value = continueAssignments.ToString();
+            }
+
+            return true;
         }
     }
 }
