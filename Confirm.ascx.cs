@@ -56,11 +56,11 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <value>
         /// <c>true</c> if [remove label from client queue]; otherwise, <c>false</c>.
         /// </value>
-        private bool RemoveLabelFromClientQueue
+        private bool RemoveFromClientQueue
         {
             get
             {
-                var labelAlreadyPrinted = ViewState["RemoveLabelFromClientQueue"].ToStringSafe();
+                var labelAlreadyPrinted = ViewState["RemoveFromClientQueue"].ToStringSafe();
                 if ( !string.IsNullOrWhiteSpace( labelAlreadyPrinted ) )
                 {
                     return labelAlreadyPrinted.AsBoolean();
@@ -70,7 +70,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
             set
             {
-                ViewState["RemoveLabelFromClientQueue"] = value;
+                ViewState["RemoveFromClientQueue"] = value;
             }
         }
 
@@ -80,11 +80,11 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <value>
         /// <c>true</c> if [remove label from server queue]; otherwise, <c>false</c>.
         /// </value>
-        private bool RemoveLabelFromServerQueue
+        private bool RemoveFromServerQueue
         {
             get
             {
-                var labelAlreadyPrinted = ViewState["RemoveLabelFromServerQueue"].ToStringSafe();
+                var labelAlreadyPrinted = ViewState["RemoveFromServerQueue"].ToStringSafe();
                 if ( !string.IsNullOrWhiteSpace( labelAlreadyPrinted ) )
                 {
                     return labelAlreadyPrinted.AsBoolean();
@@ -94,7 +94,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
             set
             {
-                ViewState["RemoveLabelFromServerQueue"] = value;
+                ViewState["RemoveFromServerQueue"] = value;
             }
         }
 
@@ -418,16 +418,15 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 RunSaveAttendance = false;
             }
 
-            var rockContext = new RockContext();
             var printQueue = new Dictionary<string, StringBuilder>();
-            var globalAttributes = GlobalAttributesCache.Read( rockContext );
-            var globalMergeValues = GlobalAttributesCache.GetMergeFields( null );
-
             bool printAll = !GetAttributeValue( "PrintIndividualLabels" ).AsBoolean();
             var designatedLabelGuid = GetAttributeValue( "DesignatedSingleLabel" ).AsGuidOrNull();
 
             foreach ( var selectedFamily in CurrentCheckInState.CheckIn.Families.Where( p => p.Selected ) )
             {
+                List<CheckInLabel> clientLabels = new List<CheckInLabel>();
+                List<CheckInLabel> serverLabels = new List<CheckInLabel>();
+
                 List<CheckInPerson> selectedPeople = selectedFamily.People.Where( p => p.Selected ).ToList();
                 List<CheckInGroupType> selectedGroupTypes = selectedPeople.SelectMany( gt => gt.GroupTypes ).Where( gt => gt.Selected ).ToList();
                 List<CheckInGroup> selectedGroups = null;
@@ -485,104 +484,84 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         }
                     }
 
-                    // NOTE: when printing individual labels, this populates the merge
+                    // When printing individual labels, this populates the merge
                     // codes for a single person at a time (hence the print queue)
                     var labelErrors = new List<string>();
                     if ( ProcessActivity( "Create Labels", out labelErrors ) )
                     {
                         SaveState();
                     }
-                    else
-                    {
-                        string errorMsg = "<ul><li>" + labelErrors.AsDelimited( "</li><li>" ) + "</li></ul>";
-                        maWarning.Show( errorMsg, Rock.Web.UI.Controls.ModalAlertType.Warning );
-                        return;
-                    }
 
-                    foreach ( var groupType in selectedGroupTypes )
-                    {
-                        // create the labels
-                        var printFromClient = groupType.Labels.Where( l => l.PrintFrom == Rock.Model.PrintFrom.Client );
+                    // Add all labels and exclude one-time label from future queues
+                    clientLabels.AddRange( selectedGroupTypes.SelectMany( gt => gt.Labels )
+                        .Where( l => ( !RemoveFromClientQueue || l.FileGuid != designatedLabelGuid ) && l.PrintFrom == Rock.Model.PrintFrom.Client ) );
+                    RemoveFromClientQueue = RemoveFromClientQueue || clientLabels.Any( l => l.FileGuid == designatedLabelGuid );
 
-                        if ( RemoveLabelFromClientQueue )
-                        {
-                            printFromClient = printFromClient.Where( l => l.FileGuid != designatedLabelGuid );
-                        }
-
-                        if ( printFromClient.Any() )
-                        {
-                            var urlRoot = string.Format( "{0}://{1}", Request.Url.Scheme, Request.Url.Authority );
-                            printFromClient.ToList().ForEach( l => l.LabelFile = urlRoot + l.LabelFile );
-                            AddLabelScript( printFromClient.ToJson() );
-
-                            // Remove from future client queues
-                            RemoveLabelFromClientQueue = RemoveLabelFromClientQueue || printFromClient.Any( l => l.FileGuid == designatedLabelGuid );
-                        }
-
-                        var printFromServer = groupType.Labels.Where( l => l.PrintFrom == Rock.Model.PrintFrom.Server );
-                        if ( RemoveLabelFromServerQueue )
-                        {
-                            printFromServer = printFromServer.Where( l => l.FileGuid != designatedLabelGuid );
-                        }
-
-                        if ( printFromServer.Any() )
-                        {
-                            var labelContent = new StringBuilder();
-
-                            foreach ( var label in printFromServer.Where( p => !string.IsNullOrEmpty( p.PrinterAddress ) ).OrderBy( l => l.PrinterAddress ) )
-                            {
-                                var labelCache = KioskLabel.Read( label.FileGuid );
-                                if ( labelCache != null )
-                                {
-                                    bool useExistingQueue = printQueue.ContainsKey( label.PrinterAddress );
-
-                                    if ( useExistingQueue )
-                                    {
-                                        printQueue.TryGetValue( label.PrinterAddress, out labelContent );
-                                    }
-
-                                    var printContent = labelCache.FileContent;
-
-                                    foreach ( var mergeField in label.MergeFields )
-                                    {
-                                        printContent = Regex.Replace( printContent, string.Format( @"(?<=\^FD){0}(?=\^FS)", mergeField.Key ), mergeField.Value );
-
-                                        //if ( !string.IsNullOrWhiteSpace( mergeField.Value ) )
-                                        //{
-                                        //    printContent = Regex.Replace( printContent, string.Format( @"(?<=\^FD){0}(?=\^FS)", mergeField.Key ), ZebraFormatString( mergeField.Value ) );
-                                        //}
-                                        //else
-                                        //{
-                                        //    // Remove the box preceding merge field
-                                        //    printContent = Regex.Replace( printContent, string.Format( @"\^FO.*\^FS\s*(?=\^FT.*\^FD{0}\^FS)", mergeField.Key ), string.Empty );
-                                        //    // Remove the merge field
-                                        //    printContent = Regex.Replace( printContent, string.Format( @"\^FD{0}\^FS", mergeField.Key ), "^FD^FS" );
-                                        //}
-                                    }
-
-                                    labelContent.Append( printContent );
-                                    RemoveLabelFromServerQueue = RemoveLabelFromServerQueue || label.FileGuid == designatedLabelGuid;
-
-                                    if ( useExistingQueue )
-                                    {
-                                        printQueue[label.PrinterAddress] = labelContent;
-                                    }
-                                    else
-                                    {
-                                        printQueue.Add( label.PrinterAddress, labelContent );                                            
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    serverLabels.AddRange( selectedGroupTypes.SelectMany( gt => gt.Labels )
+                        .Where( l => ( !RemoveFromServerQueue || l.FileGuid != designatedLabelGuid ) && l.PrintFrom == Rock.Model.PrintFrom.Server ) );
+                    RemoveFromServerQueue = RemoveFromServerQueue || serverLabels.Any( l => l.FileGuid == designatedLabelGuid );
 
                     if ( printAll )
                     {
-                        // only loop through datakeys once if printing the entire family
+                        // only iterate datakeys once if printing the entire family
                         break;
                     }
+				}
+                // end of data keys
 
-				} // end data keys
+                if ( clientLabels.Any() )
+                {
+                    var urlRoot = string.Format( "{0}://{1}", Request.Url.Scheme, Request.Url.Authority );
+                    clientLabels.ForEach( l => l.LabelFile = urlRoot + l.LabelFile );
+                    AddLabelScript( clientLabels.ToJson() );
+                }
+
+                if ( serverLabels.Any() )
+                {
+                    var labelContent = new StringBuilder();
+
+                    foreach ( var label in serverLabels.Where( p => !string.IsNullOrEmpty( p.PrinterAddress ) ).OrderBy( l => l.PrinterAddress ) )
+                    {
+                        var labelCache = KioskLabel.Read( label.FileGuid );
+                        if ( labelCache != null )
+                        {
+                            bool useExistingQueue = printQueue.ContainsKey( label.PrinterAddress );
+
+                            if ( useExistingQueue )
+                            {
+                                printQueue.TryGetValue( label.PrinterAddress, out labelContent );
+                            }
+
+                            var printContent = labelCache.FileContent;
+
+                            foreach ( var mergeField in label.MergeFields )
+                            {   
+                                if ( !string.IsNullOrWhiteSpace( mergeField.Value ) )
+                                {
+                                    printContent = Regex.Replace( printContent, string.Format( @"(?<=\^FD){0}(?=\^FS)", mergeField.Key ), ZebraFormatString( mergeField.Value ) );
+                                }
+                                else
+                                {
+                                    // Remove the box preceding merge field
+                                    printContent = Regex.Replace( printContent, string.Format( @"\^FO.*\^FS\s*(?=\^FT.*\^FD{0}\^FS)", mergeField.Key ), string.Empty );
+                                    // Remove the merge field
+                                    printContent = Regex.Replace( printContent, string.Format( @"\^FD{0}\^FS", mergeField.Key ), "^FD^FS" );
+                                }
+                            }
+
+                            labelContent.Append( printContent );
+
+                            if ( useExistingQueue )
+                            {
+                                printQueue[label.PrinterAddress] = labelContent;
+                            }
+                            else
+                            {
+                                printQueue.Add( label.PrinterAddress, labelContent );
+                            }
+                        }
+                    }
+                }
 
                 if ( printQueue.Any() )
                 {
