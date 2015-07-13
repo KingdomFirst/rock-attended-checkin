@@ -518,18 +518,20 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                 if ( serverLabels.Any() )
                 {
+                    var printerIp = string.Empty;
                     var labelContent = new StringBuilder();
 
+                    // sort by printer ip so we can consolidate each printer's labels in one job
                     foreach ( var label in serverLabels.Where( p => !string.IsNullOrEmpty( p.PrinterAddress ) ).OrderBy( l => l.PrinterAddress ) )
                     {
                         var labelCache = KioskLabel.Read( label.FileGuid );
                         if ( labelCache != null )
                         {
-                            bool useExistingQueue = printQueue.ContainsKey( label.PrinterAddress );
-
-                            if ( useExistingQueue )
+                            if ( printerIp != label.PrinterAddress )
                             {
-                                printQueue.TryGetValue( label.PrinterAddress, out labelContent );
+                                printQueue.Add( label.PrinterAddress, labelContent );
+                                printerIp = label.PrinterAddress;
+                                labelContent = new StringBuilder();
                             }
 
                             var printContent = labelCache.FileContent;
@@ -542,25 +544,16 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                 }
                                 else
                                 {
-                                    // Remove the box preceding merge field
                                     printContent = Regex.Replace( printContent, string.Format( @"\^FO.*\^FS\s*(?=\^FT.*\^FD{0}\^FS)", mergeField.Key ), string.Empty );
-                                    // Remove the merge field
                                     printContent = Regex.Replace( printContent, string.Format( @"\^FD{0}\^FS", mergeField.Key ), "^FD^FS" );
                                 }
                             }
 
                             labelContent.Append( printContent );
-
-                            if ( useExistingQueue )
-                            {
-                                printQueue[label.PrinterAddress] = labelContent;
-                            }
-                            else
-                            {
-                                printQueue.Add( label.PrinterAddress, labelContent );
-                            }
                         }
                     }
+
+                    printQueue.AddOrReplace( printerIp, labelContent );
                 }
 
                 if ( printQueue.Any() )
