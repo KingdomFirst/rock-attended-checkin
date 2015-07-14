@@ -70,7 +70,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
             var family = checkInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
             if ( family != null )
             {
-                // set the number of people checking in, including visitors or first-timers
+                // get the number of people checking in, including visitors or first-timers
                 peopleWithoutAssignments = family.People.Where( p => p.Selected ).Count();
 
                 foreach ( var previousAttender in family.People.Where( p => p.Selected && !p.FirstTime ) )
