@@ -322,9 +322,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             {
                 var selectedGroups = selectedPerson.GroupTypes.Where( gt => gt.Selected )
                     .SelectMany( gt => gt.Groups.Where( g => g.Selected ) ).ToList();
-                var selectedGroup = selectedGroups.Where( g => g.Selected && g.Group.Id == groupId ).FirstOrDefault();
-                var selectedLocation = selectedGroup.Locations.Where( l => l.Selected && l.Location.Id == locationId ).FirstOrDefault();
-                var selectedSchedule = selectedLocation.Schedules.Where( s => s.Selected && s.Schedule.Id == scheduleId ).FirstOrDefault();
+                var selectedGroup = selectedGroups.FirstOrDefault( g => g.Selected && g.Group.Id == groupId );
+                var selectedLocation = selectedGroup.Locations.FirstOrDefault( l => l.Selected && l.Location.Id == locationId );
+                var selectedSchedule = selectedLocation.Schedules.FirstOrDefault( s => s.Selected && s.Schedule.Id == scheduleId );
 
                 selectedSchedule.Selected = false;
                 selectedSchedule.PreSelected = false;
