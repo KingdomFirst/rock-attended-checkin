@@ -108,17 +108,11 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// </summary>
         private void AttemptKioskMatchByIpOrName()
         {
-            // match kiosk by ip/name.
-            string ipAddress;
-            bool skipDeviceNameLookup;
-
-            // debug mode, use the local IP
-            //ipAddress = Request.ServerVariables["LOCAL_ADDR"];
-            //skipDeviceNameLookup = true;
-
-            // production mode, use the remote IP
-            ipAddress = Request.ServerVariables["REMOTE_ADDR"];
-            skipDeviceNameLookup = false;
+            // match kiosk by ip/name.            
+            string hostIp = Request.ServerVariables["REMOTE_ADDR"];
+            string forwardedIp = Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
+            string ipAddress = forwardedIp ?? hostIp;
+            bool skipDeviceNameLookup = false;
 
             var rockContext = new RockContext();
             var checkInDeviceTypeId = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.DEVICE_TYPE_CHECKIN_KIOSK ).Id;
