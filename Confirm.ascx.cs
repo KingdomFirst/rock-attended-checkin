@@ -489,7 +489,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 if ( printQueue.Any() )
                 {
                     PrintLabels( printQueue );
-                    //printQueue.Clear();
+                    printQueue.Clear();
                 }
 
                 if ( printIndividually )
