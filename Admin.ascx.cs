@@ -131,17 +131,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 hostName = "Unknown";
             }
 
-            var items = Request.ServerVariables.AllKeys.SelectMany( Request.ServerVariables.GetValues, ( k, v ) => new { Key = k, Value = v } );
-
-            foreach ( var asdf in items.Where( k => !k.Key.Contains( "ALL" ) && !k.Key.Contains( "COOKIE" ) ) )
-            {
-                lblInfo.Text += string.Format( "Key: {0} Value: {1}<br>", asdf.Key, asdf.Value );
-            }
-
-            lblInfo.Text += string.Format( "Manual Check: {0} Value: {1}<br>", "HTTP_X_FORWARDED_FOR", Request.ServerVariables["HTTP_X_FORWARDED_FOR"] );
-            lblInfo.Text += string.Format( "Manual Check: {0} Value: {1}<br>", "X-Forwarded-For", Request.Headers["X-Forwarded-For"] );
-
-            //lblInfo.Text = string.Format( "Device IP: {0} {1} Name: {2}", ipAddress, Environment.NewLine, hostName );
+            lblInfo.Text = string.Format( "Device IP: {0}, Name: {1}", ipAddress, hostName );
 
             if ( device != null )
             {
