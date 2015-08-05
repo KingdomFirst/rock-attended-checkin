@@ -131,7 +131,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 hostName = "Unknown";
             }
 
-            lblInfo.Text = string.Format( "Device IP: {0}, Name: {1}", ipAddress, hostName );
+            lblInfo.Text = string.Format( "Device IP: {0}     Name: {1}", ipAddress, hostName );
 
             if ( device != null )
             {
