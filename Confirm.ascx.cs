@@ -57,7 +57,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <c>true</c> if [remove label from server queue]; otherwise, <c>false</c>.
         /// </value>
         private bool RemoveFromQueue = false;
-        
+
         /// <summary>
         /// Gets or sets a value indicating whether [run save attendance].
         /// </summary>
@@ -270,7 +270,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }
             }
 
-            var selectedPerson = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault()
+            var selectedPerson = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected )
                 .People.FirstOrDefault( p => p.Person.Id == personId );
 
             if ( groupId == 0 || locationId == 0 || scheduleId == 0 )
@@ -379,7 +379,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
 
             var printQueue = new Dictionary<string, StringBuilder>();
-            bool printIndividually = !GetAttributeValue( "PrintIndividualLabels" ).AsBoolean();
+            bool printIndividually = GetAttributeValue( "PrintIndividualLabels" ).AsBoolean();
             var designatedLabelGuid = GetAttributeValue( "DesignatedSingleLabel" ).AsGuidOrNull();
 
             foreach ( var selectedFamily in CurrentCheckInState.CheckIn.Families.Where( p => p.Selected ) )
@@ -400,16 +400,16 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     var scheduleId = Convert.ToInt32( dataKey["ScheduleId"] );
 
                     // Make sure only the current item is selected in the merge object
-                    
+
                     if ( printIndividually )
-                    {   
+                    {
                         int groupTypeId = selectedGroupTypes.Where( gt => gt.Groups.Any( g => g.Group.Id == groupId ) )
                             .Select( gt => gt.GroupType.Id ).FirstOrDefault();
                         availableGroups = selectedGroupTypes.SelectMany( gt => gt.Groups ).ToList();
                         availableLocations = availableGroups.SelectMany( l => l.Locations ).ToList();
                         availableSchedules = availableLocations.SelectMany( s => s.Schedules ).ToList();
 
-                        selectedPeople.ForEach( p => p.Selected = (p.Person.Id == personId ) );
+                        selectedPeople.ForEach( p => p.Selected = ( p.Person.Id == personId ) );
                         selectedGroupTypes.ForEach( gt => gt.Selected = ( gt.GroupType.Id == groupTypeId ) );
                         availableGroups.ForEach( g => g.Selected = ( g.Group.Id == groupId ) );
                         availableLocations.ForEach( l => l.Selected = ( l.Location.Id == locationId ) );
@@ -425,16 +425,19 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     }
 
                     // Add all labels and exclude one-time label
-                    labels.AddRange( selectedGroupTypes.SelectMany( gt => gt.Labels )
-                        .Where( l => ( !RemoveFromQueue || l.FileGuid != designatedLabelGuid ) ) );
-                    RemoveFromQueue = RemoveFromQueue || labels.Any( l => l.FileGuid == designatedLabelGuid );
+                    if ( selectedGroupTypes.Any( gt => gt.Labels != null ) )
+                    {
+                        var asdf = selectedGroupTypes.SelectMany( gt => gt.Labels );
+                        labels.AddRange( asdf.Where( l => ( !RemoveFromQueue || l.FileGuid != designatedLabelGuid ) ) );
+                        RemoveFromQueue = RemoveFromQueue || labels.Any( l => l.FileGuid == designatedLabelGuid );
+                    }
 
                     if ( !printIndividually )
                     {
                         // only iterate once if printing the entire family
                         break;
                     }
-				}
+                }
 
                 // Print client labels
                 if ( labels.Any( l => l.PrintFrom == Rock.Model.PrintFrom.Client ) )
@@ -467,7 +470,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                             var printContent = labelCache.FileContent;
 
                             foreach ( var mergeField in label.MergeFields )
-                            {   
+                            {
                                 if ( !string.IsNullOrWhiteSpace( mergeField.Value ) )
                                 {
                                     printContent = Regex.Replace( printContent, string.Format( @"(?<=\^FD){0}(?=\^FS)", mergeField.Key ), ZebraFormatString( mergeField.Value ) );
@@ -523,7 +526,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     if ( socket.Connected )
                     {
                         var ns = new NetworkStream( socket );
-                        labelContent.Append( "~JK" );
                         byte[] toSend = System.Text.Encoding.ASCII.GetBytes( labelContent.ToString() );
                         ns.Write( toSend, 0, toSend.Length );
                     }
@@ -610,7 +612,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 return input.Replace( "é", @"\82" );  // fix acute e
             }
         }
-        
 
         #endregion Internal Methods
 
