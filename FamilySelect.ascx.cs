@@ -713,6 +713,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         private void ProcessFamily( CheckInFamily selectedFamily = null )
         {
             selectedFamily = selectedFamily ?? CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
+            var familyList = CurrentCheckInState.CheckIn.Families
+                .OrderByDescending( f => f.Group.CampusId == KioskCampusId )
+                .ThenBy( f => f.Caption ).ToList();
 
             // Order families by campus then by caption
             if ( CurrentCheckInState.CheckIn.Families.Count > 1 )
@@ -727,12 +730,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
             else
             {
-                CurrentCheckInState.CheckIn.Families.FirstOrDefault().Selected = true;
+                familyList.FirstOrDefault().Selected = true;
             }
 
-            lvFamily.DataSource = CurrentCheckInState.CheckIn.Families
-                .OrderByDescending( f => f.Group.CampusId == KioskCampusId )
-                .ThenBy( f => f.Caption ).ToList();
+            lvFamily.DataSource = familyList;
             lvFamily.DataBind();
             pnlFamily.Update();
         }
