@@ -57,7 +57,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
             {
                 return false;
             }
-            
+
             bool roomBalance = GetAttributeValue( action, "RoomBalance" ).AsBoolean();
             bool useGroupMembership = GetAttributeValue( action, "PrioritizeGroupMembership" ).AsBoolean();
             int balanceOverride = GetAttributeValue( action, "DifferentialOverride" ).AsIntegerOrNull() ?? 10;
@@ -281,6 +281,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                             {
                                                 bestGroupType.Selected = true;
                                                 bestGroupType.PreSelected = true;
+                                                person.PreSelected = true;
                                             }
                                         }
                                     }
@@ -290,7 +291,6 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                     }
                 }
             }
-            
 
             return true;
         }

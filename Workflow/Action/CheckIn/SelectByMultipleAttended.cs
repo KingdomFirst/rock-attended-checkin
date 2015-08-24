@@ -185,6 +185,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                             groupType.LastCheckIn = groupAttendance.StartDateTime;
                                             groupType.Selected = true;
                                             groupType.PreSelected = true;
+                                            previousAttender.PreSelected = true;
                                             previousAttender.LastCheckIn = groupAttendance.StartDateTime;
                                             createdMatchingAssignment = true;
                                         }
