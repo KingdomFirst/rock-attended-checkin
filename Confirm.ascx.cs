@@ -400,7 +400,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     var scheduleId = Convert.ToInt32( dataKey["ScheduleId"] );
 
                     // Make sure only the current item is selected in the merge object
-
                     if ( printIndividually )
                     {
                         int groupTypeId = selectedGroupTypes.Where( gt => gt.Groups.Any( g => g.Group.Id == groupId ) )
@@ -424,18 +423,25 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         SaveState();
                     }
 
-                    // Add all labels and exclude one-time label
-                    if ( selectedGroupTypes.Any( gt => gt.Labels != null ) )
+                    // Add valid grouptype labels, excluding the one-time label (if set)
+                    if ( printIndividually )
                     {
-                        labels.AddRange( selectedGroupTypes.SelectMany( gt => gt.Labels )
-                            .Where( l => ( !RemoveFromQueue || l.FileGuid != designatedLabelGuid ) ) 
+                        var selectedPerson = selectedPeople.FirstOrDefault(p => p.Person.Id == personId );
+                        labels.AddRange( selectedPerson.GroupTypes.Where( gt => gt.Labels != null )
+                            .SelectMany( gt => gt.Labels )
+                            .Where( l => ( !RemoveFromQueue || l.FileGuid != designatedLabelGuid ) )
                         );
+
                         RemoveFromQueue = RemoveFromQueue || labels.Any( l => l.FileGuid == designatedLabelGuid );
                     }
-
-                    if ( !printIndividually )
+                    else
                     {
-                        // only iterate once if printing the entire family
+                        labels.AddRange( selectedGroupTypes.Where( gt => gt.Labels != null )
+                            .SelectMany( gt => gt.Labels )
+                            .Where( l => ( !RemoveFromQueue || l.FileGuid != designatedLabelGuid ) )
+                        );
+
+                        // don't continue processing if printing all info on one label
                         break;
                     }
                 }
