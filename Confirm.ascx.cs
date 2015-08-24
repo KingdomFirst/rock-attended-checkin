@@ -427,8 +427,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     // Add all labels and exclude one-time label
                     if ( selectedGroupTypes.Any( gt => gt.Labels != null ) )
                     {
-                        var asdf = selectedGroupTypes.SelectMany( gt => gt.Labels );
-                        labels.AddRange( asdf.Where( l => ( !RemoveFromQueue || l.FileGuid != designatedLabelGuid ) ) );
+                        labels.AddRange( selectedGroupTypes.SelectMany( gt => gt.Labels )
+                            .Where( l => ( !RemoveFromQueue || l.FileGuid != designatedLabelGuid ) ) 
+                        );
                         RemoveFromQueue = RemoveFromQueue || labels.Any( l => l.FileGuid == designatedLabelGuid );
                     }
 
@@ -620,7 +621,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <summary>
         /// Check-In information class used to bind the selected grid.
         /// </summary>
-        protected class Activity
+        public class Activity
         {
             public int PersonId { get; set; }
 
