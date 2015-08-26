@@ -396,7 +396,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 .Queryable().AsNoTracking()
                 .Where( l => locationIds.Contains( l.Id ) )
                 .SelectMany( l => l.GroupLocations )
-                .Where( gl => gl.Group.GroupType.TakesAttendance && gl.Schedules.Any() )
+                .Where( gl => gl.Group.GroupType.TakesAttendance )
                 .Select( gl => gl.Group.GroupType )
                 .ToList() )
             {

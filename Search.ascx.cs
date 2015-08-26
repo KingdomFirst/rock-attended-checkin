@@ -45,6 +45,21 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         #region Control Methods
 
         /// <summary>
+        /// Raises the <see cref="E:System.Web.UI.Control.Init" /> event.
+        /// </summary>
+        /// <param name="e">An <see cref="T:System.EventArgs" /> object that contains the event data.</param>
+        protected override void OnInit( EventArgs e )
+        {
+            base.OnInit( e );
+
+            if ( CurrentCheckInState == null )
+            {
+                NavigateToLinkedPage( "AdminPage" );
+                return;
+            }
+        }
+
+        /// <summary>
         /// Raises the <see cref="E:System.Web.UI.Control.Load" /> event.
         /// </summary>
         /// <param name="e">The <see cref="T:System.EventArgs" /> object that contains the event data.</param>
@@ -52,39 +67,33 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             base.OnLoad( e );
 
-            if ( !KioskCurrentlyActive )
+            if ( !Page.IsPostBack && CurrentCheckInState != null )
             {
-                NavigateToLinkedPage( "AdminPage" );
-            }
-            else
-            {
-                if ( !Page.IsPostBack )
+                if ( !string.IsNullOrWhiteSpace( CurrentCheckInState.CheckIn.SearchValue ) )
                 {
-                    if ( CurrentCheckInState != null && !string.IsNullOrWhiteSpace( CurrentCheckInState.CheckIn.SearchValue ) )
-                    {
-                        tbSearchBox.Text = CurrentCheckInState.CheckIn.SearchValue;
-                    }
-
-                    string script = string.Format( @"
-                <script>
-                    $(document).ready(function (e) {{
-                        if (localStorage) {{
-                            localStorage.checkInKiosk = '{0}';
-                            localStorage.checkInGroupTypes = '{1}';
-                        }}
-                    }});
-                </script>
-                ", CurrentKioskId, CurrentGroupTypeIds.AsDelimited( "," ) );
-                    phScript.Controls.Add( new LiteralControl( script ) );
-
-                    if ( GetAttributeValue( "ShowKeyPad" ).AsBoolean() )
-                    {
-                        pnlKeyPad.Visible = true;
-                    }
-
-                    tbSearchBox.Focus();
+                    tbSearchBox.Text = CurrentCheckInState.CheckIn.SearchValue;
                 }
+
+                string script = string.Format( @"
+            <script>
+                $(document).ready(function (e) {{
+                    if (localStorage) {{
+                        localStorage.checkInKiosk = '{0}';
+                        localStorage.checkInGroupTypes = '{1}';
+                    }}
+                }});
+            </script>
+            ", CurrentKioskId, CurrentGroupTypeIds.AsDelimited( "," ) );
+                phScript.Controls.Add( new LiteralControl( script ) );
+
+                if ( GetAttributeValue( "ShowKeyPad" ).AsBoolean() )
+                {
+                    pnlKeyPad.Visible = true;
+                }
+
+                tbSearchBox.Focus();
             }
+
         }
 
         #endregion
