@@ -257,7 +257,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             // rebind List View
             lvFamily.DataSource = CurrentCheckInState.CheckIn.Families
                 .OrderByDescending( f => f.Group.CampusId == KioskCampusId )
-                .ThenBy( f => f.Caption ).ToList();
+                .ThenBy( f => f.Caption ).Take(50).ToList();
             lvFamily.DataBind();
             pnlFamily.Update();
         }
@@ -715,7 +715,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             selectedFamily = selectedFamily ?? CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
             var familyList = CurrentCheckInState.CheckIn.Families
                 .OrderByDescending( f => f.Group.CampusId == KioskCampusId )
-                .ThenBy( f => f.Caption ).ToList();
+                .ThenBy( f => f.Caption ).Take(50).ToList();
 
             // Order families by campus then by caption
             if ( CurrentCheckInState.CheckIn.Families.Count > 1 )
