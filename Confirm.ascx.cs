@@ -426,7 +426,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     // Add valid grouptype labels, excluding the one-time label (if set)
                     if ( printIndividually )
                     {
-                        var selectedPerson = selectedPeople.FirstOrDefault(p => p.Person.Id == personId );
+                        var selectedPerson = selectedPeople.FirstOrDefault( p => p.Person.Id == personId );
                         labels.AddRange( selectedPerson.GroupTypes.Where( gt => gt.Labels != null )
                             .SelectMany( gt => gt.Labels )
                             .Where( l => ( !RemoveFromQueue || l.FileGuid != designatedLabelGuid ) )
@@ -458,10 +458,13 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 // Print server labels
                 if ( labels.Any( l => l.PrintFrom == Rock.Model.PrintFrom.Server ) )
                 {
+                    string delayCut = @"^XB^XZ";
+                    string endingTag = @"^XZ$";
                     var printerIp = string.Empty;
                     var labelContent = new StringBuilder();
 
                     // make sure labels have a valid ip
+                    var lastLabel = labels.Last();
                     foreach ( var label in labels.Where( l => l.PrintFrom == PrintFrom.Server && !string.IsNullOrEmpty( l.PrinterAddress ) ) )
                     {
                         var labelCache = KioskLabel.Read( label.FileGuid );
@@ -487,6 +490,12 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                     printContent = Regex.Replace( printContent, string.Format( @"\^FO.*\^FS\s*(?=\^FT.*\^FD{0}\^FS)", mergeField.Key ), string.Empty );
                                     printContent = Regex.Replace( printContent, string.Format( @"\^FD{0}\^FS", mergeField.Key ), "^FD^FS" );
                                 }
+                            }
+
+                            // send a delay cut command to prevent cutting on intermediary labels
+                            if ( label != lastLabel )
+                            {
+                                printContent = Regex.Replace( printContent.Trim(), @"\" + endingTag, delayCut );
                             }
 
                             labelContent.Append( printContent );
