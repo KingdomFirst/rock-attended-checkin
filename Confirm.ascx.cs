@@ -458,8 +458,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 // Print server labels
                 if ( labels.Any( l => l.PrintFrom == Rock.Model.PrintFrom.Server ) )
                 {
-                    string delayCut = @"^XB^XZ";
-                    string endingTag = @"^XZ$";
+                    string delayCut = @"^XB";
+                    string endingTag = @"^XZ";
                     var printerIp = string.Empty;
                     var labelContent = new StringBuilder();
 
@@ -478,7 +478,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                             }
 
                             var printContent = labelCache.FileContent;
-
                             foreach ( var mergeField in label.MergeFields )
                             {
                                 if ( !string.IsNullOrWhiteSpace( mergeField.Value ) )
@@ -492,10 +491,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                 }
                             }
 
-                            // send a delay cut command to prevent cutting on intermediary labels
+                            // send a Delay Cut command at the end to prevent cutting intermediary labels
                             if ( label != lastLabel )
                             {
-                                printContent = Regex.Replace( printContent.Trim(), @"\" + endingTag, delayCut );
+                                printContent = Regex.Replace( printContent.Trim(), @"\" + endingTag + @"$", delayCut + endingTag );
                             }
 
                             labelContent.Append( printContent );
