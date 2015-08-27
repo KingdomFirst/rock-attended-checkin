@@ -215,7 +215,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 else
                 {
                     string errorMsg = "<ul><li>" + errors.AsDelimited( "</li><li>" ) + "</li></ul>";
-                    maWarning.Show( errorMsg.Replace( "'", @"\'" ), ModalAlertType.Warning );
+                    maAlert.Show( errorMsg.Replace( "'", @"\'" ), ModalAlertType.Warning );
                     return;
                 }
 
@@ -371,7 +371,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 else
                 {
                     string errorMsg = "<ul><li>" + attendanceErrors.AsDelimited( "</li><li>" ) + "</li></ul>";
-                    maWarning.Show( errorMsg, Rock.Web.UI.Controls.ModalAlertType.Warning );
+                    maAlert.Show( errorMsg, Rock.Web.UI.Controls.ModalAlertType.Warning );
                     return;
                 }
 
@@ -546,7 +546,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     }
                     else
                     {
-                        maWarning.Show( "Could not connect to printer.", ModalAlertType.Warning );
+                        phPrinterStatus.Controls.Add( new LiteralControl( string.Format( "Can't connect to printer: {0}", printerIp ) ) );
                     }
 
                     if ( socket != null && socket.Connected )

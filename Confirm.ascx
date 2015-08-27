@@ -7,11 +7,11 @@
 
         <asp:Panel ID="pnlConfirm" runat="server" CssClass="attended">
 
-            <Rock:ModalAlert ID="maWarning" runat="server" />
+            <Rock:ModalAlert ID="maAlert" runat="server" />
 
             <div class="row checkin-header push-quarter-bottom">
                 <div class="col-xs-2 checkin-actions">
-                    <Rock:BootstrapButton ID="lbBack" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbBack_Click" EnableViewState="false">
+                    <Rock:BootstrapButton ID="lbBack" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbBack_Click">
                     <span class="fa fa-arrow-left"></span>
                     </Rock:BootstrapButton>
                 </div>
@@ -21,7 +21,7 @@
                 </div>
 
                 <div class="col-xs-2 checkin-actions text-right">
-                    <Rock:BootstrapButton ID="lbNext" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbNext_Click" EnableViewState="false">
+                    <Rock:BootstrapButton ID="lbNext" CssClass="btn btn-lg btn-primary" runat="server" OnClick="lbNext_Click">
                     <span class="fa fa-arrow-right"></span>
                     </Rock:BootstrapButton>
                 </div>
@@ -51,8 +51,11 @@
                                         <Rock:DeleteField HeaderStyle-CssClass="col-xs-1 centered" HeaderText="Delete" ControlStyle-CssClass="col-xs-1 btn btn-lg btn-primary accent-bold-color accent-bold-color-bordered" OnClick="gPersonList_Delete" />
                                     </Columns>
                                 </Rock:Grid>
-                                <div class="col-xs-offset-9 col-xs-3 hard-right push-quarter-top">
-                                    <Rock:BootstrapButton ID="lbPrintAll" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" runat="server" OnClick="lbPrintAll_Click" Text="Print All" EnableViewState="false" />
+                                <div class="col-xs-offset-6 col-xs-3 hard-right push-half-top">
+                                    <asp:PlaceHolder ID="phPrinterStatus" runat="server"></asp:PlaceHolder>
+                                </div>
+                                <div class="col-xs-3 hard-right push-quarter-top">
+                                    <Rock:BootstrapButton ID="lbPrintAll" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" runat="server" OnClick="lbPrintAll_Click" Text="Print All"/>
                                 </div>
                             </div>
                         </ContentTemplate>
