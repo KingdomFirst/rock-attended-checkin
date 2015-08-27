@@ -140,7 +140,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
             else
             {
-                // add a message or disable Ok here?
+                maAlert.Show( "This device has not been set up for check-in.", ModalAlertType.Alert );
+                lbOk.Text = @"<span class='fa fa-refresh' />";
+                lbOk.Enabled = false;
+                pnlHeader.Update();                
             }
         }
 

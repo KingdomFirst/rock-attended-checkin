@@ -26,7 +26,7 @@
                             <h1>Admin</h1>
                         </div>
                         <div class="col-xs-2 checkin-actions text-right">
-                            <Rock:BootstrapButton ID="lbOk" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbOk_Click" EnableViewState="false">
+                            <Rock:BootstrapButton ID="lbOk" runat="server" CssClass="btn btn-lg btn-primary" OnClick="lbOk_Click">
                                 <span class="fa fa-arrow-right"></span>
                             </Rock:BootstrapButton>
                         </div>
