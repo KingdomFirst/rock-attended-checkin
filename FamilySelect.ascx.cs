@@ -898,21 +898,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 peopleQry = peopleQry.Where( p => p.Gender == gender );
             }
 
-            // Set a filter if an ability/grade was selected
-            var optionGroup = ddlPersonAbilityGrade.SelectedItem.Attributes["optiongroup"];
-            if ( !string.IsNullOrEmpty( optionGroup ) )
-            {
-                if ( optionGroup.Equals( "Ability" ) )
-                {
-                    peopleQry = peopleQry.WhereAttributeValue( rockContext, "AbilityLevel", ddlPersonAbilityGrade.SelectedValue );
-                }
-                else if ( optionGroup.Equals( "Grade" ) )
-                {
-                    var grade = ddlPersonAbilityGrade.SelectedValueAsId();
-                    peopleQry = peopleQry.Where( p => p.GradeOffset == grade );
-                }
-            }
-
             // Set a filter if special needs was checked
             if ( cbPersonSpecialNeeds.Checked )
             {
@@ -921,6 +906,24 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
             // call list here to get virtual properties not supported in LINQ
             var peopleList = peopleQry.ToList();
+
+            // Set a filter if an ability/grade was selected
+            // TODO: Add a Queryable.WhereGradeRange to move this above the ToList() call
+            var optionGroup = ddlPersonAbilityGrade.SelectedItem.Attributes["optiongroup"];
+            if ( !string.IsNullOrEmpty( optionGroup ) )
+            {
+                if ( optionGroup.Equals( "Ability" ) )
+                {
+                    //peopleQry = peopleQry.WhereAttributeValue( rockContext, "AbilityLevel", ddlPersonAbilityGrade.SelectedValue );
+                    peopleList = peopleList.Where( p => p.AttributeValues.ContainsKey( "AbilityLevel" )
+                        && p.AttributeValues["AbilityLevel"].Value == ddlPersonAbilityGrade.SelectedValue ).ToList();
+                }
+                else if ( optionGroup.Equals( "Grade" ) )
+                {
+                    var grade = ddlPersonAbilityGrade.SelectedValueAsId();
+                    peopleList = peopleList.Where( p => p.GradeOffset == grade ).ToList();
+                }
+            }
 
             // load attributes to display additional person info
             peopleList.ForEach( p => p.LoadAttributes( rockContext ) );
