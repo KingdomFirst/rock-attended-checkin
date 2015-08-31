@@ -932,8 +932,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     p.FirstName,
                     p.LastName,
                     p.SuffixValue,
-                    p.Age,
                     p.BirthDate,
+                    p.Age,
                     p.Gender,
                     Attribute = p.GradeOffset.HasValue
                         ? p.GradeFormatted
