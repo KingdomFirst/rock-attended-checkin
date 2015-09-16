@@ -727,7 +727,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }
                 else
                 {
-                    var allLocations = groupType.Groups.SelectMany( g => g.Locations ).OrderBy( l => l.Location.Name ).ToList();
+                    var allLocations = groupType.Groups.SelectMany( g => g.Locations )
+                        .OrderBy( l => l.Location.Name ).DistinctBy( l => l.Location.Id ).ToList();
                     if ( locationId > 0 )
                     {
                         var selectedLocation = allLocations.FirstOrDefault( l => l.Location.Id == locationId );
