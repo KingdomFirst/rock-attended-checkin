@@ -124,7 +124,9 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     var ageGroups = validGroups.Where( g => g.Group.AttributeValues.ContainsKey( "AgeRange" )
                                             && g.Group.AttributeValues["AgeRange"].Value != null
                                             && g.Group.AttributeValues.ContainsKey( "IsSpecialNeeds" ) == isSpecialNeeds
-                                        ).Select( g => new
+                                        )
+                                        .ToList()
+                                        .Select( g => new
                                         {
                                             Group = g,
                                             AgeRange = g.Group.AttributeValues["AgeRange"].Value
@@ -170,6 +172,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     {
                                         var gradeValues = DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.SCHOOL_GRADES ) ).DefinedValues;
                                         var gradeGroups = validGroups.Where( g => g.Group.AttributeValues.ContainsKey( "GradeRange" ) && g.Group.AttributeValues["GradeRange"].Value != null )
+                                            .ToList()
                                             .Select( g => new
                                             {
                                                 Group = g,
