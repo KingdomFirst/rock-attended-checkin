@@ -61,8 +61,12 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     .Select( s => s.AsInteger() )
                     .ToList();
 
-                if ( CurrentKioskId.HasValue && CurrentGroupTypeIds != null && CurrentGroupTypeIds.Any() && !UserBackedUp )
+                if ( CurrentCheckInState != null && CurrentCheckInState.Kiosk != null && CurrentCheckInState.ConfiguredGroupTypes != null && !UserBackedUp )
                 {
+                    // Set the local cache if a session is already active
+                    CurrentKioskId = CurrentCheckInState.DeviceId;
+                    CurrentGroupTypeIds = CurrentCheckInState.ConfiguredGroupTypes;
+
                     // Save the check-in state
                     SaveState();
 
