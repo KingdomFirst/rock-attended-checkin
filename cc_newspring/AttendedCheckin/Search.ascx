@@ -7,6 +7,7 @@
 
         <asp:PlaceHolder ID="phScript" runat="server" />
         <Rock:ModalAlert ID="maWarning" runat="server" />
+        <asp:LinkButton ID="lbRefresh" runat="server" OnClick="lbRefresh_Click" />
 
         <asp:Panel ID="pnlSearch" runat="server" DefaultButton="lbSearch" CssClass="attended">
 

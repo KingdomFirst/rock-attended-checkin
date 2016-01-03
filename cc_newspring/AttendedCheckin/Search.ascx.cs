@@ -39,6 +39,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [BooleanField( "Show Key Pad", "Show the number key pad on the search screen", false )]
     [IntegerField( "Minimum Text Length", "Minimum length for text searches (defaults to 1).", false, 1 )]
     [IntegerField( "Maximum Text Length", "Maximum length for text searches (defaults to 20).", false, 20 )]
+    [IntegerField( "Refresh Interval", "How often (seconds) should page automatically query server for new check-in data", false, 30 )]
     [TextField( "Search Regex", "Regular Expression to run the search input through before sending it to the workflow. Useful for stripping off characters.", false )]
     public partial class Search : CheckInBlock
     {
@@ -91,9 +92,31 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     pnlKeyPad.Visible = true;
                 }
 
+                RegisterRefresh();
                 tbSearchBox.Focus();
             }
+        }
 
+        /// <summary>
+        /// Registers a view refresh.
+        /// </summary>
+        private void RegisterRefresh()
+        {
+            string script = string.Format( @"
+            var timeoutSeconds = {0};
+            if (timeout) {{
+                window.clearTimeout(timeout);
+            }}
+
+            var timeout = window.setTimeout(refreshKiosk, timeoutSeconds * 1000);
+
+            function refreshKiosk() {{
+                window.clearTimeout(timeout);
+                {1};
+            }}
+            ", GetAttributeValue( "RefreshInterval" ), this.Page.ClientScript.GetPostBackEventReference( lbRefresh, "" ) );
+
+            ScriptManager.RegisterStartupScript( Page, Page.GetType(), "RefreshScript", script, true );
         }
 
         #endregion
@@ -184,6 +207,16 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             {
                 NavigateToPreviousPage();
             }
+        }
+
+        /// <summary>
+        /// Handles the Click event of the lbRefresh control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        protected void lbRefresh_Click( object sender, EventArgs e )
+        {
+            // Nothing here, we've already checked the CurrentCheckInState (OnInit)
         }
 
         #endregion
