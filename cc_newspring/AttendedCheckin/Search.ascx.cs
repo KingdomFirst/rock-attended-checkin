@@ -217,6 +217,11 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         protected void lbRefresh_Click( object sender, EventArgs e )
         {
             // Nothing here, we've already checked the CurrentCheckInState (OnInit)
+            if ( CurrentCheckInState == null )
+            {
+                NavigateToLinkedPage( "AdminPage" );
+                return;
+            }
         }
 
         #endregion

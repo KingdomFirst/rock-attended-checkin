@@ -79,6 +79,20 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         #region Control Methods
 
         /// <summary>
+        /// Raises the <see cref="E:System.Web.UI.Control.Init" /> event.
+        /// </summary>
+        /// <param name="e">An <see cref="T:System.EventArgs" /> object that contains the event data.</param>
+        protected override void OnInit( EventArgs e )
+        {
+            base.OnInit( e );
+
+            if ( !KioskCurrentlyActive )
+            {
+                NavigateToHomePage();
+            }
+        }
+
+        /// <summary>
         /// Raises the <see cref="E:System.Web.UI.Control.Load" /> event.
         /// </summary>
         /// <param name="e">The <see cref="T:System.EventArgs" /> object that contains the event data.</param>
@@ -86,76 +100,69 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             base.OnLoad( e );
 
-            if ( CurrentWorkflow == null || CurrentCheckInState == null )
+            if ( !Page.IsPostBack )
             {
-                NavigateToHomePage();
+                var person = GetCurrentPerson();
+                if ( person != null )
+                {
+                    // Set the nickname
+                    var nickName = person.Person.NickName ?? person.Person.FirstName;
+                    lblPersonName.Text = string.Format( "{0} {1}", nickName, person.Person.LastName );
+                }
+
+                DisplayGroupNames = GetAttributeValue( "DisplayGroupNames" ).AsBoolean();
+
+                if ( person != null && person.GroupTypes.Any() )
+                {
+                    int? selectedGroupTypeId = person.GroupTypes.Where( gt => gt.Selected )
+                        .Select( gt => (int?)gt.GroupType.Id ).FirstOrDefault();
+                    if ( selectedGroupTypeId != null )
+                    {
+                        ViewState["groupTypeId"] = selectedGroupTypeId;
+                    }
+
+                    int? selectedGroupId = Request.QueryString["groupId"].AsType<int?>();
+                    if ( selectedGroupId > 0 )
+                    {
+                        ViewState["groupId"] = selectedGroupId;
+                    }
+
+                    int? selectedLocationId = Request.QueryString["locationId"].AsType<int?>();
+                    if ( selectedLocationId > 0 )
+                    {
+                        ViewState["locationId"] = selectedLocationId;
+                    }
+
+                    int? selectedScheduleId = Request.QueryString["scheduleId"].AsType<int?>();
+                    if ( selectedScheduleId > 0 )
+                    {
+                        ViewState["scheduleId"] = selectedScheduleId;
+                    }
+
+                    BindGroupTypes( person.GroupTypes, selectedGroupTypeId );
+                    BindLocations( person.GroupTypes, selectedGroupTypeId, selectedGroupId, selectedLocationId );
+                    BindSchedules( person.GroupTypes, selectedGroupTypeId, selectedGroupId, selectedLocationId );
+                    BindSelectedGrid();
+                }
+                else
+                {
+                    maWarning.Show( InvalidParameterError, ModalAlertType.Warning );
+                    NavigateToPreviousPage();
+                }
             }
-            else
+
+            // Instantiate the allergy control for reference later
+            var control = AttributeCache.Read( new Guid( Rock.SystemGuid.Attribute.PERSON_ALLERGY ) )
+                .AddControl( phAttributes.Controls, string.Empty, "", true, true );
+
+            if ( control is RockTextBox )
             {
-                if ( !Page.IsPostBack )
-                {
-                    var person = GetCurrentPerson();
-                    if ( person != null )
-                    {
-                        // Set the nickname
-                        var nickName = person.Person.NickName ?? person.Person.FirstName;
-                        lblPersonName.Text = string.Format( "{0} {1}", nickName, person.Person.LastName );
-                    }
+                ( (RockTextBox)control ).MaxLength = 80;
+            }
 
-                    DisplayGroupNames = GetAttributeValue( "DisplayGroupNames" ).AsBoolean();
-
-                    if ( person != null && person.GroupTypes.Any() )
-                    {
-                        int? selectedGroupTypeId = person.GroupTypes.Where( gt => gt.Selected )
-                            .Select( gt => (int?)gt.GroupType.Id ).FirstOrDefault();
-                        if ( selectedGroupTypeId != null )
-                        {
-                            ViewState["groupTypeId"] = selectedGroupTypeId;
-                        }
-
-                        int? selectedGroupId = Request.QueryString["groupId"].AsType<int?>();
-                        if ( selectedGroupId > 0 )
-                        {
-                            ViewState["groupId"] = selectedGroupId;
-                        }
-
-                        int? selectedLocationId = Request.QueryString["locationId"].AsType<int?>();
-                        if ( selectedLocationId > 0 )
-                        {
-                            ViewState["locationId"] = selectedLocationId;
-                        }
-
-                        int? selectedScheduleId = Request.QueryString["scheduleId"].AsType<int?>();
-                        if ( selectedScheduleId > 0 )
-                        {
-                            ViewState["scheduleId"] = selectedScheduleId;
-                        }
-
-                        BindGroupTypes( person.GroupTypes, selectedGroupTypeId );
-                        BindLocations( person.GroupTypes, selectedGroupTypeId, selectedGroupId, selectedLocationId );
-                        BindSchedules( person.GroupTypes, selectedGroupTypeId, selectedGroupId, selectedLocationId );
-                        BindSelectedGrid();
-                    }
-                    else
-                    {
-                        maWarning.Show( InvalidParameterError, ModalAlertType.Warning );
-                        NavigateToPreviousPage();
-                    }
-                }
-
-                // Instantiate the allergy control for reference later
-                var control = AttributeCache.Read( new Guid( Rock.SystemGuid.Attribute.PERSON_ALLERGY ) )
-                    .AddControl( phAttributes.Controls, string.Empty, "", true, true );
-
-                if ( control is RockTextBox )
-                {
-                    ( (RockTextBox)control ).MaxLength = 80;
-                }
-
-                if ( DisplayGroupNames )
-                {
-                    hdrLocations.InnerText = "Group";
-                }
+            if ( DisplayGroupNames )
+            {
+                hdrLocations.InnerText = "Group";
             }
         }
 

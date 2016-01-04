@@ -94,6 +94,11 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             base.OnInit( e );
 
+            if ( !KioskCurrentlyActive )
+            {
+                NavigateToHomePage();
+            }
+
             RockPage.AddScriptLink( this.Page, "~/Scripts/CheckinClient/cordova-2.4.0.js", false );
             RockPage.AddScriptLink( this.Page, "~/Scripts/CheckinClient/ZebraPrint.js", false );
         }
@@ -106,17 +111,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             base.OnLoad( e );
 
-            if ( CurrentWorkflow == null || CurrentCheckInState == null )
+            if ( !Page.IsPostBack )
             {
-                NavigateToHomePage();
-            }
-            else
-            {
-                if ( !Page.IsPostBack )
-                {
-                    gPersonList.UseAccessibleHeader = true;
-                    BindGrid();
-                }
+                gPersonList.UseAccessibleHeader = true;
+                BindGrid();
             }
         }
 
