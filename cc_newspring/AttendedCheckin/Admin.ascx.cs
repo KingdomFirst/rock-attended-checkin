@@ -182,6 +182,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     ( (Button)item.FindControl( "lbMinistry" ) ).RemoveCssClass( "active" );
                 }
 
+                hfGroupTypes.Value = string.Empty;
                 maAlert.Show( "Please select at least one check-in type.", ModalAlertType.Warning );
                 pnlContent.Update();
                 return;
