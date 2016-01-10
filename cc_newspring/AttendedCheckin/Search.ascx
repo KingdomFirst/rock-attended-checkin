@@ -2,7 +2,7 @@
 
 <script type="text/javascript" src="../plugins/cc_newspring/attendedcheckin/loadcss.js"></script>
 
-<asp:UpdatePanel ID="pnlContent" runat="server" UpdateMode="Conditional">
+<asp:UpdatePanel ID="pnlContent" runat="server">
     <ContentTemplate>
 
         <asp:PlaceHolder ID="phScript" runat="server" />

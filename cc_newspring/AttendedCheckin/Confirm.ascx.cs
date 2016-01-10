@@ -94,7 +94,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             base.OnInit( e );
 
-            if ( !KioskCurrentlyActive )
+            if ( CurrentWorkflow == null || CurrentCheckInState == null )
             {
                 NavigateToHomePage();
             }
