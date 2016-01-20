@@ -58,6 +58,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 NavigateToLinkedPage( "AdminPage" );
                 return;
             }
+
+            RegisterRefresh();
         }
 
         /// <summary>
@@ -92,7 +94,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     pnlKeyPad.Visible = true;
                 }
 
-                RegisterRefresh();
                 tbSearchBox.Focus();
             }
         }
