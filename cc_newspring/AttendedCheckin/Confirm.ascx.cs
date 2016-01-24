@@ -150,7 +150,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                 checkIn.ScheduleId = schedule.Schedule.Id;
 
                                 // are they already checked in?
-                                checkIn.CheckedIn = schedule.LastCheckIn != null && schedule.LastCheckIn.Value.Date.Equals( DateTime.Today );
+                                checkIn.CheckedIn = schedule.LastCheckIn != null && schedule.LastCheckIn > RockDateTime.Now;
                                 checkInList.Add( checkIn );
                             }
                         }
@@ -263,7 +263,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 var personAttendance = new AttendanceService( rockContext ).Get( DateTime.Today, locationId, scheduleId, groupId, personId );
                 if ( personAttendance != null )
                 {
-                    personAttendance.DidAttend = false;
+                    personAttendance.EndDateTime = RockDateTime.Now;
                     rockContext.SaveChanges();
                 }
             }
