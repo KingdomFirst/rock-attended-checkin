@@ -364,7 +364,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         }
 
         #endregion Storage Methods
-
         #region Internal Methods
 
         /// <summary>
@@ -412,8 +411,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
 
             return groupTypes
+                .OrderBy( g => g.Key )
                 .Select( g => g.Value )
-                .OrderBy( g => g.Order )
                 .ToList();
         }
 
