@@ -170,23 +170,28 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
 
                                         if ( schedule != null )
                                         {
+                                            // get the service end time to set unless someone had checked out already
+                                            var serviceEndTime = groupAttendance.StartDateTime.Date.Add( groupAttendance.Schedule.StartTimeOfDay
+                                                .Add( TimeSpan.FromMinutes( (double)groupAttendance.Schedule.CheckInEndOffsetMinutes ) ) );
+                                            var attendanceEndDate = groupAttendance.EndDateTime ?? serviceEndTime;
+
                                             schedule.Selected = true;
                                             schedule.PreSelected = true;
-                                            schedule.LastCheckIn = groupAttendance.StartDateTime;
+                                            schedule.LastCheckIn = attendanceEndDate;
                                             location.Selected = true;
                                             location.PreSelected = true;
-                                            location.LastCheckIn = groupAttendance.StartDateTime;
+                                            location.LastCheckIn = attendanceEndDate;
                                             group.Selected = true;
                                             group.PreSelected = true;
-                                            group.LastCheckIn = groupAttendance.StartDateTime;
+                                            group.LastCheckIn = attendanceEndDate;
                                             groupType.Selected = true;
                                             groupType.PreSelected = true;
-                                            group.LastCheckIn = groupAttendance.StartDateTime;
-                                            groupType.LastCheckIn = groupAttendance.StartDateTime;
+                                            group.LastCheckIn = attendanceEndDate;
+                                            groupType.LastCheckIn = attendanceEndDate;
                                             groupType.Selected = true;
                                             groupType.PreSelected = true;
                                             previousAttender.PreSelected = true;
-                                            previousAttender.LastCheckIn = groupAttendance.StartDateTime;
+                                            previousAttender.LastCheckIn = attendanceEndDate;
                                             createdMatchingAssignment = true;
                                         }
                                     }
