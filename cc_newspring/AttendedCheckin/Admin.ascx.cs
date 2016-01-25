@@ -411,7 +411,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
 
             return groupTypes
-                .OrderBy( g => g.Value )
+                .OrderBy( g => g.Key )
                 .Select( g => g.Value )
                 .ToList();
         }
