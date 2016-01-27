@@ -23,6 +23,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using Rock;
@@ -149,8 +150,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                 checkIn.LocationId = location.Location.Id;
                                 checkIn.ScheduleId = schedule.Schedule.Id;
 
-                                // are they already checked in?
+                                // LastCheckin is set to the end time of the current service
                                 checkIn.CheckedIn = schedule.LastCheckIn != null && schedule.LastCheckIn > RockDateTime.Now;
+
                                 checkInList.Add( checkIn );
                             }
                         }
@@ -259,13 +261,24 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
             if ( alreadyCheckedIn )
             {
-                var rockContext = new RockContext();
-                var personAttendance = new AttendanceService( rockContext ).Get( DateTime.Today, locationId, scheduleId, groupId, personId );
-                if ( personAttendance != null )
+                Task.Run( () =>
                 {
-                    personAttendance.EndDateTime = RockDateTime.Now;
-                    rockContext.SaveChanges();
-                }
+                    var rockContext = new RockContext();
+                    var today = RockDateTime.Now.Date;
+                    var tomorrow = today.AddDays( 1 );
+                    var personAttendance = rockContext.Attendances.FirstOrDefault( a => a.StartDateTime >= today
+                            && a.StartDateTime < tomorrow
+                            && a.LocationId == locationId
+                            && a.ScheduleId == scheduleId
+                            && a.GroupId == groupId
+                            && a.PersonAlias.PersonId == personId );
+
+                    if ( personAttendance != null )
+                    {
+                        personAttendance.EndDateTime = RockDateTime.Now;
+                        rockContext.SaveChanges();
+                    }
+                } );
             }
 
             var selectedPerson = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected )
