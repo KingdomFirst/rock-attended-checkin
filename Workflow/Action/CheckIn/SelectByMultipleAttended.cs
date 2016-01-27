@@ -93,20 +93,27 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                         var lastAttended = lastDateAttendances.Max( a => a.StartDateTime ).Date;
                         foreach ( var groupAttendance in lastDateAttendances.Where( a => a.StartDateTime >= lastAttended ) )
                         {
+                            // calculate the end of service time to determine if people are still checked in
+                            var serviceBegin = groupAttendance.Schedule.GetNextCheckInStartTime( groupAttendance.StartDateTime.Date );
+                            var serviceCheckinStart = serviceBegin.Value.AddMinutes( ( groupAttendance.Schedule.CheckInStartOffsetMinutes ?? 0 ) * -1.0 );
+                            var serviceCheckinEnd = serviceBegin.Value.AddMinutes( ( groupAttendance.Schedule.CheckInEndOffsetMinutes ?? 0 ) );
+
+                            bool withinServiceWindow = RockDateTime.Now > serviceCheckinStart && RockDateTime.Now < serviceCheckinEnd;
+
                             // Start with filtered groups unless they have abnormal age and grade parameters (1%)
-                            var groupType = previousAttender.GroupTypes.FirstOrDefault( gt => gt.GroupType.Id == groupAttendance.Group.GroupTypeId && ( !gt.ExcludedByFilter || isSpecialNeeds ) );
+                            var groupType = previousAttender.GroupTypes.FirstOrDefault( gt => gt.GroupType.Id == groupAttendance.Group.GroupTypeId && ( !gt.ExcludedByFilter || isSpecialNeeds || withinServiceWindow ) );
                             if ( groupType != null )
                             {
                                 CheckInGroup group = null;
                                 if ( groupType.Groups.Count == 1 )
                                 {
                                     // Only a single group is open
-                                    group = groupType.Groups.FirstOrDefault( g => !g.ExcludedByFilter || isSpecialNeeds );
+                                    group = groupType.Groups.FirstOrDefault( g => !g.ExcludedByFilter || isSpecialNeeds || withinServiceWindow );
                                 }
                                 else
                                 {
                                     // Pick the group they last attended
-                                    group = groupType.Groups.FirstOrDefault( g => g.Group.Id == groupAttendance.GroupId && ( !g.ExcludedByFilter || isSpecialNeeds ) );
+                                    group = groupType.Groups.FirstOrDefault( g => g.Group.Id == groupAttendance.GroupId && ( !g.ExcludedByFilter || isSpecialNeeds || withinServiceWindow ) );
 
                                     if ( group != null && roomBalance && !isSpecialNeeds )
                                     {
@@ -129,12 +136,12 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     if ( group.Locations.Count == 1 )
                                     {
                                         // Only a single location is open
-                                        location = group.Locations.FirstOrDefault( l => !l.ExcludedByFilter || isSpecialNeeds );
+                                        location = group.Locations.FirstOrDefault( l => !l.ExcludedByFilter || isSpecialNeeds || withinServiceWindow );
                                     }
                                     else
                                     {
                                         // Pick the location they last attended
-                                        location = group.Locations.FirstOrDefault( l => l.Location.Id == groupAttendance.LocationId && ( !l.ExcludedByFilter || isSpecialNeeds ) );
+                                        location = group.Locations.FirstOrDefault( l => l.Location.Id == groupAttendance.LocationId && ( !l.ExcludedByFilter || isSpecialNeeds || withinServiceWindow ) );
 
                                         if ( location != null && roomBalance && !isSpecialNeeds )
                                         {
@@ -156,11 +163,11 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         CheckInSchedule schedule = null;
                                         if ( location.Schedules.Count == 1 )
                                         {
-                                            schedule = location.Schedules.FirstOrDefault( s => !s.ExcludedByFilter || isSpecialNeeds );
+                                            schedule = location.Schedules.FirstOrDefault( s => !s.ExcludedByFilter || isSpecialNeeds || withinServiceWindow );
                                         }
                                         else if ( groupAttendance.ScheduleId != null )
                                         {
-                                            schedule = location.Schedules.FirstOrDefault( s => s.Schedule.Id == groupAttendance.ScheduleId && ( !s.ExcludedByFilter || isSpecialNeeds ) );
+                                            schedule = location.Schedules.FirstOrDefault( s => s.Schedule.Id == groupAttendance.ScheduleId && ( !s.ExcludedByFilter || isSpecialNeeds || withinServiceWindow ) );
                                         }
                                         else
                                         {
@@ -170,10 +177,8 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
 
                                         if ( schedule != null )
                                         {
-                                            // get the service end time to set unless someone had checked out already
-                                            var serviceEndTime = groupAttendance.StartDateTime.Date.Add( groupAttendance.Schedule.StartTimeOfDay
-                                                .Add( TimeSpan.FromMinutes( (double)groupAttendance.Schedule.CheckInEndOffsetMinutes ) ) );
-                                            var attendanceEndDate = groupAttendance.EndDateTime ?? serviceEndTime;
+                                            // set the service end time unless someone checked out already
+                                            var attendanceEndDate = groupAttendance.EndDateTime ?? serviceCheckinEnd;
 
                                             schedule.Selected = true;
                                             schedule.PreSelected = true;
