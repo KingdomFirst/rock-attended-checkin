@@ -364,6 +364,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         }
 
         #endregion Storage Methods
+
         #region Internal Methods
 
         /// <summary>

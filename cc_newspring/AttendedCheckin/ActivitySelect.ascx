@@ -144,7 +144,7 @@
                                 <Rock:DatePicker ID="dpDOB" runat="server" Label="Date of Birth" ValidationGroup="Person" CssClass="date-picker" data-show-age="true" />
                             </div>
                             <div class="col-xs-2">
-                                <Rock:RockDropDownList ID="ddlAbility" runat="server" Label="Ability/Grade" />
+                                <Rock:RockDropDownList ID="ddlAbilityGrade" runat="server" Label="Ability/Grade" />
                             </div>
                             <div class="col-xs-1 shift-up centered">
                                 <Rock:RockCheckBox ID="cbSpecialNeeds" runat="server" Label="Special Needs" />

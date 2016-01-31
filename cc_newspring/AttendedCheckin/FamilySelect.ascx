@@ -246,7 +246,7 @@
                                         <label>Gender</label>
                                     </div>
                                     <div class="col-xs-2">
-                                        <label>Ability/Grade</label>
+                                        <label ID="famAbilityGrade" runat="server">Ability/Grade</label>
                                     </div>
                                     <div class="col-xs-1">
                                         <label>Special Needs</label>

@@ -20,6 +20,7 @@ using System.ComponentModel;
 using System.Data.Entity;
 using System.Linq;
 using System.Web.UI;
+using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
 using cc.newspring.AttendedCheckIn.Utility;
 using Rock;
@@ -417,6 +418,18 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 if ( !string.IsNullOrWhiteSpace( person.Ability ) )
                 {
                     ddlAbilityGrade.SelectedValue = person.Ability;
+                }
+
+                // set the header for this section manually since it's generated on the fly
+                var famAbilityGrade = (HtmlGenericControl)lvNewFamily.FindControl( "famAbilityGrade" );
+                if ( famAbilityGrade != null && ddlAbilityGrade.Items.Count > 0 )
+                {
+                    var allCategories = ddlAbilityGrade.Items.Cast<ListItem>()
+                        .Where( i => i.Attributes.Count > 0 )
+                        .Select( i => i.Attributes["optiongroup"] ).Distinct()
+                        .OrderBy( i => i ).ToList();
+
+                    famAbilityGrade.InnerText = String.Join( "/", allCategories );
                 }
             }
         }

@@ -150,14 +150,21 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     NavigateToPreviousPage();
                 }
             }
+            else
+            {
+                var lblAbilityGrade = ViewState["lblAbilityGrade"] as string;
+                if ( !string.IsNullOrEmpty( lblAbilityGrade ) )
+                {
+                    ddlAbilityGrade.Label = lblAbilityGrade;
+                }
+            }
 
             // Instantiate the allergy control for reference later
-            var control = AttributeCache.Read( new Guid( Rock.SystemGuid.Attribute.PERSON_ALLERGY ) )
+            var allergyControl = AttributeCache.Read( new Guid( Rock.SystemGuid.Attribute.PERSON_ALLERGY ) )
                 .AddControl( phAttributes.Controls, string.Empty, "", true, true );
-
-            if ( control is RockTextBox )
+            if ( allergyControl is RockTextBox )
             {
-                ( (RockTextBox)control ).MaxLength = 80;
+                ( (RockTextBox)allergyControl ).MaxLength = 80;
             }
 
             if ( DisplayGroupNames )
@@ -589,15 +596,15 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
             person.NickName = tbNickname.Text.Length > 0 ? tbNickname.Text : tbFirstName.Text;
             currentPerson.Person.NickName = tbNickname.Text.Length > 0 ? tbNickname.Text : tbFirstName.Text;
-            var optionGroup = ddlAbility.SelectedItem.Attributes["optiongroup"];
+            var optionGroup = ddlAbilityGrade.SelectedItem.Attributes["optiongroup"];
 
             if ( !string.IsNullOrEmpty( optionGroup ) )
             {
                 // Selected ability level
                 if ( optionGroup == "Ability" )
                 {
-                    person.SetAttributeValue( "AbilityLevel", ddlAbility.SelectedValue );
-                    currentPerson.Person.SetAttributeValue( "AbilityLevel", ddlAbility.SelectedValue );
+                    person.SetAttributeValue( "AbilityLevel", ddlAbilityGrade.SelectedValue );
+                    currentPerson.Person.SetAttributeValue( "AbilityLevel", ddlAbilityGrade.SelectedValue );
 
                     person.GradeOffset = null;
                     currentPerson.Person.GradeOffset = null;
@@ -605,8 +612,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 // Selected a grade
                 else if ( optionGroup == "Grade" )
                 {
-                    person.GradeOffset = ddlAbility.SelectedValueAsId();
-                    currentPerson.Person.GradeOffset = ddlAbility.SelectedValueAsId();
+                    person.GradeOffset = ddlAbilityGrade.SelectedValueAsId();
+                    currentPerson.Person.GradeOffset = ddlAbilityGrade.SelectedValueAsId();
 
                     person.Attributes.Remove( "AbilityLevel" );
                     currentPerson.Person.Attributes.Remove( "AbilityLevel" );
@@ -836,8 +843,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var person = GetCurrentPerson();
             if ( person != null )
             {
-                ddlAbility.LoadAbilityAndGradeItems();
+                ddlAbilityGrade.LoadAbilityAndGradeItems();
                 ddlSuffix.BindToDefinedType( DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_SUFFIX ) ), true );
+
+                ViewState["lblAbilityGrade"] = ddlAbilityGrade.Label;
 
                 tbFirstName.Text = person.Person.FirstName;
                 tbLastName.Text = person.Person.LastName;
@@ -856,14 +865,14 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                 if ( person.Person.GradeOffset.HasValue )
                 {
-                    ddlAbility.SelectedValue = person.Person.GradeOffset.ToString();
+                    ddlAbilityGrade.SelectedValue = person.Person.GradeOffset.ToString();
                 }
                 else if ( person.Person.AttributeValues.ContainsKey( "AbilityLevel" ) )
                 {
                     var personAbility = person.Person.GetAttributeValue( "AbilityLevel" );
                     if ( !string.IsNullOrWhiteSpace( personAbility ) )
                     {
-                        ddlAbility.SelectedValue = personAbility;
+                        ddlAbilityGrade.SelectedValue = personAbility;
                     }
                 }
 
