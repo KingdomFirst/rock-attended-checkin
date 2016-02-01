@@ -465,6 +465,15 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbPersonSearch_Click( object sender, EventArgs e )
         {
+            var firstNameIsEmpty = string.IsNullOrEmpty(tbPersonFirstName.Text);
+            var lastNameIsEmpty = string.IsNullOrEmpty(tbPersonLastName.Text);
+
+            if( firstNameIsEmpty && lastNameIsEmpty )
+            {
+                maWarning.Show("Validation: First or last name is required.", ModalAlertType.Information);
+                return;
+            }
+
             rGridPersonResults.PageIndex = 0;
             rGridPersonResults.Visible = true;
             rGridPersonResults.PageSize = 4;
