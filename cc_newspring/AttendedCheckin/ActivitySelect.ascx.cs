@@ -301,6 +301,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 else
                 {
                     selectedGroupId = person.GroupTypes.SelectMany( gt => gt.Groups )
+                        .OrderByDescending( g => !g.ExcludedByFilter )
                         .Where( g => g.Locations.Any( l => l.Location.Id == selectedLocationId ) )
                         .Select( g => (int?)g.Group.Id )
                         .FirstOrDefault();
