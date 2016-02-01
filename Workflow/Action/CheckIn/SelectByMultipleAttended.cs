@@ -93,12 +93,16 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                         var lastAttended = lastDateAttendances.Max( a => a.StartDateTime ).Date;
                         foreach ( var groupAttendance in lastDateAttendances.Where( a => a.StartDateTime >= lastAttended ) )
                         {
-                            // calculate the end of service time to determine if people are still checked in
-                            var serviceBegin = groupAttendance.Schedule.GetNextCheckInStartTime( groupAttendance.StartDateTime.Date );
-                            var serviceCheckinStart = serviceBegin.Value.AddMinutes( ( groupAttendance.Schedule.CheckInStartOffsetMinutes ?? 0 ) * -1.0 );
-                            var serviceCheckinEnd = serviceBegin.Value.AddMinutes( ( groupAttendance.Schedule.CheckInEndOffsetMinutes ?? 0 ) );
-
-                            bool withinServiceWindow = RockDateTime.Now > serviceCheckinStart && RockDateTime.Now < serviceCheckinEnd;
+                            bool withinServiceWindow = false;
+                            var serviceCutoff = groupAttendance.StartDateTime;
+                            if ( serviceCutoff > RockDateTime.Now.Date )
+                            {
+                                // calculate the service window to determine if people are still checked in
+                                var serviceTime = groupAttendance.StartDateTime.Date + groupAttendance.Schedule.NextStartDateTime.Value.TimeOfDay;
+                                var serviceStart = serviceTime.AddMinutes( ( groupAttendance.Schedule.CheckInStartOffsetMinutes ?? 0 ) * -1.0 );
+                                serviceCutoff = serviceTime.AddMinutes( ( groupAttendance.Schedule.CheckInEndOffsetMinutes ?? 0 ) );
+                                withinServiceWindow = RockDateTime.Now > serviceStart && RockDateTime.Now < serviceCutoff;
+                            }
 
                             // Start with filtered groups unless they have abnormal age and grade parameters (1%)
                             var groupType = previousAttender.GroupTypes.FirstOrDefault( gt => gt.GroupType.Id == groupAttendance.Group.GroupTypeId && ( !gt.ExcludedByFilter || isSpecialNeeds || withinServiceWindow ) );
@@ -178,7 +182,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         if ( schedule != null )
                                         {
                                             // set the service end time unless someone checked out already
-                                            var attendanceEndDate = groupAttendance.EndDateTime ?? serviceCheckinEnd;
+                                            var attendanceEndDate = groupAttendance.EndDateTime ?? serviceCutoff;
 
                                             schedule.Selected = true;
                                             schedule.PreSelected = true;
