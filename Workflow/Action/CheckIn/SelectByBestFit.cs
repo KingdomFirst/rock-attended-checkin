@@ -39,6 +39,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
     [BooleanField( "Prioritize Group Membership", "Auto-assign the group and location where the person is a group member. The default value is no.", false, "", 0 )]
     [BooleanField( "Room Balance", "Auto-assign the location with the least number of current people. This only applies when a person fits into multiple groups or locations.", false, "", 1 )]
     [IntegerField( "Balancing Override", "Enter the maximum difference between two locations before room balancing overrides previous attendance.  The default value is 10.", false, 10, "", 2 )]
+    [TextField( "Excluded Locations", "Enter a comma-delimited list of location(s) to manually exclude from room balancing (like a catch-all room).", false, "Base Camp", order: 3 )]
     public class SelectByBestFit : CheckInActionComponent
     {
         /// <summary>
@@ -61,6 +62,8 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
             bool roomBalance = GetAttributeValue( action, "RoomBalance" ).AsBoolean();
             bool useGroupMembership = GetAttributeValue( action, "PrioritizeGroupMembership" ).AsBoolean();
             int balanceOverride = GetAttributeValue( action, "DifferentialOverride" ).AsIntegerOrNull() ?? 10;
+            var excludedLocations = GetAttributeValue( action, "ExcludedLocations" ).SplitDelimitedValues( false )
+                .Select( s => s.Trim() );
 
             var family = checkInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
             if ( family != null )
@@ -223,7 +226,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     if ( bestGroup != null && roomBalance )
                                     {
                                         var currentGroupAttendance = bestGroup.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum();
-                                        var lowestGroup = validGroups.Where( g => !g.ExcludedByFilter )
+                                        var lowestGroup = validGroups.Where( g => !g.ExcludedByFilter && !excludedLocations.Contains( g.Group.Name ) )
                                             .Select( g => new { Group = g, Attendance = g.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum() } )
                                             .OrderBy( g => g.Attendance )
                                             .FirstOrDefault();
@@ -251,7 +254,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                 }
                                 else
                                 {
-                                    var orderedLocations = validLocations.Where( l => !l.ExcludedByFilter && l.Schedules.Any( s => s.Schedule.IsCheckInActive ) );
+                                    var orderedLocations = validLocations.Where( l => !l.ExcludedByFilter && !excludedLocations.Contains( l.Location.Name ) && l.Schedules.Any( s => s.Schedule.IsCheckInActive ) );
 
                                     if ( roomBalance )
                                     {
