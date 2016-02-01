@@ -465,6 +465,15 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbPersonSearch_Click( object sender, EventArgs e )
         {
+            var firstNameIsEmpty = string.IsNullOrEmpty(tbPersonFirstName.Text);
+            var lastNameIsEmpty = string.IsNullOrEmpty(tbPersonLastName.Text);
+
+            if( firstNameIsEmpty && lastNameIsEmpty )
+            {
+                maWarning.Show("Validation: First or last name is required.", ModalAlertType.Information);
+                return;
+            }
+
             rGridPersonResults.PageIndex = 0;
             rGridPersonResults.Visible = true;
             rGridPersonResults.PageSize = 4;
@@ -609,15 +618,32 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             // add people from the current page
             foreach ( ListViewItem item in lvNewFamily.Items )
             {
+                var hasInput = false;
                 var newPerson = new SerializedPerson();
+
                 newPerson.FirstName = ( (TextBox)item.FindControl( "tbFirstName" ) ).Text;
+                hasInput = !string.IsNullOrWhiteSpace( newPerson.FirstName );
+
                 newPerson.LastName = ( (TextBox)item.FindControl( "tbLastName" ) ).Text;
+                hasInput = hasInput || !string.IsNullOrWhiteSpace( newPerson.LastName );
+
                 newPerson.SuffixValueId = ( (RockDropDownList)item.FindControl( "ddlSuffix" ) ).SelectedValueAsId();
+
                 newPerson.BirthDate = ( (DatePicker)item.FindControl( "dpBirthDate" ) ).SelectedDate;
+                hasInput = hasInput || newPerson.BirthDate.HasValue;
+
                 newPerson.Gender = ( (RockDropDownList)item.FindControl( "ddlGender" ) ).SelectedValueAsEnum<Gender>();
+                hasInput = hasInput || newPerson.Gender != Gender.Unknown;
+
                 newPerson.Ability = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedValue;
                 newPerson.AbilityGroup = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedItem.Attributes["optiongroup"];
                 newPerson.IsSpecialNeeds = ( (RockCheckBox)item.FindControl( "cbSpecialNeeds" ) ).Checked;
+
+                if( hasInput && !newPerson.IsValid() )
+                {
+                    maWarning.Show("Validation: Name, DOB, and Gender are required.", ModalAlertType.Information);
+                    return;
+                }
 
                 if ( currentPage.HasValue )
                 {
