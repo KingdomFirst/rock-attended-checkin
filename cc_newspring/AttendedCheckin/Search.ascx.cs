@@ -53,7 +53,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             base.OnInit( e );
 
-            if ( CurrentCheckInState == null || !KioskCurrentlyActive )
+            if ( CurrentCheckInState == null )
             {
                 NavigateToLinkedPage( "AdminPage" );
                 return;
@@ -130,63 +130,71 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbSearch_Click( object sender, EventArgs e )
-        {   
-            CurrentCheckInState.CheckIn.Families.Clear();
-            CurrentCheckInState.CheckIn.UserEnteredSearch = true;
-            CurrentCheckInState.CheckIn.ConfirmSingleFamily = true;
-
-            int minLength = int.Parse( GetAttributeValue( "MinimumTextLength" ) );
-            int maxLength = int.Parse( GetAttributeValue( "MaximumTextLength" ) );
-            if ( tbSearchBox.Text.Length >= minLength && tbSearchBox.Text.Length <= maxLength )
+        {
+            if ( !KioskCurrentlyActive )
             {
-                string searchInput = tbSearchBox.Text;
+                CurrentCheckInState.CheckIn.Families.Clear();
+                CurrentCheckInState.CheckIn.UserEnteredSearch = true;
+                CurrentCheckInState.CheckIn.ConfirmSingleFamily = true;
 
-                // run regex expression on input if provided
-                if ( !string.IsNullOrWhiteSpace( GetAttributeValue( "SearchRegex" ) ) )
+                int minLength = int.Parse( GetAttributeValue( "MinimumTextLength" ) );
+                int maxLength = int.Parse( GetAttributeValue( "MaximumTextLength" ) );
+                if ( tbSearchBox.Text.Length >= minLength && tbSearchBox.Text.Length <= maxLength )
                 {
-                    Regex regex = new Regex( GetAttributeValue( "SearchRegex" ) );
-                    Match match = regex.Match( searchInput );
-                    if ( match.Success )
+                    string searchInput = tbSearchBox.Text;
+
+                    // run regex expression on input if provided
+                    if ( !string.IsNullOrWhiteSpace( GetAttributeValue( "SearchRegex" ) ) )
                     {
-                        if ( match.Groups.Count == 2 )
+                        Regex regex = new Regex( GetAttributeValue( "SearchRegex" ) );
+                        Match match = regex.Match( searchInput );
+                        if ( match.Success )
                         {
-                            searchInput = match.Groups[1].ToString();
+                            if ( match.Groups.Count == 2 )
+                            {
+                                searchInput = match.Groups[1].ToString();
+                            }
                         }
                     }
-                }
 
-                double searchNumber;
-                if ( Double.TryParse( searchInput, out searchNumber ) )
-                {
-                    CurrentCheckInState.CheckIn.SearchType = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.CHECKIN_SEARCH_TYPE_PHONE_NUMBER );
+                    double searchNumber;
+                    if ( Double.TryParse( searchInput, out searchNumber ) )
+                    {
+                        CurrentCheckInState.CheckIn.SearchType = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.CHECKIN_SEARCH_TYPE_PHONE_NUMBER );
+                    }
+                    else
+                    {
+                        CurrentCheckInState.CheckIn.SearchType = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.CHECKIN_SEARCH_TYPE_NAME );
+                    }
+
+                    // remember the current search value
+                    CurrentCheckInState.CheckIn.SearchValue = searchInput;
+
+                    var errors = new List<string>();
+                    if ( ProcessActivity( "Family Search", out errors ) )
+                    {
+                        SaveState();
+                        NavigateToNextPage();
+                    }
+                    else
+                    {
+                        string errorMsg = "<ul><li>" + errors.AsDelimited( "</li><li>" ) + "</li></ul>";
+                        maWarning.Show( errorMsg.Replace( "'", @"\'" ), ModalAlertType.Warning );
+                    }
                 }
                 else
                 {
-                    CurrentCheckInState.CheckIn.SearchType = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.CHECKIN_SEARCH_TYPE_NAME );
-                }
+                    string errorMsg = ( tbSearchBox.Text.Length > maxLength )
+                        ? string.Format( "<ul><li>Please enter no more than {0} character(s)</li></ul>", maxLength )
+                        : string.Format( "<ul><li>Please enter at least {0} character(s)</li></ul>", minLength );
 
-                // remember the current search value
-                CurrentCheckInState.CheckIn.SearchValue = searchInput;
-
-                var errors = new List<string>();
-                if ( ProcessActivity( "Family Search", out errors ) )
-                {
-                    SaveState();
-                    NavigateToNextPage();
-                }
-                else
-                {
-                    string errorMsg = "<ul><li>" + errors.AsDelimited( "</li><li>" ) + "</li></ul>";
-                    maWarning.Show( errorMsg.Replace( "'", @"\'" ), ModalAlertType.Warning );
+                    maWarning.Show( errorMsg, ModalAlertType.Warning );
                 }
             }
             else
             {
-                string errorMsg = ( tbSearchBox.Text.Length > maxLength )
-                    ? string.Format( "<ul><li>Please enter no more than {0} character(s)</li></ul>", maxLength )
-                    : string.Format( "<ul><li>Please enter at least {0} character(s)</li></ul>", minLength );
-
-                maWarning.Show( errorMsg, ModalAlertType.Warning );
+                NavigateToLinkedPage( "AdminPage" );
+                return;
             }
         }
 
