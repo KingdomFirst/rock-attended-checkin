@@ -312,7 +312,7 @@ namespace cc.newspring.AttendedCheckIn.Migrations
                     ,[IsGridColumn],[IsMultiValue],[IsRequired],[DefaultValue],[Guid] )
                 VALUES (
                     0
-                    ,(SELECT [Id] FROM [FieldType] WHERE [Class] = 'Rock.Field.Types.BooleanFieldType')
+                    ,(SELECT [Id] FROM [FieldType] WHERE [Class] = 'Rock.Field.Types.SelectSingleFieldType')
                     ,(SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person')
                     ,''
                     ,''
@@ -325,6 +325,23 @@ namespace cc.newspring.AttendedCheckIn.Migrations
                     ,0
                     ,'False'
                     ,'{0}')", SpecialNeedsAttributeGuid ) );
+
+            Sql( string.Format( @"
+                INSERT AttributeQualifier (IsSystem, AttributeId, [Key], Value, [Guid])
+    			VALUES (
+                    0
+                    , (SELECT [Id] FROM [Attribute] WHERE [Guid] = '{0}')
+                    , 'fieldtype'
+                    , 'ddl'
+                    , NEWID() )
+
+				INSERT AttributeQualifier (IsSystem, AttributeId, [Key], Value, [Guid])
+				VALUES(
+                    0
+                    , (SELECT [Id] FROM [Attribute] WHERE [Guid] = '{0}')
+                    , 'values'
+                    , 'Yes'
+                    , NEWID() )", SpecialNeedsAttributeGuid ) );
 
             // Make special needs appear under childhood info category
             Sql( string.Format( @"
