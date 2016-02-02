@@ -53,7 +53,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             base.OnInit( e );
 
-            if ( CurrentCheckInState == null )
+            if ( CurrentCheckInState == null || !KioskCurrentlyActive )
             {
                 NavigateToLinkedPage( "AdminPage" );
                 return;
@@ -70,7 +70,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             base.OnLoad( e );
 
-            if ( !Page.IsPostBack && CurrentCheckInState != null )
+            if ( !Page.IsPostBack )
             {
                 if ( !string.IsNullOrWhiteSpace( CurrentCheckInState.CheckIn.SearchValue ) )
                 {

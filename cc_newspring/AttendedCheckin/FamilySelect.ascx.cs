@@ -501,7 +501,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     Gender = ddlPersonGender.SelectedValueAsEnum<Gender>(),
                     Ability = ddlPersonAbilityGrade.SelectedValue,
                     AbilityGroup = ddlPersonAbilityGrade.SelectedItem.Attributes["optiongroup"],
-                    IsSpecialNeeds = cbPersonSpecialNeeds.Checked
+                    HasSpecialNeeds = cbPersonSpecialNeeds.Checked
                 };
 
                 if ( newPerson.IsValid() )
@@ -637,7 +637,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                 newPerson.Ability = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedValue;
                 newPerson.AbilityGroup = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedItem.Attributes["optiongroup"];
-                newPerson.IsSpecialNeeds = ( (RockCheckBox)item.FindControl( "cbSpecialNeeds" ) ).Checked;
+                newPerson.HasSpecialNeeds = ( (RockCheckBox)item.FindControl( "cbSpecialNeeds" ) ).Checked;
 
                 if( hasInput && !newPerson.IsValid() )
                 {
@@ -962,7 +962,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             // Set a filter if special needs was checked
             if ( cbPersonSpecialNeeds.Checked )
             {
-                peopleQry = peopleQry.WhereAttributeValue( rockContext, "IsSpecialNeeds", "True" );
+                peopleQry = peopleQry.WhereAttributeValue( rockContext, "HasSpecialNeeds", "True" );
             }
 
             // call list here to get virtual properties not supported in LINQ
@@ -986,8 +986,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         : abilityLevelValues.Where( dv => dv.Guid.ToString()
                             .Equals( p.AttributeValues["AbilityLevel"].Value, StringComparison.OrdinalIgnoreCase ) )
                             .Select( dv => dv.Value ).FirstOrDefault(),
-                    IsSpecialNeeds = p.AttributeValues.Keys.Contains( "IsSpecialNeeds" )
-                         ? p.AttributeValues["IsSpecialNeeds"].Value == "True" ? "Yes" : string.Empty
+                    HasSpecialNeeds = p.AttributeValues.Keys.Contains( "HasSpecialNeeds" )
+                         ? p.AttributeValues["HasSpecialNeeds"].Value == "True" ? "Yes" : string.Empty
                          : string.Empty
                 } ).OrderByDescending( p => p.BirthDate ).ToList();
 
@@ -1072,7 +1072,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 // Add the person so we can assign an ability (if set)
                 personService.Add( person );
 
-                if ( hasAbility || personData.IsSpecialNeeds )
+                if ( hasAbility || personData.HasSpecialNeeds )
                 {
                     person.LoadAttributes( rockContext );
 
@@ -1082,7 +1082,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         person.SaveAttributeValues( rockContext );
                     }
 
-                    person.SetAttributeValue( "IsSpecialNeeds", personData.IsSpecialNeeds.ToTrueFalse() );
+                    person.SetAttributeValue( "HasSpecialNeeds", personData.HasSpecialNeeds.ToTrueFalse() );
                     person.SaveAttributeValues( rockContext );
                 }
 
@@ -1200,7 +1200,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
             public string AbilityGroup { get; set; }
 
-            public bool IsSpecialNeeds { get; set; }
+            public bool HasSpecialNeeds { get; set; }
 
             public bool IsValid()
             {
@@ -1217,7 +1217,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 Gender = new Gender();
                 Ability = string.Empty;
                 AbilityGroup = string.Empty;
-                IsSpecialNeeds = false;
+                HasSpecialNeeds = false;
             }
         }
 

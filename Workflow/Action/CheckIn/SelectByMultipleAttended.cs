@@ -91,7 +91,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                     if ( lastDateAttendances.Any() )
                     {
                         bool createdMatchingAssignment = false;
-                        var isSpecialNeeds = previousAttender.Person.GetAttributeValue( "IsSpecialNeeds" ).AsBoolean();
+                        var hasSpecialNeeds = previousAttender.Person.GetAttributeValue( "HasSpecialNeeds" ).AsBoolean();
 
                         var lastAttended = lastDateAttendances.Max( a => a.StartDateTime ).Date;
                         foreach ( var groupAttendance in lastDateAttendances.Where( a => a.StartDateTime >= lastAttended ) )
@@ -108,21 +108,21 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                             }
 
                             // Start with filtered groups unless they have abnormal age and grade parameters (1%)
-                            var groupType = previousAttender.GroupTypes.FirstOrDefault( gt => gt.GroupType.Id == groupAttendance.Group.GroupTypeId && ( !gt.ExcludedByFilter || isSpecialNeeds || withinServiceWindow ) );
+                            var groupType = previousAttender.GroupTypes.FirstOrDefault( gt => gt.GroupType.Id == groupAttendance.Group.GroupTypeId && ( !gt.ExcludedByFilter || hasSpecialNeeds || withinServiceWindow ) );
                             if ( groupType != null )
                             {
                                 CheckInGroup group = null;
                                 if ( groupType.Groups.Count == 1 )
                                 {
                                     // Only a single group is open
-                                    group = groupType.Groups.FirstOrDefault( g => !g.ExcludedByFilter || isSpecialNeeds || withinServiceWindow );
+                                    group = groupType.Groups.FirstOrDefault( g => !g.ExcludedByFilter || hasSpecialNeeds || withinServiceWindow );
                                 }
                                 else
                                 {
                                     // Pick the group they last attended
-                                    group = groupType.Groups.FirstOrDefault( g => g.Group.Id == groupAttendance.GroupId && ( !g.ExcludedByFilter || isSpecialNeeds || withinServiceWindow ) );
+                                    group = groupType.Groups.FirstOrDefault( g => g.Group.Id == groupAttendance.GroupId && ( !g.ExcludedByFilter || hasSpecialNeeds || withinServiceWindow ) );
 
-                                    if ( group != null && roomBalance && !isSpecialNeeds )
+                                    if ( group != null && roomBalance && !hasSpecialNeeds )
                                     {
                                         var currentAttendance = group.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum();
                                         var lowestAttendedGroup = groupType.Groups.Where( g => !g.ExcludedByFilter && !excludedLocations.Contains( g.Group.Name ) )
@@ -143,14 +143,14 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     if ( group.Locations.Count == 1 )
                                     {
                                         // Only a single location is open
-                                        location = group.Locations.FirstOrDefault( l => !l.ExcludedByFilter || isSpecialNeeds || withinServiceWindow );
+                                        location = group.Locations.FirstOrDefault( l => !l.ExcludedByFilter || hasSpecialNeeds || withinServiceWindow );
                                     }
                                     else
                                     {
                                         // Pick the location they last attended
-                                        location = group.Locations.FirstOrDefault( l => l.Location.Id == groupAttendance.LocationId && ( !l.ExcludedByFilter || isSpecialNeeds || withinServiceWindow ) );
+                                        location = group.Locations.FirstOrDefault( l => l.Location.Id == groupAttendance.LocationId && ( !l.ExcludedByFilter || hasSpecialNeeds || withinServiceWindow ) );
 
-                                        if ( location != null && roomBalance && !isSpecialNeeds )
+                                        if ( location != null && roomBalance && !hasSpecialNeeds )
                                         {
                                             var currentAttendance = KioskLocationAttendance.Read( location.Location.Id ).CurrentCount;
                                             var lowestAttendedLocation = group.Locations.Where( l => !l.ExcludedByFilter && !excludedLocations.Contains( l.Location.Name ) )
@@ -170,16 +170,16 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         CheckInSchedule schedule = null;
                                         if ( location.Schedules.Count == 1 )
                                         {
-                                            schedule = location.Schedules.FirstOrDefault( s => !s.ExcludedByFilter || isSpecialNeeds || withinServiceWindow );
+                                            schedule = location.Schedules.FirstOrDefault( s => !s.ExcludedByFilter || hasSpecialNeeds || withinServiceWindow );
                                         }
                                         else if ( groupAttendance.ScheduleId != null )
                                         {
-                                            schedule = location.Schedules.FirstOrDefault( s => s.Schedule.Id == groupAttendance.ScheduleId && ( !s.ExcludedByFilter || isSpecialNeeds || withinServiceWindow ) );
+                                            schedule = location.Schedules.FirstOrDefault( s => s.Schedule.Id == groupAttendance.ScheduleId && ( !s.ExcludedByFilter || hasSpecialNeeds || withinServiceWindow ) );
                                         }
                                         else
                                         {
                                             // if the schedule doesn't exactly match but everything else does, select it
-                                            schedule = location.Schedules.FirstOrDefault( s => ( !s.ExcludedByFilter && !isSpecialNeeds ) );
+                                            schedule = location.Schedules.FirstOrDefault( s => ( !s.ExcludedByFilter && !hasSpecialNeeds ) );
                                         }
 
                                         if ( schedule != null )

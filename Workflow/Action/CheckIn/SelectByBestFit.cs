@@ -75,8 +75,8 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                     char[] delimiter = { ',' };
 
                     // variable must be a string to compare to group attribute value
-                    var specialNeedsValue = person.Person.GetAttributeValue( "IsSpecialNeeds" ).ToStringSafe();
-                    var isSpecialNeeds = specialNeedsValue.AsBoolean();
+                    var specialNeedsValue = person.Person.GetAttributeValue( "HasSpecialNeeds" ).ToStringSafe();
+                    var hasSpecialNeeds = specialNeedsValue.AsBoolean();
 
                     if ( person.GroupTypes.Count > 0 )
                     {
@@ -126,7 +126,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
 
                                     var ageGroups = validGroups.Where( g => g.Group.AttributeValues.ContainsKey( "AgeRange" )
                                             && g.Group.AttributeValues["AgeRange"].Value != null
-                                            && g.Group.AttributeValues.ContainsKey( "IsSpecialNeeds" ) == isSpecialNeeds
+                                            && g.Group.AttributeValues.ContainsKey( "HasSpecialNeeds" ) == hasSpecialNeeds
                                         )
                                         .ToList()
                                         .Select( g => new
@@ -155,14 +155,14 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                                     closestAgeGroup = ageGroup.Group;
                                                     baseVariance = ageVariance;
 
-                                                    if ( isSpecialNeeds )
+                                                    if ( hasSpecialNeeds )
                                                     {
                                                         closestNeedsGroup = closestAgeGroup;
                                                     }
                                                 }
                                             }
                                         }
-                                        else if ( isSpecialNeeds )
+                                        else if ( hasSpecialNeeds )
                                         {
                                             // special needs was checked but no age, assign to first special needs group
                                             closestNeedsGroup = ageGroups.FirstOrDefault().Group;

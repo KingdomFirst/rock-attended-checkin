@@ -154,7 +154,7 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             // Attended Check-in:Activity Search:Filter Groups By Special Needs:Remove - false
             RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "F940F6E5-6784-4925-8DF6-E59A911FDCBE", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Remove", "Remove", "Select 'Yes' if groups should be be removed.  Select 'No' if they should just be marked as excluded.", 0, @"False", "F699D995-51EC-4EF7-8A03-B41D7C16A3C2" );
             // Attended Check-in:Activity Search:Filter Groups By Special Needs:RemoveNonSN - false
-            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "F940F6E5-6784-4925-8DF6-E59A911FDCBE", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Remove (or exclude) Non-Special Needs Groups", "RemoveNonSpecialNeedsGroups", "If set to true, non-special-needs groups will be removed if the person is special needs. This basically prevents special needs kids from getting put into regular classes. Default false.", 0, @"False", "2F00F31C-2042-43ED-BEB6-C051CA92DAC8" );
+            RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "F940F6E5-6784-4925-8DF6-E59A911FDCBE", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Remove (or exclude) Non-Special Needs Groups", "RemoveNonSpecialNeedsGroups", "If set to true, non-special-needs groups will be removed if the person has special needs. This basically prevents special needs kids from getting put into regular classes. Default false.", 0, @"False", "2F00F31C-2042-43ED-BEB6-C051CA92DAC8" );
             // Attended Check-in:Activity Search:Filter Groups By Special Needs:RemoveSN - false
             RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "F940F6E5-6784-4925-8DF6-E59A911FDCBE", "1EDAFDED-DFE6-4334-B019-6EECBA89E05A", "Remove (or exclude) Special Needs Groups", "RemoveSpecialNeedsGroups", "If set to true, special-needs groups will be removed if the person is NOT special needs. This basically prevents non-special-needs kids from getting put into special needs classes. Default true.", 0, @"True", "9F72C20F-B927-4777-93A1-1EFEB8453960" );
 
@@ -316,8 +316,8 @@ namespace cc.newspring.AttendedCheckIn.Migrations
                     ,(SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person')
                     ,''
                     ,''
-                    ,'IsSpecialNeeds'
-                    ,'Is Special Needs'
+                    ,'HasSpecialNeeds'
+                    ,'Has Special Needs'
                     ,'Flag to indicate if special needs are present'
                     ,0
                     ,0
