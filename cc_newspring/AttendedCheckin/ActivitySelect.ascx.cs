@@ -622,8 +622,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
 
             // Always save the special needs value
-            person.SetAttributeValue( "HasSpecialNeeds", cbSpecialNeeds.Checked.ToTrueFalse() );
-            currentPerson.Person.SetAttributeValue( "HasSpecialNeeds", cbSpecialNeeds.Checked.ToTrueFalse() );
+            person.SetAttributeValue( "HasSpecialNeeds", cbSpecialNeeds.Checked ? "Yes" : string.Empty );
+            currentPerson.Person.SetAttributeValue( "HasSpecialNeeds", cbSpecialNeeds.Checked ? "Yes" : string.Empty );
 
             // store the allergies
             var allergyAttribute = Rock.Web.Cache.AttributeCache.Read( new Guid( Rock.SystemGuid.Attribute.PERSON_ALLERGY ), rockContext );

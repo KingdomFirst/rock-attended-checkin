@@ -465,12 +465,12 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbPersonSearch_Click( object sender, EventArgs e )
         {
-            var firstNameIsEmpty = string.IsNullOrEmpty(tbPersonFirstName.Text);
-            var lastNameIsEmpty = string.IsNullOrEmpty(tbPersonLastName.Text);
+            var firstNameIsEmpty = string.IsNullOrEmpty( tbPersonFirstName.Text );
+            var lastNameIsEmpty = string.IsNullOrEmpty( tbPersonLastName.Text );
 
-            if( firstNameIsEmpty && lastNameIsEmpty )
+            if ( firstNameIsEmpty && lastNameIsEmpty )
             {
-                maWarning.Show("Validation: First or last name is required.", ModalAlertType.Information);
+                maWarning.Show( "Validation: First or last name is required.", ModalAlertType.Information );
                 return;
             }
 
@@ -485,7 +485,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// Handles the Click event of the lbNewPerson control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
         protected void lbNewPerson_Click( object sender, EventArgs e )
         {
             var selectedFamily = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
@@ -639,9 +639,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 newPerson.AbilityGroup = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedItem.Attributes["optiongroup"];
                 newPerson.HasSpecialNeeds = ( (RockCheckBox)item.FindControl( "cbSpecialNeeds" ) ).Checked;
 
-                if( hasInput && !newPerson.IsValid() )
+                if ( hasInput && !newPerson.IsValid() )
                 {
-                    maWarning.Show("Validation: Name, DOB, and Gender are required.", ModalAlertType.Information);
+                    maWarning.Show( "Validation: Name, DOB, and Gender are required.", ModalAlertType.Information );
                     return;
                 }
 
@@ -962,7 +962,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             // Set a filter if special needs was checked
             if ( cbPersonSpecialNeeds.Checked )
             {
-                peopleQry = peopleQry.WhereAttributeValue( rockContext, "HasSpecialNeeds", "True" );
+                peopleQry = peopleQry.WhereAttributeValue( rockContext, "HasSpecialNeeds", "Yes" );
             }
 
             // call list here to get virtual properties not supported in LINQ
@@ -987,7 +987,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                             .Equals( p.AttributeValues["AbilityLevel"].Value, StringComparison.OrdinalIgnoreCase ) )
                             .Select( dv => dv.Value ).FirstOrDefault(),
                     HasSpecialNeeds = p.AttributeValues.Keys.Contains( "HasSpecialNeeds" )
-                         ? p.AttributeValues["HasSpecialNeeds"].Value == "True" ? "Yes" : string.Empty
+                         ? p.AttributeValues["HasSpecialNeeds"].Value
                          : string.Empty
                 } ).OrderByDescending( p => p.BirthDate ).ToList();
 
@@ -1082,7 +1082,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         person.SaveAttributeValues( rockContext );
                     }
 
-                    person.SetAttributeValue( "HasSpecialNeeds", personData.HasSpecialNeeds.ToTrueFalse() );
+                    person.SetAttributeValue( "HasSpecialNeeds", personData.HasSpecialNeeds ? "Yes" : string.Empty );
                     person.SaveAttributeValues( rockContext );
                 }
 
