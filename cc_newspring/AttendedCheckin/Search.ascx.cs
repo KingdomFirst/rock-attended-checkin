@@ -53,7 +53,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             base.OnInit( e );
 
-            if ( CurrentCheckInState == null )
+            if ( CurrentCheckInState == null || !CurrentCheckInState.ConfiguredGroupTypes.Any() )
             {
                 NavigateToLinkedPage( "AdminPage" );
                 return;
@@ -131,7 +131,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbSearch_Click( object sender, EventArgs e )
         {
-            if ( !KioskCurrentlyActive )
+            if ( KioskCurrentlyActive )
             {
                 CurrentCheckInState.CheckIn.Families.Clear();
                 CurrentCheckInState.CheckIn.UserEnteredSearch = true;
@@ -193,8 +193,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
             else
             {
-                NavigateToLinkedPage( "AdminPage" );
-                return;
+                // Display a warning if the check-in state is active but the schedule is not
+                maWarning.Show( "Check-in does not have an active schedule.", ModalAlertType.Warning );
             }
         }
 
