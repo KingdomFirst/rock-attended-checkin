@@ -761,7 +761,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             selectedFamily = selectedFamily ?? CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
             var familyList = CurrentCheckInState.CheckIn.Families
                 .OrderByDescending( f => f.Group.CampusId == KioskCampusId )
-                .ThenBy( f => f.Caption ).Take( 50 ).ToList();
+                .ThenBy( f => f.Caption ).ToList();
 
             // Order families by campus then by caption
             if ( CurrentCheckInState.CheckIn.Families.Count > 1 )
