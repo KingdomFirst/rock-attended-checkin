@@ -70,7 +70,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             base.OnLoad( e );
 
-            if ( !Page.IsPostBack )
+            if ( !Page.IsPostBack && CurrentCheckInState != null )
             {
                 if ( !string.IsNullOrWhiteSpace( CurrentCheckInState.CheckIn.SearchValue ) )
                 {
