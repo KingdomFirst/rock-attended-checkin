@@ -100,7 +100,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             base.OnLoad( e );
 
-            if ( !Page.IsPostBack )
+            if ( !Page.IsPostBack && CurrentCheckInState != null )
             {
                 var person = GetCurrentPerson();
                 if ( person != null )

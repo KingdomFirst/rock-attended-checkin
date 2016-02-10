@@ -113,10 +113,13 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             base.OnLoad( e );
 
-            if ( !Page.IsPostBack )
+            if ( !Page.IsPostBack && CurrentCheckInState != null )
             {
-                gPersonList.UseAccessibleHeader = true;
-                BindGrid();
+                if ( CurrentCheckInState.CheckIn.Families.Count > 0 )
+                {
+                    gPersonList.UseAccessibleHeader = true;
+                    BindGrid();
+                }
             }
         }
 
