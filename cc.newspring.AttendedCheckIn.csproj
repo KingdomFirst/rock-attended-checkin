@@ -66,9 +66,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Model\" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\rock\DotLiquid\DotLiquid.csproj">
       <Project>{cb9372cd-9c1d-47ab-92d8-702d4d68324f}</Project>
       <Name>DotLiquid</Name>
