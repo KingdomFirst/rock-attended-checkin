@@ -1134,15 +1134,15 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 groupMember.GroupId = familyGroup.Id;
                 groupMember.PersonId = person.Id;
 
-                if ( person.Age >= 18 )
+                if ( person.Age < 18 )
                 {
-                    groupMember.GroupRoleId = familyGroupType.Roles.FirstOrDefault( r =>
-                        r.Guid == new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_FAMILY_MEMBER_ADULT ) ).Id;
+					groupMember.GroupRoleId = familyGroupType.Roles.FirstOrDefault( r =>
+                        r.Guid == new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_FAMILY_MEMBER_CHILD ) ).Id;
                 }
                 else
                 {
-                    groupMember.GroupRoleId = familyGroupType.Roles.FirstOrDefault( r =>
-                        r.Guid == new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_FAMILY_MEMBER_CHILD ) ).Id;
+					groupMember.GroupRoleId = familyGroupType.Roles.FirstOrDefault( r =>
+                        r.Guid == new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_FAMILY_MEMBER_ADULT ) ).Id;
                 }
 
                 newGroupMembers.Add( groupMember );
