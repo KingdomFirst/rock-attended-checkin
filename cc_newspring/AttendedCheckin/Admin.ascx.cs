@@ -119,6 +119,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     SaveState();
                 }
             }
+            else if ( Request["__EVENTTARGET"] == lbTestPrint.ClientID )
+            {
+                SendTestPrint();
+            }
             else
             {
                 phScript.Controls.Clear();
@@ -256,65 +260,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             {
                 SetDeviceIdCookie( kiosk );
                 CurrentKioskId = kiosk.Id;
-            }
-        }
-
-        /// <summary>
-        /// Prints a test label.
-        /// </summary>
-        /// <param name="families">The families.</param>
-        protected void lbTestPrint_Click( object sender, EventArgs e )
-        {
-            if ( CurrentCheckInState != null && CurrentCheckInState.Kiosk != null )
-            {
-                CheckInLabel label = new CheckInLabel();
-
-                // get the current kiosk print options
-                var device = CurrentCheckInState.Kiosk.Device;
-                if ( device != null )
-                {
-                    label.PrintFrom = device.PrintFrom;
-                    label.PrintTo = device.PrintToOverride;
-                    label.PrinterDeviceId = device.PrinterDeviceId;
-                    label.PrinterAddress = device.IPAddress;
-                }
-
-                // set the label content
-                var labelContent = GetAttributeValue( "TestLabelContent" );
-                labelContent = Regex.Replace( labelContent, string.Format( @"(?<=\^FD){0}(?=\^FS)", "DeviceName" ), CurrentCheckInState.Kiosk.Device.Name );
-                labelContent = Regex.Replace( labelContent, string.Format( @"(?<=\^FD){0}(?=\^FS)", "PrinterIP" ), label.PrinterAddress );
-
-                // try printing the label
-                if ( !string.IsNullOrWhiteSpace( labelContent ) && label.PrinterAddress != null )
-                {
-                    var socket = new Socket( AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp );
-                    var printerIpEndPoint = new IPEndPoint( IPAddress.Parse( label.PrinterAddress ), 9100 );
-                    var result = socket.BeginConnect( printerIpEndPoint, null, null );
-                    bool success = result.AsyncWaitHandle.WaitOne( 5000, true );
-
-                    if ( socket.Connected )
-                    {
-                        var ns = new NetworkStream( socket );
-                        byte[] toSend = System.Text.Encoding.ASCII.GetBytes( labelContent.ToString() );
-                        ns.Write( toSend, 0, toSend.Length );
-                    }
-                    else
-                    {
-                        maAlert.Show( string.Format( "Can't connect to printer: {0} from {1}", label.PrinterAddress, device.Name ), ModalAlertType.Alert );
-                        pnlContent.Update();
-                    }
-
-                    if ( socket != null && socket.Connected )
-                    {
-                        socket.Shutdown( SocketShutdown.Both );
-                        socket.Close();
-                    }
-                }
-            }
-            else
-            {
-                maAlert.Show( "Current check-in state is not instantiated.", ModalAlertType.Alert );
-                pnlContent.Update();
             }
         }
 
@@ -494,6 +439,76 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 .OrderBy( g => g.Key )
                 .Select( g => g.Value )
                 .ToList();
+        }
+
+        /// <summary>
+        /// Prints a test label.
+        /// </summary>        
+        protected void SendTestPrint()
+        {
+            if ( CurrentKioskId != null )
+            {
+                CheckInLabel label = new CheckInLabel();
+
+                // get the current kiosk print options
+                Device device = null;
+                if ( CurrentCheckInState != null )
+                {
+                    device = CurrentCheckInState.Kiosk.Device;
+                }
+                else
+                {
+                    using ( var rockContext = new RockContext() )
+                    {
+                        device = new DeviceService( rockContext ).Get( (int)CurrentKioskId );
+                    }
+                }
+
+                if ( device != null )
+                {
+                    label.PrintFrom = device.PrintFrom;
+                    label.PrintTo = device.PrintToOverride;
+                    label.PrinterDeviceId = device.PrinterDeviceId;
+                    label.PrinterAddress = device.IPAddress;
+                }
+
+                // set the label content
+                var labelContent = GetAttributeValue( "TestLabelContent" );
+                labelContent = Regex.Replace( labelContent, string.Format( @"(?<=\^FD){0}(?=\^FS)", "DeviceName" ), device.Name );
+                labelContent = Regex.Replace( labelContent, string.Format( @"(?<=\^FD){0}(?=\^FS)", "PrinterIP" ), label.PrinterAddress );
+
+                // try printing the label
+                if ( !string.IsNullOrWhiteSpace( labelContent ) && !string.IsNullOrWhiteSpace( label.PrinterAddress ) )
+                {
+                    var socket = new Socket( AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp );
+                    var printerIpEndPoint = new IPEndPoint( IPAddress.Parse( label.PrinterAddress ), 9100 );
+                    var result = socket.BeginConnect( printerIpEndPoint, null, null );
+                    bool success = result.AsyncWaitHandle.WaitOne( 5000, true );
+
+                    if ( socket.Connected )
+                    {
+                        var ns = new NetworkStream( socket );
+                        byte[] toSend = System.Text.Encoding.ASCII.GetBytes( labelContent.ToString() );
+                        ns.Write( toSend, 0, toSend.Length );
+                    }
+                    else
+                    {
+                        maAlert.Show( string.Format( "Can't connect to printer {0} from {1}", label.PrinterAddress, device.Name ), ModalAlertType.Alert );
+                        pnlContent.Update();
+                    }
+
+                    if ( socket != null && socket.Connected )
+                    {
+                        socket.Shutdown( SocketShutdown.Both );
+                        socket.Close();
+                    }
+                }
+            }
+            else
+            {
+                maAlert.Show( "Current check-in state is not instantiated.", ModalAlertType.Alert );
+                pnlContent.Update();
+            }
         }
 
         #endregion Internal Methods

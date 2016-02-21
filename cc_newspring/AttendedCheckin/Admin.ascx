@@ -14,8 +14,8 @@
         <Rock:ModalAlert ID="maAlert" runat="server" />
 
         <div style="display: none">
+            <asp:LinkButton ID="lbTestPrint" runat="server" />
             <asp:LinkButton ID="lbRefresh" runat="server" OnClick="lbRefresh_Click" />
-            <asp:LinkButton ID="lbTestPrint" runat="server" OnClick="lbTestPrint_Click" />
             <asp:LinkButton ID="lbCheckGeoLocation" runat="server" OnClick="lbCheckGeoLocation_Click" />
         </div>
 
@@ -56,13 +56,15 @@
 
     var setClickEvents = function () {
 
-        $(document).keydown(function (e) {
+        $(document).unbind('keydown').keydown(function (e) {
             if (e.keyCode === 73 && e.ctrlKey) {
-                alert('firing');
-                $('a[id$="lbTestPrint"]').onclick();
-                $('a[id$="lbTestPrint"]').click();
-                $('a[id$="lbTestPrint"]').trigger('click');
-                $('a[id$="lbTestPrint"]').trigger('onclick');
+
+                e.stopPropagation();
+                __doPostBack($('a[id$="lbTestPrint"]').attr('id'), '');
+                return false;
+
+                // doesn't ever work
+                //$('a[id$="lbTestPrint"]').click();
             }
         });
 
