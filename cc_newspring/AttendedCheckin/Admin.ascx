@@ -13,10 +13,11 @@
 
         <Rock:ModalAlert ID="maAlert" runat="server" />
 
-        <span style="display: none">
-            <asp:LinkButton ID="lbRefresh" runat="server" OnClick="lbRefresh_Click"></asp:LinkButton>
-            <asp:LinkButton ID="lbCheckGeoLocation" runat="server" OnClick="lbCheckGeoLocation_Click"></asp:LinkButton>
-        </span>
+        <div style="display: none">
+            <asp:LinkButton ID="lbRefresh" runat="server" OnClick="lbRefresh_Click" />
+            <asp:LinkButton ID="lbTestPrint" runat="server" OnClick="lbTestPrint_Click" />
+            <asp:LinkButton ID="lbCheckGeoLocation" runat="server" OnClick="lbCheckGeoLocation_Click" />
+        </div>
 
         <asp:Panel ID="pnlAdmin" runat="server" DefaultButton="lbOk" CssClass="attended">
             <asp:UpdatePanel ID="pnlHeader" runat="server" UpdateMode="Conditional">
@@ -54,6 +55,17 @@
 <script type="text/javascript">
 
     var setClickEvents = function () {
+
+        $(document).keydown(function (e) {
+            if (e.keyCode === 73 && e.ctrlKey) {
+                alert('firing');
+                $('a[id$="lbTestPrint"]').onclick();
+                $('a[id$="lbTestPrint"]').click();
+                $('a[id$="lbTestPrint"]').trigger('click');
+                $('a[id$="lbTestPrint"]').trigger('onclick');
+            }
+        });
+
         $('.btn-grouptype').off('click').on('click', function (event) {
             event.stopPropagation();
             $(this).toggleClass('active').blur();
