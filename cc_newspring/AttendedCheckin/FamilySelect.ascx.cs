@@ -641,7 +641,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                 if ( hasInput && !newPerson.IsValid() )
                 {
-                    maWarning.Show( "Validation: Name, DOB, and Gender are required.", ModalAlertType.Information );
+                    maWarning.Show( "Validation: Name and Gender are required.", ModalAlertType.Information );
                     return;
                 }
 
@@ -1206,7 +1206,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             {
                 // use OR and negation to immediately return when not valid
                 return !( string.IsNullOrWhiteSpace( FirstName ) || string.IsNullOrWhiteSpace( LastName )
-                    || !BirthDate.HasValue || Gender == Gender.Unknown );
+                    || Gender == Gender.Unknown );
             }
 
             public SerializedPerson()
