@@ -443,7 +443,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
         /// <summary>
         /// Prints a test label.
-        /// </summary>        
+        /// </summary>
         protected void SendTestPrint()
         {
             if ( CurrentKioskId != null )
@@ -454,7 +454,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 Device device = null;
                 if ( CurrentCheckInState != null )
                 {
-                    device = CurrentCheckInState.Kiosk.Device;                    
+                    device = CurrentCheckInState.Kiosk.Device;
                 }
 
                 if ( device == null || device.PrinterDevice == null )
@@ -464,8 +464,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         var deviceService = new DeviceService( rockContext );
                         device = device ?? deviceService.Get( (int)CurrentKioskId );
                         device.PrinterDevice = device.PrinterDevice ?? deviceService.Get( (int)device.PrinterDeviceId );
-                    }                    
-                }                
+                    }
+                }
 
                 if ( device != null )
                 {
