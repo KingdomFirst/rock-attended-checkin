@@ -454,22 +454,25 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 Device device = null;
                 if ( CurrentCheckInState != null )
                 {
-                    device = CurrentCheckInState.Kiosk.Device;
+                    device = CurrentCheckInState.Kiosk.Device;                    
                 }
-                else
+
+                if ( device == null || device.PrinterDevice == null )
                 {
                     using ( var rockContext = new RockContext() )
                     {
-                        device = new DeviceService( rockContext ).Get( (int)CurrentKioskId );
-                    }
-                }
+                        var deviceService = new DeviceService( rockContext );
+                        device = device ?? deviceService.Get( (int)CurrentKioskId );
+                        device.PrinterDevice = device.PrinterDevice ?? deviceService.Get( (int)device.PrinterDeviceId );
+                    }                    
+                }                
 
                 if ( device != null )
                 {
                     label.PrintFrom = device.PrintFrom;
                     label.PrintTo = device.PrintToOverride;
                     label.PrinterDeviceId = device.PrinterDeviceId;
-                    label.PrinterAddress = device.IPAddress;
+                    label.PrinterAddress = device.PrinterDevice.IPAddress;
                 }
 
                 // set the label content
@@ -502,6 +505,14 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         socket.Shutdown( SocketShutdown.Both );
                         socket.Close();
                     }
+
+                    maAlert.Show( string.Format( "Sent a test print job to {0} from {1}", label.PrinterAddress, device.Name ), ModalAlertType.Information );
+                    pnlContent.Update();
+                }
+                else
+                {
+                    maAlert.Show( "The test label or the device printer is not configured correctly.", ModalAlertType.Alert );
+                    pnlContent.Update();
                 }
             }
             else
