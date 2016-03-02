@@ -135,19 +135,17 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         private void AttemptKioskMatchByIpOrName()
         {
             // match kiosk by ip/name.
-            string hostIp = Request.ServerVariables["REMOTE_ADDR"];
-            string forwardedIp = Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
-            string ipAddress = forwardedIp ?? hostIp;
+            string ipAddress = RockPage.GetClientIpAddress();
             bool skipDeviceNameLookup = false;
 
             var rockContext = new RockContext();
             var checkInDeviceTypeId = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.DEVICE_TYPE_CHECKIN_KIOSK ).Id;
             var device = new DeviceService( rockContext ).GetByIPAddress( ipAddress, checkInDeviceTypeId, skipDeviceNameLookup );
-                      
+
             string hostName = string.Empty;
             try
             {
-                hostName = System.Net.Dns.GetHostEntry( ipAddress ).HostName ?? ipAddress;
+                hostName = System.Net.Dns.GetHostEntry( ipAddress ).HostName;
             }
             catch ( System.Net.Sockets.SocketException )
             {
