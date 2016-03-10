@@ -58,11 +58,36 @@
                     </asp:Panel>
                 </div>
             </div>
+
+            <div class="row">
+                <h4 class="text-center">
+                    <span id="clock"></span>
+                </h4>
+            </div>
         </asp:Panel>
     </ContentTemplate>
 </asp:UpdatePanel>
 
 <script type="text/javascript">
+
+    var updateClock = function ()
+    {
+        var today = new Date();
+        var h = today.getHours();
+        var m = today.getMinutes();
+
+        var ampm = h >= 12 ? "pm" : "am";
+        h = h % 12;
+        h = h > 0 ? h : 12;
+
+        if (m < 10)
+        {
+            m = "0" + m;
+        }
+
+        document.getElementById("clock").innerHTML = h + ":" + m + " " + ampm;
+        setTimeout(updateClock, 1000);
+    };
 
     var setClickEvents = function () {
         $('.tenkey a.digit').unbind('click').click(function () {
@@ -94,6 +119,8 @@
 
     $(document).ready(function () {
         setClickEvents();
+        updateClock();
     });
+
     Sys.WebForms.PageRequestManager.getInstance().add_endRequest(setClickEvents);
 </script>
