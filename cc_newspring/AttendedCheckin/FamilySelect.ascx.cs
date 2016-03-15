@@ -154,6 +154,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
             else if ( !selectedPeopleIds.Any() )
             {
+                hfSelectedPerson.Value = ViewState["hfSelectedPerson"] as string;
+                hfSelectedVisitor.Value = ViewState["hfSelectedVisitor"] as string;
                 maWarning.Show( "Please pick at least one person.", ModalAlertType.Warning );
                 return;
             }
@@ -804,6 +806,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     memberDataSource.ForEach( p => p.Selected = true );
 
                     hfSelectedPerson.Value = string.Join( ",", memberDataSource.Select( f => f.Person.Id ) ) + ",";
+                    ViewState["hfSelectedPerson"] = hfSelectedPerson.Value;
 
                     visitorDataSource = selectedFamily.People.Where( f => !f.FamilyMember && !f.ExcludedByFilter )
                         .OrderByDescending( p => p.Person.AgePrecise ).ToList();
@@ -811,6 +814,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     {
                         hfSelectedVisitor.Value = string.Join( ",", visitorDataSource.Where( f => f.Selected )
                             .Select( f => f.Person.Id ).ToList() ) + ",";
+                        ViewState["hfSelectedVisitor"] = hfSelectedVisitor.Value;
                     }
                 }
 
@@ -1136,12 +1140,12 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                 if ( person.Age < 18 )
                 {
-					groupMember.GroupRoleId = familyGroupType.Roles.FirstOrDefault( r =>
+                    groupMember.GroupRoleId = familyGroupType.Roles.FirstOrDefault( r =>
                         r.Guid == new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_FAMILY_MEMBER_CHILD ) ).Id;
                 }
                 else
                 {
-					groupMember.GroupRoleId = familyGroupType.Roles.FirstOrDefault( r =>
+                    groupMember.GroupRoleId = familyGroupType.Roles.FirstOrDefault( r =>
                         r.Guid == new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_FAMILY_MEMBER_ADULT ) ).Id;
                 }
 
