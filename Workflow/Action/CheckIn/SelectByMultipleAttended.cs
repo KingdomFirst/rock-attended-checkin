@@ -78,12 +78,12 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
 
                 foreach ( var previousAttender in family.People.Where( p => p.Selected && !p.FirstTime ) )
                 {
-                    var personGroupTypeIds = previousAttender.GroupTypes.Select( gt => gt.GroupType.Id );
+                    var currentlyConfiguredGroupTypeIds = previousAttender.GroupTypes.Select( gt => gt.GroupType.Id ).ToList();
 
                     var lastDateAttendances = attendanceService.Queryable()
                         .Where( a =>
                             a.PersonAlias.PersonId == previousAttender.Person.Id &&
-                            personGroupTypeIds.Contains( a.Group.GroupTypeId ) &&
+                            currentlyConfiguredGroupTypeIds.Contains( a.Group.GroupTypeId ) &&
                             a.StartDateTime >= cutoffDate && a.DidAttend == true )
                         .OrderByDescending( a => a.StartDateTime ).Take( maxAssignments )
                         .ToList();
@@ -178,8 +178,12 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         }
                                         else
                                         {
-                                            // if the schedule doesn't exactly match but everything else does, select it
+                                            // if the schedule doesn't exactly match but everything else does, still select it
+                                            // NOTE: this is helpful for a child coming at a different service time than normal
                                             schedule = location.Schedules.FirstOrDefault( s => ( !s.ExcludedByFilter && !hasSpecialNeeds ) );
+
+                                            // if the schedule doesn't match previous attendance, it's impossible to currently be checked in
+                                            serviceCutoff = RockDateTime.Now;
                                         }
 
                                         if ( schedule != null )

@@ -92,14 +92,15 @@
                                     </Columns>
                                 </Rock:Grid>
                             </div>
+                            <%--<div class="">
+                                <asp:LinkButton ID="lbEditInfo" runat="server" Text="Edit Info" CssClass="btn btn-primary btn-block btn-checkin-select" OnClick="lbEditInfo_Click" />
+                            </div>--%>
                         </ContentTemplate>
                     </asp:UpdatePanel>
-                </div>
-            </div>
 
-            <div class="checkin-footer bottom-corner col-xs-3 col-xs-offset-9">
-                <div class="">
-                    <asp:LinkButton ID="lbEditInfo" runat="server" Text="Edit Info" CssClass="btn btn-primary btn-block btn-checkin-select" OnClick="lbEditInfo_Click" CausesValidation="false" />
+                    <div class="">
+                        <asp:LinkButton ID="lbEditInfo" runat="server" Text="Edit Info" CssClass="btn btn-primary btn-block btn-checkin-select" OnClick="lbEditInfo_Click" CausesValidation="false" />
+                    </div>
                 </div>
             </div>
         </asp:Panel>

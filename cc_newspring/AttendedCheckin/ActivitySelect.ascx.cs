@@ -674,6 +674,12 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbNext_Click( object sender, EventArgs e )
         {
+            if ( gSelectedGrid.Rows.Count == 0 )
+            {
+                maWarning.Show( "Please select at least one assignment for this person.", ModalAlertType.Warning );
+                return;
+            }
+
             GoNext();
         }
 
