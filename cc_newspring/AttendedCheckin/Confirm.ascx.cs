@@ -266,32 +266,30 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             if ( alreadyCheckedIn )
             {
                 bool removeAttendance = GetAttributeValue( "RemoveAttendanceOnCheckout" ).AsBoolean();
-                Task.Run( () =>
+
+                var rockContext = new RockContext();
+                var today = RockDateTime.Now.Date;
+                var tomorrow = today.AddDays( 1 );
+                var personAttendance = rockContext.Attendances.FirstOrDefault( a => a.StartDateTime >= today
+                        && a.StartDateTime < tomorrow
+                        && a.LocationId == locationId
+                        && a.ScheduleId == scheduleId
+                        && a.GroupId == groupId
+                        && a.PersonAlias.PersonId == personId );
+
+                if ( personAttendance != null )
                 {
-                    var rockContext = new RockContext();
-                    var today = RockDateTime.Now.Date;
-                    var tomorrow = today.AddDays( 1 );
-                    var personAttendance = rockContext.Attendances.FirstOrDefault( a => a.StartDateTime >= today
-                            && a.StartDateTime < tomorrow
-                            && a.LocationId == locationId
-                            && a.ScheduleId == scheduleId
-                            && a.GroupId == groupId
-                            && a.PersonAlias.PersonId == personId );
-
-                    if ( personAttendance != null )
+                    if ( removeAttendance )
                     {
-                        if ( removeAttendance )
-                        {
-                            rockContext.Attendances.Remove( personAttendance );
-                        }
-                        else
-                        {
-                            personAttendance.EndDateTime = RockDateTime.Now;
-                        }
-
-                        rockContext.SaveChanges();
+                        rockContext.Attendances.Remove( personAttendance );
                     }
-                } );
+                    else
+                    {
+                        personAttendance.EndDateTime = RockDateTime.Now;
+                    }
+
+                    rockContext.SaveChanges();
+                }
             }
 
             var selectedPerson = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected )
