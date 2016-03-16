@@ -53,7 +53,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             base.OnInit( e );
 
-            if ( CurrentCheckInState == null )
+            if ( CurrentCheckInState == null || CurrentGroupTypeIds == null )
             {
                 NavigateToLinkedPage( "AdminPage" );
                 return;
