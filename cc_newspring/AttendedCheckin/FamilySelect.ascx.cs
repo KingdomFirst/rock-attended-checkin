@@ -567,24 +567,13 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     if ( checkInPerson == null )
                     {
                         var rockContext = new RockContext();
+                        checkInPerson = new CheckInPerson();
                         checkInPerson.Person = new PersonService( rockContext ).Get( personId ).Clone( false );
 
                         if ( !newPersonType.Value.Equals( "Visitor" ) )
                         {
                             // New family member, add them to the current family if they don't exist
-                            var groupMemberService = new GroupMemberService( rockContext );
-                            if ( !selectedFamily.Group.Members.Any( gm => gm.PersonId == personId ) )
-                            {
-                                var familyMember = new GroupMember();
-                                familyMember.GroupId = selectedFamily.Group.Id;
-                                familyMember.PersonId = personId;
-                                familyMember.IsSystem = false;
-                                familyMember.GroupMemberStatus = GroupMemberStatus.Active;
-                                familyMember.GroupRoleId = (int)selectedFamily.Group.GroupType.DefaultGroupRoleId;
-
-                                groupMemberService.Add( familyMember );
-                                rockContext.SaveChanges();
-                            }
+                            AddGroupMembers( selectedFamily.Group, new List<Person>() { checkInPerson.Person });
 
                             checkInPerson.FamilyMember = true;
                         }
@@ -1135,8 +1124,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 var groupMember = new GroupMember();
                 groupMember.IsSystem = false;
                 groupMember.IsNotified = false;
-                groupMember.GroupId = familyGroup.Id;
+                groupMember.GroupId = familyGroup.Id;                
                 groupMember.PersonId = person.Id;
+                groupMember.GroupMemberStatus = GroupMemberStatus.Active;
 
                 if ( person.Age < 18 )
                 {
