@@ -490,31 +490,41 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
         protected void lbNewPerson_Click( object sender, EventArgs e )
         {
-            var selectedFamily = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
-            if ( selectedFamily != null )
+            var newPerson = new SerializedPerson()
             {
-                // CreatePeople only has a single person to validate/create
-                var newPerson = new SerializedPerson()
+                FirstName = tbPersonFirstName.Text,
+                LastName = tbPersonLastName.Text,
+                SuffixValueId = ddlPersonSuffix.SelectedValueAsId(),
+                BirthDate = dpPersonDOB.SelectedDate,
+                Gender = ddlPersonGender.SelectedValueAsEnum<Gender>(),
+                Ability = ddlPersonAbilityGrade.SelectedValue,
+                AbilityGroup = ddlPersonAbilityGrade.SelectedItem.Attributes["optiongroup"],
+                HasSpecialNeeds = cbPersonSpecialNeeds.Checked
+            };
+
+            if ( newPerson.IsValid() )
+            {	// Person passed validation
+                var newPeople = CreatePeople( new List<SerializedPerson>( 1 ) { newPerson } );
+
+                var checkInPerson = new CheckInPerson();
+                checkInPerson.Person = newPeople.FirstOrDefault();
+                checkInPerson.FirstTime = true;
+
+                var selectedFamily = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
+                if ( selectedFamily == null )
                 {
-                    FirstName = tbPersonFirstName.Text,
-                    LastName = tbPersonLastName.Text,
-                    SuffixValueId = ddlPersonSuffix.SelectedValueAsId(),
-                    BirthDate = dpPersonDOB.SelectedDate,
-                    Gender = ddlPersonGender.SelectedValueAsEnum<Gender>(),
-                    Ability = ddlPersonAbilityGrade.SelectedValue,
-                    AbilityGroup = ddlPersonAbilityGrade.SelectedItem.Attributes["optiongroup"],
-                    HasSpecialNeeds = cbPersonSpecialNeeds.Checked
-                };
+                    // No family currently selected, create a new one
+                    selectedFamily = new CheckInFamily();
+                    selectedFamily.Selected = true;
 
-                if ( newPerson.IsValid() )
-                {	// Person passed validation
-                    var newPeople = CreatePeople( new List<SerializedPerson>( 1 ) { newPerson } );
-
-                    var checkInPerson = new CheckInPerson();
-                    checkInPerson.Person = newPeople.FirstOrDefault();
-                    checkInPerson.FirstTime = true;
-
-                    if ( !newPersonType.Value.Equals( "Visitor" ) )
+                    selectedFamily.Group = AddGroupMembers( null, newPeople );
+                    selectedFamily.Caption = selectedFamily.Group.Name;
+                    CurrentCheckInState.CheckIn.Families.Add( selectedFamily );
+                }
+                else
+                {
+                    // Existing family, create the appropriate relationship(s)
+                    if ( newPersonType.Value.Equals( "Person" ) )
                     {   // Family Member
                         AddGroupMembers( selectedFamily.Group, newPeople );
                         hfSelectedPerson.Value += checkInPerson.Person.Id + ",";
@@ -533,18 +543,18 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                             AddGroupMembers( null, newPeople );
                         }
                     }
-
-                    checkInPerson.Selected = true;
-                    selectedFamily.People.Add( checkInPerson );
-                    selectedFamily.SubCaption = string.Join( ",", selectedFamily.People.Select( p => p.Person.FirstName ) );
-
-                    ProcessPeople( selectedFamily );
-                    mdlAddPerson.Hide();
                 }
-                else
-                {
-                    maWarning.Show( "Validation: Name, DOB, and Gender are required.", ModalAlertType.Information );
-                }
+
+                checkInPerson.Selected = true;
+                selectedFamily.People.Add( checkInPerson );
+                selectedFamily.SubCaption = string.Join( ",", selectedFamily.People.Select( p => p.Person.FirstName ) );
+
+                ProcessPeople( selectedFamily );
+                mdlAddPerson.Hide();
+            }
+            else
+            {
+                maWarning.Show( "Validation: Name, DOB, and Gender are required.", ModalAlertType.Information );
             }
         }
 
@@ -570,10 +580,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         checkInPerson = new CheckInPerson();
                         checkInPerson.Person = new PersonService( rockContext ).Get( personId ).Clone( false );
 
-                        if ( !newPersonType.Value.Equals( "Visitor" ) )
+                        if ( newPersonType.Value.Equals( "Person" ) )
                         {
                             // New family member, add them to the current family if they don't exist
-                            AddGroupMembers( selectedFamily.Group, new List<Person>() { checkInPerson.Person });
+                            AddGroupMembers( selectedFamily.Group, new List<Person>() { checkInPerson.Person } );
 
                             checkInPerson.FamilyMember = true;
                         }
@@ -1124,7 +1134,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 var groupMember = new GroupMember();
                 groupMember.IsSystem = false;
                 groupMember.IsNotified = false;
-                groupMember.GroupId = familyGroup.Id;                
+                groupMember.GroupId = familyGroup.Id;
                 groupMember.PersonId = person.Id;
                 groupMember.GroupMemberStatus = GroupMemberStatus.Active;
 
