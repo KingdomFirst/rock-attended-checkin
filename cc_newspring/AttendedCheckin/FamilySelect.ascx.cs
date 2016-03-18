@@ -41,6 +41,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [Description( "Attended Check-In Family Select Block" )]
     [BooleanField( "Enable Add Buttons", "Show the add people/visitor/family buttons on the family select page?", true )]
     [DefinedValueField( "2E6540EA-63F0-40FE-BE50-F2A84735E600", "Default Connection Status", "Select the default connection status for people added in checkin", true, false, "B91BA046-BC1E-400C-B85D-638C1F4E0CE2" )]
+    [AttributeField( "72657ED8-D16E-492E-AC12-144C5E7567E7", "Person Special Needs Attribute", "Select the person attribute used to filter kids with special needs.", true, false, "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF" )]
     [TextField( "Not Found Text", "What text should display when the nothing is found?", true, "Please add them using one of the buttons on the right" )]
     public partial class FamilySelect : CheckInBlock
     {
@@ -69,6 +70,38 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         .FirstOrDefault();
                     ViewState["CampusId"] = kioskCampusId;
                     return kioskCampusId;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the person special needs attribute key.
+        /// </summary>
+        /// <value>
+        /// The special needs key.
+        /// </value>
+        private string SpecialNeedsKey
+        {
+            get
+            {
+                var specialNeedsKey = ViewState["SpecialNeedsKey"] as string;
+                if ( !string.IsNullOrWhiteSpace( specialNeedsKey ) )
+                {
+                    return specialNeedsKey;
+                }
+                else
+                {
+                    var personSpecialNeedsGuid = GetAttributeValue( "PersonSpecialNeedsAttribute" ).AsGuid();
+                    if ( personSpecialNeedsGuid != Guid.Empty )
+                    {
+                        specialNeedsKey = new RockContext().Attributes.Where( a => a.Guid == personSpecialNeedsGuid ).Select( a => a.Key ).FirstOrDefault();
+                        ViewState["SpecialNeedsKey"] = specialNeedsKey;
+                        return specialNeedsKey;
+                    }
+                    else
+                    {
+                        throw new Exception( "The selected Person Special Needs attribute is invalid for the FamilySelect page." );
+                    }
                 }
             }
         }
@@ -509,6 +542,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 var checkInPerson = new CheckInPerson();
                 checkInPerson.Person = newPeople.FirstOrDefault();
                 checkInPerson.FirstTime = true;
+                bool processFamily = false;
 
                 var selectedFamily = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
                 if ( selectedFamily == null )
@@ -520,6 +554,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     selectedFamily.Group = AddGroupMembers( null, newPeople );
                     selectedFamily.Caption = selectedFamily.Group.Name;
                     CurrentCheckInState.CheckIn.Families.Add( selectedFamily );
+                    processFamily = true;
                 }
                 else
                 {
@@ -548,6 +583,12 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 checkInPerson.Selected = true;
                 selectedFamily.People.Add( checkInPerson );
                 selectedFamily.SubCaption = string.Join( ",", selectedFamily.People.Select( p => p.Person.FirstName ) );
+
+                if ( processFamily )
+                {
+                    ShowHideResults( selectedFamily.People.Count > 0 );
+                    ProcessFamily( selectedFamily );
+                }
 
                 ProcessPeople( selectedFamily );
                 mdlAddPerson.Hide();
@@ -597,6 +638,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         checkInPerson.Selected = true;
                         selectedFamily.People.Add( checkInPerson );
                         ProcessPeople( selectedFamily );
+                    }
+                    else
+                    {
+                        maWarning.Show( "That person is already in the existing family", ModalAlertType.Information );
                     }
 
                     mdlAddPerson.Hide();
@@ -852,8 +897,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         private void ShowHideResults( bool hasValidResults )
         {
             lbNext.Enabled = hasValidResults;
-            lbAddFamilyMember.Enabled = hasValidResults;
-            lbAddVisitor.Enabled = hasValidResults;
             lbNext.Visible = hasValidResults;
             pnlFamily.Visible = hasValidResults;
             pnlPerson.Visible = hasValidResults;
@@ -964,8 +1007,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
             // Set a filter if special needs was checked
             if ( cbPersonSpecialNeeds.Checked )
-            {
-                peopleQry = peopleQry.WhereAttributeValue( rockContext, "HasSpecialNeeds", "Yes" );
+            {   
+                peopleQry = peopleQry.WhereAttributeValue( rockContext, SpecialNeedsKey, "Yes" );
             }
 
             // call list here to get virtual properties not supported in LINQ
@@ -989,8 +1032,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         : abilityLevelValues.Where( dv => dv.Guid.ToString()
                             .Equals( p.AttributeValues["AbilityLevel"].Value, StringComparison.OrdinalIgnoreCase ) )
                             .Select( dv => dv.Value ).FirstOrDefault(),
-                    HasSpecialNeeds = p.AttributeValues.Keys.Contains( "HasSpecialNeeds" )
-                         ? p.AttributeValues["HasSpecialNeeds"].Value
+                    HasSpecialNeeds = p.AttributeValues.Keys.Contains( SpecialNeedsKey )
+                         ? p.AttributeValues[SpecialNeedsKey].Value
                          : string.Empty
                 } ).OrderByDescending( p => p.BirthDate ).ToList();
 
@@ -1085,7 +1128,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         person.SaveAttributeValues( rockContext );
                     }
 
-                    person.SetAttributeValue( "HasSpecialNeeds", personData.HasSpecialNeeds ? "Yes" : string.Empty );
+                    person.SetAttributeValue( SpecialNeedsKey, personData.HasSpecialNeeds ? "Yes" : string.Empty );
                     person.SaveAttributeValues( rockContext );
                 }
 

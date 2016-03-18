@@ -36,6 +36,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [Category( "Check-in > Attended" )]
     [Description( "Attended Check-In Activity Select Block" )]
     [BooleanField( "Display Group Names", "By default location names are shown.  Check this option to show the group names instead.", false )]
+    [AttributeField( "72657ED8-D16E-492E-AC12-144C5E7567E7", "Person Special Needs Attribute", "Select the person attribute used to filter kids with special needs.", true, false, "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF" )]
     public partial class ActivitySelect : CheckInBlock
     {
         #region Variables
@@ -56,6 +57,38 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             get
             {
                 return "The selected person's check-in information could not be loaded.";
+            }
+        }
+
+        /// <summary>
+        /// Gets the person special needs attribute key.
+        /// </summary>
+        /// <value>
+        /// The special needs key.
+        /// </value>
+        private string SpecialNeedsKey
+        {
+            get
+            {
+                var specialNeedsKey = ViewState["SpecialNeedsKey"] as string;
+                if ( !string.IsNullOrWhiteSpace( specialNeedsKey ) )
+                {
+                    return specialNeedsKey;
+                }
+                else
+                {
+                    var personSpecialNeedsGuid = GetAttributeValue( "PersonSpecialNeedsAttribute" ).AsGuid();
+                    if ( personSpecialNeedsGuid != Guid.Empty )
+                    {
+                        specialNeedsKey = new RockContext().Attributes.Where( a => a.Guid == personSpecialNeedsGuid ).Select( a => a.Key ).FirstOrDefault();
+                        ViewState["SpecialNeedsKey"] = specialNeedsKey;
+                        return specialNeedsKey;
+                    }
+                    else
+                    {
+                        throw new Exception( "The selected Person Special Needs attribute is invalid for the FamilySelect page." );
+                    }
+                }
             }
         }
 
@@ -622,8 +655,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
 
             // Always save the special needs value
-            person.SetAttributeValue( "HasSpecialNeeds", cbSpecialNeeds.Checked ? "Yes" : string.Empty );
-            currentPerson.Person.SetAttributeValue( "HasSpecialNeeds", cbSpecialNeeds.Checked ? "Yes" : string.Empty );
+            person.SetAttributeValue( SpecialNeedsKey, cbSpecialNeeds.Checked ? "Yes" : string.Empty );
+            currentPerson.Person.SetAttributeValue( SpecialNeedsKey, cbSpecialNeeds.Checked ? "Yes" : string.Empty );
 
             // store the allergies
             var allergyAttribute = Rock.Web.Cache.AttributeCache.Read( new Guid( Rock.SystemGuid.Attribute.PERSON_ALLERGY ), rockContext );
@@ -860,7 +893,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 tbLastName.Text = person.Person.LastName;
                 tbNickname.Text = person.Person.NickName;
                 dpDOB.SelectedDate = person.Person.BirthDate;
-                cbSpecialNeeds.Checked = person.Person.GetAttributeValue( "HasSpecialNeeds" ).AsBoolean();
+                cbSpecialNeeds.Checked = person.Person.GetAttributeValue( SpecialNeedsKey ).AsBoolean();
 
                 tbFirstName.Required = true;
                 tbLastName.Required = true;
