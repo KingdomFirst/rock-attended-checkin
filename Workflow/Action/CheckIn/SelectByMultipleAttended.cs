@@ -24,6 +24,7 @@ using Rock.Attribute;
 using Rock.CheckIn;
 using Rock.Data;
 using Rock.Model;
+using Rock.Web.Cache;
 using Rock.Workflow;
 using Rock.Workflow.Action.CheckIn;
 
@@ -70,11 +71,12 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                 .Select( s => s.Trim() );
 
             // get the admin-selected attribute key instead of using a hardcoded key
+            var personSpecialNeedsKey = string.Empty;
             var personSpecialNeedsGuid = GetAttributeValue( action, "PersonSpecialNeedsAttribute" ).AsGuid();
-            var personSpecialNeedsKey = rockContext.Attributes
-                .Where( a => a.Guid.Equals( personSpecialNeedsGuid ) )
-                .Select( a => a.Key )
-                .FirstOrDefault();
+            if ( personSpecialNeedsGuid != Guid.Empty )
+            {
+                personSpecialNeedsKey = AttributeCache.Read( personSpecialNeedsGuid, rockContext ).Key;
+            }
 
             // log a warning if the attribute is missing or invalid
             if ( string.IsNullOrWhiteSpace( personSpecialNeedsKey ) )

@@ -71,29 +71,33 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                 .Select( s => s.Trim() );
 
             // get admin-selected attribute keys instead of using a hardcoded key
+            var personSpecialNeedsKey = string.Empty;
             var personSpecialNeedsGuid = GetAttributeValue( action, "PersonSpecialNeedsAttribute" ).AsGuid();
-            var personSpecialNeedsKey = rockContext.Attributes
-                .Where( a => a.Guid.Equals( personSpecialNeedsGuid ) )
-                .Select( a => a.Key )
-                .FirstOrDefault();
+            if ( personSpecialNeedsGuid != Guid.Empty )
+            {
+                personSpecialNeedsKey = AttributeCache.Read( personSpecialNeedsGuid, rockContext ).Key;
+            }
 
+            var groupSpecialNeedsKey = string.Empty;
             var groupSpecialNeedsGuid = GetAttributeValue( action, "GroupSpecialNeedsAttribute" ).AsGuid();
-            var groupSpecialNeedsKey = rockContext.Attributes
-                .Where( a => a.Guid.Equals( groupSpecialNeedsGuid ) )
-                .Select( a => a.Key )
-                .FirstOrDefault();
+            if ( personSpecialNeedsGuid != Guid.Empty )
+            {
+                groupSpecialNeedsKey = AttributeCache.Read( groupSpecialNeedsGuid, rockContext ).Key;
+            }
 
+            var groupAgeRangeKey = string.Empty;
             var groupAgeRangeGuid = GetAttributeValue( action, "GroupAgeRangeAttribute" ).AsGuid();
-            var groupAgeRangeKey = rockContext.Attributes
-                .Where( a => a.Guid.Equals( groupAgeRangeGuid ) )
-                .Select( a => a.Key )
-                .FirstOrDefault();
+            if ( personSpecialNeedsGuid != Guid.Empty )
+            {
+                groupAgeRangeKey = AttributeCache.Read( groupAgeRangeGuid, rockContext ).Key;
+            }
 
+            var groupGradeRangeKey = string.Empty;
             var groupGradeRangeGuid = GetAttributeValue( action, "GroupGradeRangeAttribute" ).AsGuid();
-            var groupGradeRangeKey = rockContext.Attributes
-                .Where( a => a.Guid.Equals( groupGradeRangeGuid ) )
-                .Select( a => a.Key )
-                .FirstOrDefault();
+            if ( personSpecialNeedsGuid != Guid.Empty )
+            {
+                groupGradeRangeKey = AttributeCache.Read( groupGradeRangeGuid, rockContext ).Key;
+            }
 
             // log a warning if any of the attributes are missing or invalid
             if ( string.IsNullOrWhiteSpace( personSpecialNeedsKey ) )
