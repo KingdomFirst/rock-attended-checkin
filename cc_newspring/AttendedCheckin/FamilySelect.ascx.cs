@@ -94,13 +94,19 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     var personSpecialNeedsGuid = GetAttributeValue( "PersonSpecialNeedsAttribute" ).AsGuid();
                     if ( personSpecialNeedsGuid != Guid.Empty )
                     {
-                        specialNeedsKey = new RockContext().Attributes.Where( a => a.Guid == personSpecialNeedsGuid ).Select( a => a.Key ).FirstOrDefault();
-                        ViewState["SpecialNeedsKey"] = specialNeedsKey;
-                        return specialNeedsKey;
+                        var specialNeedsAttribute = AttributeCache.Read( personSpecialNeedsGuid );
+                        if ( specialNeedsAttribute != null )
+                        {
+                              specialNeedsKey = specialNeedsAttribute.Key;
+                            ViewState["SpecialNeedsKey"] = specialNeedsKey;
+                            return specialNeedsKey;
+                        }
+
+                        return string.Empty;
                     }
                     else
                     {
-                        throw new Exception( "The selected Person Special Needs attribute is invalid for the FamilySelect page." );
+                        throw new Exception( "The Person Special Needs attribute is not selected or invalid on the FamilySelect page." );
                     }
                 }
             }
