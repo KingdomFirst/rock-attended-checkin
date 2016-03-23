@@ -1007,7 +1007,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
             // Set a filter if special needs was checked
             if ( cbPersonSpecialNeeds.Checked )
-            {   
+            {
                 peopleQry = peopleQry.WhereAttributeValue( rockContext, SpecialNeedsKey, "Yes" );
             }
 
@@ -1217,7 +1217,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         private void AddVisitorRelationships( CheckInFamily family, int visitorId, RockContext rockContext = null )
         {
             rockContext = rockContext ?? new RockContext();
-            foreach ( var familyMember in family.People.Where( p => p.FamilyMember && p.Person.Age >= 18 ) )
+            foreach ( var familyMember in family.People.Where( p => p.FamilyMember ) )
             {
                 Person.CreateCheckinRelationship( familyMember.Person.Id, visitorId, rockContext );
             }
