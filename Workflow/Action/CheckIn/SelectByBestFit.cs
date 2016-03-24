@@ -37,8 +37,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
     [Export( typeof( ActionComponent ) )]
     [ExportMetadata( "ComponentName", "Select By Best Fit" )]
     [BooleanField( "Prioritize Group Membership", "Auto-assign the group and location where the person is a group member. The default value is no.", false, "", 0 )]
-    //[BooleanField( "Room Balance", "Auto-assign the location with the least number of current people. This only applies when a person fits into multiple groups or locations.", false, "", 1 )]
-    [GroupTypesField( "Room Balance GroupTypes", "Select the grouptype(s) you want to room balance. This will pick the group or location (within a grouptype) with the least number of people.", false, order: 1 )]
+    [GroupTypesField( "Room Balance Grouptypes", "Select the grouptype(s) you want to room balance. This will auto-assign the group or location (within a grouptype) with the least number of people.", false, order: 1 )]
     [IntegerField( "Balancing Override", "Enter the maximum difference between two locations before room balancing overrides previous attendance.  The default value is 5.", false, 5, "", 2 )]
     [TextField( "Excluded Locations", "Enter a comma-delimited list of location name(s) to manually exclude from room balancing (like catch-all rooms).", false, "Base Camp", order: 3 )]
     [AttributeField( "72657ED8-D16E-492E-AC12-144C5E7567E7", "Person Special Needs Attribute", "Select the attribute used to filter special needs people.", false, false, "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF", order: 4 )]
@@ -131,6 +130,10 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
 
                     // check if this person has special needs
                     var hasSpecialNeeds = person.Person.GetAttributeValue( personSpecialNeedsKey ).AsBoolean();
+
+                    // get a list of room balanced grouptype ID's since CheckInGroup model is a shallow clone
+                    var roomBalanceGroupTypeIds = person.GroupTypes.Where( gt => roomBalanceGroupTypes.Contains( gt.GroupType.Guid ) )
+                        .Select( gt => gt.GroupType.Id ).ToList();
 
                     if ( person.GroupTypes.Count > 0 )
                     {
@@ -278,7 +281,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     bestGroup = closestNeedsGroup ?? closestGradeGroup ?? closestAgeGroup ?? validGroups.FirstOrDefault( g => !g.ExcludedByFilter );
 
                                     // room balance if they fit into multiple groups
-                                    if ( bestGroup != null && roomBalanceGroupTypes.Contains( bestGroup.Group.GroupType.Guid ) )
+                                    if ( bestGroup != null && roomBalanceGroupTypeIds.Contains( bestGroup.Group.GroupTypeId ) )
                                     {
                                         var currentGroupAttendance = bestGroup.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum();
                                         var lowestGroup = validGroups.Where( g => !g.ExcludedByFilter && !excludedLocations.Contains( g.Group.Name ) )
@@ -312,7 +315,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     var filteredLocations = validLocations.Where( l => !l.ExcludedByFilter && !excludedLocations.Contains( l.Location.Name ) && l.Schedules.Any( s => s.Schedule.IsCheckInActive ) );
 
                                     // room balance if they fit into multiple locations
-                                    if ( roomBalanceGroupTypes.Contains( bestGroup.Group.GroupType.Guid ) )
+                                    if ( roomBalanceGroupTypeIds.Contains( bestGroup.Group.GroupTypeId ) )
                                     {
                                         filteredLocations = filteredLocations.OrderBy( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount );
                                     }
