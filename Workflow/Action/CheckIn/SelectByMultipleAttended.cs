@@ -193,41 +193,37 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         }
                                         else
                                         {
-                                            schedule = location.Schedules.FirstOrDefault( s => s.Schedule.Id == groupAttendance.ScheduleId && ( !s.ExcludedByFilter || useCheckinOverride ) );
+                                            // prioritize what they last attended, otherwise pick the earliest available schedule
+                                            schedule = location.Schedules.OrderBy( s => s.Schedule.StartTimeOfDay ).FirstOrDefault( s => s.Schedule.Id == groupAttendance.ScheduleId || !( s.ExcludedByFilter || useCheckinOverride ) );
                                         }
-
-                                        // if the schedule didn't exactly match what they attended (or was blank), select one
-                                        // NOTE: it's impossible to currently be checked in with a schedule that doesn't match
-                                        //if ( schedule == null )
-                                        //{
-                                        //    schedule = location.Schedules.FirstOrDefault( s => ( !s.ExcludedByFilter && !useCheckinOverride ) );
-                                        //    serviceCutoff = RockDateTime.Now;
-                                        //}
 
                                         if ( schedule != null )
                                         {
-                                            // NOTE: a checkout would've removed the attendance or set the EndDateTime
-                                            var endOfCheckinWindow = groupAttendance.EndDateTime ?? serviceCutoff;
+                                            // it's impossible to currently be checked in unless these match exactly
+                                            if ( group.Group.Id == groupAttendance.GroupId && location.Location.Id == groupAttendance.LocationId && schedule.Schedule.Id == groupAttendance.ScheduleId )
+                                            {
+                                                // Checkout would've removed the attendance or set the EndDateTime
+                                                var endOfCheckinWindow = groupAttendance.EndDateTime ?? serviceCutoff;
+                                                schedule.LastCheckIn = endOfCheckinWindow;
+                                                location.LastCheckIn = endOfCheckinWindow;
+                                                group.LastCheckIn = endOfCheckinWindow;
+                                                groupType.LastCheckIn = endOfCheckinWindow;
+                                                previousAttender.LastCheckIn = endOfCheckinWindow;
+                                            }
 
                                             // finished finding assignment, verify everything is selected
                                             schedule.Selected = true;
                                             schedule.PreSelected = true;
-                                            schedule.LastCheckIn = endOfCheckinWindow;
                                             location.Selected = true;
                                             location.PreSelected = true;
-                                            location.LastCheckIn = endOfCheckinWindow;
                                             group.Selected = true;
                                             group.PreSelected = true;
-                                            group.LastCheckIn = endOfCheckinWindow;
                                             groupType.Selected = true;
                                             groupType.PreSelected = true;
-                                            group.LastCheckIn = endOfCheckinWindow;
                                             groupType.Selected = true;
                                             groupType.PreSelected = true;
-                                            groupType.LastCheckIn = endOfCheckinWindow;
                                             previousAttender.Selected = true;
                                             previousAttender.PreSelected = true;
-                                            previousAttender.LastCheckIn = endOfCheckinWindow;
                                         }
                                     }
                                 }
