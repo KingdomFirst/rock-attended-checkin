@@ -267,29 +267,34 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             {
                 bool removeAttendance = GetAttributeValue( "RemoveAttendanceOnCheckout" ).AsBoolean();
 
-                var rockContext = new RockContext();
-                var today = RockDateTime.Now.Date;
-                var tomorrow = today.AddDays( 1 );
-                var personAttendance = rockContext.Attendances.FirstOrDefault( a => a.StartDateTime >= today
+                // run task asynchronously so the UI doesn't slow down
+                Task.Run( () =>
+                {
+                    var rockContext = new RockContext();
+                    var today = RockDateTime.Now.Date;
+                    var tomorrow = today.AddDays( 1 );
+                    var personAttendance = rockContext.Attendances.FirstOrDefault( a => a.StartDateTime >= today
                         && a.StartDateTime < tomorrow
                         && a.LocationId == locationId
                         && a.ScheduleId == scheduleId
                         && a.GroupId == groupId
-                        && a.PersonAlias.PersonId == personId );
+                        && a.PersonAlias.PersonId == personId
+                    );
 
-                if ( personAttendance != null )
-                {
-                    if ( removeAttendance )
+                    if ( personAttendance != null )
                     {
-                        rockContext.Attendances.Remove( personAttendance );
-                    }
-                    else
-                    {
-                        personAttendance.EndDateTime = RockDateTime.Now;
-                    }
+                        if ( removeAttendance )
+                        {
+                            rockContext.Attendances.Remove( personAttendance );
+                        }
+                        else
+                        {
+                            personAttendance.EndDateTime = RockDateTime.Now;
+                        }
 
-                    rockContext.SaveChanges();
-                }
+                        rockContext.SaveChanges();
+                    }
+                } );
             }
 
             var selectedPerson = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected )
