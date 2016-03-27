@@ -62,7 +62,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
             }
 
             var roomBalanceGroupTypes = GetAttributeValue( action, "RoomBalanceGrouptypes" ).SplitDelimitedValues().AsGuidList();
-            int roomBalanceOverride = GetAttributeValue( action, "DifferentialOverride" ).AsIntegerOrNull() ?? 5;
+            int roomBalanceOverride = GetAttributeValue( action, "BalancingOverride" ).AsIntegerOrNull() ?? 5;
             int previousMonthsNumber = GetAttributeValue( action, "PreviousMonthsAttendance" ).AsIntegerOrNull() ?? 3;
             int maxAssignments = GetAttributeValue( action, "MaxAssignments" ).AsIntegerOrNull() ?? 5;
             var excludedLocations = GetAttributeValue( action, "ExcludedLocations" ).SplitDelimitedValues( whitespace: false )
@@ -136,7 +136,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                 }
                                 else
                                 {
-                                    // Pick the group they last attended
+                                    // Pick the group they last attended, as long as it's open or what they're currently checked into
                                     group = groupType.Groups.FirstOrDefault( g => g.Group.Id == groupAttendance.GroupId && ( !g.ExcludedByFilter || useCheckinOverride ) );
 
                                     // room balance only on new check-ins
@@ -165,7 +165,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     }
                                     else
                                     {
-                                        // Pick the location they last attended
+                                        // Pick the location they last attended, as long as it's open or what they're currently checked into
                                         location = group.Locations.FirstOrDefault( l => l.Location.Id == groupAttendance.LocationId && ( !l.ExcludedByFilter || useCheckinOverride ) );
 
                                         // room balance only on new check-ins
@@ -173,7 +173,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         {
                                             var currentAttendance = KioskLocationAttendance.Read( location.Location.Id ).CurrentCount;
                                             var lowestAttendedLocation = group.Locations.Where( l => !l.ExcludedByFilter && !excludedLocations.Contains( l.Location.Name ) )
-                                                .Select( l => new { Location = l, Attendance = KioskLocationAttendance.Read( location.Location.Id ).CurrentCount } )
+                                                .Select( l => new { Location = l, Attendance = KioskLocationAttendance.Read( l.Location.Id ).CurrentCount } )
                                                 .OrderBy( l => l.Attendance )
                                                 .FirstOrDefault();
 
