@@ -536,6 +536,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     PrintLabels( printQueue );
                     printQueue.Clear();
                 }
+                else
+                {   // give the user feedback when no labels are configured
+                    phPrinterStatus.Controls.Add( new LiteralControl( "No labels were created.  Please verify that the grouptype is configured with labels and cache is reset." ) );
+                }
 
                 if ( printIndividually )
                 {
