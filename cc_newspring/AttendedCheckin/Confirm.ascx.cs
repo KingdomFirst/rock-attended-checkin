@@ -450,14 +450,27 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         SaveState();
                     }
 
+                    // mark the user as being checked in
+                    var selectedSchedules = availableLocations.Where( l => l.Selected )
+                        .SelectMany( s => s.Schedules ).Where( s => s.Selected ).ToList();
+                    foreach ( var selectedSchedule in selectedSchedules )
+                    {
+                        var serviceStart = (DateTime)selectedSchedule.StartTime;
+                        selectedSchedule.LastCheckIn = serviceStart.AddMinutes( (double)selectedSchedule.Schedule.CheckInEndOffsetMinutes );
+                    }
+
+
                     // Add valid grouptype labels, excluding the one-time label (if set)
                     if ( printIndividually )
                     {
                         var selectedPerson = selectedPeople.FirstOrDefault( p => p.Person.Id == personId );
-                        labels.AddRange( selectedPerson.GroupTypes.Where( gt => gt.Labels != null )
-                            .SelectMany( gt => gt.Labels )
-                            .Where( l => ( !RemoveFromQueue || l.FileGuid != designatedLabelGuid ) )
-                        );
+                        if ( selectedPerson != null )
+                        {
+                            labels.AddRange( selectedPerson.GroupTypes.Where( gt => gt.Labels != null )
+                                .SelectMany( gt => gt.Labels )
+                                .Where( l => ( !RemoveFromQueue || l.FileGuid != designatedLabelGuid ) )
+                            );
+                        }
 
                         RemoveFromQueue = RemoveFromQueue || labels.Any( l => l.FileGuid == designatedLabelGuid );
                     }
@@ -551,6 +564,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     availableSchedules.ForEach( s => s.Selected = s.PreSelected );
                 }
             }
+
+            // refresh the currently checked in flag
+            BindGrid(); 
         }
 
         /// <summary>
