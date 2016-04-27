@@ -450,7 +450,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         SaveState();
                     }
 
-                    // mark the user as being checked in
+                    // mark the person as being checked in
                     var selectedSchedules = availableLocations.Where( l => l.Selected )
                         .SelectMany( s => s.Schedules ).Where( s => s.Selected ).ToList();
                     foreach ( var selectedSchedule in selectedSchedules )
@@ -458,7 +458,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         var serviceStart = (DateTime)selectedSchedule.StartTime;
                         selectedSchedule.LastCheckIn = serviceStart.AddMinutes( (double)selectedSchedule.Schedule.CheckInEndOffsetMinutes );
                     }
-
 
                     // Add valid grouptype labels, excluding the one-time label (if set)
                     if ( printIndividually )
@@ -566,7 +565,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
 
             // refresh the currently checked in flag
-            BindGrid(); 
+            BindGrid();
         }
 
         /// <summary>

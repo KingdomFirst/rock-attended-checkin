@@ -193,8 +193,11 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         }
                                         else
                                         {
-                                            // prioritize what they last attended, otherwise pick the earliest available schedule
-                                            schedule = location.Schedules.OrderBy( s => s.Schedule.StartTimeOfDay ).FirstOrDefault( s => s.Schedule.Id == groupAttendance.ScheduleId || !( s.ExcludedByFilter || useCheckinOverride ) );
+                                            // pick what they last attended last
+                                            schedule = location.Schedules.FirstOrDefault( s => s.Schedule.Id == groupAttendance.ScheduleId && ( !s.ExcludedByFilter || useCheckinOverride ) );
+
+                                            // otherwise pick the earliest available schedule
+                                            schedule = schedule ?? location.Schedules.OrderBy( s => s.Schedule.StartTimeOfDay ).FirstOrDefault( s => !s.ExcludedByFilter );
                                         }
 
                                         if ( schedule != null )
