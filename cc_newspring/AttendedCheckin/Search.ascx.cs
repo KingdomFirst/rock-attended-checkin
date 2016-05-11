@@ -37,10 +37,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [Description( "Attended Check-In Search block" )]
     [LinkedPage( "Admin Page" )]
     [BooleanField( "Show Key Pad", "Show the number key pad on the search screen", false )]
-    [IntegerField( "Minimum Text Length", "Minimum length for text searches (defaults to 1).", false, 1 )]
-    [IntegerField( "Maximum Text Length", "Maximum length for text searches (defaults to 20).", false, 20 )]
-    [IntegerField( "Refresh Interval", "How often (seconds) should page automatically query server for new check-in data", false, 30 )]
-    [TextField( "Search Regex", "Regular Expression to run the search input through before sending it to the workflow. Useful for stripping off characters.", false )]
     public partial class Search : CheckInBlock
     {
         #region Control Methods
@@ -81,12 +77,14 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             <script>
                 $(document).ready(function (e) {{
                     if (localStorage) {{
-                        localStorage.checkInKiosk = '{0}';
-                        localStorage.checkInGroupTypes = '{1}';
+                        localStorage.theme = '{0}';
+                        localStorage.checkInKiosk = '{1}';
+                        localStorage.checkInType = '{2}';
+                        localStorage.checkInGroupTypes = '{3}';
                     }}
                 }});
             </script>
-            ", CurrentKioskId, CurrentGroupTypeIds.AsDelimited( "," ) );
+            ", CurrentTheme, CurrentKioskId, CurrentCheckinTypeId, CurrentGroupTypeIds.AsDelimited( "," ) );
                 phScript.Controls.Add( new LiteralControl( script ) );
 
                 if ( GetAttributeValue( "ShowKeyPad" ).AsBoolean() )
@@ -115,9 +113,12 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 window.clearTimeout(timeout);
                 {1};
             }}
-            ", GetAttributeValue( "RefreshInterval" ), this.Page.ClientScript.GetPostBackEventReference( lbRefresh, "" ) );
+            ", ( CurrentCheckInType != null ? CurrentCheckInType.RefreshInterval.ToString() : "60" ), this.Page.ClientScript.GetPostBackEventReference( lbRefresh, "" ) );
 
             ScriptManager.RegisterStartupScript( Page, Page.GetType(), "RefreshScript", script, true );
+
+            // Set to null so that object will be recreated with a potentially updated group type cache.
+            CurrentCheckInState.CheckInType = null;
         }
 
         #endregion
@@ -137,16 +138,16 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 CurrentCheckInState.CheckIn.UserEnteredSearch = true;
                 CurrentCheckInState.CheckIn.ConfirmSingleFamily = true;
 
-                int minLength = int.Parse( GetAttributeValue( "MinimumTextLength" ) );
-                int maxLength = int.Parse( GetAttributeValue( "MaximumTextLength" ) );
+                int minLength = CurrentCheckInType != null ? CurrentCheckInType.MinimumPhoneSearchLength : 4;
+                int maxLength = CurrentCheckInType != null ? CurrentCheckInType.MaximumPhoneSearchLength : 10;
                 if ( tbSearchBox.Text.Length >= minLength && tbSearchBox.Text.Length <= maxLength )
                 {
                     string searchInput = tbSearchBox.Text;
 
                     // run regex expression on input if provided
-                    if ( !string.IsNullOrWhiteSpace( GetAttributeValue( "SearchRegex" ) ) )
+                    if ( CurrentCheckInType != null && !string.IsNullOrWhiteSpace( CurrentCheckInType.RegularExpressionFilter ) )
                     {
-                        Regex regex = new Regex( GetAttributeValue( "SearchRegex" ) );
+                        Regex regex = new Regex( CurrentCheckInType.RegularExpressionFilter );
                         Match match = regex.Match( searchInput );
                         if ( match.Success )
                         {
