@@ -28,6 +28,7 @@ using Rock.Data;
 using Rock.Lava;
 using Rock.Model;
 using Rock.Web.Cache;
+using System.Threading.Tasks;
 using Rock.Web.UI.Controls;
 
 namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
@@ -36,7 +37,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [Category( "Check-in > Attended" )]
     [Description( "Attended Check-In Activity Select Block" )]
     [BooleanField( "Display Group Names", "By default location names are shown.  Check this option to show the group names instead.", false )]
-    [AttributeField( "72657ED8-D16E-492E-AC12-144C5E7567E7", "Person Special Needs Attribute", "Select the person attribute used to filter kids with special needs.", true, false, "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF" )]
+    [BooleanField( "Remove Attendance On Checkout", "By default, the attendance is given a checkout date.  Select this option to completely remove attendance on checkout.", false )]
+    [AttributeField( Rock.SystemGuid.EntityType.PERSON, "Person Special Needs Attribute", "Select the person attribute used to filter kids with special needs.", true, false, "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF" )]
     public partial class ActivitySelect : CheckInBlock
     {
         #region Variables
@@ -480,8 +482,11 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     lbSchedule.AddCssClass( "active" );
                 }
 
-                var scheduleAttendance = ScheduleAttendanceList.Where( s => s.ScheduleId == schedule.Schedule.Id );
-                lbSchedule.Text = string.Format( "{0} ({1})", schedule.Schedule.Name, scheduleAttendance.Select( s => s.AttendanceCount ).FirstOrDefault() );
+                if ( CurrentCheckInType != null && CurrentCheckInType.DisplayLocationCount )
+                {
+                    var scheduleAttendance = ScheduleAttendanceList.Where( s => s.ScheduleId == schedule.Schedule.Id );
+                    lbSchedule.Text = string.Format( "{0} ({1})", schedule.Schedule.Name, scheduleAttendance.Select( s => s.AttendanceCount ).FirstOrDefault() );
+                }
             }
         }
 
@@ -549,6 +554,43 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         && l.Location.Id == locationId && l.Schedules.Any( s => s.Schedule.Id == scheduleId ) );
                     var selectedSchedule = selectedLocation.Schedules.FirstOrDefault( s => s.Selected
                         && s.Schedule.Id == scheduleId );
+
+                    bool currentlyCheckedIn = selectedSchedule.LastCheckIn != null && selectedSchedule.LastCheckIn > RockDateTime.Now;
+                    if ( currentlyCheckedIn )
+                    {
+                        bool removeAttendance = GetAttributeValue( "RemoveAttendanceOnCheckout" ).AsBoolean();
+
+                        // run task asynchronously so the UI doesn't slow down
+                        Task.Run( () =>
+                        {
+                            var rockContext = new RockContext();
+                            var today = RockDateTime.Now.Date;
+                            var tomorrow = today.AddDays( 1 );
+                            var personAttendance = rockContext.Attendances.FirstOrDefault( a => a.StartDateTime >= today
+                                && a.StartDateTime < tomorrow
+                                && a.LocationId == locationId
+                                && a.ScheduleId == scheduleId
+                                && a.GroupId == groupId
+                                && a.PersonAlias.PersonId == person.Person.Id
+                            );
+
+                            if ( personAttendance != null )
+                            {
+                                if ( removeAttendance )
+                                {
+                                    rockContext.Attendances.Remove( personAttendance );
+                                }
+                                else
+                                {
+                                    personAttendance.EndDateTime = RockDateTime.Now;
+                                }
+
+                                rockContext.SaveChanges();
+                            }
+                        } );
+                    }
+
+                    // started from the bottom now we here
                     selectedSchedule.Selected = false;
 
                     // clear checkin rows without anything selected
