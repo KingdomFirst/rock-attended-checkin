@@ -40,8 +40,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [Category( "Check-in > Attended" )]
     [Description( "Attended Check-In Family Select Block" )]
     [BooleanField( "Enable Add Buttons", "Show the add people/visitor/family buttons on the family select page?", true )]
-    [DefinedValueField( "2E6540EA-63F0-40FE-BE50-F2A84735E600", "Default Connection Status", "Select the default connection status for people added in checkin", true, false, "B91BA046-BC1E-400C-B85D-638C1F4E0CE2" )]
-    [AttributeField( "72657ED8-D16E-492E-AC12-144C5E7567E7", "Person Special Needs Attribute", "Select the person attribute used to filter kids with special needs.", true, false, "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF" )]
+    [DefinedValueField( Rock.SystemGuid.DefinedType.PERSON_CONNECTION_STATUS, "Default Connection Status", "Select the default connection status for people added in checkin", true, false, "B91BA046-BC1E-400C-B85D-638C1F4E0CE2" )]
+    [AttributeField( Rock.SystemGuid.EntityType.PERSON, "Person Special Needs Attribute", "Select the person attribute used to filter kids with special needs.", true, false, "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF" )]
     [TextField( "Not Found Text", "What text should display when the nothing is found?", true, "Please add them using one of the buttons on the right" )]
     public partial class FamilySelect : CheckInBlock
     {
