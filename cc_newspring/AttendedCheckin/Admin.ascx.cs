@@ -66,7 +66,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             if ( !Page.IsPostBack )
             {
                 // Set the check-in state from values passed on query string
+                bool themeRedirect = PageParameter( "ThemeRedirect" ).AsBoolean( false );
                 CurrentKioskId = PageParameter( "KioskId" ).AsIntegerOrNull();
+                CurrentCheckinTypeId = PageParameter( "CheckinTypeId" ).AsIntegerOrNull();
 
                 var queryStringConfig = PageParameter( "GroupTypeIds" );
                 if ( !string.IsNullOrEmpty( queryStringConfig ) )
@@ -191,6 +193,23 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             if ( CurrentKioskId == null || CurrentKioskId == 0 )
             {
                 CurrentKioskId = hfKiosk.ValueAsInt();
+            }
+
+            // If Kiosk and GroupTypes were passed, but not a checkin type, try to calculate it from the group types.
+            if ( CurrentKioskId.HasValue && CurrentGroupTypeIds.Any() && !CurrentCheckinTypeId.HasValue )
+            {
+                if ( !CurrentCheckinTypeId.HasValue )
+                {
+                    foreach ( int groupTypeId in CurrentGroupTypeIds )
+                    {
+                        var checkinType = GetCheckinType( groupTypeId );
+                        if ( checkinType != null )
+                        {
+                            CurrentCheckinTypeId = checkinType.Id;
+                            break;
+                        }
+                    }
+                }
             }
 
             var selectedGroupTypes = hfGroupTypes.Value.SplitDelimitedValues().Select( int.Parse ).Distinct().ToList();
@@ -334,15 +353,16 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <returns></returns>
         public static Device GetCurrentKioskByGeoFencing( string sLatitude, string sLongitude )
         {
-            var rockContext = new RockContext();
             double latitude = double.Parse( sLatitude );
             double longitude = double.Parse( sLongitude );
-            var checkInDeviceType = DefinedValueCache.Read( new Guid( Rock.SystemGuid.DefinedValue.DEVICE_TYPE_CHECKIN_KIOSK ), rockContext );
+            var checkInDeviceTypeId = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.DEVICE_TYPE_CHECKIN_KIOSK ).Id;
 
             // We need to use the DeviceService until we can get the GeoFence to JSON Serialize/Deserialize.
-            Device kiosk = new DeviceService( rockContext ).GetByGeocode( latitude, longitude, checkInDeviceType.Id );
-
-            return kiosk;
+            using ( var rockContext = new RockContext() )
+            {
+                Device kiosk = new DeviceService( rockContext ).GetByGeocode( latitude, longitude, checkInDeviceTypeId );
+                return kiosk;
+            }
         }
 
         #endregion GeoLocation related
@@ -385,6 +405,57 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         #endregion Storage Methods
 
         #region Internal Methods
+
+        /// <summary>
+        /// Gets the primary check-in area to read settings from
+        /// </summary>
+        /// <param name="groupTypeId">The group type identifier.</param>
+        /// <returns></returns>
+        private GroupTypeCache GetCheckinType( int? groupTypeId )
+        {
+            Guid templateTypeGuid = Rock.SystemGuid.DefinedValue.GROUPTYPE_PURPOSE_CHECKIN_TEMPLATE.AsGuid();
+            var templateType = DefinedValueCache.Read( templateTypeGuid );
+            if ( templateType != null )
+            {
+                return GetCheckinType( GroupTypeCache.Read( groupTypeId.Value ), templateType.Id );
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Gets the primary check-in area to read settings from
+        /// </summary>
+        /// <param name="groupType">Type of the group.</param>
+        /// <param name="templateTypeId">The template type identifier.</param>
+        /// <param name="recursionControl">The recursion control.</param>
+        /// <returns></returns>
+        private GroupTypeCache GetCheckinType( GroupTypeCache groupType, int templateTypeId, List<int> recursionControl = null )
+        {
+            if ( groupType != null )
+            {
+                recursionControl = recursionControl ?? new List<int>();
+                if ( !recursionControl.Contains( groupType.Id ) )
+                {
+                    recursionControl.Add( groupType.Id );
+                    if ( groupType.GroupTypePurposeValueId.HasValue && groupType.GroupTypePurposeValueId == templateTypeId )
+                    {
+                        return groupType;
+                    }
+
+                    foreach ( var parentGroupType in groupType.ParentGroupTypes )
+                    {
+                        var checkinType = GetCheckinType( parentGroupType, templateTypeId, recursionControl );
+                        if ( checkinType != null )
+                        {
+                            return checkinType;
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }
 
         /// <summary>
         /// Binds the group types.
@@ -434,6 +505,41 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 .OrderBy( g => g.Key )
                 .Select( g => g.Value )
                 .ToList();
+        }
+
+        /// <summary>
+        /// Redirects to the new theme page.
+        /// </summary>
+        /// <param name="theme">The theme.</param>
+        private void RedirectToNewTheme( string theme )
+        {
+            var pageRef = RockPage.PageReference;
+            pageRef.QueryString = new System.Collections.Specialized.NameValueCollection();
+            pageRef.Parameters = new Dictionary<string, string>();
+            pageRef.Parameters.Add( "theme", theme );
+            pageRef.Parameters.Add( "KioskId", CurrentKioskId.ToStringSafe() );
+            pageRef.Parameters.Add( "CheckinTypeId", CurrentCheckinTypeId.ToStringSafe() );
+
+            //var groupTypeIds = new List<string>();
+            //foreach ( ListItem item in cblPrimaryGroupTypes.Items )
+            //{
+            //    if ( item.Selected )
+            //    {
+            //        groupTypeIds.Add( item.Value );
+            //    }
+            //}
+            //foreach ( ListItem item in cblAlternateGroupTypes.Items )
+            //{
+            //    if ( item.Selected )
+            //    {
+            //        groupTypeIds.Add( item.Value );
+            //    }
+            //}
+
+            pageRef.Parameters.Add( "GroupTypeIds", CurrentGroupTypeIds.AsDelimited( "," ) );
+            pageRef.Parameters.Add( "ThemeRedirect", "True" );
+
+            Response.Redirect( pageRef.BuildUrl(), false );
         }
 
         /// <summary>
