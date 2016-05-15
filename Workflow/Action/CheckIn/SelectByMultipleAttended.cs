@@ -104,6 +104,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                     if ( lastDateAttendances.Any() )
                     {
                         var lastAttended = lastDateAttendances.Max( a => a.StartDateTime ).Date;
+                        var numAssignments = lastDateAttendances.Count( a => a.StartDateTime >= lastAttended );
                         foreach ( var groupAttendance in lastDateAttendances.Where( a => a.StartDateTime >= lastAttended ) )
                         {
                             bool currentlyCheckedIn = false;

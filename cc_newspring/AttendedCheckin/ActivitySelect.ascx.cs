@@ -248,35 +248,34 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 var groupTypes = person.GroupTypes.ToList();
                 foreach ( var groupType in groupTypes )
                 {
-                    History.EvaluateChange( changes, "GroupType Change", groupType.PreSelected, groupType.Selected );
+                    History.EvaluateChange( changes, string.Format("{0} Grouptype", groupType ), groupType.PreSelected, groupType.Selected );
                     groupType.PreSelected = groupType.Selected;
                 }
 
                 var groups = groupTypes.SelectMany( gt => gt.Groups ).ToList();
                 foreach ( var group in groups )
                 {
-                    History.EvaluateChange( changes, "Group Change", group.PreSelected, group.Selected );
+                    History.EvaluateChange( changes, string.Format( "{0} Group", group ), group.PreSelected, group.Selected );
                     group.PreSelected = group.Selected;
                 }
 
                 var locations = groups.SelectMany( g => g.Locations ).ToList();
                 foreach ( var location in locations )
                 {
-                    History.EvaluateChange( changes, "Location Change", location.PreSelected, location.Selected );
+                    History.EvaluateChange( changes, string.Format( "{0} Location", location ), location.PreSelected, location.Selected );
                     location.PreSelected = location.Selected;
                 }
 
-                
                 var schedules = locations.SelectMany( l => l.Schedules ).ToList();
                 foreach ( var schedule in schedules )
                 {
-                    History.EvaluateChange( changes, "Schedule Change", schedule.PreSelected, schedule.Selected );
+                    History.EvaluateChange( changes, string.Format( "{0} Schedule", schedule ), schedule.PreSelected, schedule.Selected );
                     schedule.PreSelected = schedule.Selected;
                 }
 
                 HistoryService.AddChanges(
                     new RockContext(),
-                    typeof( CheckinType ), 
+                    typeof( Person ), 
                     Rock.SystemGuid.Category.HISTORY_PERSON_ACTIVITY.AsGuid(),
                     person.Person.Id,
                     changes,
