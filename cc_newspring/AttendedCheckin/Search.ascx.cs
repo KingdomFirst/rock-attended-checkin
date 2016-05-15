@@ -138,58 +138,58 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 CurrentCheckInState.CheckIn.UserEnteredSearch = true;
                 CurrentCheckInState.CheckIn.ConfirmSingleFamily = true;
 
-                int minLength = CurrentCheckInType != null ? CurrentCheckInType.MinimumPhoneSearchLength : 4;
-                int maxLength = CurrentCheckInType != null ? CurrentCheckInType.MaximumPhoneSearchLength : 10;
-                if ( tbSearchBox.Text.Length >= minLength && tbSearchBox.Text.Length <= maxLength )
-                {
-                    string searchInput = tbSearchBox.Text;
+                var searchInput = tbSearchBox.Text;
 
-                    // run regex expression on input if provided
-                    if ( CurrentCheckInType != null && !string.IsNullOrWhiteSpace( CurrentCheckInType.RegularExpressionFilter ) )
+                // run regex expression on input if provided
+                if ( CurrentCheckInType != null && !string.IsNullOrWhiteSpace( CurrentCheckInType.RegularExpressionFilter ) )
+                {
+                    Regex regex = new Regex( CurrentCheckInType.RegularExpressionFilter );
+                    Match match = regex.Match( searchInput );
+                    if ( match.Success )
                     {
-                        Regex regex = new Regex( CurrentCheckInType.RegularExpressionFilter );
-                        Match match = regex.Match( searchInput );
-                        if ( match.Success )
+                        if ( match.Groups.Count == 2 )
                         {
-                            if ( match.Groups.Count == 2 )
-                            {
-                                searchInput = match.Groups[1].ToString();
-                            }
+                            searchInput = match.Groups[1].ToString();
                         }
                     }
+                }
 
-                    double searchNumber;
-                    if ( Double.TryParse( searchInput, out searchNumber ) )
-                    {
-                        CurrentCheckInState.CheckIn.SearchType = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.CHECKIN_SEARCH_TYPE_PHONE_NUMBER );
-                    }
-                    else
-                    {
-                        CurrentCheckInState.CheckIn.SearchType = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.CHECKIN_SEARCH_TYPE_NAME );
-                    }
+                // check the type of search
+                double searchNumber;
+                if ( Double.TryParse( searchInput, out searchNumber ) )
+                {
+                    CurrentCheckInState.CheckIn.SearchType = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.CHECKIN_SEARCH_TYPE_PHONE_NUMBER );
+                    int minLength = CurrentCheckInType != null ? CurrentCheckInType.MinimumPhoneSearchLength : 4;
+                    int maxLength = CurrentCheckInType != null ? CurrentCheckInType.MaximumPhoneSearchLength : 10;
 
-                    // remember the current search value
-                    CurrentCheckInState.CheckIn.SearchValue = searchInput;
+                    if ( searchInput.Length < minLength || searchInput.Length > maxLength )
+                    {
+                        string errorMsg = ( searchInput.Length > maxLength )
+                            ? string.Format( "<ul><li>Please enter no more than {0} character(s)</li></ul>", maxLength )
+                            : string.Format( "<ul><li>Please enter at least {0} character(s)</li></ul>", minLength );
 
-                    var errors = new List<string>();
-                    if ( ProcessActivity( "Family Search", out errors ) )
-                    {
-                        SaveState();
-                        NavigateToNextPage();
-                    }
-                    else
-                    {
-                        string errorMsg = "<ul><li>" + errors.AsDelimited( "</li><li>" ) + "</li></ul>";
-                        maWarning.Show( errorMsg.Replace( "'", @"\'" ), ModalAlertType.Warning );
+                        maWarning.Show( errorMsg, ModalAlertType.Warning );
+                        return;
                     }
                 }
                 else
                 {
-                    string errorMsg = ( tbSearchBox.Text.Length > maxLength )
-                        ? string.Format( "<ul><li>Please enter no more than {0} character(s)</li></ul>", maxLength )
-                        : string.Format( "<ul><li>Please enter at least {0} character(s)</li></ul>", minLength );
+                    CurrentCheckInState.CheckIn.SearchType = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.CHECKIN_SEARCH_TYPE_NAME );
+                }
 
-                    maWarning.Show( errorMsg, ModalAlertType.Warning );
+                // remember the current search value
+                CurrentCheckInState.CheckIn.SearchValue = searchInput;
+
+                var errors = new List<string>();
+                if ( ProcessActivity( "Family Search", out errors ) )
+                {
+                    SaveState();
+                    NavigateToNextPage();
+                }
+                else
+                {
+                    string errorMsg = "<ul><li>" + errors.AsDelimited( "</li><li>" ) + "</li></ul>";
+                    maWarning.Show( errorMsg.Replace( "'", @"\'" ), ModalAlertType.Warning );
                 }
             }
             else
