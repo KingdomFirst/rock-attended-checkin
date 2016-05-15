@@ -243,17 +243,45 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var person = GetCurrentPerson();
             if ( person != null )
             {
+                 var changes = new List<string>();
+
                 var groupTypes = person.GroupTypes.ToList();
-                groupTypes.ForEach( gt => gt.PreSelected = gt.Selected );
+                foreach ( var groupType in groupTypes )
+                {
+                    History.EvaluateChange( changes, "GroupType Change", groupType.PreSelected, groupType.Selected );
+                    groupType.PreSelected = groupType.Selected;
+                }
 
                 var groups = groupTypes.SelectMany( gt => gt.Groups ).ToList();
-                groups.ForEach( g => g.PreSelected = g.Selected );
+                foreach ( var group in groups )
+                {
+                    History.EvaluateChange( changes, "Group Change", group.PreSelected, group.Selected );
+                    group.PreSelected = group.Selected;
+                }
 
                 var locations = groups.SelectMany( g => g.Locations ).ToList();
-                locations.ForEach( l => l.PreSelected = l.Selected );
+                foreach ( var location in locations )
+                {
+                    History.EvaluateChange( changes, "Location Change", location.PreSelected, location.Selected );
+                    location.PreSelected = location.Selected;
+                }
 
+                
                 var schedules = locations.SelectMany( l => l.Schedules ).ToList();
-                schedules.ForEach( s => s.PreSelected = s.Selected );
+                foreach ( var schedule in schedules )
+                {
+                    History.EvaluateChange( changes, "Schedule Change", schedule.PreSelected, schedule.Selected );
+                    schedule.PreSelected = schedule.Selected;
+                }
+
+                HistoryService.AddChanges(
+                    new RockContext(),
+                    typeof( CheckinType ), 
+                    Rock.SystemGuid.Category.HISTORY_PERSON_ACTIVITY.AsGuid(),
+                    person.Person.Id,
+                    changes,
+                    CurrentPersonAliasId 
+                );
             }
             else
             {
