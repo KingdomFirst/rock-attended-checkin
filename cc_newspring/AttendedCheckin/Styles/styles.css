@@ -231,7 +231,7 @@
   color: rgba(0, 0, 0, 0.2);
 }
 
-.checkin-header input + a > .fa {
+.search-button {
   color: #000000;
   font-size: 28px;
   font-weight: 700;
