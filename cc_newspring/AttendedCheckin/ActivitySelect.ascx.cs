@@ -514,6 +514,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     var scheduleAttendance = ScheduleAttendanceList.Where( s => s.ScheduleId == schedule.Schedule.Id );
                     lbSchedule.Text = string.Format( "{0} ({1})", schedule.Schedule.Name, scheduleAttendance.Select( s => s.AttendanceCount ).FirstOrDefault() );
                 }
+                else
+                {
+                    lbSchedule.Text = string.Format( "{0}", schedule.Schedule.Name );
+                }
             }
         }
 
