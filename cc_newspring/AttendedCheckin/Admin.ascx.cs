@@ -71,16 +71,13 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 CurrentCheckinTypeId = PageParameter( "CheckinTypeId" ).AsIntegerOrNull();
 
                 var queryStringConfig = PageParameter( "GroupTypeIds" );
-                if ( !string.IsNullOrEmpty( queryStringConfig ) )
-                {
-                    CurrentGroupTypeIds = queryStringConfig
-                        .Split( new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries )
-                        .ToList()
-                        .Select( s => s.AsInteger() )
-                        .ToList();
-                }
+                CurrentGroupTypeIds = queryStringConfig.ToStringSafe()
+                       .Split( new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries )
+                       .ToList()
+                       .Select( s => s.AsInteger() )
+                       .ToList();
 
-                if ( CurrentCheckInState != null && CurrentCheckInState.Kiosk != null && CurrentGroupTypeIds != null && !UserBackedUp )
+                if ( CurrentCheckInState != null && CurrentCheckInState.Kiosk != null && CurrentGroupTypeIds.Any() && !UserBackedUp )
                 {
                     // Set the local cache if a session is already active
                     CurrentKioskId = CurrentCheckInState.DeviceId;
