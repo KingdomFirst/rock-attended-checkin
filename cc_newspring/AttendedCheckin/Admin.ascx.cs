@@ -192,23 +192,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 CurrentKioskId = hfKiosk.ValueAsInt();
             }
 
-            // If Kiosk and GroupTypes were passed, but not a checkin type, try to calculate it from the group types.
-            if ( CurrentKioskId.HasValue && CurrentGroupTypeIds.Any() && !CurrentCheckinTypeId.HasValue )
-            {
-                if ( !CurrentCheckinTypeId.HasValue )
-                {
-                    foreach ( int groupTypeId in CurrentGroupTypeIds )
-                    {
-                        var checkinType = GetCheckinType( groupTypeId );
-                        if ( checkinType != null )
-                        {
-                            CurrentCheckinTypeId = checkinType.Id;
-                            break;
-                        }
-                    }
-                }
-            }
-
             var selectedGroupTypes = hfGroupTypes.Value.SplitDelimitedValues().Select( int.Parse ).Distinct().ToList();
             if ( !selectedGroupTypes.Any() )
             {
@@ -221,6 +204,23 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 maAlert.Show( "Please select at least one check-in type.", ModalAlertType.Warning );
                 pnlContent.Update();
                 return;
+            }
+
+            // If Kiosk and GroupTypes were passed, but not a checkin type, try to calculate it from the group types.
+            if ( CurrentKioskId.HasValue && selectedGroupTypes.Any() && !CurrentCheckinTypeId.HasValue )
+            {
+                if ( !CurrentCheckinTypeId.HasValue )
+                {
+                    foreach ( int groupTypeId in selectedGroupTypes )
+                    {
+                        var checkinType = GetCheckinType( groupTypeId );
+                        if ( checkinType != null )
+                        {
+                            CurrentCheckinTypeId = checkinType.Id;
+                            break;
+                        }
+                    }
+                }
             }
 
             // return if kiosk isn't active
