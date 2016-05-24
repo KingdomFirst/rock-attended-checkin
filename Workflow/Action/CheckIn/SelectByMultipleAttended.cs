@@ -104,7 +104,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                     if ( lastDateAttendances.Any() )
                     {
                         var lastAttended = lastDateAttendances.Max( a => a.StartDateTime ).Date;
-                        var numAssignments = lastDateAttendances.Count( a => a.StartDateTime >= lastAttended );
+                        var numAttendances = lastDateAttendances.Count( a => a.StartDateTime >= lastAttended );
                         foreach ( var groupAttendance in lastDateAttendances.Where( a => a.StartDateTime >= lastAttended ) )
                         {
                             bool currentlyCheckedIn = false;
@@ -194,8 +194,13 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         }
                                         else
                                         {
-                                            // pick what they last attended last
-                                            schedule = location.Schedules.FirstOrDefault( s => s.Schedule.Id == groupAttendance.ScheduleId && ( !s.ExcludedByFilter || useCheckinOverride ) );
+                                            // if assigning to multiple services or currently checked in
+                                            // NOTE: useCheckinOverride here would assign SN incorrectly
+                                            if ( numAttendances > 1 || currentlyCheckedIn )
+                                            {
+                                                // pick what they last attended last
+                                                schedule = location.Schedules.FirstOrDefault( s => s.Schedule.Id == groupAttendance.ScheduleId && ( !s.ExcludedByFilter || useCheckinOverride ) );
+                                            }
 
                                             // otherwise pick the earliest available schedule
                                             schedule = schedule ?? location.Schedules.OrderBy( s => s.Schedule.StartTimeOfDay ).FirstOrDefault( s => !s.ExcludedByFilter );
