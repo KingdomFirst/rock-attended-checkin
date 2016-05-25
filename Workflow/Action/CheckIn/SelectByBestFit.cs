@@ -329,7 +329,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                 if ( numValidSchedules > 0 )
                                 {
                                     // finished finding assignment, verify everything is selected
-                                    var bestSchedule = validSchedules.FirstOrDefault();
+                                    var bestSchedule = validSchedules.OrderBy( s => s.Schedule.StartTimeOfDay ).FirstOrDefault();
                                     bestSchedule.Selected = true;
                                     bestSchedule.PreSelected = true;
 
