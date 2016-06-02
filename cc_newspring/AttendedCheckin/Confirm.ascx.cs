@@ -435,6 +435,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         availableLocations = availableGroups.SelectMany( l => l.Locations ).ToList();
                         availableSchedules = availableLocations.SelectMany( s => s.Schedules ).ToList();
 
+                        // Note: This depends on PreSelected being set properly to undo changes later
                         selectedPeople.ForEach( p => p.Selected = ( p.Person.Id == personId ) );
                         selectedGroupTypes.ForEach( gt => gt.Selected = ( gt.GroupType.Id == groupTypeId ) );
                         availableGroups.ForEach( g => g.Selected = ( g.Group.Id == groupId ) );

@@ -243,8 +243,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var person = GetCurrentPerson();
             if ( person != null )
             {
-                 var changes = new List<string>();
-
+                var changes = new List<string>();
+				person.PreSelected = person.Selected;
                 var groupTypes = person.GroupTypes.ToList();
                 foreach ( var groupType in groupTypes )
                 {
