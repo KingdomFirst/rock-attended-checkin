@@ -142,6 +142,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var device = new DeviceService( rockContext ).GetByIPAddress( ipAddress, checkInDeviceTypeId, skipDeviceNameLookup );
 
             string hostName = string.Empty;
+            string deviceLocation = string.Empty;
+
             try
             {
                 hostName = System.Net.Dns.GetHostEntry( ipAddress ).HostName;
@@ -151,7 +153,16 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 hostName = "Unknown";
             }
 
-            lblInfo.Text = string.Format( "Device IP: {0}     Name: {1}", ipAddress, hostName );
+            if ( device != null )
+            {
+                var location = device.Locations.FirstOrDefault();
+                if ( location != null )
+                {
+                    deviceLocation = location.Name;
+                }
+            }
+
+            lblInfo.Text = string.Format( "Device IP: {0} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name: {1} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Location: {2}", ipAddress, hostName, deviceLocation );
 
             if ( device != null )
             {

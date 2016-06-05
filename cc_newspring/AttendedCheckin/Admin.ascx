@@ -57,12 +57,10 @@
         $(document).unbind('keydown').keydown(function (e) {
             if (e.keyCode === 73 && e.ctrlKey) {
 
+                // Ctrl + Shift + I
                 e.stopPropagation();
                 __doPostBack($('a[id$="lbTestPrint"]').attr('id'), '');
                 return false;
-
-                // doesn't ever work
-                //$('a[id$="lbTestPrint"]').click();
             }
         });
 
