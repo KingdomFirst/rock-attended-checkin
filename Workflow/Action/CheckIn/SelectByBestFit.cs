@@ -36,14 +36,14 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
     [Description( "Selects the grouptype, group, location and schedule for each person based on their best fit." )]
     [Export( typeof( ActionComponent ) )]
     [ExportMetadata( "ComponentName", "Select By Best Fit" )]
-    [BooleanField( "Prioritize Group Membership", "Auto-assign the group and location where the person is a group member. The default value is no.", false, "", 0 )]
+    [BooleanField( "Prioritize Group Membership", "Auto-assign the group and location where the person is a group member.", false, "", 0 )]
     [GroupTypesField( "Room Balance Grouptypes", "Select the grouptype(s) you want to room balance. This will auto-assign the group or location (within a grouptype) with the least number of people.", false, order: 1 )]
     [IntegerField( "Balancing Override", "Enter the maximum difference between two locations before room balancing overrides previous attendance.  The default value is 5.", false, 5, "", 2 )]
     [TextField( "Excluded Locations", "Enter a comma-delimited list of location name(s) to manually exclude from room balancing (like catch-all rooms).", false, "Base Camp", order: 3 )]
-    [AttributeField( "72657ED8-D16E-492E-AC12-144C5E7567E7", "Person Special Needs Attribute", "Select the attribute used to filter special needs people.", false, false, "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF", order: 4 )]
-    [AttributeField( "9BBFDA11-0D22-40D5-902F-60ADFBC88987", "Group Special Needs Attribute", "Select the attribute used to filter special needs groups.", false, false, "9210EC95-7B85-4D11-A82E-0B677B32704E", order: 5 )]
-    [AttributeField( "9BBFDA11-0D22-40D5-902F-60ADFBC88987", "Group Age Range Attribute", "Select the attribute used to define the age range of the group", false, false, "43511B8F-71D9-423A-85BF-D1CD08C1998E", order: 6 )]
-    [AttributeField( "9BBFDA11-0D22-40D5-902F-60ADFBC88987", "Group Grade Range Attribute", "Select the attribute used to define the grade range of the group", false, false, "C7C028C2-6582-45E8-839D-5C4467C6FDF4", order: 7 )]
+    [AttributeField( Rock.SystemGuid.EntityType.PERSON, "Person Special Needs Attribute", "Select the attribute used to filter special needs people.", false, false, "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF", order: 4 )]
+    [AttributeField( Rock.SystemGuid.EntityType.GROUP, "Group Special Needs Attribute", "Select the attribute used to filter special needs groups.", false, false, "9210EC95-7B85-4D11-A82E-0B677B32704E", order: 5 )]
+    [AttributeField( Rock.SystemGuid.EntityType.GROUP, "Group Age Range Attribute", "Select the attribute used to define the age range of the group", false, false, "43511B8F-71D9-423A-85BF-D1CD08C1998E", order: 6 )]
+    [AttributeField( Rock.SystemGuid.EntityType.GROUP, "Group Grade Range Attribute", "Select the attribute used to define the grade range of the group", false, false, "C7C028C2-6582-45E8-839D-5C4467C6FDF4", order: 7 )]
     public class SelectByBestFit : CheckInActionComponent
     {
         /// <summary>
@@ -276,8 +276,8 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         }
                                     }
 
-                                    // assignment priority: Ability, then Grade, then Age, then
-                                    // note: if group member is prioritized (and membership exists) this section is skipped entirely
+                                    // Assignment priority: Group Membership, then Ability, then Grade, then Age, then the first non-excluded group
+                                    // NOTE: if group member is prioritized (and membership exists) this section is skipped entirely
                                     bestGroup = closestNeedsGroup ?? closestGradeGroup ?? closestAgeGroup ?? validGroups.FirstOrDefault( g => !g.ExcludedByFilter );
 
                                     // room balance if they fit into multiple groups

@@ -97,7 +97,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         var specialNeedsAttribute = AttributeCache.Read( personSpecialNeedsGuid );
                         if ( specialNeedsAttribute != null )
                         {
-                              specialNeedsKey = specialNeedsAttribute.Key;
+                            specialNeedsKey = specialNeedsAttribute.Key;
                             ViewState["SpecialNeedsKey"] = specialNeedsKey;
                             return specialNeedsKey;
                         }
@@ -1258,8 +1258,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             public bool IsValid()
             {
                 // use OR and negation to immediately return when not valid
-                return !( string.IsNullOrWhiteSpace( FirstName ) || string.IsNullOrWhiteSpace( LastName )
-                    || Gender == Gender.Unknown );
+                return !( string.IsNullOrWhiteSpace( FirstName ) || string.IsNullOrWhiteSpace( LastName ) || Gender == Gender.Unknown );
             }
 
             public SerializedPerson()

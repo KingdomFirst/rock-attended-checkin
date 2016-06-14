@@ -444,7 +444,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     }
 
                     // Create labels for however many items are currently selected
-                    // #TODO: Rewrite CreateLabels so it would only resolve a list of ID's
+                    // #TODO: Rewrite CreateLabels so it would accept a list of ID's
                     var labelErrors = new List<string>();
                     if ( ProcessActivity( "Create Labels", out labelErrors ) )
                     {

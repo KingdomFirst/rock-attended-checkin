@@ -36,7 +36,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [Category( "Check-in > Attended" )]
     [Description( "Attended Check-In Search block" )]
     [LinkedPage( "Admin Page" )]
-    [BooleanField( "Show Key Pad", "Show the number key pad on the search screen", false )]
     public partial class Search : CheckInBlock
     {
         #region Control Methods
@@ -68,6 +67,22 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
             if ( !Page.IsPostBack && CurrentCheckInState != null )
             {
+                if ( CurrentCheckInType.SearchType.Guid == Rock.SystemGuid.DefinedValue.CHECKIN_SEARCH_TYPE_PHONE_NUMBER.AsGuid() )
+                {
+                    pnlKeyPad.Visible = true;
+                    tbSearchBox.Placeholder = "Search By Phone";
+                }
+                else if ( CurrentCheckInType.SearchType.Guid == Rock.SystemGuid.DefinedValue.CHECKIN_SEARCH_TYPE_NAME.AsGuid() )
+                {
+                    pnlKeyPad.Visible = false;
+                    tbSearchBox.Placeholder = "Search By Last Name, First Name";
+                }
+                else
+                {
+                    pnlKeyPad.Visible = false;
+                    tbSearchBox.Placeholder = "Enter Last Name, First Name or Phone";
+                }
+
                 if ( !string.IsNullOrWhiteSpace( CurrentCheckInState.CheckIn.SearchValue ) )
                 {
                     tbSearchBox.Text = CurrentCheckInState.CheckIn.SearchValue;
@@ -86,11 +101,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             </script>
             ", CurrentTheme, CurrentKioskId, CurrentCheckinTypeId, CurrentGroupTypeIds.AsDelimited( "," ) );
                 phScript.Controls.Add( new LiteralControl( script ) );
-
-                if ( GetAttributeValue( "ShowKeyPad" ).AsBoolean() )
-                {
-                    pnlKeyPad.Visible = true;
-                }
 
                 tbSearchBox.Focus();
             }

@@ -39,9 +39,8 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
     [GroupTypesField( "Room Balance Grouptypes", "Select the grouptype(s) you want to room balance. This will auto-assign the group or location (within a grouptype) with the least number of people.", false, order: 0 )]
     [IntegerField( "Balancing Override", "Enter the maximum difference between two locations before room balancing starts to override previous attendance.  The default value is 5.", false, 5, order: 1 )]
     [TextField( "Excluded Locations", "Enter a comma-delimited list of location name(s) to manually exclude from room balancing (like catch-all rooms).", false, "Base Camp", order: 2 )]
-    [IntegerField( "Previous Months Attendance", "Enter the number of previous months to look for attendance history.  The default value is 3 months.", false, 3, order: 3 )]
-    [IntegerField( "Max Assignments", "Enter the maximum number of auto-assignments based on previous attendance.  The default value is 5.", false, 5, order: 4 )]
-    [AttributeField( "72657ED8-D16E-492E-AC12-144C5E7567E7", "Person Special Needs Attribute", "Select the attribute used to filter special needs people.", false, false, "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF", order: 5 )]
+    [IntegerField( "Max Assignments", "Enter the maximum number of auto-assignments based on previous attendance.  The default value is 5.", false, 5, order: 3 )]
+    [AttributeField( Rock.SystemGuid.EntityType.PERSON, "Person Special Needs Attribute", "Select the attribute used to filter special needs people.", false, false, "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF", order: 4 )]
     public class SelectByMultipleAttended : CheckInActionComponent
     {
         /// <summary>
@@ -61,9 +60,9 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                 return false;
             }
 
+            int selectFromDaysBack = checkInState.CheckInType.AutoSelectDaysBack;
             var roomBalanceGroupTypes = GetAttributeValue( action, "RoomBalanceGrouptypes" ).SplitDelimitedValues().AsGuidList();
             int roomBalanceOverride = GetAttributeValue( action, "BalancingOverride" ).AsIntegerOrNull() ?? 5;
-            int previousMonthsNumber = GetAttributeValue( action, "PreviousMonthsAttendance" ).AsIntegerOrNull() ?? 3;
             int maxAssignments = GetAttributeValue( action, "MaxAssignments" ).AsIntegerOrNull() ?? 5;
             var excludedLocations = GetAttributeValue( action, "ExcludedLocations" ).SplitDelimitedValues( whitespace: false )
                 .Select( s => s.Trim() );
@@ -85,7 +84,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
             var family = checkInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
             if ( family != null )
             {
-                var cutoffDate = RockDateTime.Today.AddMonths( previousMonthsNumber * -1 );
+                var cutoffDate = RockDateTime.Today.AddDays( selectFromDaysBack * -1 );
                 var attendanceService = new AttendanceService( rockContext );
 
                 // only process people who have been here before
@@ -194,8 +193,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         }
                                         else
                                         {
-                                            // if assigning to multiple services or currently checked in
-                                            // NOTE: useCheckinOverride here would assign SN incorrectly
+                                            // if assigning to multiple services or currently checked in (not SN, otherwise they would get the wrong auto-schedule)
                                             if ( numAttendances > 1 || currentlyCheckedIn )
                                             {
                                                 // pick what they last attended last
