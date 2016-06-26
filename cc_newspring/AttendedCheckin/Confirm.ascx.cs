@@ -153,6 +153,17 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                 checkIn.GroupId = group.Group.Id;
                                 checkIn.LocationId = location.Location.Id;
                                 checkIn.ScheduleId = schedule.Schedule.Id;
+                                var pSchedule = person.PossibleSchedules.FirstOrDefault( s => s.Schedule.Id == schedule.Schedule.Id );
+                                if ( pSchedule != null)
+                                {
+                                    pSchedule.Selected = true;
+                                    pSchedule.PreSelected = true;
+                                }
+
+                                foreach ( var grouptype in selectedGroupTypes )
+                                {
+                                    grouptype.SelectedForSchedule.Add( schedule.Schedule.Id );
+                                }
 
                                 // LastCheckin is set to the end time of the current service
                                 checkIn.CheckedIn = schedule.LastCheckIn != null && schedule.LastCheckIn > RockDateTime.Now;
