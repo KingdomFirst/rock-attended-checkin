@@ -321,14 +321,14 @@ button.close {
 .btn-checkin-select {
   padding-top: 15px;
   margin-bottom: 12px;
-}
-
-.btn.active {
-  box-shadow: none;
+  background-color:rgba(0, 0, 0, 0.6);
+  outline: none;
+  border:none;
 }
 
 .btn:focus, .btn:active {
   outline: none;
+  box-shadow: none;  
 }
 
 .btn-primary .checkin-sub-title {
