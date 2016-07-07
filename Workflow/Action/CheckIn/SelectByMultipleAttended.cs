@@ -142,13 +142,14 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     // room balance only on new check-ins
                                     if ( group != null && roomBalanceGroupTypeIds.Contains( group.Group.GroupTypeId ) && !useCheckinOverride )
                                     {
+                                        //TODO: use KioskLocationAttendance and group.AvailableForSchedule to room balance by service time attendance, not the entire day
                                         var currentAttendance = group.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum();
                                         var lowestAttendedGroup = groupType.Groups.Where( g => !g.ExcludedByFilter && !excludedLocations.Contains( g.Group.Name ) )
                                             .Select( g => new { Group = g, Attendance = g.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum() } )
                                             .OrderBy( g => g.Attendance )
                                             .FirstOrDefault();
 
-                                        if ( lowestAttendedGroup != null && lowestAttendedGroup.Attendance < ( currentAttendance - roomBalanceOverride ) )
+                                        if ( lowestAttendedGroup != null && lowestAttendedGroup.Attendance < ( currentAttendance - roomBalanceOverride + 1 ) )
                                         {
                                             group = lowestAttendedGroup.Group;
                                         }
@@ -171,13 +172,14 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         // room balance only on new check-ins
                                         if ( location != null && roomBalanceGroupTypeIds.Contains( group.Group.GroupTypeId ) && !useCheckinOverride )
                                         {
+                                            //TODO: use KioskLocationAttendance and location.AvailableForSchedule to room balance by service time attendance, not the entire day
                                             var currentAttendance = KioskLocationAttendance.Read( location.Location.Id ).CurrentCount;
                                             var lowestAttendedLocation = group.Locations.Where( l => !l.ExcludedByFilter && !excludedLocations.Contains( l.Location.Name ) )
                                                 .Select( l => new { Location = l, Attendance = KioskLocationAttendance.Read( l.Location.Id ).CurrentCount } )
                                                 .OrderBy( l => l.Attendance )
                                                 .FirstOrDefault();
 
-                                            if ( lowestAttendedLocation != null && lowestAttendedLocation.Attendance < ( currentAttendance - roomBalanceOverride ) )
+                                            if ( lowestAttendedLocation != null && lowestAttendedLocation.Attendance < ( currentAttendance - roomBalanceOverride + 1 ) )
                                             {
                                                 location = lowestAttendedLocation.Location;
                                             }

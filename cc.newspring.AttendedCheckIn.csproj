@@ -22,7 +22,7 @@
     <OutputPath>bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>1</WarningLevel>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -81,7 +81,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y /R "$(ProjectDir)bin\cc.newspring.AttendedCheckin.dll" "$(SolutionDir)RockWeb\bin"
+    <PostBuildEvent>xcopy /Y /R "$(ProjectDir)bin\$(TargetFileName)" "$(SolutionDir)RockWeb\bin"
 xcopy /Y /I /E "$(ProjectDir)cc_newspring\*.*" "$(SolutionDir)RockWeb\Plugins\cc_newspring"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
