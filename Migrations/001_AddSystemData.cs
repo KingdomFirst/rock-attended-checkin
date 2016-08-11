@@ -19,7 +19,7 @@ using Rock.Plugin;
 
 namespace cc.newspring.AttendedCheckIn.Migrations
 {
-    [MigrationNumber( 1, "1.2.0" )]
+    [MigrationNumber( 1, "1.5.0" )]
     public class AddSystemData : Migration
     {
         public string SpecialNeedsAttributeGuid = "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF";

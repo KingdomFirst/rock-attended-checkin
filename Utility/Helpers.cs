@@ -1,14 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.UI.WebControls;
-using Rock;
-using Rock.Attribute;
-using Rock.CheckIn;
-using Rock.Data;
-using Rock.Model;
 using Rock.Web.Cache;
 using Rock.Web.UI.Controls;
 
