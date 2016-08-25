@@ -580,8 +580,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             if ( CurrentKioskId != null )
             {
-                CheckInLabel label = new CheckInLabel();
-
                 // get the current kiosk print options
                 Device device = null;
                 if ( CurrentCheckInState != null )
@@ -589,6 +587,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     device = CurrentCheckInState.Kiosk.Device;
                 }
 
+                // get the current device and printer
                 if ( device == null || device.PrinterDevice == null )
                 {
                     using ( var rockContext = new RockContext() )
@@ -599,24 +598,22 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     }
                 }
 
-                if ( device != null )
+                var printerAddress = string.Empty;
+                if ( device != null && device.PrinterDevice != null )
                 {
-                    label.PrintFrom = device.PrintFrom;
-                    label.PrintTo = device.PrintToOverride;
-                    label.PrinterDeviceId = device.PrinterDeviceId;
-                    label.PrinterAddress = device.PrinterDevice.IPAddress;
+                    printerAddress = device.PrinterDevice.IPAddress;
                 }
 
                 // set the label content
                 var labelContent = GetAttributeValue( "TestLabelContent" );
                 labelContent = Regex.Replace( labelContent, string.Format( @"(?<=\^FD){0}(?=\^FS)", "DeviceName" ), device.Name );
-                labelContent = Regex.Replace( labelContent, string.Format( @"(?<=\^FD){0}(?=\^FS)", "PrinterIP" ), label.PrinterAddress );
+                labelContent = Regex.Replace( labelContent, string.Format( @"(?<=\^FD){0}(?=\^FS)", "PrinterIP" ), printerAddress );
 
                 // try printing the label
-                if ( !string.IsNullOrWhiteSpace( labelContent ) && !string.IsNullOrWhiteSpace( label.PrinterAddress ) )
+                if ( !string.IsNullOrWhiteSpace( labelContent ) && !string.IsNullOrWhiteSpace( printerAddress ) )
                 {
                     var socket = new Socket( AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp );
-                    var printerIpEndPoint = new IPEndPoint( IPAddress.Parse( label.PrinterAddress ), 9100 );
+                    var printerIpEndPoint = new IPEndPoint( IPAddress.Parse( printerAddress ), 9100 );
                     var result = socket.BeginConnect( printerIpEndPoint, null, null );
                     bool success = result.AsyncWaitHandle.WaitOne( 5000, true );
 
@@ -628,7 +625,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     }
                     else
                     {
-                        maAlert.Show( string.Format( "Can't connect to printer {0} from {1}", label.PrinterAddress, device.Name ), ModalAlertType.Alert );
+                        maAlert.Show( string.Format( "Can't connect to printer {0} from {1}", printerAddress, device.Name ), ModalAlertType.Alert );
                         pnlContent.Update();
                     }
 
@@ -638,12 +635,12 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         socket.Close();
                     }
 
-                    maAlert.Show( string.Format( "Sent a test print job to {0} from {1}", label.PrinterAddress, device.Name ), ModalAlertType.Information );
+                    maAlert.Show( string.Format( "Sent a test print job to {0} from {1}", printerAddress, device.Name ), ModalAlertType.Information );
                     pnlContent.Update();
                 }
                 else
                 {
-                    maAlert.Show( "The test label or the device printer is not configured correctly.", ModalAlertType.Alert );
+                    maAlert.Show( "The test label or the device printer isn't configured with an IP address.", ModalAlertType.Alert );
                     pnlContent.Update();
                 }
             }

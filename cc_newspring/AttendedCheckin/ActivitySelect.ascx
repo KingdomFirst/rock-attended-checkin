@@ -92,9 +92,6 @@
                                     </Columns>
                                 </Rock:Grid>
                             </div>
-                            <%--<div class="">
-                                <asp:LinkButton ID="lbEditInfo" runat="server" Text="Edit Info" CssClass="btn btn-primary btn-block btn-checkin-select" OnClick="lbEditInfo_Click" />
-                            </div>--%>
                         </ContentTemplate>
                     </asp:UpdatePanel>
 
