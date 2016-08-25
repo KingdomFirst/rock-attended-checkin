@@ -32,7 +32,6 @@ using Rock.Attribute;
 using Rock.CheckIn;
 using Rock.Data;
 using Rock.Model;
-using Rock.Web.Cache;
 using Rock.Web.UI;
 using Rock.Web.UI.Controls;
 
@@ -626,48 +625,53 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             string script = string.Format( @"
 
-            // setup deviceready event to wait for cordova
-	        if (navigator.userAgent.match(/(iPhone|iPod|iPad)/)) {{
-                document.addEventListener('deviceready', onDeviceReady, false);
-            }} else {{
-                $( document ).ready(function() {{
-                    onDeviceReady();
-                }});
+        // setup deviceready event to wait for cordova
+	    if (navigator.userAgent.match(/(iPhone|iPod|iPad)/)) {{
+            document.addEventListener('deviceready', onDeviceReady, false);
+        }} else {{
+            $( document ).ready(function() {{
+                onDeviceReady();
+            }});
+        }}
+
+	    // label data
+        var labelData = {0};
+
+		function onDeviceReady() {{
+            try {{			
+                printLabels();
+            }} 
+            catch (err) {{
+                console.log('An error occurred printing labels: ' + err);
             }}
-
-	        // label data
-            var labelData = {0};
-
-		    function onDeviceReady() {{
-			    printLabels();
-		    }}
-
-		    function alertDismissed() {{
-		        // do something
-		    }}
-
-		    function printLabels() {{
-		        ZebraPrintPlugin.printTags(
-            	    JSON.stringify(labelData),
-            	    function(result) {{
-			            console.log('Tag printed');
-			        }},
-			        function(error) {{
-				        // error is an array where:
-				        // error[0] is the error message
-				        // error[1] determines if a re-print is possible (in the case where the JSON is good, but the printer was not connected)
-			            console.log('An error occurred: ' + error[0]);
-                        navigator.notification.alert(
-                            'An error occurred while printing the labels.' + error[0],  // message
-                            alertDismissed,         // callback
-                            'Error',            // title
-                            'Ok'                  // buttonName
-                        );
-			        }}
-                );
-	        }}
-            ", jsonObject );
-            ScriptManager.RegisterStartupScript( this, GetType(), "addLabelScript", script, true );
+		}}
+		
+		function alertDismissed() {{
+		    // do something
+		}}
+		
+		function printLabels() {{
+		    ZebraPrintPlugin.printTags(
+            	JSON.stringify(labelData), 
+            	function(result) {{ 
+			        console.log('Tag printed');
+			    }},
+			    function(error) {{   
+				    // error is an array where:
+				    // error[0] is the error message
+				    // error[1] determines if a re-print is possible (in the case where the JSON is good, but the printer was not connected)
+			        console.log('An error occurred: ' + error[0]);
+                    navigator.notification.alert(
+                        'An error occurred while printing the labels.' + error[0],  // message
+                        alertDismissed,         // callback
+                        'Error',                // title
+                        'Ok'                    // buttonName
+                    );
+			    }}
+            );
+	    }}
+            ", ZebraFormatString( jsonObject ) );
+            ScriptManager.RegisterStartupScript( pnlContent, GetType(), "addLabelScript", script, true );
         }
 
         /// <summary>
