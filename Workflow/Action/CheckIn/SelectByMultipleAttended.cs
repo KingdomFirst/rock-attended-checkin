@@ -40,7 +40,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
     [IntegerField( "Balancing Override", "Enter the maximum difference between two locations before room balancing starts to override previous attendance.  The default value is 5.", false, 5, order: 1 )]
     [TextField( "Excluded Locations", "Enter a comma-delimited list of location name(s) to manually exclude from room balancing (like catch-all rooms).", false, "Base Camp", order: 2 )]
     [IntegerField( "Max Assignments", "Enter the maximum number of auto-assignments based on previous attendance.  The default value is 5.", false, 5, order: 3 )]
-    [AttributeField( Rock.SystemGuid.EntityType.PERSON, "Person Special Needs Attribute", "Select the attribute used to filter special needs people.", false, false, "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF", order: 4 )]
+    [AttributeField( Rock.SystemGuid.EntityType.PERSON, "Person Special Needs Attribute", "Select the attribute used to filter special needs people.", false, false, "", order: 4 )]
     public class SelectByMultipleAttended : CheckInActionComponent
     {
         /// <summary>

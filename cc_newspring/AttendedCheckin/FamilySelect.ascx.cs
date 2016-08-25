@@ -1134,7 +1134,11 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         person.SaveAttributeValues( rockContext );
                     }
 
-                    person.SetAttributeValue( SpecialNeedsKey, personData.HasSpecialNeeds ? "Yes" : string.Empty );
+                    if ( personData.HasSpecialNeeds )
+                    {
+                        person.SetAttributeValue( SpecialNeedsKey, "Yes" );
+                    }
+
                     person.SaveAttributeValues( rockContext );
                 }
 

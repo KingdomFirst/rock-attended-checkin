@@ -15,6 +15,7 @@
 // </copyright>
 //
 
+using System;
 using Rock.Plugin;
 
 namespace cc.newspring.AttendedCheckIn.Migrations
@@ -23,6 +24,7 @@ namespace cc.newspring.AttendedCheckIn.Migrations
     public class AddSystemData : Migration
     {
         public string SpecialNeedsAttributeGuid = "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF";
+        public string AttendedCheckinSiteGuid = "30FB46F7-4814-4691-852A-04FB56CC07F0";
 
         /// <summary>
         /// The commands to run to migrate plugin to the specific version
@@ -30,12 +32,13 @@ namespace cc.newspring.AttendedCheckIn.Migrations
         public override void Up()
         {
             // Attended Check-in Site
-            RockMigrationHelper.AddSite( "Rock Attended Check-in", "Attended Check-In Site.", "CheckinPark", "30FB46F7-4814-4691-852A-04FB56CC07F0" );
-            RockMigrationHelper.AddLayout( "30FB46F7-4814-4691-852A-04FB56CC07F0", "Checkin", "Checkin", "", "3BD6CFC1-0BF2-43C8-AD38-44E711D6ACE0" );
+            RockMigrationHelper.AddSite( "Rock Attended Check-in", "Attended Check-In Site.", "CheckinPark", AttendedCheckinSiteGuid );
+            RockMigrationHelper.AddLayout( AttendedCheckinSiteGuid, "Checkin", "Checkin", "", "3BD6CFC1-0BF2-43C8-AD38-44E711D6ACE0" );
 
-            Sql( @"
-                UPDATE [Site] SET [IsSystem] = 0 WHERE [Guid] = '30FB46F7-4814-4691-852A-04FB56CC07F0'
-            " );
+            var cssHeaderLink = "<link rel=\"stylesheet\" href=\"/Plugins/cc_newspring/AttendedCheckin/Styles/styles.css\">";
+            var customSiteUpdates = @"UPDATE [Site] SET [IsSystem] = 0, [PageHeaderContent] = '{0}' WHERE [Guid] = '{1}'";
+
+            Sql( string.Format( customSiteUpdates, cssHeaderLink, AttendedCheckinSiteGuid ) );
 
             // Attended Check-in root page (no blocks)
             RockMigrationHelper.AddPage( "", "3BD6CFC1-0BF2-43C8-AD38-44E711D6ACE0", "Attended Check-in", "Screens for managing Attended Check-in", "32A132A6-63A2-4840-B4A5-23D80994CCBD", "" );
@@ -449,7 +452,7 @@ namespace cc.newspring.AttendedCheckIn.Migrations
 
             // Delete Attended check-in site
             RockMigrationHelper.DeleteLayout( "3BD6CFC1-0BF2-43C8-AD38-44E711D6ACE0" );
-            RockMigrationHelper.DeleteSite( "30FB46F7-4814-4691-852A-04FB56CC07F0" );
+            RockMigrationHelper.DeleteSite( AttendedCheckinSiteGuid );
         }
     }
 }

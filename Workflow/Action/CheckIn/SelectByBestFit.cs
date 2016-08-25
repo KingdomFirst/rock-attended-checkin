@@ -40,8 +40,8 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
     [GroupTypesField( "Room Balance Grouptypes", "Select the grouptype(s) you want to room balance. This will auto-assign the group or location (within a grouptype) with the least number of people.", false, order: 1 )]
     [IntegerField( "Balancing Override", "Enter the maximum difference between two locations before room balancing overrides previous attendance.  The default value is 5.", false, 5, "", 2 )]
     [TextField( "Excluded Locations", "Enter a comma-delimited list of location name(s) to manually exclude from room balancing (like catch-all rooms).", false, "Base Camp", order: 3 )]
-    [AttributeField( Rock.SystemGuid.EntityType.PERSON, "Person Special Needs Attribute", "Select the attribute used to filter special needs people.", false, false, "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF", order: 4 )]
-    [AttributeField( Rock.SystemGuid.EntityType.GROUP, "Group Special Needs Attribute", "Select the attribute used to filter special needs groups.", false, false, "9210EC95-7B85-4D11-A82E-0B677B32704E", order: 5 )]
+    [AttributeField( Rock.SystemGuid.EntityType.PERSON, "Person Special Needs Attribute", "Select the attribute used to filter special needs people.", false, false, "", order: 4 )]
+    [AttributeField( Rock.SystemGuid.EntityType.GROUP, "Group Special Needs Attribute", "Select the attribute used to filter special needs groups.", false, false, "", order: 5 )]
     [AttributeField( Rock.SystemGuid.EntityType.GROUP, "Group Age Range Attribute", "Select the attribute used to define the age range of the group", false, false, "43511B8F-71D9-423A-85BF-D1CD08C1998E", order: 6 )]
     [AttributeField( Rock.SystemGuid.EntityType.GROUP, "Group Grade Range Attribute", "Select the attribute used to define the grade range of the group", false, false, "C7C028C2-6582-45E8-839D-5C4467C6FDF4", order: 7 )]
     public class SelectByBestFit : CheckInActionComponent

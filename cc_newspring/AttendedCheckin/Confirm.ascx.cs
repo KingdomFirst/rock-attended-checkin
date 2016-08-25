@@ -18,6 +18,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -154,7 +155,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                 checkIn.LocationId = location.Location.Id;
                                 checkIn.ScheduleId = schedule.Schedule.Id;
                                 var pSchedule = person.PossibleSchedules.FirstOrDefault( s => s.Schedule.Id == schedule.Schedule.Id );
-                                if ( pSchedule != null)
+                                if ( pSchedule != null )
                                 {
                                     pSchedule.Selected = true;
                                     pSchedule.PreSelected = true;
@@ -437,15 +438,15 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     var locationId = Convert.ToInt32( dataKey["LocationId"] );
                     var scheduleId = Convert.ToInt32( dataKey["ScheduleId"] );
 
+                    int groupTypeId = selectedGroupTypes.Where( gt => gt.Groups.Any( g => g.Group.Id == groupId ) )
+                        .Select( gt => gt.GroupType.Id ).FirstOrDefault();
+                    availableGroups = selectedGroupTypes.SelectMany( gt => gt.Groups ).ToList();
+                    availableLocations = availableGroups.SelectMany( l => l.Locations ).ToList();
+                    availableSchedules = availableLocations.SelectMany( s => s.Schedules ).ToList();
+
                     // Make sure only the current item is selected in the merge object
                     if ( printIndividually )
                     {
-                        int groupTypeId = selectedGroupTypes.Where( gt => gt.Groups.Any( g => g.Group.Id == groupId ) )
-                            .Select( gt => gt.GroupType.Id ).FirstOrDefault();
-                        availableGroups = selectedGroupTypes.SelectMany( gt => gt.Groups ).ToList();
-                        availableLocations = availableGroups.SelectMany( l => l.Locations ).ToList();
-                        availableSchedules = availableLocations.SelectMany( s => s.Schedules ).ToList();
-
                         // Note: This depends on PreSelected being set properly to undo changes later
                         selectedPeople.ForEach( p => p.Selected = ( p.Person.Id == personId ) );
                         selectedGroupTypes.ForEach( gt => gt.Selected = ( gt.GroupType.Id == groupTypeId ) );
@@ -498,16 +499,17 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }
 
                 // Print client labels
-                if ( labels.Any( l => l.PrintFrom == Rock.Model.PrintFrom.Client ) )
+                if ( labels.Any( l => l.PrintFrom == PrintFrom.Client ) )
                 {
                     var clientLabels = labels.Where( l => l.PrintFrom == PrintFrom.Client ).ToList();
                     var urlRoot = string.Format( "{0}://{1}", Request.Url.Scheme, Request.Url.Authority );
                     clientLabels.ForEach( l => l.LabelFile = urlRoot + l.LabelFile );
                     AddLabelScript( clientLabels.ToJson() );
+                    pnlContent.Update();
                 }
 
                 // Print server labels
-                if ( labels.Any( l => l.PrintFrom == Rock.Model.PrintFrom.Server ) )
+                if ( labels.Any( l => l.PrintFrom == PrintFrom.Server ) )
                 {
                     string delayCut = @"^XB";
                     string endingTag = @"^XZ";
@@ -553,16 +555,16 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     }
 
                     printQueue.AddOrReplace( printerIp, labelContent );
-                }
 
-                if ( printQueue.Any() )
-                {
-                    PrintLabels( printQueue );
-                    printQueue.Clear();
-                }
-                else
-                {   // give the user feedback when no labels are configured
-                    phPrinterStatus.Controls.Add( new LiteralControl( "No labels were created.  Please verify that the grouptype is configured with labels and cache is reset." ) );
+                    if ( printQueue.Any() )
+                    {
+                        PrintLabels( printQueue );
+                        printQueue.Clear();
+                    }
+                    else
+                    {   // give the user feedback when no server labels are configured
+                        phPrinterStatus.Controls.Add( new LiteralControl( "No labels were created.  Please verify that the grouptype is configured with labels and cache is reset." ) );
+                    }
                 }
 
                 if ( printIndividually )
@@ -665,7 +667,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 );
 	        }}
             ", jsonObject );
-            ScriptManager.RegisterStartupScript( this, this.GetType(), "addLabelScript", script, true );
+            ScriptManager.RegisterStartupScript( this, GetType(), "addLabelScript", script, true );
         }
 
         /// <summary>
