@@ -629,34 +629,32 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 	    if (navigator.userAgent.match(/(iPhone|iPod|iPad)/)) {{
             document.addEventListener('deviceready', onDeviceReady, false);
         }} else {{
-            $( document ).ready(function() {{
-                onDeviceReady();
-            }});
+            Sys.WebForms.PageRequestManager.getInstance().add_endRequest(onDeviceReady);
         }}
 
 	    // label data
         var labelData = {0};
 
 		function onDeviceReady() {{
-            try {{			
+            try {{
                 printLabels();
-            }} 
+            }}
             catch (err) {{
                 console.log('An error occurred printing labels: ' + err);
             }}
 		}}
-		
+
 		function alertDismissed() {{
 		    // do something
 		}}
-		
+
 		function printLabels() {{
 		    ZebraPrintPlugin.printTags(
-            	JSON.stringify(labelData), 
-            	function(result) {{ 
+            	JSON.stringify(labelData),
+            	function(result) {{
 			        console.log('Tag printed');
 			    }},
-			    function(error) {{   
+			    function(error) {{
 				    // error is an array where:
 				    // error[0] is the error message
 				    // error[1] determines if a re-print is possible (in the case where the JSON is good, but the printer was not connected)
