@@ -977,7 +977,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     ddlSuffix.SelectedValue = person.Person.SuffixValueId.ToString();
                 }
 
-                if ( person.Person.GradeOffset.HasValue )
+                if ( person.Person.GradeOffset.HasValue && person.Person.GradeOffset.Value >= 0 )
                 {
                     ddlAbilityGrade.SelectedValue = person.Person.GradeOffset.ToString();
                 }
