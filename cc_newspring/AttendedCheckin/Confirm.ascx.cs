@@ -47,6 +47,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [BooleanField( "Display Group Names", "By default location names are shown in the grid.  Check this option to show the group names instead.", false )]
     [BooleanField( "Print Individual Labels", "Select this option to print one label per person's group, location, & schedule.", false )]
     [BooleanField( "Remove Attendance On Checkout", "By default, the attendance is given a checkout date.  Select this option to completely remove attendance on checkout.", false )]
+    [BooleanField( "Display Age/Grade On Person", "By default, the person name is the only thing displayed. Select this option to display age and grade to help with selections", false, key: "DisplayPersonAgeGrade" )]
     [BinaryFileField( Rock.SystemGuid.BinaryFiletype.CHECKIN_LABEL, "Designated Single Label", "Select a label to print once per print job.  Unselect the label to print it with every print job.", false )]
     public partial class Confirm : CheckInBlock
     {
@@ -144,10 +145,31 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                             foreach ( var schedule in location.Schedules.Where( s => s.Selected ) )
                             {
                                 var checkIn = new Activity();
+                                var textToDisplay = person.Person.FullName;
 
-                                checkIn.Name = person.Person.FullName;
-                                var showGroup = GetAttributeValue( "DisplayGroupNames" ).AsBoolean();
-                                checkIn.Location = showGroup ? group.Group.Name : location.Location.Name;
+                                if ( GetAttributeValue( "DisplayPersonAgeGrade" ).AsBoolean() )
+                                {
+                                    var additionalInfo = new List<string>();
+                                    if ( person.Person.Age != null )
+                                    {
+                                        additionalInfo.Add( "Age " + person.Person.Age );
+                                    }
+
+                                    if ( !string.IsNullOrEmpty( person.Person.GradeFormatted ) )
+                                    {
+                                        additionalInfo.Add( person.Person.GradeFormatted );
+                                    }
+
+                                    if ( additionalInfo.Any() )
+                                    {
+                                        textToDisplay = string.Format( "{0} ({1})", textToDisplay, string.Join( ", ", additionalInfo ) );
+                                    }
+                                }
+
+                                checkIn.Name = textToDisplay;
+                                checkIn.Location = GetAttributeValue( "DisplayGroupNames" ).AsBoolean()
+                                    ? group.Group.Name
+                                    : location.Location.Name;
                                 checkIn.Schedule = schedule.Schedule.Name;
                                 checkIn.PersonId = person.Person.Id;
                                 checkIn.GroupId = group.Group.Id;

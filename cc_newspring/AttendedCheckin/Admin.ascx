@@ -41,8 +41,7 @@
                     <asp:DataList ID="dlMinistry" runat="server" OnItemDataBound="dlMinistry_ItemDataBound" RepeatColumns="3" CssClass="full-width centered">
                         <ItemStyle CssClass="expanded" />
                         <ItemTemplate>
-                            <asp:Button ID="lbMinistry" runat="server" data-id='<%# Eval("Id") %>' CommandArgument='<%# Eval("Id") %>'
-                                CssClass="btn btn-primary btn-lg btn-block btn-checkin-select btn-grouptype" Text='<%# Eval("Name") %>' />
+                            <asp:Button ID="btnGroupType" runat="server" data-id='<%# Eval("Id") %>' CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" Text='<%# Eval("Name") %>' OnClientClick="toggleGroupType(this); return false;" />
                         </ItemTemplate>
                     </asp:DataList>
                     <asp:Label ID="lblInfo" runat="server" />
@@ -54,8 +53,19 @@
 
 <script type="text/javascript">
 
-    var setClickEvents = function () {
+    function toggleGroupType(element) {
+        $(element).toggleClass('active').blur();
+        var selectedIds = $("input[id$='hfGroupTypes']").val();
+        var groupTypeId = element.getAttribute('data-id');
+        if (selectedIds.indexOf(groupTypeId) >= 0) { // already selected, remove id
+            var selectedIdRegex = new RegExp(groupTypeId + ',*', "g");
+            $("input[id$='hfGroupTypes']").val(selectedIds.replace(selectedIdRegex, ''));
+        } else { // newly selected, add id
+            $("input[id$='hfGroupTypes']").val(groupTypeId + ',' + selectedIds);
+        }
+    };
 
+    var setKeyboardEvents = function () {
         $(document).unbind('keydown').keydown(function (e) {
             if (e.keyCode === 73 && e.ctrlKey) {
 
@@ -65,24 +75,10 @@
                 return false;
             }
         });
-
-        $('.btn-grouptype').off('click').on('click', function (event) {
-            event.stopPropagation();
-            $(this).toggleClass('active').blur();
-            var selectedIds = $('input[id$="hfGroupTypes"]').val();
-            var buttonId = this.getAttribute('data-id');
-            if (selectedIds.length && selectedIds.indexOf(buttonId) >= 0) {
-                var buttonIdRegex = new RegExp(buttonId + ',*', "g");
-                $('input[id$="hfGroupTypes"]').val(selectedIds.replace(buttonIdRegex, ''));
-            } else {
-                $('input[id$="hfGroupTypes"]').val(buttonId + ',' + selectedIds);
-            }
-            return false;
-        });
     };
 
     $(document).ready(function () {
-        setClickEvents();
+        setKeyboardEvents();
     });
-    Sys.WebForms.PageRequestManager.getInstance().add_endRequest(setClickEvents);
+    Sys.WebForms.PageRequestManager.getInstance().add_endRequest(setKeyboardEvents);
 </script>

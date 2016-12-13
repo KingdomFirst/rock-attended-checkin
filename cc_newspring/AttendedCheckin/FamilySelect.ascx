@@ -7,7 +7,8 @@
 
         <asp:Panel ID="pnlSelections" runat="server" CssClass="attended">
 
-            <asp:HiddenField ID="newPersonType" runat="server" />
+            <asp:HiddenField ID="hfNewPersonType" runat="server" />
+            <asp:HiddenField ID="hfPersonIds" runat="server" />
 
             <div class="row checkin-header">
                 <div class="col-xs-2 checkin-actions">
@@ -37,7 +38,7 @@
                             <asp:ListView ID="lvFamily" runat="server" OnPagePropertiesChanging="lvFamily_PagePropertiesChanging"
                                 OnItemCommand="lvFamily_ItemCommand" OnItemDataBound="lvFamily_ItemDataBound">
                                 <ItemTemplate>
-                                    <asp:LinkButton ID="lbSelectFamily" runat="server" CausesValidation="false" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select family" />
+                                    <asp:LinkButton ID="lbSelectFamily" runat="server" CausesValidation="false" data-loading-text="<i class='fa fa-refresh fa-spin working'></i>" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClientClick="toggleFamily(this);" />
                                 </ItemTemplate>
                             </asp:ListView>
                             <asp:DataPager ID="dpFamilyPager" runat="server" PageSize="4" PagedControlID="lvFamily">
@@ -52,13 +53,13 @@
                 <div class="col-xs-3">
                     <asp:UpdatePanel ID="pnlPerson" runat="server" UpdateMode="Conditional">
                         <ContentTemplate>
-                            <asp:HiddenField ID="hfSelectedPerson" runat="server" ClientIDMode="Static" />
 
                             <h3 class="text-center">People</h3>
 
-                            <asp:ListView ID="lvPerson" runat="server" OnItemDataBound="lvPeople_ItemDataBound" OnPagePropertiesChanging="lvPerson_PagePropertiesChanging">
+                            <asp:ListView ID="lvPerson" runat="server" OnItemDataBound="lvPeople_ItemDataBound"
+                                OnPagePropertiesChanging="lvPerson_PagePropertiesChanging">
                                 <ItemTemplate>
-                                    <asp:LinkButton ID="lbSelectPerson" runat="server" data-id='<%# Eval("Person.Id") %>' CssClass="btn btn-primary btn-lg btn-block btn-checkin-select person" />
+                                    <asp:LinkButton ID="lbSelectPerson" runat="server" data-id='<%# Eval("Person.Id") %>' CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClientClick="togglePerson(this); return false;" />
                                 </ItemTemplate>
                                 <EmptyDataTemplate>
                                     <div class="text-center large-font">
@@ -78,13 +79,12 @@
                 <div class="col-xs-3">
                     <asp:UpdatePanel ID="pnlVisitor" runat="server" UpdateMode="Conditional">
                         <ContentTemplate>
-                            <asp:HiddenField ID="hfSelectedVisitor" runat="server" ClientIDMode="Static" />
 
                             <h3 class="text-center">Visitors</h3>
 
                             <asp:ListView ID="lvVisitor" runat="server" OnItemDataBound="lvPeople_ItemDataBound" OnPagePropertiesChanging="lvVisitor_PagePropertiesChanging">
                                 <ItemTemplate>
-                                    <asp:LinkButton ID="lbSelectPerson" runat="server" data-id='<%# Eval("Person.Id") %>' CssClass="btn btn-primary btn-lg btn-block btn-checkin-select visitor" />
+                                    <asp:LinkButton ID="lbSelectPerson" runat="server" data-id='<%# Eval("Person.Id") %>' CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClientClick="togglePerson(this); return false;" />
                                 </ItemTemplate>
                                 <EmptyDataTemplate>
                                     <div class="text-center large-font">
@@ -244,7 +244,7 @@
                                         <label>Gender</label>
                                     </div>
                                     <div class="col-xs-2">
-                                        <label ID="famAbilityGrade" runat="server">Ability/Grade</label>
+                                        <label id="famAbilityGrade" runat="server">Ability/Grade</label>
                                     </div>
                                     <div class="col-xs-1">
                                         <label>Special Needs</label>
@@ -297,43 +297,25 @@
 
 <script type="text/javascript">
 
-    var setClickEvents = function () {
+    function toggleFamily(element) {
+        Rock.controls.bootstrapButton.showLoading($(element));
+        $(element).toggleClass('active');
+        $(element).siblings('.family').removeClass('active');
+    }
 
-        $('.family').unbind('click').on('click', function () {
-            $(this).toggleClass('active');
-            $(this).siblings('.family').removeClass('active');
-            if (!$(this).hasClass('btn-loading')) {
-                $(this).addClass('btn-loading');
-            }
-        });
+    function togglePerson(element) {
+        $(element).toggleClass('active').blur();
+        var selectedIds = $("input[id$='hfPersonIds']").val();
+        var personId = element.getAttribute('data-id');
+        if (selectedIds.indexOf(personId) >= 0) { // already selected, remove id
+            var selectedIdRegex = new RegExp(personId + ',*', "g");
+            $("input[id$='hfPersonIds']").val(selectedIds.replace(selectedIdRegex, ''));
+        } else { // newly selected, add id
+            $("input[id$='hfPersonIds']").val(personId + ',' + selectedIds);
+        }
+    }
 
-        $('.person').unbind('click').on('click', function (event) {
-            event.stopPropagation();
-            $(this).toggleClass('active');
-            var selectedIds = $('#hfSelectedPerson').val();
-            var buttonId = this.getAttribute('data-id');
-            if (selectedIds.indexOf(buttonId) >= 0) {
-                var buttonIdRegex = new RegExp(buttonId + ',*', "g");
-                $('#hfSelectedPerson').val(selectedIds.replace(buttonIdRegex, ''));
-            } else {
-                $('#hfSelectedPerson').val(buttonId + ',' + selectedIds);
-            }
-            return false;
-        });
-
-        $('.visitor').unbind('click').on('click', function (event) {
-            event.stopPropagation();
-            $(this).toggleClass('active');
-            var selectedIds = $('#hfSelectedVisitor').val();
-            var buttonId = this.getAttribute('data-id');
-            if (selectedIds.indexOf(buttonId) >= 0) {
-                var buttonIdRegex = new RegExp(buttonId + ',*', "g");
-                $('#hfSelectedPerson').val(selectedIds.replace(buttonIdRegex, ''));
-            } else {
-                $('#hfSelectedVisitor').val(buttonId + ',' + selectedIds);
-            }
-            return false;
-        });
+    var setModalEvents = function () {
 
         // begin standard modal input functions
         var setFocus = function () {
@@ -380,7 +362,8 @@
     };
 
     $(document).ready(function () {
-        setClickEvents();
+        setModalEvents();
     });
-    Sys.WebForms.PageRequestManager.getInstance().add_endRequest(setClickEvents);
+
+    Sys.WebForms.PageRequestManager.getInstance().add_endRequest(setModalEvents);
 </script>
