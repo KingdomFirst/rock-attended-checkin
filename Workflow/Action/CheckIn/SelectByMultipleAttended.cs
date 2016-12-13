@@ -27,6 +27,7 @@ using Rock.Model;
 using Rock.Web.Cache;
 using Rock.Workflow;
 using Rock.Workflow.Action.CheckIn;
+using cc.newspring.AttendedCheckIn.Utility;
 
 namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
 {
@@ -67,7 +68,6 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
             var excludedLocations = GetAttributeValue( action, "ExcludedLocations" ).SplitDelimitedValues( whitespace: false )
                 .Select( s => s.Trim() );
 
-            // get the admin-selected attribute key instead of using a hardcoded key
             var personSpecialNeedsKey = string.Empty;
             var personSpecialNeedsGuid = GetAttributeValue( action, "PersonSpecialNeedsAttribute" ).AsGuid();
             if ( personSpecialNeedsGuid != Guid.Empty )
@@ -118,12 +118,8 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                 currentlyCheckedIn = RockDateTime.Now > serviceStart && RockDateTime.Now < serviceCutoff;
                             }
 
-
-
                             // override exists in case they are currently checked in or have special needs
                             bool useCheckinOverride = currentlyCheckedIn || previousAttender.Person.GetAttributeValue( personSpecialNeedsKey ).AsBoolean();
-
-                            useCheckinOverride = false;
 
                             // get a list of room balanced grouptype ID's since CheckInGroup model is a shallow clone
                             var roomBalanceGroupTypeIds = previousAttender.GroupTypes.Where( gt => roomBalanceGroupTypes.Contains( gt.GroupType.Guid ) )
@@ -138,7 +134,6 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
 
                                 // select the schedule first so group/location attendance can be filtered by schedule
                                 CheckInSchedule schedule = null;
-
                                 if ( availableSchedules.Count == 1 )
                                 {
                                     schedule = availableSchedules.FirstOrDefault( s => !s.ExcludedByFilter || useCheckinOverride );
@@ -182,19 +177,13 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     {
 
                                         var currentAttendance = group.Locations.Where( l => l.AvailableForSchedule.Contains( schedule.Schedule.Id ) )
-                                            .Select( l => ReadAttendanceBySchedule( l.Location.Id, schedule.Schedule.Id ) ).Sum();
+                                            .Select( l => Helpers.ReadAttendanceBySchedule( l.Location.Id, schedule.Schedule.Id ) ).Sum();
 
                                         var lowestAttendedGroup = groupType.Groups.Where( g => g.AvailableForSchedule.Contains( schedule.Schedule.Id ) )
                                             .Where( g => !g.ExcludedByFilter && !excludedLocations.Contains( g.Group.Name ) )
-                                            .Select( g => new { Group = g, Attendance = g.Locations.Select( l => ReadAttendanceBySchedule( l.Location.Id, schedule.Schedule.Id ) ).Sum() } )
+                                            .Select( g => new { Group = g, Attendance = g.Locations.Select( l => Helpers.ReadAttendanceBySchedule( l.Location.Id, schedule.Schedule.Id ) ).Sum() } )
                                             .OrderBy( g => g.Attendance )
                                             .FirstOrDefault();
-
-                                        //var currentAttendance = group.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum();
-                                        //var lowestAttendedGroup = groupType.Groups.Where( g => !g.ExcludedByFilter && g.Locations.Any() && !excludedLocations.Contains( g.Group.Name ) )
-                                        //    .Select( g => new { Group = g, Attendance = g.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum() } )
-                                        //    .OrderBy( g => g.Attendance )
-                                        //    .FirstOrDefault();
 
                                         if ( lowestAttendedGroup != null && lowestAttendedGroup.Attendance < ( currentAttendance - roomBalanceOverride + 1 ) )
                                         {
@@ -209,7 +198,8 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     if ( group.Locations.Count == 1 )
                                     {
                                         // Only a single location is open
-                                        location = group.Locations.FirstOrDefault( l => !l.ExcludedByFilter || useCheckinOverride );
+                                        location = group.Locations.Where( l => l.AvailableForSchedule.Contains( schedule.Schedule.Id ) )
+                                            .FirstOrDefault( l => !l.ExcludedByFilter || useCheckinOverride );
                                     }
                                     else
                                     {
@@ -219,10 +209,11 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         // room balance only on new check-ins
                                         if ( location != null && roomBalanceGroupTypeIds.Contains( group.Group.GroupTypeId ) && !useCheckinOverride )
                                         {
-                                            //TODO: use KioskLocationAttendance and location.AvailableForSchedule to room balance by service time attendance, not the entire day
-                                            var currentAttendance = KioskLocationAttendance.Read( location.Location.Id ).CurrentCount;
-                                            var lowestAttendedLocation = group.Locations.Where( l => !l.ExcludedByFilter && !excludedLocations.Contains( l.Location.Name ) )
-                                                .Select( l => new { Location = l, Attendance = KioskLocationAttendance.Read( l.Location.Id ).CurrentCount } )
+                                            var currentAttendance = Helpers.ReadAttendanceBySchedule( location.Location.Id, schedule.Schedule.Id );
+
+                                            var lowestAttendedLocation = group.Locations.Where( l => l.AvailableForSchedule.Contains( schedule.Schedule.Id ) )
+                                                .Where( l => !l.ExcludedByFilter && !excludedLocations.Contains( l.Location.Name ) )
+                                                .Select( l => new { Location = l, Attendance = Helpers.ReadAttendanceBySchedule( l.Location.Id, schedule.Schedule.Id ) } )
                                                 .OrderBy( l => l.Attendance )
                                                 .FirstOrDefault();
 
@@ -235,6 +226,9 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
 
                                     if ( location != null && schedule != null )
                                     {
+                                        // make sure the selected schedule is the one owned by this location context
+                                        schedule = location.Schedules.FirstOrDefault( s => s.Schedule.Id == schedule.Schedule.Id );
+
                                         // it's impossible to currently be checked in unless these match exactly
                                         if ( group.Group.Id == groupAttendance.GroupId && location.Location.Id == groupAttendance.LocationId && schedule.Schedule.Id == groupAttendance.ScheduleId )
                                         {
@@ -256,12 +250,15 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         group.PreSelected = true;
                                         groupType.Selected = true;
                                         groupType.PreSelected = true;
-                                        groupType.Selected = true;
-                                        groupType.PreSelected = true;
                                         previousAttender.Selected = true;
                                         previousAttender.PreSelected = true;
-                                        assignmentsGiven++;
 
+                                        #TODO do these really need to be selected?
+                                        groupType.SelectedForSchedule.Add( schedule.Schedule.Id );
+                                        previousAttender.SelectedSchedules.Add( schedule );
+                                        previousAttender.PossibleSchedules.Add( schedule );
+
+                                        assignmentsGiven++;
                                     }
                                 }
                             }
@@ -271,35 +268,6 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
             }
 
             return true;
-        }
-
-        /// <summary>
-        /// Reads the attendance cache by schedule.
-        /// </summary>
-        /// <param name="locationId">The location identifier.</param>
-        /// <param name="scheduleId">The schedule identifier.</param>
-        /// <returns></returns>
-        private int ReadAttendanceBySchedule( int locationId, int? scheduleId )
-        {
-            var attendanceCount = 0;
-            var attendanceCache = KioskLocationAttendance.Read( locationId );
-
-            if ( attendanceCache != null )
-            {
-                if ( scheduleId != null )
-                {
-                    foreach ( var scheduleAttendance in attendanceCache.Groups.SelectMany( g => g.Schedules ).Where( s => s.ScheduleId == (int)scheduleId ) )
-                    {
-                        attendanceCount += scheduleAttendance.CurrentCount;
-                    }
-                }
-                else
-                {
-                    attendanceCount = attendanceCache.CurrentCount;
-                }
-            }
-
-            return attendanceCount;
         }
     }
 }

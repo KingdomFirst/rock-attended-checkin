@@ -4,6 +4,8 @@ using System.Linq;
 using System.Web.UI.WebControls;
 using Rock.Web.Cache;
 using Rock.Web.UI.Controls;
+using Rock;
+using Rock.CheckIn;
 
 namespace cc.newspring.AttendedCheckIn.Utility
 {
@@ -91,6 +93,35 @@ namespace cc.newspring.AttendedCheckIn.Utility
                     thisDDL.Label = "Grade";
                 }
             }
+        }
+
+        /// <summary>
+        /// Reads the attendance cache by schedule.
+        /// </summary>
+        /// <param name="locationId">The location identifier.</param>
+        /// <param name="scheduleId">The schedule identifier.</param>
+        /// <returns></returns>
+        public static int ReadAttendanceBySchedule( int locationId, int? scheduleId )
+        {
+            var attendanceCount = 0;
+            var attendanceCache = KioskLocationAttendance.Read( locationId );
+
+            if ( attendanceCache != null )
+            {
+                if ( scheduleId != null )
+                {
+                    foreach ( var scheduleAttendance in attendanceCache.Groups.SelectMany( g => g.Schedules ).Where( s => s.ScheduleId == (int)scheduleId ) )
+                    {
+                        attendanceCount += scheduleAttendance.CurrentCount;
+                    }
+                }
+                else
+                {
+                    attendanceCount = attendanceCache.CurrentCount;
+                }
+            }
+
+            return attendanceCount;
         }
     }
 }

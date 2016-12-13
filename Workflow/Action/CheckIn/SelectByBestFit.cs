@@ -27,6 +27,7 @@ using Rock.Model;
 using Rock.Web.Cache;
 using Rock.Workflow;
 using Rock.Workflow.Action.CheckIn;
+using cc.newspring.AttendedCheckIn.Utility;
 
 namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
 {
@@ -283,9 +284,16 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     // room balance if they fit into multiple groups
                                     if ( bestGroup != null && roomBalanceGroupTypeIds.Contains( bestGroup.Group.GroupTypeId ) )
                                     {
-                                        var currentGroupAttendance = bestGroup.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum();
+                                        int? bestScheduleId = null;
+                                        var availableSchedules = validGroups.SelectMany( g => g.Locations.SelectMany( l => l.Schedules ) ).ToList();
+                                        if ( availableSchedules.Any() )
+                                        {
+                                            bestScheduleId = availableSchedules.OrderBy( s => s.StartTime ).Select( s => s.Schedule.Id ).FirstOrDefault();
+                                        }
+
+                                        var currentGroupAttendance = bestGroup.Locations.Select( l => Helpers.ReadAttendanceBySchedule( l.Location.Id, bestScheduleId ) ).Sum();
                                         var lowestGroup = validGroups.Where( g => !g.ExcludedByFilter && !excludedLocations.Contains( g.Group.Name ) )
-                                            .Select( g => new { Group = g, Attendance = g.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum() } )
+                                            .Select( g => new { Group = g, Attendance = g.Locations.Select( l => Helpers.ReadAttendanceBySchedule( l.Location.Id, bestScheduleId ) ).Sum() } )
                                             .OrderBy( g => g.Attendance )
                                             .FirstOrDefault();
 
@@ -317,7 +325,14 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     // room balance if they fit into multiple locations
                                     if ( roomBalanceGroupTypeIds.Contains( bestGroup.Group.GroupTypeId ) )
                                     {
-                                        filteredLocations = filteredLocations.OrderBy( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount );
+                                        int? bestScheduleId = null;
+                                        var availableSchedules = bestGroup.Locations.SelectMany( l => l.Schedules ).ToList();
+                                        if ( availableSchedules.Any() )
+                                        {
+                                            bestScheduleId = availableSchedules.OrderBy( s => s.StartTime ).Select( s => s.Schedule.Id ).FirstOrDefault();
+                                        }
+
+                                        filteredLocations = filteredLocations.OrderBy( l => Helpers.ReadAttendanceBySchedule( l.Location.Id, bestScheduleId ) );
                                     }
 
                                     bestLocation = filteredLocations.FirstOrDefault();
@@ -350,6 +365,10 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                                 bestGroupType.PreSelected = true;
                                                 person.Selected = true;
                                                 person.PreSelected = true;
+
+                                                bestGroupType.SelectedForSchedule.Add( bestSchedule.Schedule.Id );
+                                                person.SelectedSchedules.Add( bestSchedule );
+                                                person.PossibleSchedules.Add( bestSchedule );
                                             }
                                         }
                                     }
