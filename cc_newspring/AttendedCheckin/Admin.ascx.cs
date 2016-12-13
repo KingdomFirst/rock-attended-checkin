@@ -232,9 +232,20 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             if ( CurrentCheckInState == null )
             {
+                // reset client state to match server cache
+                hfGroupTypes.Value = ViewState["hfGroupTypes"] as string;
                 maAlert.Show( "Check-in state timed out.  Please refresh the page.", ModalAlertType.Warning );
                 pnlContent.Update();
                 Response.Redirect( Request.Path, false );
+                return;
+            }
+
+            var selectedGroupTypes = hfGroupTypes.Value.SplitDelimitedValues().Select( int.Parse ).ToList();
+            if ( !selectedGroupTypes.Any() )
+            {
+                hfGroupTypes.Value = ViewState["hfGroupTypes"] as string;
+                maAlert.Show( "Please select at least one check-in type.", ModalAlertType.Warning );
+                pnlContent.Update();
                 return;
             }
 
@@ -243,21 +254,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 CurrentKioskId = hfKiosk.ValueAsInt();
             }
 
-            var selectedGroupTypes = hfGroupTypes.Value.SplitDelimitedValues().Select( int.Parse ).Distinct().ToList();
-            if ( !selectedGroupTypes.Any() )
-            {
-                foreach ( DataListItem item in dlMinistry.Items )
-                {
-                    ( (Button)item.FindControl( "lbMinistry" ) ).RemoveCssClass( "active" );
-                }
-
-                hfGroupTypes.Value = string.Empty;
-                maAlert.Show( "Please select at least one check-in type.", ModalAlertType.Warning );
-                pnlContent.Update();
-                return;
-            }
-
-            // If Kiosk and GroupTypes were passed, but not a checkin type, try to calculate it from the group types.
+            // calculate checkin type from the group types if Kiosk and GroupTypes were passed
             if ( CurrentKioskId.HasValue && selectedGroupTypes.Any() && !CurrentCheckinTypeId.HasValue )
             {
                 if ( !CurrentCheckinTypeId.HasValue )
@@ -277,6 +274,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             // return if kiosk isn't active
             if ( !CurrentCheckInState.Kiosk.HasActiveLocations( selectedGroupTypes ) )
             {
+                hfGroupTypes.Value = ViewState["hfGroupTypes"] as string;
                 maAlert.Show( "There are no active schedules for the selected grouptypes.", ModalAlertType.Information );
                 pnlContent.Update();
                 return;
@@ -339,7 +337,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 {
                     if ( selectedGroupTypes.Contains( ( (GroupType)e.Item.DataItem ).Id ) )
                     {
-                        ( (Button)e.Item.FindControl( "lbMinistry" ) ).AddCssClass( "active" );
+                        ( (Button)e.Item.FindControl( "btnGroupType" ) ).AddCssClass( "active" );
                     }
                 }
             }
@@ -516,6 +514,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 dlMinistry.DataSource = GetDeviceGroupTypes( (int)CurrentKioskId, rockContext );
                 dlMinistry.DataBind();
                 lblHeader.Visible = true;
+                // store server side selections
+                ViewState["hfGroupTypes"] = hfGroupTypes.Value;
             }
         }
 
