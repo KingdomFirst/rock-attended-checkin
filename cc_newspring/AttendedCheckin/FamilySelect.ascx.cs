@@ -1275,8 +1275,5 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         }
 
         #endregion NewPerson Class
-
-
-
     }
 }
