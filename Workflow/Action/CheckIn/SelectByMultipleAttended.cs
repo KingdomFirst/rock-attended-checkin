@@ -93,6 +93,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                     // get a list of this person's available grouptypes
                     var availableGroupTypeIds = previousAttender.GroupTypes.Select( gt => gt.GroupType.Id ).ToList();
 
+                    // order by most recent attendance
                     var lastDateAttendances = attendanceService.Queryable().Where( a =>
                             a.PersonAlias.PersonId == previousAttender.Person.Id &&
                             availableGroupTypeIds.Contains( a.Group.GroupTypeId ) &&
@@ -103,9 +104,10 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                     if ( lastDateAttendances.Any() )
                     {
                         var assignmentsGiven = 0;
+                        // get the most recent day, then start with the earliest attendances
                         var lastAttended = lastDateAttendances.Max( a => a.StartDateTime ).Date;
                         var numAttendances = lastDateAttendances.Count( a => a.StartDateTime >= lastAttended );
-                        foreach ( var groupAttendance in lastDateAttendances.Where( a => a.StartDateTime >= lastAttended ) )
+                        foreach ( var groupAttendance in lastDateAttendances.Where( a => a.StartDateTime >= lastAttended ).OrderBy( a => a.StartDateTime ) )
                         {
                             bool currentlyCheckedIn = false;
                             var serviceCutoff = groupAttendance.StartDateTime;
@@ -141,6 +143,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                 else
                                 {
                                     // if assigning to multiple services or currently checked in (not SN, otherwise they would get the wrong auto-schedule)
+                                    //#TODO check if this is needed 
                                     //if ( numAttendances > 1 || currentlyCheckedIn )
                                     if ( currentlyCheckedIn )
                                     {
@@ -175,7 +178,6 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     // room balance only on new check-ins
                                     if ( group != null && roomBalanceGroupTypeIds.Contains( group.Group.GroupTypeId ) && !useCheckinOverride )
                                     {
-
                                         var currentAttendance = group.Locations.Where( l => l.AvailableForSchedule.Contains( schedule.Schedule.Id ) )
                                             .Select( l => Helpers.ReadAttendanceBySchedule( l.Location.Id, schedule.Schedule.Id ) ).Sum();
 
@@ -252,12 +254,6 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         groupType.PreSelected = true;
                                         previousAttender.Selected = true;
                                         previousAttender.PreSelected = true;
-
-                                        #TODO do these really need to be selected?
-                                        groupType.SelectedForSchedule.Add( schedule.Schedule.Id );
-                                        previousAttender.SelectedSchedules.Add( schedule );
-                                        previousAttender.PossibleSchedules.Add( schedule );
-
                                         assignmentsGiven++;
                                     }
                                 }

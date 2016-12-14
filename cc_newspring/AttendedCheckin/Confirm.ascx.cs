@@ -190,7 +190,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         }
                     }
                 }
-                else
+
+                if ( !checkInList.Any( c => c.PersonId == person.Person.Id ) )
                 {   // auto assignment didn't select anything
                     checkInList.Add( new Activity { PersonId = person.Person.Id, Name = person.Person.FullName, GroupId = 0, LocationId = 0, ScheduleId = 0 } );
                 }
@@ -461,7 +462,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     availableSchedules = availableLocations.SelectMany( s => s.Schedules ).ToList();
 
                     // Make sure only the current item is selected in the merge object
-                    if ( printIndividually )
+                    if ( printIndividually || checkinArray.Count == 1 )
                     {
                         // Note: This depends on PreSelected being set properly to undo changes later
                         selectedPeople.ForEach( p => p.Selected = ( p.Person.Id == personId ) );

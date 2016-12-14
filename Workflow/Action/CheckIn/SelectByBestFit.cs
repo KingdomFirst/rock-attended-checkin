@@ -291,6 +291,11 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                             bestScheduleId = availableSchedules.OrderBy( s => s.StartTime ).Select( s => s.Schedule.Id ).FirstOrDefault();
                                         }
 
+                                        if ( bestScheduleId != null )
+                                        {
+                                            validGroups = validGroups.Where( g => g.AvailableForSchedule.Contains( (int)bestScheduleId ) );
+                                        }
+
                                         var currentGroupAttendance = bestGroup.Locations.Select( l => Helpers.ReadAttendanceBySchedule( l.Location.Id, bestScheduleId ) ).Sum();
                                         var lowestGroup = validGroups.Where( g => !g.ExcludedByFilter && !excludedLocations.Contains( g.Group.Name ) )
                                             .Select( g => new { Group = g, Attendance = g.Locations.Select( l => Helpers.ReadAttendanceBySchedule( l.Location.Id, bestScheduleId ) ).Sum() } )
@@ -326,10 +331,16 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     if ( roomBalanceGroupTypeIds.Contains( bestGroup.Group.GroupTypeId ) )
                                     {
                                         int? bestScheduleId = null;
-                                        var availableSchedules = bestGroup.Locations.SelectMany( l => l.Schedules ).ToList();
+                                        var availableSchedules = filteredLocations.SelectMany( l => l.Schedules )
+                                            .DistinctBy( s => s.Schedule.Id ).ToList();
                                         if ( availableSchedules.Any() )
                                         {
                                             bestScheduleId = availableSchedules.OrderBy( s => s.StartTime ).Select( s => s.Schedule.Id ).FirstOrDefault();
+                                        }
+
+                                        if ( bestScheduleId != null )
+                                        {
+                                            filteredLocations = filteredLocations.Where( l => l.AvailableForSchedule.Contains( (int)bestScheduleId ) );
                                         }
 
                                         filteredLocations = filteredLocations.OrderBy( l => Helpers.ReadAttendanceBySchedule( l.Location.Id, bestScheduleId ) );
@@ -365,10 +376,6 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                                 bestGroupType.PreSelected = true;
                                                 person.Selected = true;
                                                 person.PreSelected = true;
-
-                                                bestGroupType.SelectedForSchedule.Add( bestSchedule.Schedule.Id );
-                                                person.SelectedSchedules.Add( bestSchedule );
-                                                person.PossibleSchedules.Add( bestSchedule );
                                             }
                                         }
                                     }
