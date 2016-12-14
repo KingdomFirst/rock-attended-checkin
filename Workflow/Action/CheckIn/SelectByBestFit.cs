@@ -27,6 +27,7 @@ using Rock.Model;
 using Rock.Web.Cache;
 using Rock.Workflow;
 using Rock.Workflow.Action.CheckIn;
+using cc.newspring.AttendedCheckIn.Utility;
 
 namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
 {
@@ -283,9 +284,21 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     // room balance if they fit into multiple groups
                                     if ( bestGroup != null && roomBalanceGroupTypeIds.Contains( bestGroup.Group.GroupTypeId ) )
                                     {
-                                        var currentGroupAttendance = bestGroup.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum();
+                                        int? bestScheduleId = null;
+                                        var availableSchedules = validGroups.SelectMany( g => g.Locations.SelectMany( l => l.Schedules ) ).ToList();
+                                        if ( availableSchedules.Any() )
+                                        {
+                                            bestScheduleId = availableSchedules.OrderBy( s => s.StartTime ).Select( s => s.Schedule.Id ).FirstOrDefault();
+                                        }
+
+                                        if ( bestScheduleId != null )
+                                        {
+                                            validGroups = validGroups.Where( g => g.AvailableForSchedule.Contains( (int)bestScheduleId ) );
+                                        }
+
+                                        var currentGroupAttendance = bestGroup.Locations.Select( l => Helpers.ReadAttendanceBySchedule( l.Location.Id, bestScheduleId ) ).Sum();
                                         var lowestGroup = validGroups.Where( g => !g.ExcludedByFilter && !excludedLocations.Contains( g.Group.Name ) )
-                                            .Select( g => new { Group = g, Attendance = g.Locations.Select( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount ).Sum() } )
+                                            .Select( g => new { Group = g, Attendance = g.Locations.Select( l => Helpers.ReadAttendanceBySchedule( l.Location.Id, bestScheduleId ) ).Sum() } )
                                             .OrderBy( g => g.Attendance )
                                             .FirstOrDefault();
 
@@ -317,7 +330,20 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     // room balance if they fit into multiple locations
                                     if ( roomBalanceGroupTypeIds.Contains( bestGroup.Group.GroupTypeId ) )
                                     {
-                                        filteredLocations = filteredLocations.OrderBy( l => KioskLocationAttendance.Read( l.Location.Id ).CurrentCount );
+                                        int? bestScheduleId = null;
+                                        var availableSchedules = filteredLocations.SelectMany( l => l.Schedules )
+                                            .DistinctBy( s => s.Schedule.Id ).ToList();
+                                        if ( availableSchedules.Any() )
+                                        {
+                                            bestScheduleId = availableSchedules.OrderBy( s => s.StartTime ).Select( s => s.Schedule.Id ).FirstOrDefault();
+                                        }
+
+                                        if ( bestScheduleId != null )
+                                        {
+                                            filteredLocations = filteredLocations.Where( l => l.AvailableForSchedule.Contains( (int)bestScheduleId ) );
+                                        }
+
+                                        filteredLocations = filteredLocations.OrderBy( l => Helpers.ReadAttendanceBySchedule( l.Location.Id, bestScheduleId ) );
                                     }
 
                                     bestLocation = filteredLocations.FirstOrDefault();

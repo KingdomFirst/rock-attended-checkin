@@ -38,7 +38,7 @@
                             <asp:ListView ID="lvFamily" runat="server" OnPagePropertiesChanging="lvFamily_PagePropertiesChanging"
                                 OnItemCommand="lvFamily_ItemCommand" OnItemDataBound="lvFamily_ItemDataBound">
                                 <ItemTemplate>
-                                    <asp:LinkButton ID="lbSelectFamily" runat="server" CausesValidation="false" data-loading-text="<i class='fa fa-refresh fa-spin working'></i>" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClientClick="toggleFamily(this);" />
+                                    <asp:LinkButton ID="lbSelectFamily" runat="server" CausesValidation="false" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select family" OnClientClick="toggleFamily(this);" />
                                 </ItemTemplate>
                             </asp:ListView>
                             <asp:DataPager ID="dpFamilyPager" runat="server" PageSize="4" PagedControlID="lvFamily">
@@ -298,7 +298,6 @@
 <script type="text/javascript">
 
     function toggleFamily(element) {
-        Rock.controls.bootstrapButton.showLoading($(element));
         $(element).toggleClass('active');
         $(element).siblings('.family').removeClass('active');
     }
