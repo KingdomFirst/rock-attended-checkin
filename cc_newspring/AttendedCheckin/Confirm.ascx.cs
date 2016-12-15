@@ -47,7 +47,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [BooleanField( "Display Group Names", "By default location names are shown in the grid.  Check this option to show the group names instead.", false )]
     [BooleanField( "Print Individual Labels", "Select this option to print one label per person's group, location, & schedule.", false )]
     [BooleanField( "Remove Attendance On Checkout", "By default, the attendance is given a checkout date.  Select this option to completely remove attendance on checkout.", false )]
-    [BooleanField( "Display Age/Grade On Person", "By default, the person name is the only thing displayed. Select this option to display age and grade to help with selections", false, key: "DisplayPersonAgeGrade" )]
+    [BooleanField( "Display Child Age/Grade", "By default, the person name is the only thing displayed. Select this option to display age and grade to help with child selections.", false, key: "DisplayChildAgeGrade" )]
     [BinaryFileField( Rock.SystemGuid.BinaryFiletype.CHECKIN_LABEL, "Designated Single Label", "Select a label to print once per print job.  Unselect the label to print it with every print job.", false )]
     public partial class Confirm : CheckInBlock
     {
@@ -60,14 +60,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <c>true</c> if ; otherwise, <c>false</c>.
         /// </value>
         private bool RemoveFromQueue = false;
-
-        /// <summary>
-        /// Gets or sets a value to show the age and grade.
-        /// </summary>
-        /// <value>
-        /// <c>true</c> if age and grade should show; otherwise, <c>false</c>.
-        /// </value>
-        private bool ShowAgeGrade = false;
 
         /// <summary>
         /// Gets or sets a value indicating whether to run save attendance.
@@ -140,7 +132,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var selectedPeopleList = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault()
                 .People.Where( p => p.Selected ).OrderBy( p => p.Person.FullNameReversed ).ToList();
 
-            if ( GetAttributeValue( "DisplayPersonAgeGrade" ).AsBoolean() )
+            if ( GetAttributeValue( "DisplayChildAgeGrade" ).AsBoolean() )
             {
                 gPersonList.Columns[1].Visible = true;
                 gPersonList.Columns[2].Visible = true;
@@ -149,10 +141,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var checkInList = new List<Activity>();
             foreach ( var person in selectedPeopleList )
             {
-                var selectedGroupTypes = person.GroupTypes.Where( gt => gt.Selected ).ToList();
-                if ( selectedGroupTypes.Any() )
+                foreach ( var groupType in person.GroupTypes.Where( gt => gt.Selected ) )
                 {
-                    foreach ( var group in selectedGroupTypes.SelectMany( gt => gt.Groups.Where( g => g.Selected ) ) )
+                    foreach ( var group in groupType.Groups.Where( g => g.Selected ) )
                     {
                         foreach ( var location in group.Locations.Where( l => l.Selected ) )
                         {
@@ -160,7 +151,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                             {
                                 var checkIn = new Activity();
                                 checkIn.Name = person.Person.FullName;
-                                checkIn.Age = person.Person.Age.ToStringSafe();
+                                checkIn.Age = person.Person.Age < 18 ? person.Person.Age.ToStringSafe() : string.Empty;
                                 checkIn.Grade = person.Person.GradeFormatted != null ? ( 12 - person.Person.GradeOffset ).ToStringSafe() : string.Empty;
                                 checkIn.Location = GetAttributeValue( "DisplayGroupNames" ).AsBoolean()
                                     ? group.Group.Name
@@ -170,15 +161,21 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                 checkIn.GroupId = group.Group.Id;
                                 checkIn.LocationId = location.Location.Id;
                                 checkIn.ScheduleId = schedule.Schedule.Id;
-                                //var pSchedule = person.PossibleSchedules.FirstOrDefault( s => s.Schedule.Id == schedule.Schedule.Id );
-                                //if ( pSchedule != null )
-                                //{
-                                //    pSchedule.Selected = true;
-                                //    pSchedule.PreSelected = true;
-                                //}
 
                                 // LastCheckin is set to the end time of the current service
                                 checkIn.CheckedIn = schedule.LastCheckIn != null && schedule.LastCheckIn > RockDateTime.Now;
+
+                                // SaveAttendance workflow depends on SelectedForSchedule
+                                var personSchedule = person.PossibleSchedules.FirstOrDefault( s => s.Schedule.Id == schedule.Schedule.Id );
+                                if ( personSchedule != null )
+                                {
+                                    personSchedule.Selected = true;
+                                    personSchedule.PreSelected = true;
+                                }
+
+                                groupType.SelectedForSchedule.Add( schedule.Schedule.Id );
+                                group.SelectedForSchedule.Add( schedule.Schedule.Id );
+                                location.SelectedForSchedule.Add( schedule.Schedule.Id );
 
                                 checkInList.Add( checkIn );
                             }
@@ -207,7 +204,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             {
                 if ( ( (Activity)e.Row.DataItem ).CheckedIn )
                 {
-                    e.Row.Cells[3].Text = "<span class=\"fa fa-check\"/>";
+                    e.Row.Cells[5].Text = "<span class=\"fa fa-check\"/>";
                 }
             }
         }
