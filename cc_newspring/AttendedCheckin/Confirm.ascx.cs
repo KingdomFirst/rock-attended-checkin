@@ -173,10 +173,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                     personSchedule.PreSelected = true;
                                 }
 
-                                groupType.SelectedForSchedule.Add( schedule.Schedule.Id );
-                                group.SelectedForSchedule.Add( schedule.Schedule.Id );
-                                location.SelectedForSchedule.Add( schedule.Schedule.Id );
-
                                 checkInList.Add( checkIn );
                             }
                         }
@@ -353,6 +349,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 if ( !selectedGroups.Any( g => g.Selected ) )
                 {
                     selectedPerson.GroupTypes.ForEach( gt => gt.Selected = false );
+                    selectedPerson.GroupTypes.ForEach( gt => gt.PreSelected = false );
+                    selectedPerson.PossibleSchedules.ForEach( s => s.Selected = false );
+                    selectedPerson.PossibleSchedules.ForEach( s => s.PreSelected = false );
                     selectedPerson.Selected = false;
                     selectedPerson.PreSelected = false;
                 }
@@ -439,6 +438,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 List<CheckInGroup> availableGroups = null;
                 List<CheckInLocation> availableLocations = null;
                 List<CheckInSchedule> availableSchedules = null;
+                List<CheckInSchedule> personSchedules = null;
 
                 foreach ( DataKey dataKey in checkinArray )
                 {
@@ -452,6 +452,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     availableGroups = selectedGroupTypes.SelectMany( gt => gt.Groups ).ToList();
                     availableLocations = availableGroups.SelectMany( l => l.Locations ).ToList();
                     availableSchedules = availableLocations.SelectMany( s => s.Schedules ).ToList();
+                    personSchedules = selectedPeople.SelectMany( p => p.PossibleSchedules ).ToList();
 
                     // Make sure only the current item is selected in the merge object
                     if ( printIndividually || checkinArray.Count == 1 )
@@ -462,6 +463,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         availableGroups.ForEach( g => g.Selected = ( g.Group.Id == groupId ) );
                         availableLocations.ForEach( l => l.Selected = ( l.Location.Id == locationId ) );
                         availableSchedules.ForEach( s => s.Selected = ( s.Schedule.Id == scheduleId ) );
+                        personSchedules.ForEach( s => s.Selected = ( s.Schedule.Id == scheduleId ) );
                     }
 
                     // Create labels for however many items are currently selected
@@ -580,6 +582,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 {
                     // reset selections to what they were before queue
                     selectedPeople.ForEach( p => p.Selected = p.PreSelected );
+                    personSchedules.ForEach( s => s.Selected = s.PreSelected );
                     selectedGroupTypes.ForEach( gt => gt.Selected = gt.PreSelected );
                     availableGroups.ForEach( g => g.Selected = g.PreSelected );
                     availableLocations.ForEach( l => l.Selected = l.PreSelected );
