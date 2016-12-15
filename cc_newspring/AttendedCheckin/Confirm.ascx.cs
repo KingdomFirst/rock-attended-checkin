@@ -165,7 +165,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                 // LastCheckin is set to the end time of the current service
                                 checkIn.CheckedIn = schedule.LastCheckIn != null && schedule.LastCheckIn > RockDateTime.Now;
 
-                                // SaveAttendance workflow depends on SelectedForSchedule
+                                // CreateLabels & SaveAttendance workflows depend on Person.SelectedForSchedule
                                 var personSchedule = person.PossibleSchedules.FirstOrDefault( s => s.Schedule.Id == schedule.Schedule.Id );
                                 if ( personSchedule != null )
                                 {
