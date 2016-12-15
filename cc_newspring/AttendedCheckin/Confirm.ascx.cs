@@ -54,18 +54,26 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         #region Fields
 
         /// <summary>
-        /// Gets or sets a value indicating whether the label has already been printed
+        /// Gets or sets a value indicating whether the designated label has already been printed
         /// </summary>
         /// <value>
-        /// <c>true</c> if [remove label from server queue]; otherwise, <c>false</c>.
+        /// <c>true</c> if ; otherwise, <c>false</c>.
         /// </value>
         private bool RemoveFromQueue = false;
 
         /// <summary>
-        /// Gets or sets a value indicating whether [run save attendance].
+        /// Gets or sets a value to show the age and grade.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if [run save attendance]; otherwise, <c>false</c>.
+        /// <c>true</c> if age and grade should show; otherwise, <c>false</c>.
+        /// </value>
+        private bool ShowAgeGrade = false;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to run save attendance.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if save attendance should be run; otherwise, <c>false</c>.
         /// </value>
         private bool RunSaveAttendance
         {
@@ -132,6 +140,12 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var selectedPeopleList = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault()
                 .People.Where( p => p.Selected ).OrderBy( p => p.Person.FullNameReversed ).ToList();
 
+            if ( GetAttributeValue( "DisplayPersonAgeGrade" ).AsBoolean() )
+            {
+                gPersonList.Columns[1].Visible = true;
+                gPersonList.Columns[2].Visible = true;
+            }
+
             var checkInList = new List<Activity>();
             foreach ( var person in selectedPeopleList )
             {
@@ -145,28 +159,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                             foreach ( var schedule in location.Schedules.Where( s => s.Selected ) )
                             {
                                 var checkIn = new Activity();
-                                var textToDisplay = person.Person.FullName;
-
-                                if ( GetAttributeValue( "DisplayPersonAgeGrade" ).AsBoolean() )
-                                {
-                                    var additionalInfo = new List<string>();
-                                    if ( person.Person.Age != null )
-                                    {
-                                        additionalInfo.Add( "Age " + person.Person.Age );
-                                    }
-
-                                    if ( !string.IsNullOrEmpty( person.Person.GradeFormatted ) )
-                                    {
-                                        additionalInfo.Add( person.Person.GradeFormatted );
-                                    }
-
-                                    if ( additionalInfo.Any() )
-                                    {
-                                        textToDisplay = string.Format( "{0} ({1})", textToDisplay, string.Join( ", ", additionalInfo ) );
-                                    }
-                                }
-
-                                checkIn.Name = textToDisplay;
+                                checkIn.Name = person.Person.FullName;
+                                checkIn.Age = person.Person.Age.ToStringSafe();
+                                checkIn.Grade = person.Person.GradeFormatted != null ? ( 12 - person.Person.GradeOffset ).ToStringSafe() : string.Empty;
                                 checkIn.Location = GetAttributeValue( "DisplayGroupNames" ).AsBoolean()
                                     ? group.Group.Name
                                     : location.Location.Name;
@@ -358,7 +353,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     selectedGroup.PreSelected = false;
                 }
 
-                if ( !selectedGroups.Any() )
+                if ( !selectedGroups.Any( g => g.Selected ) )
                 {
                     selectedPerson.GroupTypes.ForEach( gt => gt.Selected = false );
                     selectedPerson.Selected = false;
@@ -584,7 +579,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     }
                 }
 
-                if ( printIndividually )
+                if ( printIndividually || checkinArray.Count == 1 )
                 {
                     // reset selections to what they were before queue
                     selectedPeople.ForEach( p => p.Selected = p.PreSelected );
@@ -713,13 +708,17 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         #region Classes
 
         /// <summary>
-        /// Check-In information class used to bind the selected grid.
+        /// Check-in helper class used to bind the selected grid.
         /// </summary>
         public class Activity
         {
             public int PersonId { get; set; }
 
             public string Name { get; set; }
+
+            public string Age { get; set; }
+
+            public string Grade { get; set; }
 
             public int GroupId { get; set; }
 

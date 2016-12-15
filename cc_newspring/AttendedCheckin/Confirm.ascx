@@ -34,10 +34,12 @@
                                     DisplayType="Light" EnableResponsiveTable="true" ShowFooter="false" EmptyDataText="No People Selected" CssClass="three-col-with-controls"
                                     OnRowCommand="gPersonList_Print" OnRowDataBound="gPersonList_RowDataBound" OnGridRebind="gPersonList_GridRebind">
                                     <Columns>
-                                        <Rock:RockBoundField HeaderStyle-CssClass="col-xs-4" HeaderText="Name" ItemStyle-CssClass="col-xs-4" DataField="Name" />
+                                        <Rock:RockBoundField HeaderStyle-CssClass="col-xs-3" HeaderText="Name" ItemStyle-CssClass="col-xs-3" DataField="Name" />
+                                        <Rock:RockBoundField HeaderStyle-CssClass="col-xs-1 centered" HeaderText="Age" ItemStyle-CssClass="col-xs-1 centered" DataField="Age" Visible="false" />
+                                        <Rock:RockBoundField HeaderStyle-CssClass="col-xs-1 centered" HeaderText="Grade" ItemStyle-CssClass="col-xs-1 centered" DataField="Grade" Visible="false" />
                                         <Rock:RockBoundField HeaderStyle-CssClass="col-xs-2" HeaderText="Location" ItemStyle-CssClass="col-xs-2" DataField="Location" />
                                         <Rock:RockBoundField HeaderStyle-CssClass="col-xs-2" HeaderText="Schedule" ItemStyle-CssClass="col-xs-2" DataField="Schedule" />
-                                        <Rock:RockBoundField HeaderStyle-CssClass="col-xs-2 centered" HeaderText="Checked In" ItemStyle-CssClass="col-xs-2 centered" />
+                                        <Rock:RockBoundField HeaderStyle-CssClass="col-xs-1 centered" HeaderText="Checked In" ItemStyle-CssClass="col-xs-1 centered" HeaderStyle-Wrap="false" />
                                         <Rock:EditField HeaderStyle-CssClass="col-xs-1 centered" HeaderText="Edit" ControlStyle-CssClass="col-xs-1 btn btn-lg btn-primary" OnClick="gPersonList_Edit" />
                                         <Rock:RockTemplateField HeaderStyle-CssClass="col-xs-1 centered" HeaderText="Print">
                                             <ItemTemplate>
@@ -53,7 +55,7 @@
                                     <asp:PlaceHolder ID="phPrinterStatus" runat="server"></asp:PlaceHolder>
                                 </div>
                                 <div class="col-xs-3 hard-right push-quarter-top">
-                                    <Rock:BootstrapButton ID="lbPrintAll" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" runat="server" OnClick="lbPrintAll_Click" Text="Print All"/>
+                                    <Rock:BootstrapButton ID="lbPrintAll" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" runat="server" OnClick="lbPrintAll_Click" Text="Print All" />
                                 </div>
                             </div>
                         </ContentTemplate>
