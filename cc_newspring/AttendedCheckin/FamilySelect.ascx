@@ -7,8 +7,7 @@
 
         <asp:Panel ID="pnlSelections" runat="server" CssClass="attended">
 
-            <asp:HiddenField ID="hfNewPersonType" runat="server" />
-            <asp:HiddenField ID="hfPersonIds" runat="server" />
+            <asp:HiddenField ID="hfNewPersonType" runat="server" />            
 
             <div class="row checkin-header">
                 <div class="col-xs-2 checkin-actions">
@@ -55,6 +54,7 @@
                         <ContentTemplate>
 
                             <h3 class="text-center">People</h3>
+                            <asp:HiddenField ID="hfPersonIds" runat="server" />
 
                             <asp:ListView ID="lvPerson" runat="server" OnItemDataBound="lvPeople_ItemDataBound"
                                 OnPagePropertiesChanging="lvPerson_PagePropertiesChanging">
