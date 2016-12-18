@@ -165,7 +165,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     group = groupType.Groups.FirstOrDefault( g => g.Group.Id == groupAttendance.GroupId && ( !g.ExcludedByFilter || useCheckinOverride ) );
 
                                     // Room balance only on new check-ins
-                                    if ( group != null && roomBalanceGroupTypeIds.Contains( group.Group.GroupTypeId ) && !excludedLocations.Contains( g.Group.Name ) && !useCheckinOverride )
+                                    if ( group != null && roomBalanceGroupTypeIds.Contains( group.Group.GroupTypeId ) && !excludedLocations.Contains( group.Group.Name ) && !useCheckinOverride )
                                     {
                                         // Make sure balanced rooms are open for the current service
                                         var currentAttendance = group.Locations.Where( l => l.AvailableForSchedule.Contains( schedule.Schedule.Id ) )
@@ -198,7 +198,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         location = group.Locations.FirstOrDefault( l => l.Location.Id == groupAttendance.LocationId && ( !l.ExcludedByFilter || useCheckinOverride ) );
 
                                         // Room balance only on new check-ins
-                                        if ( location != null && roomBalanceGroupTypeIds.Contains( group.Group.GroupTypeId ) && !excludedLocations.Contains( g.Group.Name ) && !useCheckinOverride )
+                                        if ( location != null && roomBalanceGroupTypeIds.Contains( group.Group.GroupTypeId ) && !excludedLocations.Contains( location.Location.Name ) && !useCheckinOverride )
                                         {
                                             var currentAttendance = Helpers.ReadAttendanceBySchedule( location.Location.Id, schedule.Schedule.Id );
 
