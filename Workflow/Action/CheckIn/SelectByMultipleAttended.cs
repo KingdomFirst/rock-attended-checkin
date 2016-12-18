@@ -131,8 +131,9 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                             var groupType = previousAttender.GroupTypes.FirstOrDefault( gt => gt.GroupType.Id == groupAttendance.Group.GroupTypeId && ( !gt.ExcludedByFilter || useCheckinOverride ) );
                             if ( groupType != null )
                             {
+                                // get available schedules and order earliest first
                                 var availableSchedules = groupType.Groups.SelectMany( g => g.Locations.Where( l => l.IsActiveAndNotFull ).SelectMany( l => l.Schedules ) )
-                                    .DistinctBy( s => s.Schedule.Id ).ToList();
+                                    .DistinctBy( s => s.Schedule.Id ).OrderBy( s => s.Schedule.StartTimeOfDay ).ToList();
 
                                 // select the schedule first so group/location attendance can be filtered by schedule
                                 CheckInSchedule schedule = null;
@@ -142,15 +143,14 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                 }
                                 else
                                 {
-                                    // if assigning to multiple services or currently checked in (not SN, otherwise they would get the wrong auto-schedule)
+                                    // only use for current check-ins, otherwise SN might get the wrong schedule
                                     if ( currentlyCheckedIn )
                                     {
-                                        // pick what they last attended last
                                         schedule = availableSchedules.FirstOrDefault( s => s.Schedule.Id == groupAttendance.ScheduleId && ( !s.ExcludedByFilter || useCheckinOverride ) );
                                     }
 
-                                    // otherwise pick the earliest available schedule
-                                    schedule = schedule ?? availableSchedules.OrderBy( s => s.Schedule.StartTimeOfDay ).Skip( assignmentsGiven ).FirstOrDefault( s => !s.ExcludedByFilter );
+                                    // skip to the next service when assigning multiple services
+                                    schedule = schedule ?? availableSchedules.Skip( assignmentsGiven ).FirstOrDefault( s => !s.ExcludedByFilter );
                                 }
 
                                 CheckInGroup group = null;
@@ -190,8 +190,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     if ( group.Locations.Count == 1 )
                                     {
                                         // Only a single location is open
-                                        location = group.Locations.Where( l => l.AvailableForSchedule.Contains( schedule.Schedule.Id ) )
-                                            .FirstOrDefault( l => !l.ExcludedByFilter || useCheckinOverride );
+                                        location = group.Locations.FirstOrDefault( l => !l.ExcludedByFilter || useCheckinOverride );
                                     }
                                     else
                                     {
