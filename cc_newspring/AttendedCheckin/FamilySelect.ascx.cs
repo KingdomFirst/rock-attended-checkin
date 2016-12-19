@@ -1167,6 +1167,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 familyGroup.IsSystem = false;
                 familyGroup.IsPublic = true;
                 familyGroup.IsActive = true;
+                familyGroup.CampusId = KioskCampusId;
 
                 // Get oldest person's last name
                 var familyName = newPeople.Where( p => p.BirthDate.HasValue )
@@ -1175,6 +1176,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                 familyGroup.Name = familyName + " Family";
                 new GroupService( rockContext ).Add( familyGroup );
+            }
+            else if ( familyGroup.CampusId == null )
+            {
+                familyGroup.CampusId = KioskCampusId;
             }
 
             // Add group members
