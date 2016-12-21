@@ -53,7 +53,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         ^FT350,275^A0N,30,30^FH\^FD- Frank Grand^FS
         ^FO30,300^GB550,0,6^FS
         ^FT30,350^A0N,30,30^FH\^FDDeviceName^FS
-        ^FT350,350^A0N,30,30^FH\^FDPrinterIP^FS
+        ^FT420,350^A0N,30,30^FH\^FDPrinterIP^FS
         ^XZ", order: 3 )]
     public partial class Admin : CheckInBlock
     {
@@ -609,6 +609,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 var labelContent = GetAttributeValue( "TestLabelContent" );
                 labelContent = Regex.Replace( labelContent, string.Format( @"(?<=\^FD){0}(?=\^FS)", "DeviceName" ), device.Name );
                 labelContent = Regex.Replace( labelContent, string.Format( @"(?<=\^FD){0}(?=\^FS)", "PrinterIP" ), printerAddress );
+                labelContent = Regex.Replace( labelContent, string.Format( @"(?<=\^FD){0}(?=\^FS)", "Date" ), RockDateTime.Now.ToString("MM/dd/yy HH:mm tt") );
 
                 // try printing the label
                 if ( !string.IsNullOrWhiteSpace( labelContent ) && !string.IsNullOrWhiteSpace( printerAddress ) )
