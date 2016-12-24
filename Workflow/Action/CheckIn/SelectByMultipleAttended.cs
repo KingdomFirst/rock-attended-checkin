@@ -114,7 +114,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                             if ( serviceCutoff > RockDateTime.Now.Date )
                             {
                                 // calculate the service window to determine if people are still checked in
-                                var serviceTime = groupAttendance.StartDateTime.Date + groupAttendance.Schedule.NextStartDateTime.Value.TimeOfDay;
+                                var serviceTime = groupAttendance.StartDateTime.Date + groupAttendance.Schedule.StartTimeOfDay;
                                 var serviceStart = serviceTime.AddMinutes( ( groupAttendance.Schedule.CheckInStartOffsetMinutes ?? 0 ) * -1.0 );
                                 serviceCutoff = serviceTime.AddMinutes( ( groupAttendance.Schedule.CheckInEndOffsetMinutes ?? 0 ) );
                                 currentlyCheckedIn = RockDateTime.Now > serviceStart && RockDateTime.Now < serviceCutoff;
@@ -215,12 +215,10 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         }
                                     }
 
-                                    if ( location != null && schedule != null )
+                                    // make sure the schedule is available at this location and the one owned by this location context
+                                    if ( location != null && schedule != null && location.Schedules.Any( s => s.Schedule.Id == schedule.Schedule.Id ) )
                                     {
-                                        // make sure the selected schedule is the one owned by this location context
                                         schedule = location.Schedules.FirstOrDefault( s => s.Schedule.Id == schedule.Schedule.Id );
-
-                                        schedule = schedule ?? location.Schedules.FirstOrDefault();
 
                                         // it's impossible to currently be checked in unless these match exactly
                                         if ( group.Group.Id == groupAttendance.GroupId && location.Location.Id == groupAttendance.LocationId && schedule.Schedule.Id == groupAttendance.ScheduleId )
