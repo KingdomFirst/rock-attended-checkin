@@ -220,6 +220,8 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         // make sure the selected schedule is the one owned by this location context
                                         schedule = location.Schedules.FirstOrDefault( s => s.Schedule.Id == schedule.Schedule.Id );
 
+                                        schedule = schedule ?? location.Schedules.FirstOrDefault();
+
                                         // it's impossible to currently be checked in unless these match exactly
                                         if ( group.Group.Id == groupAttendance.GroupId && location.Location.Id == groupAttendance.LocationId && schedule.Schedule.Id == groupAttendance.ScheduleId )
                                         {
