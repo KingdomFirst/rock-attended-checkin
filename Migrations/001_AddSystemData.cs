@@ -20,7 +20,7 @@ using Rock.Plugin;
 
 namespace cc.newspring.AttendedCheckIn.Migrations
 {
-    [MigrationNumber( 1, "1.5.0" )]
+    [MigrationNumber( 1, "1.6.0" )]
     public class AddSystemData : Migration
     {
         public string SpecialNeedsAttributeGuid = "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF";
@@ -212,11 +212,13 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             // Attended Check-in:Activity Search:Filter Active Locations
             RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Filter Active Locations", 2, "7BB371F9-A8DE-49D3-BEEA-C191F6C7D4A0", true, false, "", "", 1, "", "685CB9D2-EAA3-4322-81E3-289BFCAE15E7" );
             // Attended Check-in:Activity Search:Load Schedules
-            RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Load Schedules", 3, "24A7E196-B50B-4BD6-A347-07CFC5ABEF9E", true, false, "", "", 1, "", "5CD01782-54F7-405D-B857-73BDE9242761" );
+            RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Load Schedules", 3, "24A7E196-B50B-4BD6-A347-07CFC5ABEF9E", true, false, "", "", 1, "", "E979A041-A2BE-4182-B478-43990D9BA185" );
+            // Attended Check-in:Activity Search:Set Available Schedules
+            RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Set Available Schedules", 4, "0F16E0C5-825A-4058-8285-6370DAAC2C19", true, false, "", "", 1, "", "" );
             // Attended Check-in:Activity Search:Select By Multiple Attended
-            RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Select By Multiple Attended", 4, "DDC2D0CA-28A9-420B-9915-B3831DE75DAC", true, false, "", "", 1, "", "32CFAB16-629D-490C-A2C4-A95731BA5931" );
+            RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Select By Multiple Attended", 5, "DDC2D0CA-28A9-420B-9915-B3831DE75DAC", true, false, "", "", 1, "", "32CFAB16-629D-490C-A2C4-A95731BA5931" );
             // Attended Check-in:Activity Search:Select By Best Fit
-            RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Select By Best Fit", 5, "B1A855F8-7ED6-49AE-8EEA-D1DCB6C7E944", true, false, "", "", 1, "", "7D482C58-34CB-4414-9607-4BD01D0C217A" );
+            RockMigrationHelper.UpdateWorkflowActionType( "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD", "Select By Best Fit", 6, "B1A855F8-7ED6-49AE-8EEA-D1DCB6C7E944", true, false, "", "", 1, "", "7D482C58-34CB-4414-9607-4BD01D0C217A" );
 
             // Save Attendance
             // Attended Check-in:Save Attendance:Save Attendance
