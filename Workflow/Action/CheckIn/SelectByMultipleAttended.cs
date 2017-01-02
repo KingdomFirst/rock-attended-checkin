@@ -111,7 +111,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                         {
                             bool currentlyCheckedIn = false;
                             var serviceCutoff = groupAttendance.StartDateTime;
-                            if ( serviceCutoff > RockDateTime.Now.Date )
+                            if ( serviceCutoff > RockDateTime.Now.Date && groupAttendance.Schedule != null )
                             {
                                 // calculate the service window to determine if people are still checked in
                                 var serviceTime = groupAttendance.StartDateTime.Date + groupAttendance.Schedule.StartTimeOfDay;
@@ -146,11 +146,21 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     // only use for current check-ins, otherwise SN might get the wrong schedule
                                     if ( currentlyCheckedIn )
                                     {
-                                        schedule = availableSchedules.FirstOrDefault( s => s.Schedule.Id == groupAttendance.ScheduleId && ( !s.ExcludedByFilter || useCheckinOverride ) );
+                                        schedule = availableSchedules.FirstOrDefault( s => s.Schedule.Id == groupAttendance.ScheduleId );
                                     }
 
                                     // skip to the next service when assigning multiple services
-                                    schedule = schedule ?? availableSchedules.Skip( assignmentsGiven ).FirstOrDefault( s => !s.ExcludedByFilter );
+                                    if ( groupAttendance.Schedule != null && groupType.AvailableForSchedule.Contains( (int)groupAttendance.ScheduleId ) )
+                                    {
+                                        // groupType.AvailableForSchedule doesn't have time or ordering, but availableSchedules does
+                                        var stuff = groupType.AvailableForSchedule
+                                            .Join( availableSchedules, t1 => (int)t1, t2 => (int)t2.Schedule.Id, ( groupTypeScheduleId, orderedSchedule ) => new { groupTypeScheduleId, orderedSchedule } )
+                                            .ToList();
+
+                                        schedule = stuff.Skip( assignmentsGiven ).Select( s => s.orderedSchedule ).FirstOrDefault();
+                                    }
+
+                                    schedule = schedule ?? availableSchedules.FirstOrDefault( s => !s.ExcludedByFilter );
                                 }
 
                                 CheckInGroup group = null;
@@ -215,35 +225,38 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         }
                                     }
 
-                                    // make sure the schedule is available at this location and the one owned by this location context
-                                    if ( location != null && schedule != null && location.Schedules.Any( s => s.Schedule.Id == schedule.Schedule.Id ) )
+                                    if ( location != null && schedule != null )
                                     {
+                                        // Schedules exist on multiple locations, so pick the one owned by this location
                                         schedule = location.Schedules.FirstOrDefault( s => s.Schedule.Id == schedule.Schedule.Id );
 
-                                        // it's impossible to currently be checked in unless these match exactly
-                                        if ( group.Group.Id == groupAttendance.GroupId && location.Location.Id == groupAttendance.LocationId && schedule.Schedule.Id == groupAttendance.ScheduleId )
+                                        if ( schedule != null )
                                         {
-                                            // Checkout feature either removes the attendance or sets the EndDateTime
-                                            var endOfCheckinWindow = groupAttendance.EndDateTime ?? serviceCutoff;
-                                            schedule.LastCheckIn = endOfCheckinWindow;
-                                            location.LastCheckIn = endOfCheckinWindow;
-                                            group.LastCheckIn = endOfCheckinWindow;
-                                            groupType.LastCheckIn = endOfCheckinWindow;
-                                            previousAttender.LastCheckIn = endOfCheckinWindow;
-                                        }
+                                            // it's impossible to currently be checked in unless these match exactly
+                                            if ( group.Group.Id == groupAttendance.GroupId && location.Location.Id == groupAttendance.LocationId && schedule.Schedule.Id == groupAttendance.ScheduleId )
+                                            {
+                                                // Checkout feature either removes the attendance or sets the EndDateTime
+                                                var endOfCheckinWindow = groupAttendance.EndDateTime ?? serviceCutoff;
+                                                schedule.LastCheckIn = endOfCheckinWindow;
+                                                location.LastCheckIn = endOfCheckinWindow;
+                                                group.LastCheckIn = endOfCheckinWindow;
+                                                groupType.LastCheckIn = endOfCheckinWindow;
+                                                previousAttender.LastCheckIn = endOfCheckinWindow;
+                                            }
 
-                                        // finished finding assignment, verify everything is selected
-                                        schedule.Selected = true;
-                                        schedule.PreSelected = true;
-                                        location.Selected = true;
-                                        location.PreSelected = true;
-                                        group.Selected = true;
-                                        group.PreSelected = true;
-                                        groupType.Selected = true;
-                                        groupType.PreSelected = true;
-                                        previousAttender.Selected = true;
-                                        previousAttender.PreSelected = true;
-                                        assignmentsGiven++;
+                                            // finished finding assignment, verify everything is selected
+                                            schedule.Selected = true;
+                                            schedule.PreSelected = true;
+                                            location.Selected = true;
+                                            location.PreSelected = true;
+                                            group.Selected = true;
+                                            group.PreSelected = true;
+                                            groupType.Selected = true;
+                                            groupType.PreSelected = true;
+                                            previousAttender.Selected = true;
+                                            previousAttender.PreSelected = true;
+                                            assignmentsGiven++;
+                                        }
                                     }
                                 }
                             }
