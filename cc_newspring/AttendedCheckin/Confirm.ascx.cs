@@ -165,13 +165,18 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                 // LastCheckin is set to the end time of the current service
                                 checkIn.CheckedIn = schedule.LastCheckIn != null && schedule.LastCheckIn > RockDateTime.Now;
 
-                                // CreateLabels & SaveAttendance workflows depend on Person.SelectedForSchedule
+                                // V6 NOTE: CreateLabels & SaveAttendance workflows depend on SelectedForSchedule fields
+                                // Person.SelectedForSchedule is a subset of Person.PossibleSchedules
                                 var personSchedule = person.PossibleSchedules.FirstOrDefault( s => s.Schedule.Id == schedule.Schedule.Id );
                                 if ( personSchedule != null )
                                 {
                                     personSchedule.Selected = true;
                                     personSchedule.PreSelected = true;
                                 }
+
+                                // GroupType.SelectedForSchedule is an actual list, separate from GroupType.PossibleSchedules
+                                groupType.SelectedForSchedule.Add( schedule.Schedule.Id );
+
 
                                 checkInList.Add( checkIn );
                             }
@@ -348,6 +353,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                 if ( !selectedGroups.Any( g => g.Selected ) )
                 {
+                    selectedPerson.GroupTypes.ForEach( gt => gt.SelectedForSchedule.Clear() );
                     selectedPerson.GroupTypes.ForEach( gt => gt.Selected = false );
                     selectedPerson.GroupTypes.ForEach( gt => gt.PreSelected = false );
                     selectedPerson.PossibleSchedules.ForEach( s => s.Selected = false );
@@ -438,7 +444,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 List<CheckInGroup> availableGroups = null;
                 List<CheckInLocation> availableLocations = null;
                 List<CheckInSchedule> availableSchedules = null;
-                List<CheckInSchedule> personSchedules = null;
+                List<CheckInSchedule> possiblePersonSchedules = null;
+                List<int> selectedGroupTypeSchedules = null;
+
+                var backupGroupTypes = selectedGroupTypes.ToList();
 
                 foreach ( DataKey dataKey in checkinArray )
                 {
@@ -452,9 +461,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     availableGroups = selectedGroupTypes.SelectMany( gt => gt.Groups ).ToList();
                     availableLocations = availableGroups.SelectMany( l => l.Locations ).ToList();
                     availableSchedules = availableLocations.SelectMany( s => s.Schedules ).ToList();
-                    personSchedules = selectedPeople.SelectMany( p => p.PossibleSchedules ).ToList();
+                    possiblePersonSchedules = selectedPeople.SelectMany( p => p.PossibleSchedules ).ToList();
+                    selectedGroupTypeSchedules = selectedGroupTypes.SelectMany( gt => gt.SelectedForSchedule ).ToList();
 
-                    // Make sure only the current item is selected in the merge object
+                    // Only the current item should be selected in the merge object, unselect everything else
                     if ( printIndividually || checkinArray.Count == 1 )
                     {
                         // Note: This depends on PreSelected being set properly to undo changes later
@@ -463,11 +473,13 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         availableGroups.ForEach( g => g.Selected = ( g.Group.Id == groupId ) );
                         availableLocations.ForEach( l => l.Selected = ( l.Location.Id == locationId ) );
                         availableSchedules.ForEach( s => s.Selected = ( s.Schedule.Id == scheduleId ) );
-                        personSchedules.ForEach( s => s.Selected = ( s.Schedule.Id == scheduleId ) );
+
+                        // Unselect the SelectedSchedule properties too
+                        possiblePersonSchedules.ForEach( s => s.Selected = ( s.Schedule.Id == scheduleId ) );
+                        selectedGroupTypeSchedules.RemoveAll( s => s != scheduleId );
                     }
 
                     // Create labels for however many items are currently selected
-                    // #TODO: Rewrite CreateLabels so it would accept a list of ID's
                     var labelErrors = new List<string>();
                     if ( ProcessActivity( "Create Labels", out labelErrors ) )
                     {
@@ -582,11 +594,21 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 {
                     // reset selections to what they were before queue
                     selectedPeople.ForEach( p => p.Selected = p.PreSelected );
-                    personSchedules.ForEach( s => s.Selected = s.PreSelected );
+                    possiblePersonSchedules.ForEach( s => s.Selected = s.PreSelected );
                     selectedGroupTypes.ForEach( gt => gt.Selected = gt.PreSelected );
                     availableGroups.ForEach( g => g.Selected = g.PreSelected );
                     availableLocations.ForEach( l => l.Selected = l.PreSelected );
                     availableSchedules.ForEach( s => s.Selected = s.PreSelected );
+
+                    // use the backup to reset groupType.AvailableForSchedule
+                    foreach ( var backupType in backupGroupTypes )
+                    {
+                        var groupType = selectedGroupTypes.FirstOrDefault( gt => gt.GroupType.Id == backupType.GroupType.Id );
+                        if ( groupType != null )
+                        {
+                            groupType.AvailableForSchedule = backupType.AvailableForSchedule;
+                        }
+                    }
                 }
             }
 
