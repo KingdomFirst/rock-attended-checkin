@@ -447,7 +447,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 List<CheckInSchedule> possiblePersonSchedules = null;
                 List<int> selectedGroupTypeSchedules = null;
 
-                List<CheckInGroupType> backup = selectedGroupTypes;
+                var backupGroupTypes = selectedGroupTypes.ToList();
 
                 foreach ( DataKey dataKey in checkinArray )
                 {
@@ -599,6 +599,16 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     availableGroups.ForEach( g => g.Selected = g.PreSelected );
                     availableLocations.ForEach( l => l.Selected = l.PreSelected );
                     availableSchedules.ForEach( s => s.Selected = s.PreSelected );
+
+                    // use the backup to reset groupType.AvailableForSchedule
+                    foreach ( var backupType in backupGroupTypes )
+                    {
+                        var groupType = selectedGroupTypes.FirstOrDefault( gt => gt.GroupType.Id == backupType.GroupType.Id );
+                        if ( groupType != null )
+                        {
+                            groupType.AvailableForSchedule = backupType.AvailableForSchedule;
+                        }
+                    }
                 }
             }
 
