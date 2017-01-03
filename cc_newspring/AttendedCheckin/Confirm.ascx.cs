@@ -606,7 +606,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         var groupType = selectedGroupTypes.FirstOrDefault( gt => gt.GroupType.Id == backupType.GroupType.Id );
                         if ( groupType != null )
                         {
-                            groupType.AvailableForSchedule = backupType.AvailableForSchedule;
+                            groupType.SelectedForSchedule = backupType.SelectedForSchedule;
                         }
                     }
                 }
