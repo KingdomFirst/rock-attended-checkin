@@ -177,7 +177,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                 // GroupType.SelectedForSchedule is an actual list, separate from GroupType.PossibleSchedules
                                 groupType.SelectedForSchedule.Add( schedule.Schedule.Id );
 
-
                                 checkInList.Add( checkIn );
                             }
                         }
@@ -413,7 +412,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <returns></returns>
         private void ProcessLabels( DataKeyArray checkinArray )
         {
-            // Make sure we can save the attendance and get an attendance code
+            // All family members need attendance now so they also get the same code
             if ( RunSaveAttendance )
             {
                 var attendanceErrors = new List<string>();
@@ -445,9 +444,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 List<CheckInLocation> availableLocations = null;
                 List<CheckInSchedule> availableSchedules = null;
                 List<CheckInSchedule> possiblePersonSchedules = null;
-                List<int> selectedGroupTypeSchedules = null;
-
-                var backupGroupTypes = selectedGroupTypes.ToList();
+                var backupSchedules = selectedGroupTypes.Select( gt => new { gt.GroupType.Id, gt.SelectedForSchedule } ).ToList();
 
                 foreach ( DataKey dataKey in checkinArray )
                 {
@@ -462,7 +459,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     availableLocations = availableGroups.SelectMany( l => l.Locations ).ToList();
                     availableSchedules = availableLocations.SelectMany( s => s.Schedules ).ToList();
                     possiblePersonSchedules = selectedPeople.SelectMany( p => p.PossibleSchedules ).ToList();
-                    selectedGroupTypeSchedules = selectedGroupTypes.SelectMany( gt => gt.SelectedForSchedule ).ToList();
 
                     // Only the current item should be selected in the merge object, unselect everything else
                     if ( printIndividually || checkinArray.Count == 1 )
@@ -476,7 +472,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                         // Unselect the SelectedSchedule properties too
                         possiblePersonSchedules.ForEach( s => s.Selected = ( s.Schedule.Id == scheduleId ) );
-                        selectedGroupTypeSchedules.RemoveAll( s => s != scheduleId );
+                        selectedGroupTypes.ForEach( gt => gt.SelectedForSchedule.RemoveAll( s => s != scheduleId ) );
                     }
 
                     // Create labels for however many items are currently selected
@@ -484,15 +480,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     if ( ProcessActivity( "Create Labels", out labelErrors ) )
                     {
                         SaveState();
-                    }
-
-                    // mark the person as being checked in
-                    var selectedSchedules = availableLocations.Where( l => l.Selected )
-                        .SelectMany( s => s.Schedules ).Where( s => s.Selected ).ToList();
-                    foreach ( var selectedSchedule in selectedSchedules )
-                    {
-                        var serviceStart = (DateTime)selectedSchedule.StartTime;
-                        selectedSchedule.LastCheckIn = serviceStart.AddMinutes( (double)selectedSchedule.Schedule.CheckInEndOffsetMinutes );
                     }
 
                     // Add valid grouptype labels, excluding the one-time label (if set)
@@ -601,14 +588,24 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     availableSchedules.ForEach( s => s.Selected = s.PreSelected );
 
                     // use the backup to reset groupType.AvailableForSchedule
-                    foreach ( var backupType in backupGroupTypes )
+                    for ( int i = 0; i < selectedGroupTypes.Count; i++ )
                     {
-                        var groupType = selectedGroupTypes.FirstOrDefault( gt => gt.GroupType.Id == backupType.GroupType.Id );
-                        if ( groupType != null )
+                        var groupType = selectedGroupTypes.ElementAtOrDefault( i );
+                        var backup = backupSchedules.ElementAtOrDefault( i );
+                        if ( groupType != null && backup != null )
                         {
-                            groupType.SelectedForSchedule = backupType.SelectedForSchedule;
+                            groupType.SelectedForSchedule = backup.SelectedForSchedule;
                         }
                     }
+                }
+
+                // since Save Attendance already ran, mark everyone as being checked in
+                var selectedSchedules = availableLocations.Where( l => l.Selected )
+                    .SelectMany( s => s.Schedules ).Where( s => s.Selected ).ToList();
+                foreach ( var selectedSchedule in selectedSchedules )
+                {
+                    var serviceStart = (DateTime)selectedSchedule.StartTime;
+                    selectedSchedule.LastCheckIn = serviceStart.AddMinutes( (double)selectedSchedule.Schedule.CheckInEndOffsetMinutes );
                 }
             }
 
