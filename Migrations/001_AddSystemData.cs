@@ -43,7 +43,14 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             RockMigrationHelper.AddPage( "", "3BD6CFC1-0BF2-43C8-AD38-44E711D6ACE0", "Attended Check-in", "Screens for managing Attended Check-in", "32A132A6-63A2-4840-B4A5-23D80994CCBD", "" );
             Sql( @"
                 DECLARE @PageId int = (SELECT [Id] FROM [Page] WHERE [Guid] = '32A132A6-63A2-4840-B4A5-23D80994CCBD')
-                UPDATE [Site] SET [DefaultPageId] = @PageId WHERE [Guid] = '30FB46F7-4814-4691-852A-04FB56CC07F0'
+                DECLARE @SiteId int = (SELECT [Id] FROM [Site] WHERE [Guid] = '30FB46F7-4814-4691-852A-04FB56CC07F0')
+                DECLARE @SiteDomain varchar(200) = (SELECT TOP 1 [Domain] FROM [SiteDomain] WHERE [Domain] <> '')
+                UPDATE [Site] SET [DefaultPageId] = @PageId WHERE [Id] = @SiteId
+
+                /* Add the attended check-in route to the default domain */
+                SELECT @SiteDomain = @SiteDomain + '/attendedcheckin'
+                INSERT [SiteDomain] ([IsSystem], [SiteId], [Domain], [Guid]) 
+                SELECT 0, @SiteId, @SiteDomain, NEWID()
             " );
 
             // Page: Admin
