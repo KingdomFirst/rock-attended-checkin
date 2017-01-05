@@ -45,7 +45,7 @@ namespace cc.newspring.AttendedCheckIn.Migrations
                 DECLARE @PageId int = (SELECT [Id] FROM [Page] WHERE [Guid] = '32A132A6-63A2-4840-B4A5-23D80994CCBD')
                 DECLARE @SiteId int = (SELECT [Id] FROM [Site] WHERE [Guid] = '30FB46F7-4814-4691-852A-04FB56CC07F0')
                 DECLARE @SiteDomain varchar(200) = (SELECT TOP 1 [Domain] FROM [SiteDomain] WHERE [Domain] <> '')
-                UPDATE [Site] SET [DefaultPageId] = @PageId WHERE [Id] = @SiteId
+                UPDATE [Site] SET [DefaultPageId] = @PageId, [AllowIndexing] = 0 WHERE [Id] = @SiteId
 
                 /* Add the attended check-in route to the default domain */
                 SELECT @SiteDomain = @SiteDomain + '/attendedcheckin'
