@@ -317,11 +317,9 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                             if ( numValidLocations > 0 )
                             {
                                 CheckInLocation bestLocation = null;
-                                var validSchedules = new List<CheckInSchedule>();
                                 if ( numValidLocations == 1 )
                                 {
                                     bestLocation = validLocations.FirstOrDefault();
-                                    validSchedules = bestLocation.Schedules;
                                 }
                                 else
                                 {
@@ -352,7 +350,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                 if ( bestLocation != null && bestLocation.Schedules.Any() )
                                 {
                                     // finished finding assignment, verify we can select everything
-                                    var bestSchedule = validSchedules.OrderBy( s => s.Schedule.StartTimeOfDay ).FirstOrDefault();
+                                    var bestSchedule = bestLocation.Schedules.OrderBy( s => s.Schedule.StartTimeOfDay ).FirstOrDefault();
                                     if ( bestSchedule != null )
                                     {
                                         bestSchedule.Selected = true;
