@@ -283,11 +283,11 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             // Attended Check-in:Activity Search:Load Locations:Active
             RockMigrationHelper.AddActionTypeAttributeValue( "1F342433-CE63-4FB4-88CE-00A8306ECED8", "2F3B6B42-A89C-443A-9008-E9E96535E815", @"False" );
             // Attended Check-in:Activity Search:Load Schedules:Order
-            RockMigrationHelper.AddActionTypeAttributeValue( "5CD01782-54F7-405D-B857-73BDE9242761", "F7B09469-EB3D-44A4-AB8E-C74318BD4669", @"" );
+            RockMigrationHelper.AddActionTypeAttributeValue( "E979A041-A2BE-4182-B478-43990D9BA185", "F7B09469-EB3D-44A4-AB8E-C74318BD4669", @"" );
             // Attended Check-in:Activity Search:Load Schedules:Active
-            RockMigrationHelper.AddActionTypeAttributeValue( "5CD01782-54F7-405D-B857-73BDE9242761", "4DFA9F8D-F2E6-4040-A23B-2A1F8258C767", @"False" );
+            RockMigrationHelper.AddActionTypeAttributeValue( "E979A041-A2BE-4182-B478-43990D9BA185", "4DFA9F8D-F2E6-4040-A23B-2A1F8258C767", @"False" );
             // Attended Check-in:Activity Search:Load Schedules:Load All
-            RockMigrationHelper.AddActionTypeAttributeValue( "5CD01782-54F7-405D-B857-73BDE9242761", "B222CAF2-DF12-433C-B5D4-A8DB95B60207", @"True" );
+            RockMigrationHelper.AddActionTypeAttributeValue( "E979A041-A2BE-4182-B478-43990D9BA185", "B222CAF2-DF12-433C-B5D4-A8DB95B60207", @"True" );
             // Attended Check-in:Activity Search:Filter Active Locations:Order
             RockMigrationHelper.AddActionTypeAttributeValue( "685CB9D2-EAA3-4322-81E3-289BFCAE15E7", "C8BE5BB1-9293-4FA0-B4CF-FED19B855465", @"" );
             // Attended Check-in:Activity Search:Filter Active Locations:Active

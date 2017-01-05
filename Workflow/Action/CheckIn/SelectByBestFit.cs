@@ -317,7 +317,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                             if ( numValidLocations > 0 )
                             {
                                 CheckInLocation bestLocation = null;
-                                IEnumerable<CheckInSchedule> validSchedules;
+                                var validSchedules = new List<CheckInSchedule>();
                                 if ( numValidLocations == 1 )
                                 {
                                     bestLocation = validLocations.FirstOrDefault();
@@ -325,7 +325,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                 }
                                 else
                                 {
-                                    var filteredLocations = validLocations.Where( l => !l.ExcludedByFilter && !excludedLocations.Contains( l.Location.Name ) && l.Schedules.Any( s => s.Schedule.IsCheckInActive ) );
+                                    var filteredLocations = validLocations.Where( l => !l.ExcludedByFilter && !excludedLocations.Contains( l.Location.Name ) );
 
                                     // room balance if they fit into multiple locations
                                     if ( roomBalanceGroupTypeIds.Contains( bestGroup.Group.GroupTypeId ) )
@@ -347,35 +347,35 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     }
 
                                     bestLocation = filteredLocations.FirstOrDefault();
-                                    validSchedules = bestLocation.Schedules;
                                 }
 
-                                // check how many schedules exist without getting the whole list
-                                int numValidSchedules = validSchedules.Take( 2 ).Count();
-                                if ( numValidSchedules > 0 )
+                                if ( bestLocation != null && bestLocation.Schedules.Any() )
                                 {
-                                    // finished finding assignment, verify everything is selected
+                                    // finished finding assignment, verify we can select everything
                                     var bestSchedule = validSchedules.OrderBy( s => s.Schedule.StartTimeOfDay ).FirstOrDefault();
-                                    bestSchedule.Selected = true;
-                                    bestSchedule.PreSelected = true;
-
-                                    if ( bestLocation != null )
+                                    if ( bestSchedule != null )
                                     {
-                                        bestLocation.PreSelected = true;
-                                        bestLocation.Selected = true;
+                                        bestSchedule.Selected = true;
+                                        bestSchedule.PreSelected = true;
 
-                                        if ( bestGroup != null )
+                                        if ( bestLocation != null )
                                         {
-                                            bestGroup.PreSelected = true;
-                                            bestGroup.Selected = true;
+                                            bestLocation.PreSelected = true;
+                                            bestLocation.Selected = true;
 
-                                            bestGroupType = person.GroupTypes.FirstOrDefault( gt => gt.GroupType.Id == bestGroup.Group.GroupTypeId );
-                                            if ( bestGroupType != null )
+                                            if ( bestGroup != null )
                                             {
-                                                bestGroupType.Selected = true;
-                                                bestGroupType.PreSelected = true;
-                                                person.Selected = true;
-                                                person.PreSelected = true;
+                                                bestGroup.PreSelected = true;
+                                                bestGroup.Selected = true;
+
+                                                bestGroupType = person.GroupTypes.FirstOrDefault( gt => gt.GroupType.Id == bestGroup.Group.GroupTypeId );
+                                                if ( bestGroupType != null )
+                                                {
+                                                    bestGroupType.Selected = true;
+                                                    bestGroupType.PreSelected = true;
+                                                    person.Selected = true;
+                                                    person.PreSelected = true;
+                                                }
                                             }
                                         }
                                     }
