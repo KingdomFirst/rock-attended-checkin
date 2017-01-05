@@ -32,7 +32,7 @@
                 <div class="col-xs-3">
                     <asp:UpdatePanel ID="pnlGroupTypes" runat="server" UpdateMode="Conditional">
                         <ContentTemplate>
-                            <h3 class="text-center">GroupType</h3>
+                            <h3 class="text-center">Checkin Type(s)</h3>
                             <asp:ListView ID="lvGroupType" runat="server" OnItemCommand="lvGroupType_ItemCommand" OnPagePropertiesChanging="lvGroupType_PagePropertiesChanging" OnItemDataBound="lvGroupType_ItemDataBound">
                                 <ItemTemplate>
                                     <asp:LinkButton ID="lbGroupType" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" CausesValidation="false" />
@@ -148,7 +148,7 @@
                         </div>
                         <div class="row">
                             <div class="col-xs-6">
-                                <Rock:RockTextBox ID="tbNoteText" runat="server" Label="Notes" MaxLength="40" />
+                                <Rock:RockTextBox ID="tbNoteText" runat="server" Label="Notes" MaxLength="40" Help="Note(s) about this person." />
                             </div>
                             <div class="col-xs-6">
                                 <asp:PlaceHolder ID="phAttributes" runat="server" EnableViewState="false"></asp:PlaceHolder>

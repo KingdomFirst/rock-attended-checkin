@@ -244,11 +244,11 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             if ( person != null )
             {
                 var changes = new List<string>();
-				person.PreSelected = person.Selected;
+                person.PreSelected = person.Selected;
                 var groupTypes = person.GroupTypes.ToList();
                 foreach ( var groupType in groupTypes )
                 {
-                    History.EvaluateChange( changes, string.Format("{0} Grouptype", groupType ), groupType.PreSelected, groupType.Selected );
+                    History.EvaluateChange( changes, string.Format( "{0} Grouptype", groupType ), groupType.PreSelected, groupType.Selected );
                     groupType.PreSelected = groupType.Selected;
                 }
 
@@ -275,11 +275,11 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                 HistoryService.AddChanges(
                     new RockContext(),
-                    typeof( Person ), 
+                    typeof( Person ),
                     Rock.SystemGuid.Category.HISTORY_PERSON_ACTIVITY.AsGuid(),
                     person.Person.Id,
                     changes,
-                    CurrentPersonAliasId 
+                    CurrentPersonAliasId
                 );
             }
             else
@@ -961,6 +961,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 ddlSuffix.BindToDefinedType( DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_SUFFIX ) ), true );
 
                 ViewState["lblAbilityGrade"] = ddlAbilityGrade.Label;
+                person.Person.LoadAttributes();
 
                 tbFirstName.Text = person.Person.FirstName;
                 tbLastName.Text = person.Person.LastName;
