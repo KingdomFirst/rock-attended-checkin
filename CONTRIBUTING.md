@@ -40,7 +40,7 @@ One way you can contribute is by tackling known issues. Another way is submittin
 
 We use [GitHub Issues](../../issues) for our public bugs. We keep a close eye on this and try to make it clear when we have an internal fix in progress. Before filing a new task, try to make sure your problem doesn't already exist.
 
-### Report New Issues
+### Report a New Issue
 
 The best way to get a bug fixed is to provide an example case of where the problem is occurring. Images or videos of the failure occurring is beneficial where applicable. 
 
@@ -84,7 +84,8 @@ We also recommend that you work off of open issues, and let us know on them what
 
 ## Get in Touch
 
-* [Twitter](https://twitter.com/newspringweb)
+* Hit us up on [Twitter](https://twitter.com/newspringweb)
+* Reach out to the [team](https://github.com/orgs/NewSpring/people).
 
 ## License
 
