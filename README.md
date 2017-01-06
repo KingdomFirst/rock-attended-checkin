@@ -4,7 +4,7 @@ This is the source project for the Attended Check-in plugin for [Rock RMS](http:
 
 ## Getting Started
 
-Read the [Wiki](./wiki).
+Read the [Wiki](../../wiki).
 
 ## Download the plugin
 
@@ -14,7 +14,7 @@ You can also find it on the [Rock Shop](http://rock.rocksolidchurchdemo.com/page
 
 ## Submit a bug or feature request
 
-File a [new issue](./issues/new)
+File a [new issue](../../issues/new)
 
 ## Contributing
 
