@@ -260,6 +260,12 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             RockMigrationHelper.AddActionTypeAttributeValue( "05DD1385-B984-4905-8EA2-3B35EAC35B99", "1F4BD3F6-C528-4160-8478-825C3B8AC85D", @"" );
             // Attended Check-in:Person Search:Load Group Types:Active
             RockMigrationHelper.AddActionTypeAttributeValue( "05DD1385-B984-4905-8EA2-3B35EAC35B99", "1C7CD28E-ACC5-4B88-BC05-E02D72919305", @"False" );
+            // Attended Check-in:Person Search:Filter Groups by Grade:Order
+            RockMigrationHelper.AddActionTypeAttributeValue( "C250DB16-03C5-45C9-B70B-7A0DE7D5550E", "78A19926-CABA-475D-8AB9-F9EB08BD6FAA", @"" );
+            // Attended Check-in:Person Search:Filter Groups by Grade:Active
+            RockMigrationHelper.AddActionTypeAttributeValue( "C250DB16-03C5-45C9-B70B-7A0DE7D5550E", "E69E09E8-C71D-4AA3-86AD-D46DBAE60816", @"False" );
+            // Attended Check-in:Person Search:Filter Groups by Grade:Remove
+            RockMigrationHelper.AddActionTypeAttributeValue( "C250DB16-03C5-45C9-B70B-7A0DE7D5550E", "39F82A06-DD0E-4D51-A364-8D6C0EB32BC4", @"False" );
             // Attended Check-in:Person Search:Filter Groups by Age:Order
             RockMigrationHelper.AddActionTypeAttributeValue( "5F4CAF8E-AB49-409C-8831-845A51298A26", "554108CF-31A1-47C0-A184-18B4A881D7FD", @"" );
             // Attended Check-in:Person Search:Filter Groups by Age:Active
