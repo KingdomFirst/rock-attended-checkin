@@ -732,7 +732,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             currentPerson.Person.SetAttributeValue( SpecialNeedsKey, cbSpecialNeeds.Checked ? "Yes" : string.Empty );
 
             // store the allergies
-            var allergyAttribute = Rock.Web.Cache.AttributeCache.Read( new Guid( Rock.SystemGuid.Attribute.PERSON_ALLERGY ), rockContext );
+            var allergyAttribute = AttributeCache.Read( new Guid( Rock.SystemGuid.Attribute.PERSON_ALLERGY ), rockContext );
             var allergyAttributeControl = phAttributes.FindControl( string.Format( "attribute_field_{0}", allergyAttribute.Id ) );
             if ( allergyAttributeControl != null )
             {

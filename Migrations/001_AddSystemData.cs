@@ -191,7 +191,7 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "DDC2D0CA-28A9-420B-9915-B3831DE75DAC", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "Order", "Order", "The order that this service should be used (priority)", 0, @"", "7237CFF5-BC59-4C2C-8314-F690038D93F8" );
 
             // Attended Workflow Type
-            RockMigrationHelper.UpdateWorkflowType( false, true, "Attended Check-in", "Workflow for managing attended check-in", "8F8B272D-D351-485E-86D6-3EE5B7C84D99", "Check-in", "fa fa-list-ol", 0, false, 3, "6E8CD562-A1DA-4E13-A45C-853DB56E0014" ); // Attended Check-in
+            RockMigrationHelper.UpdateWorkflowType( false, true, "Attended Check-in", "Workflow for managing attended check-in", "8F8B272D-D351-485E-86D6-3EE5B7C84D99", "Check-in", "fa fa-list-ol", 0, false, 1, "6E8CD562-A1DA-4E13-A45C-853DB56E0014" ); // Attended Check-in
             RockMigrationHelper.UpdateWorkflowActivityType( "6E8CD562-A1DA-4E13-A45C-853DB56E0014", true, "Family Search", "", false, 0, "B6FC7350-10E0-4255-873D-4B492B7D27FF" ); // Attended Check-in:Family Search
             RockMigrationHelper.UpdateWorkflowActivityType( "6E8CD562-A1DA-4E13-A45C-853DB56E0014", true, "Person Search", "", false, 1, "6D8CC755-0140-439A-B5A3-97D2F7681697" ); // Attended Check-in:Person Search
             RockMigrationHelper.UpdateWorkflowActivityType( "6E8CD562-A1DA-4E13-A45C-853DB56E0014", true, "Activity Search", "", false, 2, "77CCAF74-AC78-45DE-8BF9-4C544B54C9DD" ); // Attended Check-in:Activity Search
