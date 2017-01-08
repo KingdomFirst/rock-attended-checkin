@@ -4,7 +4,7 @@ This is the source project for the Attended Check-in plugin for [Rock RMS](http:
 
 ## Getting Started
 
-Read the [Wiki](../../wiki).
+Read the [wiki](../../wiki).
 
 ## Download the plugin
 
@@ -14,11 +14,15 @@ You can also find it on the [Rock Shop](http://rock.rocksolidchurchdemo.com/page
 
 ## Submit a bug or feature request
 
-File a [new issue](../../issues/new)
+File a [new issue](../../issues/new).
 
 ## Contributing
 
-For more information about contributing PRs and issues, see our [Contribution Guidelines](./CONTRIBUTING.md).
+For more information about contributing, see our [Contribution Guidelines](./CONTRIBUTING.md).
+
+## Contact
+
+Reach out to NewSpring Web on [Twitter](https://twitter.com/newspringweb) or through [Github](https://github.com/orgs/NewSpring/people).
 
 ## License
 
