@@ -144,7 +144,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                 else if ( currentlyCheckedIn )
                                 {
                                     // always pick the schedule they're currently checked into
-                                    currentScheduleId = orderedSchedules.Where( s => currentScheduleId == groupAttendance.ScheduleId ).FirstOrDefault();
+                                    currentScheduleId = orderedSchedules.Where( s => s == groupAttendance.ScheduleId ).FirstOrDefault();
                                 }
                                 else
                                 {

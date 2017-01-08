@@ -444,7 +444,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 List<CheckInLocation> availableLocations = null;
                 List<CheckInSchedule> availableSchedules = null;
                 List<CheckInSchedule> possiblePersonSchedules = null;
-                var backupSchedules = selectedGroupTypes.Select( gt => new { gt.GroupType.Id, gt.SelectedForSchedule } ).ToList();
 
                 foreach ( DataKey dataKey in checkinArray )
                 {
@@ -471,8 +470,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         availableSchedules.ForEach( s => s.Selected = ( s.Schedule.Id == scheduleId ) );
 
                         // Unselect the SelectedSchedule properties too
-                        possiblePersonSchedules.ForEach( s => s.Selected = ( s.Schedule.Id == scheduleId ) );
-                        selectedGroupTypes.ForEach( gt => gt.SelectedForSchedule.RemoveAll( s => s != scheduleId ) );
+                        possiblePersonSchedules.ForEach( s => s.Selected = ( s.Schedule.Id == scheduleId ) )
                     }
 
                     // Create labels for however many items are currently selected
@@ -586,17 +584,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     availableGroups.ForEach( g => g.Selected = g.PreSelected );
                     availableLocations.ForEach( l => l.Selected = l.PreSelected );
                     availableSchedules.ForEach( s => s.Selected = s.PreSelected );
-
-                    // use the backup to reset groupType.AvailableForSchedule
-                    for ( int i = 0; i < selectedGroupTypes.Count; i++ )
-                    {
-                        var groupType = selectedGroupTypes.ElementAtOrDefault( i );
-                        var backup = backupSchedules.ElementAtOrDefault( i );
-                        if ( groupType != null && backup != null )
-                        {
-                            groupType.SelectedForSchedule = backup.SelectedForSchedule;
-                        }
-                    }
                 }
 
                 // since Save Attendance already ran, mark everyone as being checked in
