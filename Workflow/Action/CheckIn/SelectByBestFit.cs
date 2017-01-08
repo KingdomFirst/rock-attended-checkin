@@ -285,7 +285,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     if ( bestGroup != null && roomBalanceGroupTypeIds.Contains( bestGroup.Group.GroupTypeId ) )
                                     {
                                         int? bestScheduleId = null;
-                                        var availableSchedules = validGroups.SelectMany( g => g.Locations.SelectMany( l => l.Schedules ) ).ToList();
+                                        var availableSchedules = validGroups.SelectMany( g => g.Locations.SelectMany( l => l.Schedules ) ).DistinctBy( s => s.Schedule.Id ).ToList();
                                         if ( availableSchedules.Any() )
                                         {
                                             bestScheduleId = availableSchedules.OrderBy( s => s.StartTime ).Select( s => s.Schedule.Id ).FirstOrDefault();
@@ -329,8 +329,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     if ( roomBalanceGroupTypeIds.Contains( bestGroup.Group.GroupTypeId ) )
                                     {
                                         int? bestScheduleId = null;
-                                        var availableSchedules = filteredLocations.SelectMany( l => l.Schedules )
-                                            .DistinctBy( s => s.Schedule.Id ).ToList();
+                                        var availableSchedules = filteredLocations.SelectMany( l => l.Schedules ).DistinctBy( s => s.Schedule.Id ).ToList();
                                         if ( availableSchedules.Any() )
                                         {
                                             bestScheduleId = availableSchedules.OrderBy( s => s.StartTime ).Select( s => s.Schedule.Id ).FirstOrDefault();
