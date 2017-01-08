@@ -470,7 +470,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         availableSchedules.ForEach( s => s.Selected = ( s.Schedule.Id == scheduleId ) );
 
                         // Unselect the SelectedSchedule properties too
-                        possiblePersonSchedules.ForEach( s => s.Selected = ( s.Schedule.Id == scheduleId ) )
+                        possiblePersonSchedules.ForEach( s => s.Selected = ( s.Schedule.Id == scheduleId ) );
                     }
 
                     // Create labels for however many items are currently selected
