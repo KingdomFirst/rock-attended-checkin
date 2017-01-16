@@ -22,7 +22,8 @@ namespace cc.newspring.AttendedCheckIn.Migrations
     [MigrationNumber( 1, "1.6.0" )]
     public class AddSystemData : Migration
     {
-        public string SpecialNeedsAttributeGuid = "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF";
+        public string PersonSNAttributeGuid = "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF";
+        public string GroupSNAttributeGuid = "9210EC95-7B85-4D11-A82E-0B677B32704E";
         public string AttendedCheckinSiteGuid = "30FB46F7-4814-4691-852A-04FB56CC07F0";
 
         /// <summary>
@@ -158,7 +159,95 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             RockMigrationHelper.UpdateEntityType( "cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByLastAttended", "Select By Last Attended", "cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByLastAttended", false, true, "B4E27263-BB68-46DB-9876-D0E8C26449A3" );
             RockMigrationHelper.UpdateEntityType( "cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByMultipleAttended", "Select By Multiple Attended", "cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.SelectByMultipleAttended", false, true, "DDC2D0CA-28A9-420B-9915-B3831DE75DAC" );
 
-            // Set attribute defaults
+            // Add special needs attributes so we can use them in the workflow
+            // Person: Has Special Needs
+            Sql( string.Format( @"
+                INSERT INTO [dbo].[Attribute] ( [IsSystem],[FieldTypeId],[EntityTypeId],[EntityTypeQualifierColumn],[EntityTypeQualifierValue],[Key],[Name],[Description],[Order]
+                    ,[IsGridColumn],[IsMultiValue],[IsRequired],[DefaultValue],[Guid] )
+                VALUES (
+                    0
+                    ,(SELECT [Id] FROM [FieldType] WHERE [Class] = 'Rock.Field.Types.SelectSingleFieldType')
+                    ,(SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person')
+                    ,''
+                    ,''
+                    ,'HasSpecialNeeds'
+                    ,'Has Special Needs'
+                    ,'Flag to indicate if special needs are present'
+                    ,0
+                    ,0
+                    ,0
+                    ,0
+                    ,'False'
+                    ,'{0}')", PersonSNAttributeGuid ) );
+
+            // Group: Has Special Needs
+            Sql( string.Format( @"
+                INSERT INTO [dbo].[Attribute] ( [IsSystem],[FieldTypeId],[EntityTypeId],[EntityTypeQualifierColumn],[EntityTypeQualifierValue],[Key],[Name],[Description],[Order]
+                    ,[IsGridColumn],[IsMultiValue],[IsRequired],[DefaultValue],[Guid] )
+                VALUES (
+                    0
+                    ,(SELECT [Id] FROM [FieldType] WHERE [Class] = 'Rock.Field.Types.SelectSingleFieldType')
+                    ,(SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Group')
+                    ,''
+                    ,''
+                    ,'HasSpecialNeeds'
+                    ,'Has Special Needs'
+                    ,'Flag to indicate if special needs are present'
+                    ,0
+                    ,0
+                    ,0
+                    ,0
+                    ,'False'
+                    ,'{0}')", GroupSNAttributeGuid ) );
+
+            Sql( string.Format( @"
+                INSERT AttributeQualifier (IsSystem, AttributeId, [Key], Value, [Guid])
+    			VALUES (
+                    0
+                    , (SELECT [Id] FROM [Attribute] WHERE [Guid] = '{0}')
+                    , 'fieldtype'
+                    , 'ddl'
+                    , NEWID() )
+
+				INSERT AttributeQualifier (IsSystem, AttributeId, [Key], Value, [Guid])
+				VALUES(
+                    0
+                    , (SELECT [Id] FROM [Attribute] WHERE [Guid] = '{0}')
+                    , 'values'
+                    , 'Yes'
+                    , NEWID() )", PersonSNAttributeGuid ) );
+
+            Sql( string.Format( @"
+                INSERT AttributeQualifier (IsSystem, AttributeId, [Key], Value, [Guid])
+    			VALUES (
+                    0
+                    , (SELECT [Id] FROM [Attribute] WHERE [Guid] = '{0}')
+                    , 'fieldtype'
+                    , 'ddl'
+                    , NEWID() )
+
+				INSERT AttributeQualifier (IsSystem, AttributeId, [Key], Value, [Guid])
+				VALUES(
+                    0
+                    , (SELECT [Id] FROM [Attribute] WHERE [Guid] = '{0}')
+                    , 'values'
+                    , 'Yes'
+                    , NEWID() )", GroupSNAttributeGuid ) );
+
+            // Make special needs appear under childhood info category
+            Sql( string.Format( @"
+                INSERT INTO [AttributeCategory]
+                   ([AttributeId]
+                   ,[CategoryId])
+                VALUES
+                   ((SELECT [Id] FROM [Attribute] WHERE [Guid] = '{0}')
+                   ,(SELECT [Id] FROM [Category] WHERE [Name] = 'Childhood Information'))
+            ", PersonSNAttributeGuid ) );
+
+            RockMigrationHelper.AddGroupType( "Check in By Special Needs", "", "Group", "Member", false, true, true, "", 0, "0572A5FE-20A4-4BF1-95CD-C71DB5281392", 0, "6BCED84C-69AD-4F5A-9197-5C0F9C02DD34", "2CB16E13-141F-419F-BACD-8283AB6B3299", false );
+            RockMigrationHelper.AddGroupTypeRole( "2CB16E13-141F-419F-BACD-8283AB6B3299", "Member", "", 0, null, null, "4DC318F0-5E6F-4F34-B3C5-08264B6DFD29", false );
+
+            // Set workflow attribute defaults
             // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.FilterGroupsByAge:Order
             RockMigrationHelper.UpdateWorkflowActionEntityAttribute( "23F1E3FD-48AE-451F-9911-A5C7523A74B6", "A75DFC58-7A1B-4799-BF31-451B2BBE38FF", "Order", "Order", "The order that this service should be used (priority)", 0, @"", "554108CF-31A1-47C0-A184-18B4A881D7FD" );
             // cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn.FilterGroupsByAge:Active
@@ -332,56 +421,6 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             RockMigrationHelper.AddActionTypeAttributeValue( "BBE6E76D-6C8E-4B8E-931C-DD3CBE9619A4", "F70112C9-4D93-41B9-A3FB-1E7C866AACCF", @"" );
             // Attended Check-in:Save Attendance:Create Labels:Active
             RockMigrationHelper.AddActionTypeAttributeValue( "BBE6E76D-6C8E-4B8E-931C-DD3CBE9619A4", "36EB15CE-095C-41ED-9C0F-9EA345599D54", @"False" );
-
-            // Add special needs attribute
-            Sql( string.Format( @"
-                INSERT INTO [dbo].[Attribute] ( [IsSystem],[FieldTypeId],[EntityTypeId],[EntityTypeQualifierColumn],[EntityTypeQualifierValue],[Key],[Name],[Description],[Order]
-                    ,[IsGridColumn],[IsMultiValue],[IsRequired],[DefaultValue],[Guid] )
-                VALUES (
-                    0
-                    ,(SELECT [Id] FROM [FieldType] WHERE [Class] = 'Rock.Field.Types.SelectSingleFieldType')
-                    ,(SELECT [Id] FROM [EntityType] WHERE [Name] = 'Rock.Model.Person')
-                    ,''
-                    ,''
-                    ,'HasSpecialNeeds'
-                    ,'Has Special Needs'
-                    ,'Flag to indicate if special needs are present'
-                    ,0
-                    ,0
-                    ,0
-                    ,0
-                    ,'False'
-                    ,'{0}')", SpecialNeedsAttributeGuid ) );
-
-            Sql( string.Format( @"
-                INSERT AttributeQualifier (IsSystem, AttributeId, [Key], Value, [Guid])
-    			VALUES (
-                    0
-                    , (SELECT [Id] FROM [Attribute] WHERE [Guid] = '{0}')
-                    , 'fieldtype'
-                    , 'ddl'
-                    , NEWID() )
-
-				INSERT AttributeQualifier (IsSystem, AttributeId, [Key], Value, [Guid])
-				VALUES(
-                    0
-                    , (SELECT [Id] FROM [Attribute] WHERE [Guid] = '{0}')
-                    , 'values'
-                    , 'Yes'
-                    , NEWID() )", SpecialNeedsAttributeGuid ) );
-
-            // Make special needs appear under childhood info category
-            Sql( string.Format( @"
-                INSERT INTO [AttributeCategory]
-                   ([AttributeId]
-                   ,[CategoryId])
-                VALUES
-                   ((SELECT [Id] FROM [Attribute] WHERE [Guid] = '{0}')
-                   ,(SELECT [Id] FROM [Category] WHERE [Name] = 'Childhood Information'))
-            ", SpecialNeedsAttributeGuid ) );
-
-            RockMigrationHelper.AddGroupType( "Check in By Special Needs", "", "Group", "Member", false, true, true, "", 0, "0572A5FE-20A4-4BF1-95CD-C71DB5281392", 0, "6BCED84C-69AD-4F5A-9197-5C0F9C02DD34", "2CB16E13-141F-419F-BACD-8283AB6B3299", false );
-            RockMigrationHelper.AddGroupTypeRole( "2CB16E13-141F-419F-BACD-8283AB6B3299", "Member", "", 0, null, null, "4DC318F0-5E6F-4F34-B3C5-08264B6DFD29", false );
         }
 
         /// <summary>
@@ -392,10 +431,10 @@ namespace cc.newspring.AttendedCheckIn.Migrations
             // Remove special needs attribute from category
             Sql( string.Format( @"
                 DELETE FROM [AttributeCategory] WHERE [AttributeId] = (SELECT [Id] FROM [Attribute] WHERE [Guid] = '{0}')
-            ", SpecialNeedsAttributeGuid ) );
+            ", PersonSNAttributeGuid ) );
 
             // Remove attibute
-            RockMigrationHelper.DeleteAttribute( SpecialNeedsAttributeGuid );
+            RockMigrationHelper.DeleteAttribute( PersonSNAttributeGuid );
 
             // Delete Workflow Type
             Sql( @"DELETE [WorkflowType] WHERE [Guid] = '6E8CD562-A1DA-4E13-A45C-853DB56E0014'" );
