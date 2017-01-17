@@ -4,7 +4,7 @@ This is the source project for the Attended Check-in plugin for [Rock RMS](http:
 
 ## Getting Started
 
-Read the [wiki](../../wiki).
+Read the check-in guide [online](./Attended%20Checkin.md) or download the [PDF](./Attended%20Checkin.pdf).  You can also search the [wiki](../../wiki).
 
 ## Download the plugin
 
