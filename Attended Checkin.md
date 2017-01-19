@@ -343,5 +343,5 @@ If any current or future check-in options are enforced through Workflow actions,
 
 ### Running a ChromeOS Kiosk
 
-NewSpring runs Attended Check-in every week on ChromeOS kiosks, using the [Asus C201](https://www.asus.com/us/Notebooks/ASUS-Chromebook-C201PA/).  If you're interested in running the same setup, our ChromeOS app and Getting Started guide is available [here](https://github.com/NewSpring/rock-checkin-kiosk).
+NewSpring runs Attended Check-in every week on ChromeOS kiosks, using the [Asus C201](https://www.asus.com/us/Notebooks/ASUS-Chromebook-C201PA/).  If you're interested in running the same setup, our ChromeOS app and Getting Started guide are available [here](https://github.com/NewSpring/rock-checkin-kiosk).
 
