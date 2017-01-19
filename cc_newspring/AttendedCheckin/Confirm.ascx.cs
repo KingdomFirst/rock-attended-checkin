@@ -152,7 +152,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                 var checkIn = new Activity();
                                 checkIn.Name = person.Person.FullName;
                                 checkIn.Age = person.Person.Age < 18 ? person.Person.Age.ToStringSafe() : string.Empty;
-                                checkIn.Grade = person.Person.GradeFormatted != null ? ( 12 - person.Person.GradeOffset ).ToStringSafe() : string.Empty;
                                 checkIn.Location = GetAttributeValue( "DisplayGroupNames" ).AsBoolean()
                                     ? group.Group.Name
                                     : location.Location.Name;
@@ -161,6 +160,13 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                 checkIn.GroupId = group.Group.Id;
                                 checkIn.LocationId = location.Location.Id;
                                 checkIn.ScheduleId = schedule.Schedule.Id;
+
+                                // show "K" when under 1st Grade
+                                if ( person.Person.GradeOffset != null )
+                                {
+                                    var grade = 12 - person.Person.GradeOffset;
+                                    checkIn.Grade = grade <= 0 ? "K" : grade.ToString();
+                                }
 
                                 // LastCheckin is set to the end time of the current service
                                 checkIn.CheckedIn = schedule.LastCheckIn != null && schedule.LastCheckIn > RockDateTime.Now;
