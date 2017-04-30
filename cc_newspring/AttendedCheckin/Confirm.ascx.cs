@@ -191,7 +191,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                 if ( !checkInList.Any( c => c.PersonId == person.Person.Id ) )
                 {   // auto assignment didn't select anything
-                    checkInList.Add( new Activity { PersonId = person.Person.Id, Name = person.Person.FullName, GroupId = 0, LocationId = 0, ScheduleId = 0 } );
+                    var personsAge = person.Person.Age < 18 ? person.Person.Age.ToStringSafe() : string.Empty;
+                    checkInList.Add( new Activity { PersonId = person.Person.Id, Name = person.Person.FullName, Age = personsAge, GroupId = 0, LocationId = 0, ScheduleId = 0 } );
                 }
             }
 
