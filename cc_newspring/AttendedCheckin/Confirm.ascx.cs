@@ -34,6 +34,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [BooleanField( "Display Child Age/Grade", "By default, the person name is the only thing displayed. Select this option to display age and grade to help with child selections.", false, key: "DisplayChildAgeGrade" )]
     [BinaryFileField( Rock.SystemGuid.BinaryFiletype.CHECKIN_LABEL, "Designated Single Label", "Select a label to print once per print job.  Unselect the label to print it with every print job.", false )]
     [BooleanField( "Reprint Designated Label", "By default, the designated label will print once for each print job. Toggle this setting to print once for the page, regardless of how many print jobs are created.", true )]
+    [CodeEditorField( "Content Template", "The lava that will be used to render content to appear underneath the child's name.", CodeEditorMode.Lava, required: false )]
     public partial class Confirm : CheckInBlock
     {
         #region Fields
@@ -116,6 +117,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             var selectedPeopleList = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault()
                 .People.Where( p => p.Selected ).OrderBy( p => p.Person.FullNameReversed ).ToList();
+            var contentTemplate = GetAttributeValue( "ContentTemplate" );
 
             if ( GetAttributeValue( "DisplayChildAgeGrade" ).AsBoolean() )
             {
@@ -148,15 +150,29 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                         break;
                                 }
 
-                                var checkIn = new Activity();
-                                checkIn.Name = person.Person.FullName;
-                                checkIn.Age = person.Person.Age < 18 ? person.Person.Age.ToStringSafe() : string.Empty;
-                                checkIn.Location = itemName;
-                                checkIn.Schedule = schedule.Schedule.Name;
-                                checkIn.PersonId = person.Person.Id;
-                                checkIn.GroupId = group.Group.Id;
-                                checkIn.LocationId = location.Location.Id;
-                                checkIn.ScheduleId = schedule.Schedule.Id;
+                                var checkIn = new Activity
+                                {
+                                    Name = person.Person.FullName,
+                                    Age = person.Person.Age < 18 ? person.Person.Age.ToStringSafe() : string.Empty,
+                                    Location = itemName,
+                                    Schedule = schedule.Schedule.Name,
+                                    PersonId = person.Person.Id,
+                                    GroupId = group.Group.Id,
+                                    LocationId = location.Location.Id,
+                                    ScheduleId = schedule.Schedule.Id
+                                };
+
+                                if ( !string.IsNullOrWhiteSpace( contentTemplate ) )
+                                {
+                                    var mergeObjects = new Dictionary<string, object>();
+
+                                    mergeObjects.Add( "Person", person.Person );
+                                    mergeObjects.Add( "Schedule", schedule );
+                                    mergeObjects.Add( "Group", group );
+                                    mergeObjects.Add( "Location", location );
+
+                                    checkIn.Content = contentTemplate.ResolveMergeFields( mergeObjects, null );
+                                }
 
                                 // show "K" when under 1st Grade
                                 if ( person.Person.GradeOffset != null )
@@ -187,9 +203,24 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }
 
                 if ( !checkInList.Any( c => c.PersonId == person.Person.Id ) )
-                {   // auto assignment didn't select anything
+                {
+                    // auto assignment didn't select anything
                     var personsAge = person.Person.Age < 18 ? person.Person.Age.ToStringSafe() : string.Empty;
-                    checkInList.Add( new Activity { PersonId = person.Person.Id, Name = person.Person.FullName, Age = personsAge, GroupId = 0, LocationId = 0, ScheduleId = 0 } );
+                    var checkIn = new Activity { PersonId = person.Person.Id, Name = person.Person.FullName, Age = personsAge, GroupId = 0, LocationId = 0, ScheduleId = 0 };
+
+                    if ( !string.IsNullOrWhiteSpace( contentTemplate ) )
+                    {
+                        var mergeObjects = new Dictionary<string, object>();
+
+                        mergeObjects.Add( "Person", person );
+                        mergeObjects.Add( "Schedule", null );
+                        mergeObjects.Add( "Group", null );
+                        mergeObjects.Add( "Location", null );
+
+                        checkIn.Content = contentTemplate.ResolveMergeFields( mergeObjects, null );
+                    }
+
+                    checkInList.Add( checkIn );
                 }
             }
 
@@ -204,9 +235,18 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="e">The <see cref="GridViewRowEventArgs"/> instance containing the event data.</param>
         protected void gPersonList_RowDataBound( object sender, GridViewRowEventArgs e )
         {
-            if ( e.Row.RowType == DataControlRowType.DataRow )
+            Activity activity = e.Row.DataItem as Activity;
+
+            if ( e.Row.RowType == DataControlRowType.DataRow && activity != null )
             {
-                if ( ( (Activity)e.Row.DataItem ).CheckedIn )
+                if ( !string.IsNullOrWhiteSpace( activity.Content ) )
+                {
+                    var ltContent = e.Row.FindControl( "ltContent" ) as Literal;
+
+                    ltContent.Text = activity.Content;
+                }
+
+                if ( activity.CheckedIn )
                 {
                     e.Row.Cells[5].Text = "<span class=\"fa fa-check\"/>";
                 }
@@ -761,6 +801,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
             public bool CheckedIn { get; set; }
 
+            public string Content { get; set; }
+
             public Activity()
             {
                 PersonId = 0;
@@ -771,6 +813,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 Schedule = string.Empty;
                 ScheduleId = 0;
                 CheckedIn = false;
+                Content = string.Empty;
             }
         }
 
