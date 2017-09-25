@@ -35,7 +35,11 @@
                                     DisplayType="Light" EnableResponsiveTable="true" ShowFooter="false" EmptyDataText="No People Selected" CssClass="three-col-with-controls"
                                     OnRowCommand="gPersonList_Print" OnRowDataBound="gPersonList_RowDataBound" OnGridRebind="gPersonList_GridRebind">
                                     <Columns>
-                                        <Rock:RockBoundField HeaderStyle-CssClass="col-xs-3" HeaderText="Name" ItemStyle-CssClass="col-xs-3" DataField="Name" />
+                                        <Rock:RockTemplateField HeaderStyle-CssClass="col-xs-3" HeaderText="Name" ItemStyle-CssClass="col-xs-3" >
+                                            <ItemTemplate>
+                                                <%# Eval("Name") %><asp:Literal ID="ltContent" runat="server" />
+                                            </ItemTemplate>
+                                        </Rock:RockTemplateField>
                                         <Rock:RockBoundField HeaderStyle-CssClass="col-xs-1 centered" HeaderText="Age" ItemStyle-CssClass="col-xs-1 centered" DataField="Age" Visible="false" />
                                         <Rock:RockBoundField HeaderStyle-CssClass="col-xs-1 centered" HeaderText="Grade" ItemStyle-CssClass="col-xs-1 centered" DataField="Grade" Visible="false" />
                                         <Rock:RockBoundField HeaderStyle-CssClass="col-xs-2" HeaderText="Location" ItemStyle-CssClass="col-xs-2 overflow-inherit" DataField="Location" />
