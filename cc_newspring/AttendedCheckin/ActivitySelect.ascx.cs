@@ -23,6 +23,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [CustomDropdownListField( "Display Names", "How should the group and location name be displayed?", "0^Show Location Names,1^Show Group Names,2^Show Group and Location Names", false, "0" )]
     [BooleanField( "Remove Attendance On Checkout", "By default, the attendance is given a checkout date.  Select this option to completely remove attendance on checkout.", false )]
     [AttributeField( Rock.SystemGuid.EntityType.PERSON, "Person Special Needs Attribute", "Select the person attribute used to filter kids with special needs.", true, false, "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF" )]
+    [BooleanField( "Sort Groups By Name", "If false then groups, if displayed, are sorted by the Order they have been placed in on the check-in configuration screen.", true )]
     public partial class ActivitySelect : CheckInBlock
     {
         #region Variables
@@ -31,7 +32,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// Stores how to display button names
         /// </summary>
         private static NameDisplay DisplayPreference;
-
+        
         /// <summary>
         /// Gets the error when a page's parameter string is invalid.
         /// </summary>
@@ -128,7 +129,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     var nickName = person.Person.NickName ?? person.Person.FirstName;
                     lblPersonName.Text = string.Format( "{0} {1}", nickName, person.Person.LastName );
                 }
-
+                
                 DisplayPreference = (NameDisplay)GetAttributeValue( "DisplayNames" ).AsType<int>();
 
                 if ( person != null && person.GroupTypes.Any() )
@@ -879,7 +880,16 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }
                 else
                 {
-                    var allGroups = groupType.Groups.OrderBy( g => g.Group.Name ).ToList();
+                    var allGroups = groupType.Groups.ToList();
+                    if ( GetAttributeValue( "SortGroupsByName" ).AsBoolean( true ) )
+                    {
+                        allGroups = allGroups.OrderBy( g => g.Group.Name ).ToList();
+                    }
+                    else
+                    {
+                        allGroups = allGroups.OrderBy( g => g.Group.Order ).ToList();
+                    }
+                    
                     if ( groupId > 0 )
                     {
                         var selectedGroup = allGroups.FirstOrDefault( g => g.Group.Id == groupId && g.Locations.Any( l => l.Location.Id == locationId ) );
