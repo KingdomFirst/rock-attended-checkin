@@ -246,7 +246,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }
                 else
                 {
-                    string errorMsg = "<ul><li>" + errors.AsDelimited( "</li><li>" ) + "</li></ul>";
+                    var errorMsg = "<ul><li>" + errors.AsDelimited( "</li><li>" ) + "</li></ul>";
                     maAlert.Show( errorMsg.Replace( "'", @"\'" ), ModalAlertType.Warning );
                     return;
                 }
@@ -415,10 +415,14 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <summary>
         /// Creates the labels.
         /// </summary>
-        /// <param name="dataKeyArray">The data key array.</param>
-        /// <returns></returns>
+        /// <param name="checkinArray">The checkin array.</param>
         private void ProcessLabels( DataKeyArray checkinArray )
         {
+            if ( checkinArray.Count == 0)
+            {
+                return;
+            }
+
             // All family members need attendance now so they also get the same code
             if ( RunSaveAttendance )
             {
@@ -441,12 +445,11 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             bool printIndividually = GetAttributeValue( "PrintIndividualLabels" ).AsBoolean();
             var designatedLabelGuid = GetAttributeValue( "DesignatedSingleLabel" ).AsGuidOrNull();
 
-            foreach ( var selectedFamily in CurrentCheckInState.CheckIn.Families.Where( p => p.Selected ) )
+            foreach ( var selectedFamily in CurrentCheckInState.CheckIn.Families.Where( f => f.Selected && f.People.Any( p => p.Selected ) ) )
             {
                 List<CheckInLabel> labels = new List<CheckInLabel>();
                 List<CheckInPerson> selectedPeople = selectedFamily.People.Where( p => p.Selected ).ToList();
-                List<CheckInGroupType> selectedGroupTypes = selectedPeople.SelectMany( gt => gt.GroupTypes )
-                    .Where( gt => gt.Selected ).ToList();
+                List<CheckInGroupType> selectedGroupTypes = selectedPeople.SelectMany( gt => gt.GroupTypes ).Where( gt => gt.Selected ).ToList();
                 List<CheckInGroup> availableGroups = null;
                 List<CheckInLocation> availableLocations = null;
                 List<CheckInSchedule> availableSchedules = null;
@@ -471,6 +474,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     {
                         // Note: This depends on PreSelected being set properly to undo changes later
                         selectedPeople.ForEach( p => p.Selected = ( p.Person.Id == personId ) );
+                        // limit grouptype changes to the currently selected person
+                        selectedGroupTypes = selectedPeople.Where( p => p.Selected ).SelectMany( gt => gt.GroupTypes ).Where( gt => gt.Selected ).ToList();
                         selectedGroupTypes.ForEach( gt => gt.Selected = ( gt.GroupType.Id == groupTypeId ) );
                         availableGroups.ForEach( g => g.Selected = ( g.Group.Id == groupId ) );
                         availableLocations.ForEach( l => l.Selected = ( l.Location.Id == locationId ) );
@@ -503,6 +508,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     }
                     else
                     {
+                        var test = selectedGroupTypes.SelectMany( gt => gt.Labels ).ToList();
                         labels.AddRange( selectedGroupTypes.Where( gt => gt.Labels != null )
                             .SelectMany( gt => gt.Labels )
                             .Where( l => ( !RemoveFromQueue || l.FileGuid != designatedLabelGuid ) )
@@ -518,7 +524,27 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 {
                     var clientLabels = labels.Where( l => l.PrintFrom == PrintFrom.Client ).ToList();
                     var urlRoot = string.Format( "{0}://{1}", Request.Url.Scheme, Request.Url.Authority );
-                    clientLabels.ForEach( l => l.LabelFile = urlRoot + l.LabelFile );
+                    clientLabels
+                        .OrderBy( l => l.PersonId )
+                        .ThenBy( l => l.Order )
+                        .ToList()
+                        .ForEach( l => l.LabelFile = urlRoot + l.LabelFile );
+
+                    var item = clientLabels.FirstOrDefault( l => l.FileGuid == designatedLabelGuid );
+                    if ( item != null )
+                    {
+                        //    if ( hfPrintCount.ValueAsInt() > 0 || hfPrintCount.Value != "0" )
+                        //    {
+                        //        if ( designatedLabelGuid != null || designatedLabelGuid.HasValue )
+                        //        {
+                        //            clientLabels.Remove( item );
+                        //        }
+                        //    }
+
+                        //    // Changes the HiddenField HTML control/element in order to know if the Designated Label has printed.
+                        //    hfPrintCount.Value = "1";
+                    }
+
                     AddLabelScript( clientLabels.ToJson() );
                     pnlContent.Update();
                 }
@@ -610,7 +636,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <summary>
         /// Prints the labels.
         /// </summary>
-        /// <param name="families">The families.</param>
+        /// <param name="printerContent">Content of the printer.</param>
         private void PrintLabels( Dictionary<string, StringBuilder> printerContent )
         {
             foreach ( var printerIp in printerContent.Keys.Where( k => !string.IsNullOrEmpty( k ) ) )
@@ -651,29 +677,18 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             string script = string.Format( @"
 
-        // setup deviceready event to wait for cordova
-	    if (navigator.userAgent.match(/(iPhone|iPod|iPad)/)) {{
-            document.addEventListener('deviceready', onDeviceReady, false);
-        }} else {{
-            Sys.WebForms.PageRequestManager.getInstance().add_endRequest(onDeviceReady);
-        }}
-
 	    // label data
         var labelData = {0};
-
-		function onDeviceReady() {{
+		function onPrintClick() {{
             try {{
+                alert('printing labels ' + labelData.length);
                 printLabels();
             }}
             catch (err) {{
                 console.log('An error occurred printing labels: ' + err);
             }}
 		}}
-
-		function alertDismissed() {{
-		    // do something
-		}}
-
+        
 		function printLabels() {{
 		    ZebraPrintPlugin.printTags(
             	JSON.stringify(labelData),
@@ -694,8 +709,11 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 			    }}
             );
 	    }}
+
+        onPrintClick();
             ", ZebraFormatString( jsonObject ) );
-            ScriptManager.RegisterStartupScript( pnlContent, GetType(), "addLabelScript", script, true );
+
+            ScriptManager.RegisterStartupScript( pnlSelectedGrid, pnlSelectedGrid.GetType(), "addLabelScript", script, true );
         }
 
         /// <summary>
@@ -708,10 +726,12 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             if ( isJson )
             {
+                input.Replace( "ñ", @"\\_a4" );        // fix n tilde
                 return input.Replace( "é", @"\\82" );  // fix acute e
             }
             else
             {
+                input.Replace( "ñ", @"\_a4" );        // fix n tilde
                 return input.Replace( "é", @"\82" );  // fix acute e
             }
         }
