@@ -6,6 +6,7 @@
         <asp:Panel ID="pnlConfirm" runat="server" CssClass="attended">
 
             <Rock:ModalAlert ID="maAlert" runat="server" />
+            <asp:HiddenField ID="hfLabelReprint" runat="server" Value="false" />
 
             <div class="row checkin-header push-quarter-bottom">
                 <div class="col-xs-2 checkin-actions">
