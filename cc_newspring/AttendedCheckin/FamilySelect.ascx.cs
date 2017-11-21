@@ -40,6 +40,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [Category( "Check-in > Attended" )]
     [Description( "Attended Check-In Family Select Block" )]
     [BooleanField( "Enable Add Buttons", "Show the add people/visitor/family buttons on the family select page?", true )]
+    [BooleanField("Show Contact Info", "Show the phone and email columns from people/visitor/family modals.", false)]
+    [BooleanField( "Hide Special Needs", "Hide the special needs column from people/visitor/family modals.", false )]
     [DefinedValueField( Rock.SystemGuid.DefinedType.PERSON_CONNECTION_STATUS, "Default Connection Status", "Select the default connection status for people added in checkin", true, false, "B91BA046-BC1E-400C-B85D-638C1F4E0CE2" )]
     [AttributeField( Rock.SystemGuid.EntityType.PERSON, "Person Special Needs Attribute", "Select the person attribute used to filter kids with special needs.", true, false, "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF" )]
     [TextField( "Not Found Text", "What text should display when the nothing is found?", true, "Please add a person or family." )]
