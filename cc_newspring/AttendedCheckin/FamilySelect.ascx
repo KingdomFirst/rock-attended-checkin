@@ -142,26 +142,61 @@
                     <!-- Modal Body -->
                     <div class="checkin-body">
                         <div class="row">
-                            <div class="col-xs-2">
-                                <Rock:RockTextBox ID="tbPersonFirstName" runat="server" CssClass="col-xs-12" Label="First Name" ValidationGroup="Person" />
+                            <div class="col-xs-2 text-center hard-right" id="hdrFirstName" runat="server">
+                                <label>First Name</label>
                             </div>
-                            <div class="col-xs-2">
-                                <Rock:RockTextBox ID="tbPersonLastName" runat="server" CssClass="col-xs-12" Label="Last Name" ValidationGroup="Person" />
+                            <div class="col-xs-2 text-center hard-right" id="hdrLastName" runat="server">
+                                <label>Last Name</label>
                             </div>
-                            <div class="col-xs-1">
-                                <Rock:RockDropDownList ID="ddlPersonSuffix" runat="server" CssClass="col-xs-12" Label="Suffix" />
+                            <div class="col-xs-1 text-center hard-right">
+                                <label>Suffix</label>
                             </div>
-                            <div class="col-xs-2">
-                                <Rock:DatePicker ID="dpPersonDOB" runat="server" Label="Date of Birth" CssClass="col-xs-12 date-picker" ValidationGroup="Person" data-show-age="true" />
+                            <div class="col-xs-2 text-center hard-right">
+                                <label>Date of Birth</label>
                             </div>
-                            <div class="col-xs-2">
-                                <Rock:RockDropDownList ID="ddlPersonGender" runat="server" Label="Gender" CssClass="col-xs-12" ValidationGroup="Person" />
+                            <div class="col-xs-2 text-center hard-right" id="hdrGender" runat="server">
+                                <label>Gender</label>
                             </div>
-                            <div class="col-xs-2">
-                                <Rock:RockDropDownList ID="ddlPersonAbilityGrade" runat="server" Label="Ability/Grade" CssClass="col-xs-12" />
+                            <div class="col-xs-2 text-center hard-right" id="hdrAbilityGrade" runat="server">
+                                <label id="famAbilityGrade" runat="server">Ability/Grade</label>
                             </div>
-                            <div class="col-xs-1 shift-up centered">
-                                <Rock:RockCheckBox ID="cbPersonSpecialNeeds" Label="Special Needs" runat="server" CssClass="" />
+                            <div class="col-xs-2 text-center hard-right" id="hdrPhoneNumber" runat="server" visible="false">
+                                <label>Phone #</label>
+                            </div>
+                            <div class="col-xs-2 text-center hard-right" id="hdrEmail" runat="server" visible="false" >
+                                <label>Email</label>
+                            </div>
+                            <div class="col-xs-1 text-center" id="hdrSpecialNeeds" runat="server">
+                                <label>Special Needs</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-2 text-center hard-right" id="divFirstName" runat="server">
+                                <Rock:RockTextBox ID="tbFirstName" runat="server" CssClass="hard-sides" ValidationGroup="Person" />
+                            </div>
+                            <div class="col-xs-2 text-center hard-right" id="divLastName" runat="server">
+                                <Rock:RockTextBox ID="tbLastName" runat="server" CssClass="hard-sides" ValidationGroup="Person" />
+                            </div>
+                            <div class="col-xs-1 text-center hard-right">
+                                <Rock:RockDropDownList ID="ddlPersonSuffix" runat="server" CssClass="hard-sides" />
+                            </div>
+                            <div class="col-xs-2 text-center hard-right">
+                                <Rock:DatePicker ID="dpPersonDOB" runat="server" CssClass="date-picker hard-sides" ValidationGroup="Person" data-show-age="true" />
+                            </div>
+                            <div class="col-xs-2 text-center hard-right" id="divGender" runat="server">
+                                <Rock:RockDropDownList ID="ddlPersonGender" runat="server" CssClass="hard-sides" ValidationGroup="Person" />
+                            </div>
+                            <div class="col-xs-2 text-center hard-right" id="divAbilityGrade" runat="server">
+                                <Rock:RockDropDownList ID="ddlPersonAbilityGrade" runat="server" CssClass="hard-sides" />
+                            </div>
+                            <div class="col-xs-2 text-center hard-right" id="divPhoneNumber" runat="server" visible="false">
+                                <Rock:RockTextBox ID="tbPhone" runat="server" CssClass="hard-sides" />
+                            </div>
+                            <div class="col-xs-2 text-center hard-right" id="divEmail" runat="server" visible="false" >
+                                <Rock:RockTextBox ID="tbEmail" runat="server" CssClass="hard-sides" />
+                            </div>
+                            <div class="col-xs-1 hard-right" id="divSpecialNeeds" runat="server">
+                                <Rock:RockCheckBox ID="cbPersonSpecialNeeds" runat="server" CssClass="hard-sides" />
                             </div>
 
                             <div class="row flush-sides">
@@ -225,8 +260,7 @@
 
                     <!-- Modal Body -->
                     <div class="checkin-body">
-                        <asp:ListView ID="lvNewFamily" runat="server" OnLayoutCreated="lvNewFamily_LayoutCreated"
-                            OnPagePropertiesChanging="lvNewFamily_PagePropertiesChanging" OnItemDataBound="lvNewFamily_ItemDataBound">
+                        <asp:ListView ID="lvNewFamily" runat="server" OnLayoutCreated="lvNewFamily_LayoutCreated" OnPagePropertiesChanging="lvNewFamily_PagePropertiesChanging" OnItemDataBound="lvNewFamily_ItemDataBound">
                             <LayoutTemplate>
                                 <div class="row">
                                     <div class="col-xs-2 text-center hard-right" id="hdrFirstName" runat="server">
