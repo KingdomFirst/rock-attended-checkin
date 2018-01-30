@@ -208,9 +208,11 @@
                                             <Rock:RockBoundField HeaderStyle-CssClass="col-xs-2" ItemStyle-CssClass="col-xs-2" HeaderText="Last Name" DataField="LastName" SortExpression="LastName" />
                                             <Rock:RockBoundField HeaderStyle-CssClass="col-xs-1" ItemStyle-CssClass="col-xs-1" HeaderText="Suffix" DataField="SuffixValue" SortExpression="SuffixValue" />
                                             <Rock:RockBoundField HeaderStyle-CssClass="col-xs-1" ItemStyle-CssClass="col-xs-1" HeaderText="DOB" DataField="BirthDate" DataFormatString="{0:MM/dd/yy}" HtmlEncode="false" SortExpression="BirthDate" />
-                                            <Rock:RockBoundField HeaderStyle-CssClass="col-xs-1" ItemStyle-CssClass="col-xs-1" HeaderText="Age" DataField="Age" SortExpression="Age" />
-                                            <Rock:RockBoundField HeaderStyle-CssClass="col-xs-2" ItemStyle-CssClass="col-xs-2" HeaderText="Gender" DataField="Gender" SortExpression="Gender" />
-                                            <Rock:RockBoundField HeaderStyle-CssClass="col-xs-2" ItemStyle-CssClass="col-xs-2" HeaderText="Ability/Grade" DataField="Attribute" SortExpression="Attribute" />
+                                            <Rock:RockBoundField HeaderStyle-CssClass="col-xs-1" ItemStyle-CssClass="col-xs-1" HeaderText="Age" DataField="Age" SortExpression="Age" />                                            
+                                            <Rock:RockBoundField HeaderStyle-CssClass="col-xs-1" ItemStyle-CssClass="col-xs-1" HeaderText="Gender" DataField="Gender" SortExpression="Gender" />
+                                            <Rock:RockBoundField HeaderStyle-CssClass="col-xs-1" ItemStyle-CssClass="col-xs-1" HeaderText="Ability/Grade" DataField="Attribute" SortExpression="Attribute" />
+                                            <Rock:RockBoundField HeaderStyle-CssClass="col-xs-2" ItemStyle-CssClass="col-xs-2" HeaderText="Phone" DataField="Phone" SortExpression="Phone" />
+                                            <Rock:RockBoundField HeaderStyle-CssClass="col-xs-2" ItemStyle-CssClass="col-xs-2" HeaderText="Email" DataField="Email" SortExpression="Email" />
                                             <Rock:RockBoundField HeaderStyle-CssClass="col-xs-1" ItemStyle-CssClass="col-xs-1" HeaderText="Special Needs" DataField="HasSpecialNeeds" SortExpression="HasSpecialNeeds" />
                                             <asp:TemplateField>
                                                 <ItemTemplate>

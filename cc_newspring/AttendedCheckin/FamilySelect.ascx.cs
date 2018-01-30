@@ -1151,8 +1151,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         : abilityLevelValues.Where( dv => dv.Guid.ToString()
                             .Equals( p.AttributeValues["AbilityLevel"].Value, StringComparison.OrdinalIgnoreCase ) )
                             .Select( dv => dv.Value ).FirstOrDefault(),
+                Phone = p.PhoneNumbers.Any() ? p.PhoneNumbers.FirstOrDefault().NumberFormatted : string.Empty,
+                p.Email,
                 HasSpecialNeeds = p.AttributeValues.Keys.Contains( SpecialNeedsKey )
-                         ? p.AttributeValues[SpecialNeedsKey].Value
+                         ? p.AttributeValues[SpecialNeedsKey].Value.AsBoolean() == true ? "Yes" : "No"
                          : string.Empty
             } ).OrderByDescending( p => p.BirthDate ).ToList();
 
