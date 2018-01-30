@@ -49,6 +49,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [BooleanField( "Remove Attendance On Checkout", "By default, the attendance is given a checkout date.  Select this option to completely remove attendance on checkout.", false )]
     [BooleanField( "Display Child Age/Grade", "By default, the person name is the only thing displayed. Select this option to display age and grade to help with child selections.", false, key: "DisplayChildAgeGrade" )]
     [BinaryFileField( Rock.SystemGuid.BinaryFiletype.CHECKIN_LABEL, "Designated Single Label", "Select a label to print once per print job.  Unselect the label to print it with every print job.", false )]
+    [BooleanField( "Reprint Designated Label", "By default, the designated label will print once for each print job. Toggle this setting to print once for the page, regardless of how many print jobs are created.", true )]
     public partial class Confirm : CheckInBlock
     {
         #region Fields
@@ -246,7 +247,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }
                 else
                 {
-                    string errorMsg = "<ul><li>" + errors.AsDelimited( "</li><li>" ) + "</li></ul>";
+                    var errorMsg = "<ul><li>" + errors.AsDelimited( "</li><li>" ) + "</li></ul>";
                     maAlert.Show( errorMsg.Replace( "'", @"\'" ), ModalAlertType.Warning );
                     return;
                 }
@@ -343,6 +344,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                 selectedSchedule.Selected = false;
                 selectedSchedule.PreSelected = false;
+                selectedSchedule.LastCheckIn = null;
 
                 // clear checkin rows that aren't selected
                 if ( !selectedLocation.Schedules.Any( s => s.Selected ) )
@@ -415,10 +417,14 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <summary>
         /// Creates the labels.
         /// </summary>
-        /// <param name="dataKeyArray">The data key array.</param>
-        /// <returns></returns>
+        /// <param name="checkinArray">The checkin array.</param>
         private void ProcessLabels( DataKeyArray checkinArray )
         {
+            if ( checkinArray.Count == 0)
+            {
+                return;
+            }
+
             // All family members need attendance now so they also get the same code
             if ( RunSaveAttendance )
             {
@@ -441,16 +447,15 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             bool printIndividually = GetAttributeValue( "PrintIndividualLabels" ).AsBoolean();
             var designatedLabelGuid = GetAttributeValue( "DesignatedSingleLabel" ).AsGuidOrNull();
 
-            foreach ( var selectedFamily in CurrentCheckInState.CheckIn.Families.Where( p => p.Selected ) )
+            foreach ( var selectedFamily in CurrentCheckInState.CheckIn.Families.Where( f => f.Selected && f.People.Any( p => p.Selected ) ) )
             {
                 List<CheckInLabel> labels = new List<CheckInLabel>();
                 List<CheckInPerson> selectedPeople = selectedFamily.People.Where( p => p.Selected ).ToList();
-                List<CheckInGroupType> selectedGroupTypes = selectedPeople.SelectMany( gt => gt.GroupTypes )
-                    .Where( gt => gt.Selected ).ToList();
+                List<CheckInGroupType> selectedGroupTypes = selectedPeople.SelectMany( gt => gt.GroupTypes ).Where( gt => gt.Selected ).ToList();
                 List<CheckInGroup> availableGroups = null;
                 List<CheckInLocation> availableLocations = null;
                 List<CheckInSchedule> availableSchedules = null;
-                List<CheckInSchedule> possiblePersonSchedules = null;
+                List<CheckInSchedule> possibleSchedules = null;
 
                 foreach ( DataKey dataKey in checkinArray )
                 {
@@ -459,13 +464,13 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     var locationId = Convert.ToInt32( dataKey["LocationId"] );
                     var scheduleId = Convert.ToInt32( dataKey["ScheduleId"] );
 
-                    int groupTypeId = selectedGroupTypes.Where( gt => gt.Groups.Any( g => g.Group.Id == groupId ) )
+                    var groupTypeId = selectedGroupTypes.Where( gt => gt.Groups.Any( g => g.Group.Id == groupId ) )
                         .Select( gt => gt.GroupType.Id ).FirstOrDefault();
                     availableGroups = selectedGroupTypes.SelectMany( gt => gt.Groups ).ToList();
                     availableLocations = availableGroups.SelectMany( l => l.Locations ).ToList();
                     availableSchedules = availableLocations.SelectMany( s => s.Schedules ).ToList();
-                    possiblePersonSchedules = selectedPeople.SelectMany( p => p.PossibleSchedules ).ToList();
-
+                    possibleSchedules = selectedPeople.SelectMany( p => p.PossibleSchedules ).ToList();
+                    
                     // Only the current item should be selected in the merge object, unselect everything else
                     if ( printIndividually || checkinArray.Count == 1 )
                     {
@@ -477,7 +482,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         availableSchedules.ForEach( s => s.Selected = ( s.Schedule.Id == scheduleId ) );
 
                         // Unselect the SelectedSchedule properties too
-                        possiblePersonSchedules.ForEach( s => s.Selected = ( s.Schedule.Id == scheduleId ) );
+                        possibleSchedules.ForEach( s => s.Selected = ( s.Schedule.Id == scheduleId ) );
                     }
 
                     // Create labels for however many items are currently selected
@@ -488,7 +493,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     }
 
                     // Add valid grouptype labels, excluding the one-time label (if set)
-                    if ( printIndividually )
+                    if ( checkinArray.Count == 1 )
                     {
                         var selectedPerson = selectedPeople.FirstOrDefault( p => p.Person.Id == personId );
                         if ( selectedPerson != null )
@@ -507,7 +512,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                             .SelectMany( gt => gt.Labels )
                             .Where( l => ( !RemoveFromQueue || l.FileGuid != designatedLabelGuid ) )
                         );
+                    }
 
+                    if ( !printIndividually )
+                    {
                         // don't continue processing if printing all info on one label
                         break;
                     }
@@ -518,7 +526,25 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 {
                     var clientLabels = labels.Where( l => l.PrintFrom == PrintFrom.Client ).ToList();
                     var urlRoot = string.Format( "{0}://{1}", Request.Url.Scheme, Request.Url.Authority );
-                    clientLabels.ForEach( l => l.LabelFile = urlRoot + l.LabelFile );
+                    clientLabels
+                        .OrderBy( l => l.PersonId )
+                        .ThenBy( l => l.Order )
+                        .ToList()
+                        .ForEach( l => l.LabelFile = urlRoot + l.LabelFile );
+
+                    if ( !GetAttributeValue( "ReprintDesignatedLabel" ).AsBoolean() )
+                    {
+                        var item = clientLabels.FirstOrDefault( l => l.FileGuid == designatedLabelGuid );
+                        if ( item != null && hfLabelReprint.Value.AsBoolean() )
+                        {
+                            clientLabels.Remove( item );
+                        }
+                        else
+                        {
+                            hfLabelReprint.Value = true.ToString();
+                        }
+                    }
+
                     AddLabelScript( clientLabels.ToJson() );
                     pnlContent.Update();
                 }
@@ -532,7 +558,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     var labelContent = new StringBuilder();
 
                     // make sure labels have a valid ip
-                    var lastLabel = labels.Last();
+                    var lastLabel = labels.Last( l => l.PrintFrom == PrintFrom.Server && !string.IsNullOrEmpty( l.PrinterAddress ) );
                     foreach ( var label in labels.Where( l => l.PrintFrom == PrintFrom.Server && !string.IsNullOrEmpty( l.PrinterAddress ) ) )
                     {
                         var labelCache = KioskLabel.Read( label.FileGuid );
@@ -586,7 +612,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 {
                     // reset selections to what they were before queue
                     selectedPeople.ForEach( p => p.Selected = p.PreSelected );
-                    possiblePersonSchedules.ForEach( s => s.Selected = s.PreSelected );
+                    possibleSchedules.ForEach( s => s.Selected = s.PreSelected );
                     selectedGroupTypes.ForEach( gt => gt.Selected = gt.PreSelected );
                     availableGroups.ForEach( g => g.Selected = g.PreSelected );
                     availableLocations.ForEach( l => l.Selected = l.PreSelected );
@@ -610,7 +636,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <summary>
         /// Prints the labels.
         /// </summary>
-        /// <param name="families">The families.</param>
+        /// <param name="printerContent">Content of the printer.</param>
         private void PrintLabels( Dictionary<string, StringBuilder> printerContent )
         {
             foreach ( var printerIp in printerContent.Keys.Where( k => !string.IsNullOrEmpty( k ) ) )
@@ -650,30 +676,18 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         private void AddLabelScript( string jsonObject )
         {
             string script = string.Format( @"
-
-        // setup deviceready event to wait for cordova
-	    if (navigator.userAgent.match(/(iPhone|iPod|iPad)/)) {{
-            document.addEventListener('deviceready', onDeviceReady, false);
-        }} else {{
-            Sys.WebForms.PageRequestManager.getInstance().add_endRequest(onDeviceReady);
-        }}
-
 	    // label data
         var labelData = {0};
-
-		function onDeviceReady() {{
+		function onPrintClick() {{
             try {{
+                alert('printing labels ' + labelData.length);
                 printLabels();
             }}
             catch (err) {{
                 console.log('An error occurred printing labels: ' + err);
             }}
 		}}
-
-		function alertDismissed() {{
-		    // do something
-		}}
-
+        
 		function printLabels() {{
 		    ZebraPrintPlugin.printTags(
             	JSON.stringify(labelData),
@@ -694,8 +708,12 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 			    }}
             );
 	    }}
+
+        onPrintClick();
             ", ZebraFormatString( jsonObject ) );
-            ScriptManager.RegisterStartupScript( pnlContent, GetType(), "addLabelScript", script, true );
+
+            // note this function is stateless and will add a new script for each postback
+            ScriptManager.RegisterStartupScript( pnlSelectedGrid, pnlSelectedGrid.GetType(), "addLabelScript", script, true );            
         }
 
         /// <summary>
@@ -708,10 +726,12 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             if ( isJson )
             {
+                input.Replace( "ñ", @"\\_a4" );        // fix n tilde
                 return input.Replace( "é", @"\\82" );  // fix acute e
             }
             else
             {
+                input.Replace( "ñ", @"\_a4" );        // fix n tilde
                 return input.Replace( "é", @"\82" );  // fix acute e
             }
         }

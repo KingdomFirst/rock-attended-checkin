@@ -623,6 +623,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                     // started from the bottom now we here
                     selectedSchedule.Selected = false;
+                    selectedSchedule.LastCheckIn = null;
 
                     // clear checkin rows without anything selected
                     if ( !selectedLocation.Schedules.Any( s => s.Selected ) )
