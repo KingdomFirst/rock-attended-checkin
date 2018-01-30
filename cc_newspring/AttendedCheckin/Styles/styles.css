@@ -574,6 +574,10 @@ span.month, span.year {
   font-size: 1.5em;
 }
 
+.overflow-inherit {
+    overflow: inherit !important;
+}
+
 .full-width {
   width: 100%;
 }
