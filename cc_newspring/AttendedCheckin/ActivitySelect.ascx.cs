@@ -694,6 +694,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             person.LastName = tbLastName.Text;
             currentPerson.Person.LastName = tbLastName.Text;
 
+            person.Gender = ddlPersonGender.SelectedValueAsEnum<Gender>();
+            currentPerson.Person.Gender = ddlPersonGender.SelectedValueAsEnum<Gender>();
+
             person.SuffixValueId = ddlSuffix.SelectedValueAsId();
             currentPerson.Person.SuffixValueId = ddlSuffix.SelectedValueAsId();
 
@@ -707,6 +710,33 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 person.BirthYear = ( (DateTime)DOB ).Year;
                 currentPerson.Person.BirthYear = ( (DateTime)DOB ).Year;
             }
+
+            if ( !string.IsNullOrWhiteSpace( tbPhone.Text ) )
+            {
+                var unformattedNumber = tbPhone.Text.RemoveSpecialCharacters();
+                if ( !person.PhoneNumbers.Any( pn => pn.Number.Equals( unformattedNumber ) ) )
+                {
+                    var countryCodes = DefinedTypeCache.Read( Rock.SystemGuid.DefinedType.COMMUNICATION_PHONE_COUNTRY_CODE.AsGuid() ).DefinedValues;
+                    person.PhoneNumbers.Add( new PhoneNumber
+                    {
+                        CountryCode = countryCodes.Select( v => v.Value ).FirstOrDefault(),
+                        Number = tbPhone.Text,
+                        IsSystem = false,
+                        IsMessagingEnabled = true
+                    } );
+
+                    currentPerson.Person.PhoneNumbers.Add( new PhoneNumber
+                    {
+                        CountryCode = countryCodes.Select( v => v.Value ).FirstOrDefault(),
+                        Number = tbPhone.Text,
+                        IsSystem = false,
+                        IsMessagingEnabled = true
+                    } );
+                }
+            }
+
+            person.Email = tbEmail.Text;
+            currentPerson.Person.Email = tbEmail.Text;
 
             person.NickName = tbNickname.Text.Length > 0 ? tbNickname.Text : tbFirstName.Text;
             currentPerson.Person.NickName = tbNickname.Text.Length > 0 ? tbNickname.Text : tbFirstName.Text;
