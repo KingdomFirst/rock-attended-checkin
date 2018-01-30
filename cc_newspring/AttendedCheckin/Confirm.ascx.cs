@@ -44,7 +44,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [Category( "Check-in > Attended" )]
     [Description( "Attended Check-In Confirmation Block" )]
     [LinkedPage( "Activity Select Page" )]
-    [BooleanField( "Display Group Names", "By default location names are shown in the grid.  Check this option to show the group names instead.", false )]
+    [CustomDropdownListField( "Display Names", "How should the group and location name be displayed?", "0^Show Location Names,1^Show Group Names,2^Show Group and Location Names", false, "0" )]
     [BooleanField( "Print Individual Labels", "Select this option to print one label per person's group, location, & schedule.", false )]
     [BooleanField( "Remove Attendance On Checkout", "By default, the attendance is given a checkout date.  Select this option to completely remove attendance on checkout.", false )]
     [BooleanField( "Display Child Age/Grade", "By default, the person name is the only thing displayed. Select this option to display age and grade to help with child selections.", false, key: "DisplayChildAgeGrade" )]
@@ -53,7 +53,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     public partial class Confirm : CheckInBlock
     {
         #region Fields
-
+        
         /// <summary>
         /// Gets or sets a value indicating whether the designated label has already been printed
         /// </summary>
@@ -150,12 +150,24 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         {
                             foreach ( var schedule in location.Schedules.Where( s => s.Selected ) )
                             {
+                                var itemName = string.Empty;
+                                switch ( GetAttributeValue( "DisplayNames" ).AsType<int>() )
+                                {
+                                    case 0:
+                                        itemName = location.Location.Name;
+                                        break;
+                                    case 1:
+                                        itemName = group.Group.Name;
+                                        break;
+                                    case 2:
+                                        itemName = string.Format( "{0} / {1}", group.Group.Name, location.Location.Name );
+                                        break;
+                                }
+
                                 var checkIn = new Activity();
                                 checkIn.Name = person.Person.FullName;
                                 checkIn.Age = person.Person.Age < 18 ? person.Person.Age.ToStringSafe() : string.Empty;
-                                checkIn.Location = GetAttributeValue( "DisplayGroupNames" ).AsBoolean()
-                                    ? group.Group.Name
-                                    : location.Location.Name;
+                                checkIn.Location = itemName;
                                 checkIn.Schedule = schedule.Schedule.Name;
                                 checkIn.PersonId = person.Person.Id;
                                 checkIn.GroupId = group.Group.Id;
