@@ -53,7 +53,7 @@
                             <h3 id="hdrLocations" runat="server" class="text-center">Location</h3>
                             <asp:ListView ID="lvLocation" runat="server" OnPagePropertiesChanging="lvLocation_PagePropertiesChanging" OnItemCommand="lvLocation_ItemCommand" OnItemDataBound="lvLocation_ItemDataBound">
                                 <ItemTemplate>
-                                    <asp:LinkButton ID="lbLocation" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select overflow-inherit"></asp:LinkButton>
+                                    <asp:LinkButton ID="lbLocation" runat="server" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select"></asp:LinkButton>
                                 </ItemTemplate>
                             </asp:ListView>
                             <asp:DataPager ID="dpLocation" runat="server" PageSize="5" PagedControlID="lvLocation">
