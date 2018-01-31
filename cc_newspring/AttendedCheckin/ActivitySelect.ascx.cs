@@ -670,7 +670,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var rockContext = new RockContext();
             Person person = new PersonService( rockContext ).Get( currentPerson.Person.Id );
             person.LoadAttributes();
-
+            
             person.FirstName = tbFirstName.Text;
             currentPerson.Person.FirstName = tbFirstName.Text;
 
@@ -699,10 +699,12 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 var unformattedNumber = tbPhone.Text.RemoveSpecialCharacters();
                 if ( !person.PhoneNumbers.Any( pn => pn.Number.Equals( unformattedNumber ) ) )
                 {
+                    var homePhoneType = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.PERSON_PHONE_TYPE_HOME.AsGuid(), rockContext );
                     var countryCodes = DefinedTypeCache.Read( Rock.SystemGuid.DefinedType.COMMUNICATION_PHONE_COUNTRY_CODE.AsGuid() ).DefinedValues;
                     person.PhoneNumbers.Add( new PhoneNumber
                     {
                         CountryCode = countryCodes.Select( v => v.Value ).FirstOrDefault(),
+                        NumberTypeValueId = homePhoneType.Id,
                         Number = tbPhone.Text,
                         IsSystem = false,
                         IsMessagingEnabled = true
@@ -711,6 +713,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     currentPerson.Person.PhoneNumbers.Add( new PhoneNumber
                     {
                         CountryCode = countryCodes.Select( v => v.Value ).FirstOrDefault(),
+                        NumberTypeValueId = homePhoneType.Id,
                         Number = tbPhone.Text,
                         IsSystem = false,
                         IsMessagingEnabled = true
