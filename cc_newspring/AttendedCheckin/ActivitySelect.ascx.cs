@@ -332,31 +332,33 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     }
                 }
 
+                int? groupTypeId = ViewState["groupTypeId"].ToStringSafe().AsType<int?>();
                 int? selectedLocationId = e.CommandArgument.ToStringSafe().AsType<int?>();
-                int? selectedGroupId = null;
-                var groupsQueryable = person.GroupTypes.SelectMany( gt => gt.Groups ).AsQueryable();
+                var groupsQueryable = person.GroupTypes.Where( gt => gt.GroupType.Id == groupTypeId )
+                    .SelectMany( gt => gt.Groups ).AsQueryable();
 
-                if ( DisplayPreference == NameDisplay.Group )
+                switch ( DisplayPreference )
                 {
-                    // multiple groups could use the same location, so update based on the group's name
-                    groupsQueryable = groupsQueryable.Where( g => g.Group.Name.Equals( e.CommandName.ToString() ) );
-                }
-                else
-                {
-                    groupsQueryable = groupsQueryable.OrderByDescending( g => !g.ExcludedByFilter )
-                        .Where( g => g.Locations.Any( l => l.Location.Id == selectedLocationId ) );
-                }
+                    case NameDisplay.Location:
+                        groupsQueryable = groupsQueryable.OrderByDescending( g => !g.ExcludedByFilter )
+                            .Where( g => g.Locations.Any( l => l.Location.Id == selectedLocationId ) );
+                        break;
 
-                selectedGroupId = groupsQueryable.Select( g => (int?)g.Group.Id ).FirstOrDefault();
+                    default:
+                        // multiple groups could use the same location, so update based on the group's name
+                        groupsQueryable = groupsQueryable.Where( g => g.Group.Name.Equals( e.CommandName.ToString() ) );
+                        break;
+                }
+                
+                var selectedGroup = groupsQueryable.FirstOrDefault();
+                if ( selectedGroup != null )
+                {
+                    ViewState["groupId"] = selectedGroup.Group.Id;
+                }
 
                 ViewState["locationId"] = selectedLocationId;
-                if ( selectedGroupId != null )
-                {
-                    ViewState["groupId"] = selectedGroupId;
-                }
-
                 pnlLocations.Update();
-                BindSchedules( person.GroupTypes, null, selectedGroupId, selectedLocationId );
+                BindSchedules( person.GroupTypes, selectedGroup.Group.GroupTypeId, selectedGroup.Group.Id, selectedLocationId );
             }
             else
             {
@@ -465,10 +467,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     case NameDisplay.GroupLocation:
                         var locationId = ViewState["locationId"] as int?;
                         var checkInGroup = (CheckInGroup)e.Item.DataItem;
-                        var checkInLocation = checkInGroup.Locations.FirstOrDefault( l => l.Location.Id == locationId );
-                        var itemName = checkInGroup.Group.Name;
+                        var checkInLocation = checkInGroup.Locations.FirstOrDefault( l => l.Location.Id == locationId )
+                            ?? checkInGroup.Locations.FirstOrDefault();
                         lbLocation.Text = string.Format( "{0} / {1}", checkInGroup.Group.Name, checkInLocation.Location.Name );
-                        lbLocation.CommandName = string.Format( "{0} / {1}", checkInGroup.Group.Name, checkInLocation.Location.Name );
+                        lbLocation.CommandName = checkInGroup.Group.Name;
                         lbLocation.CommandArgument = checkInLocation.Location.Id.ToString();
                         itemSelected = checkInGroup.Selected;
                         break;
@@ -862,7 +864,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }
 
                 int placeInList = 1;
-                IEnumerable<ILiquidizable> locationItems = null;
+                IEnumerable<ILiquidizable> items = null;
                 if ( DisplayPreference == NameDisplay.Location )
                 {
                     var allLocations = groupType.Groups.SelectMany( g => g.Locations )
@@ -875,7 +877,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     }
 
                     // by default, show location name and bind CheckInLocation list
-                    locationItems = allLocations.Cast<ILiquidizable>();
+                    items = allLocations.Cast<ILiquidizable>();
                 }
                 else
                 {
@@ -896,7 +898,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     }
 
                     // otherwise show group name and bind CheckInGroup list
-                    locationItems = allGroups.Cast<ILiquidizable>();
+                    items = allGroups.Cast<ILiquidizable>();
                 }
 
                 var pageToGoTo = placeInList / dpLocation.PageSize;
@@ -907,8 +909,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                 dpLocation.SetPageProperties( ( pageToGoTo - 1 ) * dpLocation.PageSize, dpLocation.MaximumRows, false );
 
-                Session["locations"] = locationItems;
-                lvLocation.DataSource = locationItems;
+                Session["locations"] = items;
+                lvLocation.DataSource = items;
                 lvLocation.DataBind();
                 pnlLocations.Update();
             }
@@ -921,17 +923,16 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         protected void BindSchedules( List<CheckInGroupType> groupTypes, int? groupTypeId = null, int? groupId = null, int? locationId = null )
         {
             groupTypeId = groupTypeId ?? ViewState["groupTypeId"].ToStringSafe().AsType<int?>();
-            if ( groupTypeId != null )
+            groupId = groupId ?? ViewState["groupId"].ToStringSafe().AsType<int?>();
+            locationId = locationId ?? ViewState["locationId"].ToStringSafe().AsType<int>();
+
+            var groupType = groupTypes.FirstOrDefault( gt => gt.GroupType.Id == groupTypeId );
+            if ( groupType != null )
             {
-                groupId = groupId ?? ViewState["groupId"].ToStringSafe().AsType<int?>();
-                locationId = locationId ?? ViewState["locationId"].ToStringSafe().AsType<int>();
-
-                var groupType = groupTypes.FirstOrDefault( gt => gt.GroupType.Id == groupTypeId );
-                if ( groupType != null )
+                var group = groupType.Groups.FirstOrDefault( g => g.Group.Id == groupId );
+                if ( group != null )
                 {
-                    var location = groupType.Groups.Where( g => g.Group.Id == groupId ).SelectMany( g => g.Locations )
-                        .FirstOrDefault( l => l.Location.Id == locationId );
-
+                    var location = group.Locations.FirstOrDefault( l => l.Location.Id == locationId );
                     if ( location != null )
                     {
                         GetScheduleAttendance( location );
@@ -940,7 +941,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         pnlSchedules.Update();
                     }
                 }
-            }
+            }   
         }
 
         /// <summary>
