@@ -7,7 +7,7 @@
 
         <asp:Panel ID="pnlSelections" runat="server" CssClass="attended">
 
-            <asp:HiddenField ID="hfNewPersonType" runat="server" />            
+            <asp:HiddenField ID="hfNewPersonType" runat="server" />
 
             <div class="row checkin-header">
                 <div class="col-xs-2 checkin-actions">
@@ -163,7 +163,7 @@
                             <div class="col-xs-2 text-center hard-right" id="hdrPhoneNumber" runat="server" visible="false">
                                 <label>Phone #</label>
                             </div>
-                            <div class="col-xs-2 text-center hard-right" id="hdrEmail" runat="server" visible="false" >
+                            <div class="col-xs-2 text-center hard-right" id="hdrEmail" runat="server" visible="false">
                                 <label>Email</label>
                             </div>
                             <div class="col-xs-1 text-center" id="hdrSpecialNeeds" runat="server">
@@ -192,7 +192,7 @@
                             <div class="col-xs-2 text-center hard-right" id="divPhoneNumber" runat="server" visible="false">
                                 <Rock:RockTextBox ID="tbPhone" runat="server" CssClass="hard-sides" />
                             </div>
-                            <div class="col-xs-2 text-center hard-right" id="divEmail" runat="server" visible="false" >
+                            <div class="col-xs-2 text-center hard-right" id="divEmail" runat="server" visible="false">
                                 <Rock:RockTextBox ID="tbEmail" runat="server" CssClass="hard-sides" />
                             </div>
                             <div class="col-xs-1 hard-right" id="divSpecialNeeds" runat="server">
@@ -208,7 +208,7 @@
                                             <Rock:RockBoundField HeaderStyle-CssClass="col-xs-2" ItemStyle-CssClass="col-xs-2" HeaderText="Last Name" DataField="LastName" SortExpression="LastName" />
                                             <Rock:RockBoundField HeaderStyle-CssClass="col-xs-1" ItemStyle-CssClass="col-xs-1" HeaderText="Suffix" DataField="SuffixValue" SortExpression="SuffixValue" />
                                             <Rock:RockBoundField HeaderStyle-CssClass="col-xs-1" ItemStyle-CssClass="col-xs-1" HeaderText="DOB" DataField="BirthDate" DataFormatString="{0:MM/dd/yy}" HtmlEncode="false" SortExpression="BirthDate" />
-                                            <Rock:RockBoundField HeaderStyle-CssClass="col-xs-1" ItemStyle-CssClass="col-xs-1" HeaderText="Age" DataField="Age" SortExpression="Age" />                                            
+                                            <Rock:RockBoundField HeaderStyle-CssClass="col-xs-1" ItemStyle-CssClass="col-xs-1" HeaderText="Age" DataField="Age" SortExpression="Age" />
                                             <Rock:RockBoundField HeaderStyle-CssClass="col-xs-1" ItemStyle-CssClass="col-xs-1" HeaderText="Gender" DataField="Gender" SortExpression="Gender" />
                                             <Rock:RockBoundField HeaderStyle-CssClass="col-xs-1" ItemStyle-CssClass="col-xs-1" HeaderText="Ability/Grade" DataField="Attribute" SortExpression="Attribute" />
                                             <Rock:RockBoundField HeaderStyle-CssClass="col-xs-2" ItemStyle-CssClass="col-xs-2" HeaderText="Phone" DataField="Phone" SortExpression="Phone" />
@@ -286,7 +286,7 @@
                                     <div class="col-xs-2 text-center hard-right" id="hdrPhoneNumber" runat="server" visible="false">
                                         <label>Phone #</label>
                                     </div>
-                                    <div class="col-xs-2 text-center hard-right" id="hdrEmail" runat="server" visible="false" >
+                                    <div class="col-xs-2 text-center hard-right" id="hdrEmail" runat="server" visible="false">
                                         <label>Email</label>
                                     </div>
                                     <div class="col-xs-1 text-center" id="hdrSpecialNeeds" runat="server">

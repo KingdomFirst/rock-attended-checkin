@@ -1,23 +1,8 @@
-﻿// <copyright>
-// Copyright 2013 by the Spark Development Network
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-// </copyright>
-//
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using cc.newspring.AttendedCheckIn.Utility;
@@ -28,7 +13,6 @@ using Rock.Data;
 using Rock.Lava;
 using Rock.Model;
 using Rock.Web.Cache;
-using System.Threading.Tasks;
 using Rock.Web.UI.Controls;
 
 namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
@@ -146,7 +130,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }
 
                 DisplayPreference = (NameDisplay)GetAttributeValue( "DisplayNames" ).AsType<int>();
-                
+
                 if ( person != null && person.GroupTypes.Any() )
                 {
                     int? selectedGroupTypeId = person.GroupTypes.Where( gt => gt.Selected )
@@ -351,7 +335,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 int? selectedGroupId = null;
                 var groupsQueryable = person.GroupTypes.SelectMany( gt => gt.Groups ).AsQueryable();
 
-
                 if ( DisplayPreference == NameDisplay.Group )
                 {
                     // multiple groups could use the same location, so update based on the group's name
@@ -362,7 +345,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     groupsQueryable = groupsQueryable.OrderByDescending( g => !g.ExcludedByFilter )
                         .Where( g => g.Locations.Any( l => l.Location.Id == selectedLocationId ) );
                 }
-                
+
                 selectedGroupId = groupsQueryable.Select( g => (int?)g.Group.Id ).FirstOrDefault();
 
                 ViewState["locationId"] = selectedLocationId;
@@ -981,7 +964,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                     selectionName = string.Format( "{0} / {1}", group.Group.Name, location.Location.Name );
                                     break;
                             }
-                            
+
                             var checkIn = new Activity();
                             checkIn.StartTime = Convert.ToDateTime( schedule.StartTime );
                             checkIn.GroupId = group.Group.Id;
@@ -1146,8 +1129,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             [Description( "Location" )]
             Location,
+
             [Description( "Group" )]
             Group,
+
             [Description( "Group / Location" )]
             GroupLocation
         }
