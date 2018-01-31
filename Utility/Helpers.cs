@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.UI.WebControls;
-using Rock.Web.Cache;
-using Rock.Web.UI.Controls;
 using Rock;
 using Rock.CheckIn;
+using Rock.Web.Cache;
+using Rock.Web.UI.Controls;
 
 namespace cc.newspring.AttendedCheckIn.Utility
 {

@@ -156,7 +156,6 @@
                             <div class="col-xs-2">
                                 <Rock:RockTextBox ID="tbEmail" runat="server" Label="Email" />
                             </div>
-                            
                         </div>
                         <div class="row">
                             <div class="col-xs-6">

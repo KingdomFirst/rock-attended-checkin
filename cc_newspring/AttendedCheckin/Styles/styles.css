@@ -338,7 +338,7 @@ button.close {
 
 .btn:focus, .btn:active {
   outline: none;
-  box-shadow: none;  
+  box-shadow: none;
 }
 
 .btn-primary .checkin-sub-title {
