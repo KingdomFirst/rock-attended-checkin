@@ -716,7 +716,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         var labelData = {0};
 		function onPrintClick() {{
             try {{
-                alert('printing labels ' + labelData.length);
                 printLabels();
             }}
             catch (err) {{
