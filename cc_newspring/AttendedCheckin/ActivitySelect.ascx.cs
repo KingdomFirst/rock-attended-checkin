@@ -24,6 +24,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [BooleanField( "Remove Attendance On Checkout", "By default, the attendance is given a checkout date.  Select this option to completely remove attendance on checkout.", false )]
     [AttributeField( Rock.SystemGuid.EntityType.PERSON, "Person Special Needs Attribute", "Select the person attribute used to filter kids with special needs.", true, false, "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF" )]
     [BooleanField( "Sort Groups By Name", "If false then groups, if displayed, are sorted by the Order they have been placed in on the check-in configuration screen.", true )]
+    [AttributeField( Rock.SystemGuid.EntityType.PERSON, "Profile Attributes", "By default, Allergies and Legal Notes are displayed on Profile Edit.  Select others to allow editing.", false, true, "dbd192c9-0aa1-46ec-92ab-a3da8e056d31,f832ab6f-b684-4eea-8db4-c54b895c79ed", order: 100 )]
     public partial class ActivitySelect : CheckInBlock
     {
         #region Variables
@@ -32,7 +33,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// Stores how to display button names
         /// </summary>
         private static NameDisplay DisplayPreference;
-        
+
         /// <summary>
         /// Gets the error when a page's parameter string is invalid.
         /// </summary>
@@ -73,7 +74,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     }
                     else
                     {
-                        throw new Exception( "The selected Person Special Needs attribute is invalid for the FamilySelect page." );
+                        throw new Exception( "The selected Person Special Needs attribute is invalid for the ActivitySelect page." );
                     }
                 }
             }
@@ -129,7 +130,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     var nickName = person.Person.NickName ?? person.Person.FirstName;
                     lblPersonName.Text = string.Format( "{0} {1}", nickName, person.Person.LastName );
                 }
-                
+
                 DisplayPreference = (NameDisplay)GetAttributeValue( "DisplayNames" ).AsType<int>();
 
                 if ( person != null && person.GroupTypes.Any() )
@@ -179,12 +180,11 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }
             }
 
-            // Instantiate the allergy control for reference later
-            var allergyControl = AttributeCache.Read( new Guid( Rock.SystemGuid.Attribute.PERSON_ALLERGY ) )
-                .AddControl( phAttributes.Controls, string.Empty, "", true, true );
-            if ( allergyControl is RockTextBox )
+            // instantiate attribute controls for reference later
+            var attributeGuidList = GetAttributeValue( "ProfileAttributes" ).SplitDelimitedValues();
+            foreach( var attributeGuid in attributeGuidList )
             {
-                ( (RockTextBox)allergyControl ).MaxLength = 80;
+                AttributeCache.Read( new Guid( attributeGuid ) ).AddControl( phAttributes.Controls, string.Empty, "", true, true );
             }
 
             hdrLocations.InnerText = DisplayPreference.GetDescription();
@@ -469,7 +469,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         var itemName = checkInGroup.Group.Name;
                         lbLocation.Text = string.Format( "{0} / {1}", checkInGroup.Group.Name, checkInLocation.Location.Name );
                         lbLocation.CommandName = string.Format( "{0} / {1}", checkInGroup.Group.Name, checkInLocation.Location.Name );
-                        //lbLocation.CommandArgument = group.Locations.Select( l => l.Location.Id ).FirstOrDefault().ToStringSafe();
                         lbLocation.CommandArgument = checkInLocation.Location.Id.ToString();
                         itemSelected = checkInGroup.Selected;
                         break;
@@ -671,7 +670,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var rockContext = new RockContext();
             Person person = new PersonService( rockContext ).Get( currentPerson.Person.Id );
             person.LoadAttributes();
-            
+
             person.FirstName = tbFirstName.Text;
             currentPerson.Person.FirstName = tbFirstName.Text;
 
@@ -755,20 +754,20 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             person.SetAttributeValue( SpecialNeedsKey, cbSpecialNeeds.Checked ? "Yes" : string.Empty );
             currentPerson.Person.SetAttributeValue( SpecialNeedsKey, cbSpecialNeeds.Checked ? "Yes" : string.Empty );
 
-            // store the allergies
-            var allergyAttribute = AttributeCache.Read( new Guid( Rock.SystemGuid.Attribute.PERSON_ALLERGY ), rockContext );
-            var allergyAttributeControl = phAttributes.FindControl( string.Format( "attribute_field_{0}", allergyAttribute.Id ) );
-            if ( allergyAttributeControl != null )
+            // Store the attribute values
+            var attributeGuidList = GetAttributeValue( "ProfileAttributes" ).SplitDelimitedValues();
+            foreach ( var attributeGuid in attributeGuidList )
             {
-                person.SetAttributeValue( "Allergy", allergyAttribute.FieldType.Field
-                    .GetEditValue( allergyAttributeControl, allergyAttribute.QualifierValues ) );
-                currentPerson.Person.SetAttributeValue( "Allergy", allergyAttribute.FieldType.Field
-                    .GetEditValue( allergyAttributeControl, allergyAttribute.QualifierValues ) );
+                var attribute = AttributeCache.Read( new Guid( attributeGuid ), rockContext );
+                var attributeControl = phAttributes.FindControl( string.Format( "attribute_field_{0}", attribute.Id ) );
+                if ( attributeControl != null )
+                {
+                    person.SetAttributeValue( attribute.Key, attribute.FieldType.Field
+                        .GetEditValue( attributeControl, attribute.QualifierValues ) );
+                    currentPerson.Person.SetAttributeValue( attribute.Key, attribute.FieldType.Field
+                        .GetEditValue( attributeControl, attribute.QualifierValues ) );
+                }
             }
-
-            // store the check-in notes
-            person.SetAttributeValue( "LegalNotes", tbNoteText.Text );
-            currentPerson.Person.SetAttributeValue( "LegalNotes", tbNoteText.Text );
 
             // Save the attribute change to the db (CheckinPerson already tracked)
             person.SaveAttributeValues();
@@ -889,7 +888,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     {
                         allGroups = allGroups.OrderBy( g => g.Group.Order ).ToList();
                     }
-                    
+
                     if ( groupId > 0 )
                     {
                         var selectedGroup = allGroups.FirstOrDefault( g => g.Group.Id == groupId && g.Locations.Any( l => l.Location.Id == locationId ) );
@@ -1002,60 +1001,64 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// </summary>
         protected void BindInfo()
         {
-            var person = GetCurrentPerson();
+            Person person = null;
+            var currentPersonId = Request.QueryString["personId"].AsType<int?>();
+            if ( currentPersonId.HasValue )
+            {
+                person = new PersonService( new RockContext() ).Get( (int)currentPersonId );
+            }
+
             if ( person != null )
             {
                 ddlAbilityGrade.LoadAbilityAndGradeItems();
+                ddlPersonGender.BindToEnum<Gender>();
                 ddlSuffix.BindToDefinedType( DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_SUFFIX ) ), true );
 
                 ViewState["lblAbilityGrade"] = ddlAbilityGrade.Label;
-                person.Person.LoadAttributes();
+                person.LoadAttributes();
 
-                tbFirstName.Text = person.Person.FirstName;
-                tbLastName.Text = person.Person.LastName;
-                tbNickname.Text = person.Person.NickName;
-                dpDOB.SelectedDate = person.Person.BirthDate;
-                cbSpecialNeeds.Checked = person.Person.GetAttributeValue( SpecialNeedsKey ).AsBoolean();
+                tbFirstName.Text = person.FirstName;
+                tbLastName.Text = person.LastName;
+                tbNickname.Text = person.NickName;
+                dpDOB.SelectedDate = person.BirthDate;
+                cbSpecialNeeds.Checked = person.GetAttributeValue( SpecialNeedsKey ).AsBoolean();
+
+                tbPhone.Text = person.PhoneNumbers.Select( v => v.NumberFormatted ).FirstOrDefault();
+                tbEmail.Text = person.Email;
 
                 tbFirstName.Required = true;
                 tbLastName.Required = true;
                 dpDOB.Required = true;
 
-                if ( person.Person.SuffixValueId.HasValue )
+                if ( person.SuffixValueId.HasValue )
                 {
-                    ddlSuffix.SelectedValue = person.Person.SuffixValueId.ToString();
+                    ddlSuffix.SelectedValue = person.SuffixValueId.ToString();
                 }
 
-                if ( person.Person.GradeOffset.HasValue && person.Person.GradeOffset.Value >= 0 )
+                if ( person.GradeOffset.HasValue && person.GradeOffset.Value >= 0 )
                 {
-                    ddlAbilityGrade.SelectedValue = person.Person.GradeOffset.ToString();
+                    ddlAbilityGrade.SelectedValue = person.GradeOffset.ToString();
                 }
-                else if ( person.Person.AttributeValues.ContainsKey( "AbilityLevel" ) )
+                else if ( person.AttributeValues.ContainsKey( "AbilityLevel" ) )
                 {
-                    var personAbility = person.Person.GetAttributeValue( "AbilityLevel" );
+                    var personAbility = person.GetAttributeValue( "AbilityLevel" );
                     if ( !string.IsNullOrWhiteSpace( personAbility ) )
                     {
                         ddlAbilityGrade.SelectedValue = personAbility;
                     }
                 }
 
-                // Note: Allergy control is dynamic and must be initialized on PageLoad
-                var personAllergyValues = person.Person.GetAttributeValue( "Allergy" );
-                if ( !string.IsNullOrWhiteSpace( personAllergyValues ) )
+                // Note: attribute controls are dynamic and must be initialized on PageLoad
+                phAttributes.Controls.Clear();
+                var attributeGuidList = GetAttributeValue( "ProfileAttributes" ).SplitDelimitedValues();
+                foreach ( var attributeGuid in attributeGuidList )
                 {
-                    phAttributes.Controls.Clear();
-                    var control = AttributeCache.Read( new Guid( Rock.SystemGuid.Attribute.PERSON_ALLERGY ) )
-                        .AddControl( phAttributes.Controls, personAllergyValues, "", true, true );
-
-                    if ( control is RockTextBox )
+                    var attribute = AttributeCache.Read( new Guid( attributeGuid ) );
+                    if ( attribute != null )
                     {
-                        ( (RockTextBox)control ).MaxLength = 80;
+                        attribute.AddControl( phAttributes.Controls, person.GetAttributeValue( attribute.Key ), "", true, true );
                     }
                 }
-
-                // load check-in notes
-                var notes = person.Person.GetAttributeValue( "LegalNotes" ) ?? string.Empty;
-                tbNoteText.Text = notes;
             }
             else
             {
