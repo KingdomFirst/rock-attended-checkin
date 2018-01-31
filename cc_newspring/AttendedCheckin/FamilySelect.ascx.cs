@@ -23,12 +23,12 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [DisplayName( "Family Select" )]
     [Category( "Check-in > Attended" )]
     [Description( "Attended Check-In Family Select Block" )]
-    [BooleanField( "Enable Add Buttons", "Show the add people/visitor/family buttons on the family select page?", true, "", 5 )]
-    [BooleanField( "Show Contact Info", "Show the phone and email columns on add people/visitor/family modals.", false, "", 6 )]
-    [BooleanField( "Hide Special Needs", "Hide the special needs column from add people/visitor/family modals.", false, "", 7 )]
-    [DefinedValueField( Rock.SystemGuid.DefinedType.PERSON_CONNECTION_STATUS, "Default Connection Status", "Select the default connection status for people added in checkin", true, false, "B91BA046-BC1E-400C-B85D-638C1F4E0CE2", "", 8 )]
-    [AttributeField( Rock.SystemGuid.EntityType.PERSON, "Person Special Needs Attribute", "Select the person attribute used to filter kids with special needs.", true, false, "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF", "", 9 )]
-    [TextField( "Not Found Text", "What text should display when the nothing is found?", true, "Please add a person or family.", "", 10 )]
+    [BooleanField( "Enable Add Buttons", "Show the add people/visitor/family buttons on the family select page?", true, "", 1 )]
+    [BooleanField( "Show Contact Info", "Show the phone and email columns on add people/visitor/family modals.", false, "", 2 )]
+    [BooleanField( "Hide Special Needs", "Hide the special needs column from add people/visitor/family modals.", false, "", 3 )]
+    [DefinedValueField( Rock.SystemGuid.DefinedType.PERSON_CONNECTION_STATUS, "Default Connection Status", "Select the default connection status for people added in checkin", true, false, "B91BA046-BC1E-400C-B85D-638C1F4E0CE2", "", 4 )]
+    [AttributeField( Rock.SystemGuid.EntityType.PERSON, "Person Special Needs Attribute", "Select the person attribute used to filter kids with special needs.", true, false, "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF", "", 5 )]
+    [TextField( "Not Found Text", "What text should display when the nothing is found?", true, "Please add a person or family.", "", 6 )]
     public partial class FamilySelect : CheckInBlock
     {
         #region Variables

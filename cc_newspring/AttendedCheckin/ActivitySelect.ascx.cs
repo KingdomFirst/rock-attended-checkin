@@ -20,11 +20,11 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [DisplayName( "Activity Select" )]
     [Category( "Check-in > Attended" )]
     [Description( "Attended Check-In Activity Select Block" )]
-    [CustomDropdownListField( "Display Names", "How should the group and location name be displayed?", "0^Show Location Names,1^Show Group Names,2^Show Group and Location Names", false, "0" )]
-    [BooleanField( "Remove Attendance On Checkout", "By default, the attendance is given a checkout date.  Select this option to completely remove attendance on checkout.", false )]
-    [AttributeField( Rock.SystemGuid.EntityType.PERSON, "Person Special Needs Attribute", "Select the person attribute used to filter kids with special needs.", true, false, "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF" )]
-    [BooleanField( "Sort Groups By Name", "If false then groups, if displayed, are sorted by the Order they have been placed in on the check-in configuration screen.", true )]
-    [AttributeField( Rock.SystemGuid.EntityType.PERSON, "Profile Attributes", "By default, Allergies and Legal Notes are displayed on Profile Edit.  Select others to allow editing.", false, true, "dbd192c9-0aa1-46ec-92ab-a3da8e056d31,f832ab6f-b684-4eea-8db4-c54b895c79ed", order: 100 )]
+    [CustomDropdownListField( "Display Names", "How should the group and location name be displayed?", "0^Show Location Names,1^Show Group Names,2^Show Group and Location Names", false, "0", "", 1 )]
+    [BooleanField( "Remove Attendance On Checkout", "By default, the attendance is given a checkout date.  Select this option to completely remove attendance on checkout.", false, "", 2 )]
+    [AttributeField( Rock.SystemGuid.EntityType.PERSON, "Person Special Needs Attribute", "Select the person attribute used to filter kids with special needs.", true, false, "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF", "", 3 )]
+    [BooleanField( "Sort Groups By Name", "If false then groups, if displayed, are sorted by the Order they have been placed in on the check-in configuration screen.", true, "", 4 )]
+    [AttributeField( Rock.SystemGuid.EntityType.PERSON, "Profile Attributes", "By default, Allergies and Legal Notes are displayed on Profile Edit.  Select others to allow editing.", false, true, "dbd192c9-0aa1-46ec-92ab-a3da8e056d31,f832ab6f-b684-4eea-8db4-c54b895c79ed", "", 5 )]
     public partial class ActivitySelect : CheckInBlock
     {
         #region Variables
