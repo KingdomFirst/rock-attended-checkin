@@ -327,11 +327,11 @@ button.close {
 
 .btn {
     width: 100%;
-    /*white-space: nowrap;
+    white-space: nowrap;
     overflow: hidden;
     -ms-text-overflow: ellipsis;
     -o-text-overflow: ellipsis;
-    text-overflow: ellipsis;*/
+    text-overflow: ellipsis;
     letter-spacing: -.5px;
 }
 
@@ -595,6 +595,10 @@ span.month, span.year {
 
 .large-font {
     font-size: 1.5em;
+}
+
+.force-wrap {
+    white-space: normal !important;
 }
 
 .full-width {

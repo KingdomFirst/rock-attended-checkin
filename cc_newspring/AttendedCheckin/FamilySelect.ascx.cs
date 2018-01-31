@@ -1172,14 +1172,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var rockContext = new RockContext();
             var personService = new PersonService( rockContext );
 
-            var defaultStatusGuid = GetAttributeValue( "DefaultConnectionStatus" ).AsGuid();
-            var connectionStatus = DefinedValueCache.Read( defaultStatusGuid, rockContext );
-
-            var recordStatus = DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_RECORD_STATUS ), rockContext );
-            var activeRecord = recordStatus.DefinedValues.FirstOrDefault( dv => dv.Guid.Equals( new Guid( Rock.SystemGuid.DefinedValue.PERSON_RECORD_STATUS_ACTIVE ) ) );
-
-            var recordType = DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_RECORD_TYPE ), rockContext );
-            var personType = recordType.DefinedValues.FirstOrDefault( dv => dv.Guid.Equals( new Guid( Rock.SystemGuid.DefinedValue.PERSON_RECORD_TYPE_PERSON ) ) );
+            var connectionStatus = DefinedValueCache.Read( GetAttributeValue( "DefaultConnectionStatus" ).AsGuid(), rockContext );
+            var homePhoneType = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.PERSON_PHONE_TYPE_HOME.AsGuid(), rockContext );
+            var activeRecord = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.PERSON_RECORD_STATUS_ACTIVE.AsGuid() );
+            var personType = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.PERSON_RECORD_TYPE_PERSON.AsGuid() );
 
             foreach ( SerializedPerson personData in serializedPeople )
             {
@@ -1226,6 +1222,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     person.PhoneNumbers.Add( new PhoneNumber
                     {
                         CountryCode = countryCodes.Select( v => v.Value ).FirstOrDefault(),
+                        NumberTypeValueId = homePhoneType.Id,
                         Number = personData.PhoneNumber,
                         IsSystem = false,
                         IsMessagingEnabled = true

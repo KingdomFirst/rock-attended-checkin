@@ -316,7 +316,7 @@
                                         <Rock:RockDropDownList ID="ddlAbilityGrade" runat="server" CssClass="hard-sides" />
                                     </div>
                                     <div class="col-xs-2 hard-right" id="divPhoneNumber" runat="server" visible="false" disabled="true">
-                                        <Rock:RockTextBox ID="pnbPhone" runat="server" ValidationGroup="Family" CssClass="hard-sides" />
+                                        <Rock:RockTextBox ID="tbPhone" runat="server" ValidationGroup="Family" CssClass="hard-sides" />
                                     </div>
                                     <div class="col-xs-2 hard-right" id="divEmail" runat="server" visible="false" disabled="true">
                                         <Rock:RockTextBox ID="tbEmail" runat="server" ValidationGroup="Family" CssClass="hard-sides" />
