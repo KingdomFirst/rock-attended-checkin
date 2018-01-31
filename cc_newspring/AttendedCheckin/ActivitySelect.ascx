@@ -128,7 +128,7 @@
                                 <Rock:RockTextBox ID="tbFirstName" runat="server" Label="First Name" ValidationGroup="Person" />
                             </div>
                             <div class="col-xs-2">
-                                <Rock:RockTextBox ID="tbNickname" runat="server" ValidationGroup="Person" Label="Nickname" />
+                                <Rock:RockTextBox ID="tbNickname" runat="server" Label="Nickname" ValidationGroup="Person" />
                             </div>
                             <div class="col-xs-2">
                                 <Rock:RockTextBox ID="tbLastName" runat="server" Label="Last Name" ValidationGroup="Person" />
@@ -140,11 +140,23 @@
                                 <Rock:DatePicker ID="dpDOB" runat="server" Label="Date of Birth" ValidationGroup="Person" CssClass="date-picker" data-show-age="true" />
                             </div>
                             <div class="col-xs-2">
-                                <Rock:RockDropDownList ID="ddlAbilityGrade" runat="server" Label="Ability/Grade" />
+                                <Rock:RockDropDownList ID="ddlPersonGender" runat="server" CssClass="hard-sides" ValidationGroup="Person" />
                             </div>
                             <div class="col-xs-1 shift-up centered">
                                 <Rock:RockCheckBox ID="cbSpecialNeeds" runat="server" Label="Special Needs" />
                             </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-2">
+                                <Rock:RockDropDownList ID="ddlAbilityGrade" runat="server" Label="Ability/Grade" />
+                            </div>
+                            <div class="col-xs-2">
+                                <Rock:RockTextBox ID="tbPhone" runat="server" Label="Phone" />
+                            </div>
+                            <div class="col-xs-2">
+                                <Rock:RockTextBox ID="tbEmail" runat="server" Label="Email" />
+                            </div>
+                            
                         </div>
                         <div class="row">
                             <div class="col-xs-6">

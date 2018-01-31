@@ -86,6 +86,16 @@
   padding: 0 !important;
 }
 
+.hard-sides {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+.hard-ends {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
 .hard-top {
   padding-top: 0 !important;
 }
@@ -310,11 +320,11 @@ button.close {
 
 .btn {
   width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
+  /*white-space: nowrap;*/
+  /*overflow: hidden;
   -ms-text-overflow: ellipsis;
   -o-text-overflow: ellipsis;
-  text-overflow: ellipsis;
+  text-overflow: ellipsis;*/
   letter-spacing: -.5px;
 }
 
