@@ -28,13 +28,13 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [Category( "Check-in > Attended" )]
     [Description( "Attended Check-In Confirmation Block" )]
     [LinkedPage( "Activity Select Page" )]
-    [CustomDropdownListField( "Display Names", "How should the group and location name be displayed?", "0^Show Location Names,1^Show Group Names,2^Show Group and Location Names", false, "0" )]
-    [BooleanField( "Print Individual Labels", "Select this option to print one label per person's group, location, & schedule.", false )]
-    [BooleanField( "Remove Attendance On Checkout", "By default, the attendance is given a checkout date.  Select this option to completely remove attendance on checkout.", false )]
-    [BooleanField( "Display Child Age/Grade", "By default, the person name is the only thing displayed. Select this option to display age and grade to help with child selections.", false, key: "DisplayChildAgeGrade" )]
-    [BinaryFileField( Rock.SystemGuid.BinaryFiletype.CHECKIN_LABEL, "Designated Single Label", "Select a label to print once per print job.  Unselect the label to print it with every print job.", false )]
-    [BooleanField( "Reprint Designated Label", "By default, the designated label will print once for each print job. Toggle this setting to print once for the page, regardless of how many print jobs are created.", true )]
-    [CodeEditorField( "Content Template", "The lava that will be used to render content to appear underneath the child's name.", CodeEditorMode.Lava, required: false )]
+    [CustomDropdownListField( "Display Names", "How should the group and location name be displayed?", "0^Show Location Names,1^Show Group Names,2^Show Group and Location Names", false, "0", "", 1 )]
+    [BooleanField( "Print Individual Labels", "Select this option to print one label per person's group, location, & schedule.", false, "", 2 )]
+    [BooleanField( "Remove Attendance On Checkout", "By default, the attendance is given a checkout date.  Select this option to completely remove attendance on checkout.", false, "", 3 )]
+    [BooleanField( "Display Child Age/Grade", "By default, the person name is the only thing displayed. Select this option to display age and grade to help with child selections.", false, "", 4, "DisplayChildAgeGrade" )]
+    [BinaryFileField( Rock.SystemGuid.BinaryFiletype.CHECKIN_LABEL, "Designated Single Label", "Select a label to print once per print job.  Unselect the label to print it with every print job.", false, "", "", 5 )]
+    [BooleanField( "Reprint Designated Label", "By default, the designated label will print once for each print job. Toggle this setting to print once for the page, regardless of how many print jobs are created.", true, "", 6 )]
+    [CodeEditorField( "Content Template", "The lava that will be used to render content to appear underneath the child's name.", CodeEditorMode.Lava, required: false, order: 7 )]
     public partial class Confirm : CheckInBlock
     {
         #region Fields
