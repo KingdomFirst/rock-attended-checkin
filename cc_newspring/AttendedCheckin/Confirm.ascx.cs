@@ -125,6 +125,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 gPersonList.Columns[2].Visible = true;
             }
 
+            var displayPreference = GetAttributeValue( "DisplayNames" ).AsType<int>();
             var checkInList = new List<Activity>();
             foreach ( var person in selectedPeopleList )
             {
@@ -137,7 +138,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                             foreach ( var schedule in location.Schedules.Where( s => s.Selected ) )
                             {
                                 var itemName = string.Empty;
-                                switch ( GetAttributeValue( "DisplayNames" ).AsType<int>() )
+                                switch ( displayPreference )
                                 {
                                     case 0:
                                         itemName = location.Location.Name;
