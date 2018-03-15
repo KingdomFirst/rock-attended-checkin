@@ -349,7 +349,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         groupsQueryable = groupsQueryable.Where( g => g.Group.Name.Equals( e.CommandName.ToString() ) );
                         break;
                 }
-                
+
                 var selectedGroup = groupsQueryable.FirstOrDefault();
                 if ( selectedGroup != null )
                 {
@@ -467,8 +467,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     case NameDisplay.GroupLocation:
                         var locationId = ViewState["locationId"] as int?;
                         var checkInGroup = (CheckInGroup)e.Item.DataItem;
-                        var checkInLocation = checkInGroup.Locations.FirstOrDefault( l => l.Location.Id == locationId )
-                            ?? checkInGroup.Locations.FirstOrDefault();
+                        var checkInLocation = checkInGroup.Locations.FirstOrDefault( l => l.Location.Id == locationId ) ?? checkInGroup.Locations.FirstOrDefault();
                         lbLocation.Text = string.Format( "{0} / {1}", checkInGroup.Group.Name, checkInLocation.Location.Name );
                         lbLocation.CommandName = checkInGroup.Group.Name;
                         lbLocation.CommandArgument = checkInLocation.Location.Id.ToString();
@@ -821,7 +820,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <summary>
         /// Binds the group types.
         /// </summary>
-        /// <param name="person">The person.</param>
+        /// <param name="groupTypes">The group types.</param>
+        /// <param name="groupTypeId">The group type identifier.</param>
         protected void BindGroupTypes( List<CheckInGroupType> groupTypes, int? groupTypeId = null )
         {
             groupTypeId = groupTypeId ?? ViewState["groupTypeId"].ToStringSafe().AsType<int?>();
@@ -848,7 +848,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <summary>
         /// Binds the locations.
         /// </summary>
-        /// <param name="person">The person.</param>
+        /// <param name="groupTypes">The group types.</param>
+        /// <param name="groupTypeId">The group type identifier.</param>
+        /// <param name="groupId">The group identifier.</param>
+        /// <param name="locationId">The location identifier.</param>
         protected void BindLocations( List<CheckInGroupType> groupTypes, int? groupTypeId = null, int? groupId = null, int? locationId = null )
         {
             groupTypeId = groupTypeId ?? ViewState["groupTypeId"].ToStringSafe().AsType<int?>();
@@ -882,6 +885,25 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 else
                 {
                     var allGroups = groupType.Groups.ToList();
+
+                    // Display GroupLocation needs to bind a row for each combo
+                    if ( DisplayPreference == NameDisplay.GroupLocation && groupType.Groups.Any( g => g.Locations.Count > 1 ) )
+                    {
+                        allGroups.Clear();
+                        foreach ( var group in groupType.Groups )
+                        {
+                            foreach( var location in group.Locations )
+                            {
+                                // bind a lightweight model with a single group/location
+                                allGroups.Add( new CheckInGroup {
+                                    Group = group.Group,
+                                    Locations = new List<CheckInLocation> { location },
+                                    Selected = group.Selected && location.Selected
+                                } );
+                            }
+                        }
+                    }
+
                     if ( GetAttributeValue( "SortGroupsByName" ).AsBoolean( true ) )
                     {
                         allGroups = allGroups.OrderBy( g => g.Group.Name ).ToList();
@@ -919,7 +941,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <summary>
         /// Binds the schedules.
         /// </summary>
-        /// <param name="person">The person.</param>
+        /// <param name="groupTypes">The group types.</param>
+        /// <param name="groupTypeId">The group type identifier.</param>
+        /// <param name="groupId">The group identifier.</param>
+        /// <param name="locationId">The location identifier.</param>
         protected void BindSchedules( List<CheckInGroupType> groupTypes, int? groupTypeId = null, int? groupId = null, int? locationId = null )
         {
             groupTypeId = groupTypeId ?? ViewState["groupTypeId"].ToStringSafe().AsType<int?>();
@@ -941,7 +966,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         pnlSchedules.Update();
                     }
                 }
-            }   
+            }
         }
 
         /// <summary>
@@ -1070,6 +1095,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <summary>
         /// Gets the current person.
         /// </summary>
+        /// <param name="personId">The person identifier.</param>
         /// <returns></returns>
         private CheckInPerson GetCurrentPerson( int? personId = null )
         {
