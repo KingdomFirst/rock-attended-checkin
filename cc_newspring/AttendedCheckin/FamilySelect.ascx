@@ -356,7 +356,7 @@
         var selectedIds = $("input[id$='hfPersonIds']").val();
         var personId = element.getAttribute('data-id');
         if (selectedIds.indexOf(personId) >= 0) { // already selected, remove id
-            var selectedIdRegex = new RegExp(personId + ',*', "g");
+            var selectedIdRegex = new RegExp(personId + ',', "g");
             $("input[id$='hfPersonIds']").val(selectedIds.replace(selectedIdRegex, ''));
         } else { // newly selected, add id
             $("input[id$='hfPersonIds']").val(personId + ',' + selectedIds);
