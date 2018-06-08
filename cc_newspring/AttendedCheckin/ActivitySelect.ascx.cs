@@ -25,6 +25,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [AttributeField( Rock.SystemGuid.EntityType.PERSON, "Person Special Needs Attribute", "Select the person attribute used to filter kids with special needs.", true, false, "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF", "", 3 )]
     [BooleanField( "Sort Groups By Name", "If false then groups, if displayed, are sorted by the Order they have been placed in on the check-in configuration screen.", true, "", 4 )]
     [AttributeField( Rock.SystemGuid.EntityType.PERSON, "Profile Attributes", "By default, Allergies and Legal Notes are displayed on Profile Edit.  Select others to allow editing.", false, true, "dbd192c9-0aa1-46ec-92ab-a3da8e056d31,f832ab6f-b684-4eea-8db4-c54b895c79ed", "", 5 )]
+    [BooleanField( "Track Assignment Changes", "By default, profile changes are tracked in Person History. Should changes to assignments be tracked as well?", false, "", 6)]
     public partial class ActivitySelect : CheckInBlock
     {
         #region Variables
@@ -225,44 +226,47 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var person = GetCurrentPerson();
             if ( person != null )
             {
-                var changes = new List<string>();
+                var assignmentChanges = new List<string>();
                 person.PreSelected = person.Selected;
                 var groupTypes = person.GroupTypes.ToList();
                 foreach ( var groupType in groupTypes )
                 {
-                    History.EvaluateChange( changes, string.Format( "{0} Grouptype", groupType ), groupType.PreSelected, groupType.Selected );
+                    History.EvaluateChange( assignmentChanges, string.Format( "{0} GroupType", groupType ), groupType.PreSelected, groupType.Selected );
                     groupType.PreSelected = groupType.Selected;
                 }
 
                 var groups = groupTypes.SelectMany( gt => gt.Groups ).ToList();
                 foreach ( var group in groups )
                 {
-                    History.EvaluateChange( changes, string.Format( "{0} Group", group ), group.PreSelected, group.Selected );
+                    History.EvaluateChange( assignmentChanges, string.Format( "{0} Group", group ), group.PreSelected, group.Selected );
                     group.PreSelected = group.Selected;
                 }
 
                 var locations = groups.SelectMany( g => g.Locations ).ToList();
                 foreach ( var location in locations )
                 {
-                    History.EvaluateChange( changes, string.Format( "{0} Location", location ), location.PreSelected, location.Selected );
+                    History.EvaluateChange( assignmentChanges, string.Format( "{0} Location", location ), location.PreSelected, location.Selected );
                     location.PreSelected = location.Selected;
                 }
 
                 var schedules = locations.SelectMany( l => l.Schedules ).ToList();
                 foreach ( var schedule in schedules )
                 {
-                    History.EvaluateChange( changes, string.Format( "{0} Schedule", schedule ), schedule.PreSelected, schedule.Selected );
+                    // don't track schedule changes
                     schedule.PreSelected = schedule.Selected;
                 }
 
-                HistoryService.AddChanges(
-                    new RockContext(),
-                    typeof( Person ),
-                    Rock.SystemGuid.Category.HISTORY_PERSON_ACTIVITY.AsGuid(),
-                    person.Person.Id,
-                    changes,
-                    CurrentPersonAliasId
-                );
+                if ( GetAttributeValue( "TrackAssignmentChanges" ).AsBoolean() )
+                {
+                    Task.Run( () =>
+                        HistoryService.SaveChanges(
+                            new RockContext(),
+                            typeof( Person ),
+                            Rock.SystemGuid.Category.HISTORY_PERSON_ACTIVITY.AsGuid(),
+                            person.Person.Id,
+                            assignmentChanges, true, CurrentPersonAliasId )
+                    );
+                }
             }
             else
             {
@@ -669,24 +673,30 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
             CheckInPerson currentPerson = GetCurrentPerson();
             var rockContext = new RockContext();
+            var profileChanges = new List<string>();
             Person person = new PersonService( rockContext ).Get( currentPerson.Person.Id );
             person.LoadAttributes();
 
+            History.EvaluateChange( profileChanges, "First Name", person.FirstName, tbFirstName.Text );
             person.FirstName = tbFirstName.Text;
             currentPerson.Person.FirstName = tbFirstName.Text;
 
+            History.EvaluateChange( profileChanges, "Last Name", person.LastName, tbLastName.Text );
             person.LastName = tbLastName.Text;
             currentPerson.Person.LastName = tbLastName.Text;
 
+            History.EvaluateChange( profileChanges, "Gender", person.Gender, ddlPersonGender.SelectedValueAsEnum<Gender>() );
             person.Gender = ddlPersonGender.SelectedValueAsEnum<Gender>();
             currentPerson.Person.Gender = ddlPersonGender.SelectedValueAsEnum<Gender>();
 
+            History.EvaluateChange( profileChanges, "Suffix", person.SuffixValueId, ddlSuffix.SelectedValueAsId() );
             person.SuffixValueId = ddlSuffix.SelectedValueAsId();
             currentPerson.Person.SuffixValueId = ddlSuffix.SelectedValueAsId();
 
             var DOB = dpDOB.SelectedDate;
             if ( DOB != null )
             {
+                History.EvaluateChange( profileChanges, "Date of Birth", person.BirthDate, dpDOB.SelectedDate );
                 person.BirthDay = ( (DateTime)DOB ).Day;
                 currentPerson.Person.BirthDay = ( (DateTime)DOB ).Day;
                 person.BirthMonth = ( (DateTime)DOB ).Month;
@@ -700,6 +710,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 var unformattedNumber = tbPhone.Text.RemoveSpecialCharacters();
                 if ( !person.PhoneNumbers.Any( pn => pn.Number.Equals( unformattedNumber ) ) )
                 {
+                    History.EvaluateChange( profileChanges, "Phone Number", string.Empty, tbPhone.Text );
                     var homePhoneType = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.PERSON_PHONE_TYPE_HOME.AsGuid(), rockContext );
                     var countryCodes = DefinedTypeCache.Read( Rock.SystemGuid.DefinedType.COMMUNICATION_PHONE_COUNTRY_CODE.AsGuid() ).DefinedValues;
                     person.PhoneNumbers.Add( new PhoneNumber
@@ -722,9 +733,11 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }
             }
 
+            History.EvaluateChange( profileChanges, "Email", person.Email, tbEmail.Text);
             person.Email = tbEmail.Text;
             currentPerson.Person.Email = tbEmail.Text;
 
+            History.EvaluateChange( profileChanges, "Nickname", person.NickName, tbNickname.Text );
             person.NickName = tbNickname.Text.Length > 0 ? tbNickname.Text : tbFirstName.Text;
             currentPerson.Person.NickName = tbNickname.Text.Length > 0 ? tbNickname.Text : tbFirstName.Text;
             var optionGroup = ddlAbilityGrade.SelectedItem.Attributes["optiongroup"];
@@ -734,24 +747,21 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 // Selected ability level
                 if ( optionGroup == "Ability" )
                 {
+                    History.EvaluateChange( profileChanges, "Ability Level", person.GetAttributeValue( "AbilityLevel" ), ddlAbilityGrade.SelectedValue );
                     person.SetAttributeValue( "AbilityLevel", ddlAbilityGrade.SelectedValue );
                     currentPerson.Person.SetAttributeValue( "AbilityLevel", ddlAbilityGrade.SelectedValue );
-
-                    person.GradeOffset = null;
-                    currentPerson.Person.GradeOffset = null;
                 }
                 // Selected a grade
                 else if ( optionGroup == "Grade" )
                 {
+                    History.EvaluateChange( profileChanges, "Grade", person.GradeFormatted, ddlAbilityGrade.SelectedValue );
                     person.GradeOffset = ddlAbilityGrade.SelectedValueAsId();
                     currentPerson.Person.GradeOffset = ddlAbilityGrade.SelectedValueAsId();
-
-                    person.Attributes.Remove( "AbilityLevel" );
-                    currentPerson.Person.Attributes.Remove( "AbilityLevel" );
                 }
             }
 
             // Always save the special needs value
+            History.EvaluateChange( profileChanges, "Special Needs", person.GetAttributeValue( SpecialNeedsKey ), cbSpecialNeeds.Checked ? "Yes" : "False" );
             person.SetAttributeValue( SpecialNeedsKey, cbSpecialNeeds.Checked ? "Yes" : string.Empty );
             currentPerson.Person.SetAttributeValue( SpecialNeedsKey, cbSpecialNeeds.Checked ? "Yes" : string.Empty );
 
