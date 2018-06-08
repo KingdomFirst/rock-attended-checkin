@@ -328,6 +328,10 @@ button.close {
   letter-spacing: -.5px;
 }
 
+.button-bar .btn {
+    width: inherit;
+}
+
 .btn-checkin-select {
   padding-top: 15px;
   margin-bottom: 12px;
