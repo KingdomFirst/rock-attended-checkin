@@ -1047,6 +1047,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 tbLastName.Text = person.LastName;
                 tbNickname.Text = person.NickName;
                 dpDOB.SelectedDate = person.BirthDate;
+                ddlPersonGender.SelectedIndex = (int)person.Gender;
                 cbSpecialNeeds.Checked = person.GetAttributeValue( SpecialNeedsKey ).AsBoolean();
 
                 tbPhone.Text = person.PhoneNumbers.Select( v => v.NumberFormatted ).FirstOrDefault();
