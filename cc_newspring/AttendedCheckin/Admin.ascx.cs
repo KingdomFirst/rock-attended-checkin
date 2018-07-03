@@ -84,6 +84,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     CurrentCheckInState = null;
                     CurrentWorkflow = null;
 
+                    // If checkin type not set, try to calculate it from the group types.
                     if ( !CurrentCheckinTypeId.HasValue )
                     {
                         foreach ( int groupTypeId in CurrentGroupTypeIds )
@@ -125,13 +126,16 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     string script = string.Format( @"<script>
                         $(document).ready(function (e) {{
                             if (localStorage) {{
-                                if (localStorage.checkInKiosk) {{
-                                    $('[id$=""hfKiosk""]').val(localStorage.checkInKiosk);
-                                    if (localStorage.checkInType) {{
-                                        $('[id$=""hfCheckinType""]').val(localStorage.checkInType);
+                                if (localStorage.attendedKiosk) {{
+                                    $('[id$=""hfKiosk""]').val(localStorage.attendedKiosk);
+                                    if (localStorage.attendedTheme) {{
+                                        $('[id$=""hfTheme""]').val(localStorage.attendedTheme);
                                     }}
-                                    if (localStorage.checkInGroupTypes) {{
-                                        $('[id$=""hfGroupTypes""]').val(localStorage.checkInGroupTypes);
+                                    if (localStorage.attendedType) {{
+                                        $('[id$=""hfCheckinType""]').val(localStorage.attendedType);
+                                    }}
+                                    if (localStorage.attendedGroupTypes) {{
+                                        $('[id$=""hfGroupTypes""]').val(localStorage.attendedGroupTypes);
                                     }}
                                 }}
                                 window.location = ""javascript:{0}"";
@@ -176,25 +180,25 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             {
                 hostName = Dns.GetHostEntry( ipAddress ).HostName;
             }
-            catch ( System.Net.Sockets.SocketException )
+            catch ( SocketException )
             {
                 hostName = "Unknown";
             }
 
             if ( device != null )
             {
+                ClearMobileCookie();
+                CurrentKioskId = device.Id;
+                
                 var location = device.Locations.FirstOrDefault();
                 if ( location != null )
                 {
                     deviceLocation = location.Name;
                 }
-
-                ClearMobileCookie();
-                CurrentKioskId = device.Id;
             }
             else
             {
-                maAlert.Show( "This device has not been set up for check-in.", ModalAlertType.Alert );
+                maAlert.Show( "This device does not match a known check-in station.", ModalAlertType.Alert );
                 lbOk.Text = @"<span class='fa fa-refresh' />";
                 lbOk.Enabled = false;
             }
