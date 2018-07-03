@@ -134,7 +134,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                         $('[id$=""hfGroupTypes""]').val(localStorage.checkInGroupTypes);
                                     }}
                                 }}
-                                {0};
+                                window.location = ""javascript:{0}"";
                             }}
                         }});
                         </script>", this.Page.ClientScript.GetPostBackEventReference( lbRefresh, "" )
@@ -363,7 +363,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         $(""div.checkin-header h1"").html( 'Checking Your Location...' );
                         $(""div.checkin-header"").append( ""<p class='muted'>"" + latitude + "" "" + longitude + ""</p>"" );
                         // now perform a postback to fire the check geo location
-                        {0};
+                        window.location = ""javascript:{0}"";
                     }}
 
                     function error_callback( p ) {{
@@ -491,7 +491,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <summary>
         /// Binds the group types.
         /// </summary>
-        /// <param name="selectedValues">The selected values.</param>
+        /// <param name="rockContext">The rock context.</param>
         private void BindGroupTypes( RockContext rockContext = null )
         {
             if ( CurrentKioskId > 0 )
@@ -508,6 +508,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// Gets the device group types.
         /// </summary>
         /// <param name="deviceId">The device identifier.</param>
+        /// <param name="rockContext">The rock context.</param>
         /// <returns></returns>
         private List<GroupType> GetDeviceGroupTypes( int deviceId, RockContext rockContext = null )
         {
