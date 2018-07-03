@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.UI.WebControls;
 using Rock;
+using Rock.Cache;
 using Rock.CheckIn;
-using Rock.Web.Cache;
 using Rock.Web.UI.Controls;
 
 namespace cc.newspring.AttendedCheckIn.Utility
@@ -17,7 +17,7 @@ namespace cc.newspring.AttendedCheckIn.Utility
         /// <returns></returns>
         public static List<ListItem> GetAbilityItems()
         {
-            var abilities = DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_ABILITY_LEVEL_TYPE ) ).DefinedValues;
+            var abilities = CacheDefinedType.Get( new Guid( Rock.SystemGuid.DefinedType.PERSON_ABILITY_LEVEL_TYPE ) ).DefinedValues;
 
             if ( abilities.Count > 0 )
             {
@@ -33,7 +33,7 @@ namespace cc.newspring.AttendedCheckIn.Utility
         /// <returns></returns>
         public static List<ListItem> GetGradeItems()
         {
-            var grades = DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.SCHOOL_GRADES ) ).DefinedValues;
+            var grades = CacheDefinedType.Get( new Guid( Rock.SystemGuid.DefinedType.SCHOOL_GRADES ) ).DefinedValues;
             if ( grades.Count > 0 )
             {
                 return grades.Select( dv => new ListItem( dv.Description, dv.Value.ToString() ) ).ToList();
@@ -104,7 +104,7 @@ namespace cc.newspring.AttendedCheckIn.Utility
         public static int ReadAttendanceBySchedule( int locationId, int? scheduleId )
         {
             var attendanceCount = 0;
-            var attendanceCache = KioskLocationAttendance.Read( locationId );
+            var attendanceCache = KioskLocationAttendance.Get( locationId );
 
             if ( attendanceCache != null )
             {
