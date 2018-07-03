@@ -112,7 +112,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
             function refreshKiosk() {{
                 window.clearTimeout(timeout);
-                {1};
+                window.location = ""javascript:{1}"";
             }}
             ", ( CurrentCheckInType != null ? CurrentCheckInType.RefreshInterval.ToString() : "60" ), this.Page.ClientScript.GetPostBackEventReference( lbRefresh, "" ) );
 

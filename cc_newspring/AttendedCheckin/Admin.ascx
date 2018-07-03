@@ -11,13 +11,13 @@
         <asp:HiddenField ID="hfCheckinType" runat="server" />
         <asp:HiddenField ID="hfGroupTypes" runat="server" />
 
-        <Rock:ModalAlert ID="maAlert" runat="server" />
-
         <div style="display: none">
             <asp:LinkButton ID="lbTestPrint" runat="server" />
             <asp:LinkButton ID="lbRefresh" runat="server" OnClick="lbRefresh_Click" />
             <asp:LinkButton ID="lbCheckGeoLocation" runat="server" OnClick="lbCheckGeoLocation_Click" />
         </div>
+
+        <Rock:ModalAlert ID="maAlert" runat="server" />
 
         <asp:Panel ID="pnlAdmin" runat="server" DefaultButton="lbOk" CssClass="attended">
             <asp:UpdatePanel ID="pnlHeader" runat="server" UpdateMode="Conditional">
@@ -58,7 +58,7 @@
         var selectedIds = $("input[id$='hfGroupTypes']").val();
         var groupTypeId = element.getAttribute('data-id');
         if (selectedIds.indexOf(groupTypeId) >= 0) { // already selected, remove id
-            var selectedIdRegex = new RegExp(groupTypeId + ',*', "g");
+            var selectedIdRegex = new RegExp(groupTypeId + ',', "g");
             $("input[id$='hfGroupTypes']").val(selectedIds.replace(selectedIdRegex, ''));
         } else { // newly selected, add id
             $("input[id$='hfGroupTypes']").val(groupTypeId + ',' + selectedIds);
