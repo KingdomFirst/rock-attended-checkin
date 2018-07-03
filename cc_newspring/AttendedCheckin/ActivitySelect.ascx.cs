@@ -8,6 +8,7 @@ using System.Web.UI.WebControls;
 using cc.newspring.AttendedCheckIn.Utility;
 using Rock;
 using Rock.Attribute;
+using Rock.Cache;
 using Rock.CheckIn;
 using Rock.Data;
 using Rock.Lava;
@@ -70,7 +71,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     var personSpecialNeedsGuid = GetAttributeValue( "PersonSpecialNeedsAttribute" ).AsGuid();
                     if ( personSpecialNeedsGuid != Guid.Empty )
                     {
-                        specialNeedsKey = new RockContext().Attributes.Where( a => a.Guid == personSpecialNeedsGuid ).Select( a => a.Key ).FirstOrDefault();
+                        specialNeedsKey = CacheAttribute.Get( personSpecialNeedsGuid ).Key;
                         ViewState["SpecialNeedsKey"] = specialNeedsKey;
                         return specialNeedsKey;
                     }
@@ -137,26 +138,26 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                 if ( person != null && person.GroupTypes.Any() )
                 {
-                    int? selectedGroupTypeId = person.GroupTypes.Where( gt => gt.Selected )
+                    var selectedGroupTypeId = person.GroupTypes.Where( gt => gt.Selected )
                         .Select( gt => (int?)gt.GroupType.Id ).FirstOrDefault();
                     if ( selectedGroupTypeId != null )
                     {
                         ViewState["groupTypeId"] = selectedGroupTypeId;
                     }
 
-                    int? selectedGroupId = Request.QueryString["groupId"].AsType<int?>();
+                    var selectedGroupId = Request.QueryString["groupId"].AsType<int?>();
                     if ( selectedGroupId > 0 )
                     {
                         ViewState["groupId"] = selectedGroupId;
                     }
 
-                    int? selectedLocationId = Request.QueryString["locationId"].AsType<int?>();
+                    var selectedLocationId = Request.QueryString["locationId"].AsType<int?>();
                     if ( selectedLocationId > 0 )
                     {
                         ViewState["locationId"] = selectedLocationId;
                     }
 
-                    int? selectedScheduleId = Request.QueryString["scheduleId"].AsType<int?>();
+                    var selectedScheduleId = Request.QueryString["scheduleId"].AsType<int?>();
                     if ( selectedScheduleId > 0 )
                     {
                         ViewState["scheduleId"] = selectedScheduleId;
@@ -186,7 +187,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var attributeGuidList = GetAttributeValue( "ProfileAttributes" ).SplitDelimitedValues();
             foreach( var attributeGuid in attributeGuidList )
             {
-                AttributeCache.Read( new Guid( attributeGuid ) ).AddControl( phAttributes.Controls, string.Empty, "", true, true );
+                CacheAttribute.Get( new Guid( attributeGuid ) ).AddControl( phAttributes.Controls, string.Empty, "", true, true );
             }
 
             hdrLocations.InnerText = DisplayPreference.GetDescription();
@@ -227,7 +228,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var person = GetCurrentPerson();
             if ( person != null )
             {
-                var assignmentChanges = new List<string>();
+                var assignmentChanges = new History.HistoryChangeList();
                 person.PreSelected = person.Selected;
                 var groupTypes = person.GroupTypes.ToList();
                 foreach ( var groupType in groupTypes )
@@ -259,14 +260,17 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                 if ( GetAttributeValue( "TrackAssignmentChanges" ).AsBoolean() )
                 {
-                    Task.Run( () =>
-                        HistoryService.SaveChanges(
-                            new RockContext(),
+                    using ( var rockContext = new RockContext() )
+                    {
+                        Task.Run( () =>
+                            HistoryService.SaveChanges(
+                            rockContext,
                             typeof( Person ),
                             Rock.SystemGuid.Category.HISTORY_PERSON_ACTIVITY.AsGuid(),
                             person.Person.Id,
                             assignmentChanges, true, CurrentPersonAliasId )
-                    );
+                            );
+                    }
                 }
             }
             else
@@ -337,8 +341,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     }
                 }
 
-                int? groupTypeId = ViewState["groupTypeId"].ToStringSafe().AsType<int?>();
-                int? selectedLocationId = e.CommandArgument.ToStringSafe().AsType<int?>();
+                var groupTypeId = ViewState["groupTypeId"].ToStringSafe().AsType<int?>();
+                var selectedLocationId = e.CommandArgument.ToStringSafe().AsType<int?>();
                 var groupsQueryable = person.GroupTypes.Where( gt => gt.GroupType.Id == groupTypeId )
                     .SelectMany( gt => gt.Groups ).AsQueryable();
 
@@ -393,10 +397,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     }
                 }
 
-                int? groupTypeId = ViewState["groupTypeId"].ToStringSafe().AsType<int?>();
-                int? groupId = ViewState["groupId"].ToStringSafe().AsType<int?>();
-                int? locationId = ViewState["locationId"].ToStringSafe().AsType<int?>();
-                int? scheduleId = e.CommandArgument.ToStringSafe().AsType<int?>();
+                var groupTypeId = ViewState["groupTypeId"].ToStringSafe().AsType<int?>();
+                var groupId = ViewState["groupId"].ToStringSafe().AsType<int?>();
+                var locationId = ViewState["locationId"].ToStringSafe().AsType<int?>();
+                var scheduleId = e.CommandArgument.ToStringSafe().AsType<int?>();
 
                 // set this selected group, location, and schedule
                 var selectedGroupType = person.GroupTypes.FirstOrDefault( gt => gt.GroupType.Id == groupTypeId );
@@ -449,7 +453,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             if ( e.Item.ItemType == ListViewItemType.DataItem )
             {
                 var lbLocation = (LinkButton)e.Item.FindControl( "lbLocation" );
-                bool itemSelected = false;
+                var itemSelected = false;
 
                 switch ( DisplayPreference )
                 {
@@ -552,7 +556,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             if ( person != null )
             {
                 // Delete an item. Remove the selected attribute from the group, location and schedule
-                int index = e.RowIndex;
+                var index = e.RowIndex;
                 var row = gSelectedGrid.Rows[index];
                 var dataKeyValues = gSelectedGrid.DataKeys[index].Values;
                 var groupId = int.Parse( dataKeyValues["GroupId"].ToString() );
@@ -581,37 +585,39 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     var selectedSchedule = selectedLocation.Schedules.FirstOrDefault( s => s.Selected
                         && s.Schedule.Id == scheduleId );
 
-                    bool currentlyCheckedIn = selectedSchedule.LastCheckIn != null && selectedSchedule.LastCheckIn > RockDateTime.Now;
+                    var currentlyCheckedIn = selectedSchedule.LastCheckIn != null && selectedSchedule.LastCheckIn > RockDateTime.Now;
                     if ( currentlyCheckedIn )
                     {
-                        bool removeAttendance = GetAttributeValue( "RemoveAttendanceOnCheckout" ).AsBoolean();
+                        var removeAttendance = GetAttributeValue( "RemoveAttendanceOnCheckout" ).AsBoolean();
 
                         // run task asynchronously so the UI doesn't slow down
                         Task.Run( () =>
                         {
-                            var rockContext = new RockContext();
-                            var today = RockDateTime.Now.Date;
-                            var tomorrow = today.AddDays( 1 );
-                            var personAttendance = rockContext.Attendances.FirstOrDefault( a => a.StartDateTime >= today
-                                && a.StartDateTime < tomorrow
-                                && a.LocationId == locationId
-                                && a.ScheduleId == scheduleId
-                                && a.GroupId == groupId
-                                && a.PersonAlias.PersonId == person.Person.Id
-                            );
-
-                            if ( personAttendance != null )
+                            using ( var rockContext = new RockContext() )
                             {
-                                if ( removeAttendance )
-                                {
-                                    rockContext.Attendances.Remove( personAttendance );
-                                }
-                                else
-                                {
-                                    personAttendance.EndDateTime = RockDateTime.Now;
-                                }
+                                var today = RockDateTime.Now.Date;
+                                var tomorrow = today.AddDays( 1 );
+                                var personAttendance = rockContext.Attendances.FirstOrDefault( a => a.StartDateTime >= today
+                                    && a.StartDateTime < tomorrow
+                                    && a.Occurrence.LocationId == locationId
+                                    && a.Occurrence.ScheduleId == scheduleId
+                                    && a.Occurrence.GroupId == groupId
+                                    && a.PersonAlias.PersonId == person.Person.Id
+                                );
 
-                                rockContext.SaveChanges();
+                                if ( personAttendance != null )
+                                {
+                                    if ( removeAttendance )
+                                    {
+                                        rockContext.Attendances.Remove( personAttendance );
+                                    }
+                                    else
+                                    {
+                                        personAttendance.EndDateTime = RockDateTime.Now;
+                                    }
+
+                                    rockContext.SaveChanges();
+                                }
                             }
                         } );
                     }
@@ -672,50 +678,50 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 return;
             }
 
-            CheckInPerson currentPerson = GetCurrentPerson();
+            var checkinPerson = GetCurrentPerson();
             var rockContext = new RockContext();
-            var profileChanges = new List<string>();
-            Person person = new PersonService( rockContext ).Get( currentPerson.Person.Id );
-            person.LoadAttributes();
+            var profileChanges = new History.HistoryChangeList();
+            var dbPerson = new PersonService( rockContext ).Get( checkinPerson.Person.Id );
+            dbPerson.LoadAttributes();
 
-            History.EvaluateChange( profileChanges, "First Name", person.FirstName, tbFirstName.Text );
-            person.FirstName = tbFirstName.Text;
-            currentPerson.Person.FirstName = tbFirstName.Text;
+            History.EvaluateChange( profileChanges, "First Name", dbPerson.FirstName, tbFirstName.Text );
+            dbPerson.FirstName = tbFirstName.Text;
+            checkinPerson.Person.FirstName = tbFirstName.Text;
 
-            History.EvaluateChange( profileChanges, "Last Name", person.LastName, tbLastName.Text );
-            person.LastName = tbLastName.Text;
-            currentPerson.Person.LastName = tbLastName.Text;
+            History.EvaluateChange( profileChanges, "Last Name", dbPerson.LastName, tbLastName.Text );
+            dbPerson.LastName = tbLastName.Text;
+            checkinPerson.Person.LastName = tbLastName.Text;
 
-            History.EvaluateChange( profileChanges, "Gender", person.Gender, ddlPersonGender.SelectedValueAsEnum<Gender>() );
-            person.Gender = ddlPersonGender.SelectedValueAsEnum<Gender>();
-            currentPerson.Person.Gender = ddlPersonGender.SelectedValueAsEnum<Gender>();
+            History.EvaluateChange( profileChanges, "Gender", dbPerson.Gender, ddlPersonGender.SelectedValueAsEnum<Gender>() );
+            dbPerson.Gender = ddlPersonGender.SelectedValueAsEnum<Gender>();
+            checkinPerson.Person.Gender = ddlPersonGender.SelectedValueAsEnum<Gender>();
 
-            History.EvaluateChange( profileChanges, "Suffix", person.SuffixValueId, ddlSuffix.SelectedValueAsId() );
-            person.SuffixValueId = ddlSuffix.SelectedValueAsId();
-            currentPerson.Person.SuffixValueId = ddlSuffix.SelectedValueAsId();
+            History.EvaluateChange( profileChanges, "Suffix", dbPerson.SuffixValueId, ddlSuffix.SelectedValueAsId() );
+            dbPerson.SuffixValueId = ddlSuffix.SelectedValueAsId();
+            checkinPerson.Person.SuffixValueId = ddlSuffix.SelectedValueAsId();
 
             var DOB = dpDOB.SelectedDate;
             if ( DOB != null )
             {
-                History.EvaluateChange( profileChanges, "Date of Birth", person.BirthDate, dpDOB.SelectedDate );
-                person.BirthDay = ( (DateTime)DOB ).Day;
-                currentPerson.Person.BirthDay = ( (DateTime)DOB ).Day;
-                person.BirthMonth = ( (DateTime)DOB ).Month;
-                currentPerson.Person.BirthMonth = ( (DateTime)DOB ).Month;
-                person.BirthYear = ( (DateTime)DOB ).Year;
-                currentPerson.Person.BirthYear = ( (DateTime)DOB ).Year;
+                History.EvaluateChange( profileChanges, "Date of Birth", dbPerson.BirthDate, dpDOB.SelectedDate );
+                dbPerson.BirthDay = ( (DateTime)DOB ).Day;
+                checkinPerson.Person.BirthDay = ( (DateTime)DOB ).Day;
+                dbPerson.BirthMonth = ( (DateTime)DOB ).Month;
+                checkinPerson.Person.BirthMonth = ( (DateTime)DOB ).Month;
+                dbPerson.BirthYear = ( (DateTime)DOB ).Year;
+                checkinPerson.Person.BirthYear = ( (DateTime)DOB ).Year;
             }
 
             if ( !string.IsNullOrWhiteSpace( tbPhone.Text ) )
             {
                 var unformattedNumber = tbPhone.Text.RemoveSpecialCharacters();
-                var personPhoneType = DefinedValueCache.Read( GetAttributeValue( "DefaultPhoneType" ).AsGuid(), rockContext );                
-                var countryCodes = DefinedTypeCache.Read( Rock.SystemGuid.DefinedType.COMMUNICATION_PHONE_COUNTRY_CODE.AsGuid() ).DefinedValues;
-                var phoneNumber = person.PhoneNumbers.FirstOrDefault( n => n.NumberTypeValueId == personPhoneType.Id );
+                var personPhoneType = CacheDefinedValue.Get( GetAttributeValue( "DefaultPhoneType" ).AsGuid(), rockContext );                
+                var countryCodes = CacheDefinedType.Get( Rock.SystemGuid.DefinedType.COMMUNICATION_PHONE_COUNTRY_CODE.AsGuid() ).DefinedValues;
+                var phoneNumber = dbPerson.PhoneNumbers.FirstOrDefault( n => n.NumberTypeValueId == personPhoneType.Id );
                 if ( phoneNumber == null )
                 {
                     History.EvaluateChange( profileChanges, "Phone Number", string.Empty, tbPhone.Text );
-                    person.PhoneNumbers.Add( new PhoneNumber
+                    dbPerson.PhoneNumbers.Add( new PhoneNumber
                     {
                         CountryCode = countryCodes.Select( v => v.Value ).FirstOrDefault(),
                         NumberTypeValueId = personPhoneType.Id,
@@ -724,7 +730,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         IsMessagingEnabled = true
                     } );
 
-                    currentPerson.Person.PhoneNumbers.Add( new PhoneNumber
+                    checkinPerson.Person.PhoneNumbers.Add( new PhoneNumber
                     {
                         CountryCode = countryCodes.Select( v => v.Value ).FirstOrDefault(),
                         NumberTypeValueId = personPhoneType.Id,
@@ -740,13 +746,13 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }
             }
 
-            History.EvaluateChange( profileChanges, "Email", person.Email, tbEmail.Text);
-            person.Email = tbEmail.Text;
-            currentPerson.Person.Email = tbEmail.Text;
+            History.EvaluateChange( profileChanges, "Email", dbPerson.Email, tbEmail.Text);
+            dbPerson.Email = tbEmail.Text;
+            checkinPerson.Person.Email = tbEmail.Text;
 
-            History.EvaluateChange( profileChanges, "Nickname", person.NickName, tbNickname.Text );
-            person.NickName = tbNickname.Text.Length > 0 ? tbNickname.Text : tbFirstName.Text;
-            currentPerson.Person.NickName = tbNickname.Text.Length > 0 ? tbNickname.Text : tbFirstName.Text;
+            History.EvaluateChange( profileChanges, "Nickname", dbPerson.NickName, tbNickname.Text );
+            dbPerson.NickName = tbNickname.Text.Length > 0 ? tbNickname.Text : tbFirstName.Text;
+            checkinPerson.Person.NickName = tbNickname.Text.Length > 0 ? tbNickname.Text : tbFirstName.Text;
             var optionGroup = ddlAbilityGrade.SelectedItem.Attributes["optiongroup"];
 
             if ( !string.IsNullOrEmpty( optionGroup ) )
@@ -754,41 +760,41 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 // Selected ability level
                 if ( optionGroup == "Ability" )
                 {
-                    History.EvaluateChange( profileChanges, "Ability Level", person.GetAttributeValue( "AbilityLevel" ), ddlAbilityGrade.SelectedValue );
-                    person.SetAttributeValue( "AbilityLevel", ddlAbilityGrade.SelectedValue );
-                    currentPerson.Person.SetAttributeValue( "AbilityLevel", ddlAbilityGrade.SelectedValue );
+                    History.EvaluateChange( profileChanges, "Ability Level", dbPerson.GetAttributeValue( "AbilityLevel" ), ddlAbilityGrade.SelectedValue );
+                    dbPerson.SetAttributeValue( "AbilityLevel", ddlAbilityGrade.SelectedValue );
+                    checkinPerson.Person.SetAttributeValue( "AbilityLevel", ddlAbilityGrade.SelectedValue );
                 }
                 // Selected a grade
                 else if ( optionGroup == "Grade" )
                 {
-                    History.EvaluateChange( profileChanges, "Grade", person.GradeFormatted, ddlAbilityGrade.SelectedValue );
-                    person.GradeOffset = ddlAbilityGrade.SelectedValueAsId();
-                    currentPerson.Person.GradeOffset = ddlAbilityGrade.SelectedValueAsId();
+                    History.EvaluateChange( profileChanges, "Grade", dbPerson.GradeFormatted, ddlAbilityGrade.SelectedValue );
+                    dbPerson.GradeOffset = ddlAbilityGrade.SelectedValueAsId();
+                    checkinPerson.Person.GradeOffset = ddlAbilityGrade.SelectedValueAsId();
                 }
             }
 
             // Always save the special needs value
-            History.EvaluateChange( profileChanges, "Special Needs", person.GetAttributeValue( SpecialNeedsKey ), cbSpecialNeeds.Checked ? "Yes" : "False" );
-            person.SetAttributeValue( SpecialNeedsKey, cbSpecialNeeds.Checked ? "Yes" : string.Empty );
-            currentPerson.Person.SetAttributeValue( SpecialNeedsKey, cbSpecialNeeds.Checked ? "Yes" : string.Empty );
+            History.EvaluateChange( profileChanges, "Special Needs", dbPerson.GetAttributeValue( SpecialNeedsKey ), cbSpecialNeeds.Checked ? "Yes" : "False" );
+            dbPerson.SetAttributeValue( SpecialNeedsKey, cbSpecialNeeds.Checked ? "Yes" : string.Empty );
+            checkinPerson.Person.SetAttributeValue( SpecialNeedsKey, cbSpecialNeeds.Checked ? "Yes" : string.Empty );
 
             // Store the attribute values
             var attributeGuidList = GetAttributeValue( "ProfileAttributes" ).SplitDelimitedValues();
             foreach ( var attributeGuid in attributeGuidList )
             {
-                var attribute = AttributeCache.Read( new Guid( attributeGuid ), rockContext );
+                var attribute = CacheAttribute.Get( new Guid( attributeGuid ), rockContext );
                 var attributeControl = phAttributes.FindControl( string.Format( "attribute_field_{0}", attribute.Id ) );
                 if ( attributeControl != null )
                 {
-                    person.SetAttributeValue( attribute.Key, attribute.FieldType.Field
+                    dbPerson.SetAttributeValue( attribute.Key, attribute.FieldType.Field
                         .GetEditValue( attributeControl, attribute.QualifierValues ) );
-                    currentPerson.Person.SetAttributeValue( attribute.Key, attribute.FieldType.Field
+                    checkinPerson.Person.SetAttributeValue( attribute.Key, attribute.FieldType.Field
                         .GetEditValue( attributeControl, attribute.QualifierValues ) );
                 }
             }
 
             // Save the attribute change to the db (CheckinPerson already tracked)
-            person.SaveAttributeValues();
+            dbPerson.SaveAttributeValues();
             rockContext.SaveChanges();
             mdlInfo.Hide();
         }
@@ -883,7 +889,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     groupType = groupTypes.FirstOrDefault();
                 }
 
-                int placeInList = 1;
+                var placeInList = 1;
                 IEnumerable<ILiquidizable> items = null;
                 if ( DisplayPreference == NameDisplay.Location )
                 {
@@ -1020,13 +1026,15 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                     break;
                             }
 
-                            var checkIn = new Activity();
-                            checkIn.StartTime = Convert.ToDateTime( schedule.StartTime );
-                            checkIn.GroupId = group.Group.Id;
-                            checkIn.Location = selectionName;
-                            checkIn.LocationId = location.Location.Id;
-                            checkIn.Schedule = schedule.Schedule.Name;
-                            checkIn.ScheduleId = schedule.Schedule.Id;
+                            var checkIn = new Activity
+                            {
+                                StartTime = Convert.ToDateTime( schedule.StartTime ),
+                                GroupId = group.Group.Id,
+                                Location = selectionName,
+                                LocationId = location.Location.Id,
+                                Schedule = schedule.Schedule.Name,
+                                ScheduleId = schedule.Schedule.Id
+                            };
                             checkInList.Add( checkIn );
                         }
                     }
@@ -1055,8 +1063,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             {
                 ddlAbilityGrade.LoadAbilityAndGradeItems();
                 ddlPersonGender.BindToEnum<Gender>();
-                ddlSuffix.BindToDefinedType( DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_SUFFIX ) ), true );
-                var personPhoneType = DefinedValueCache.Read( GetAttributeValue( "DefaultPhoneType" ).AsGuid() );
+                ddlSuffix.BindToDefinedType( CacheDefinedType.Get( new Guid( Rock.SystemGuid.DefinedType.PERSON_SUFFIX ) ), true );
+                var personPhoneType = CacheDefinedValue.Get( GetAttributeValue( "DefaultPhoneType" ).AsGuid() );
 
                 ViewState["lblAbilityGrade"] = ddlAbilityGrade.Label;
                 person.LoadAttributes();
@@ -1098,7 +1106,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 var attributeGuidList = GetAttributeValue( "ProfileAttributes" ).SplitDelimitedValues();
                 foreach ( var attributeGuid in attributeGuidList )
                 {
-                    var attribute = AttributeCache.Read( new Guid( attributeGuid ) );
+                    var attribute = CacheAttribute.Get( new Guid( attributeGuid ) );
                     if ( attribute != null )
                     {
                         attribute.AddControl( phAttributes.Controls, person.GetAttributeValue( attribute.Key ), "", true, true );
@@ -1146,7 +1154,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 {
                     var attendance = new ScheduleAttendance();
                     attendance.ScheduleId = schedule.Schedule.Id;
-                    attendance.AttendanceCount = attendanceQuery.Where( l => l.ScheduleId == attendance.ScheduleId ).Count();
+                    attendance.AttendanceCount = attendanceQuery.Count( l => l.Occurrence.ScheduleId == attendance.ScheduleId );
                     ScheduleAttendanceList.Add( attendance );
                 }
             }

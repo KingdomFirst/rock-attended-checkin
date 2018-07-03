@@ -96,7 +96,7 @@
                     </asp:UpdatePanel>
 
                     <div class="">
-                        <asp:LinkButton ID="lbEditInfo" runat="server" Text="Update Profile" CssClass="btn btn-primary btn-lg" OnClick="lbEditInfo_Click" CausesValidation="false" />
+                        <asp:LinkButton ID="lbEditInfo" runat="server" Text="Update Profile" CssClass="btn btn-primary btn-lg btn-checkin-select" OnClick="lbEditInfo_Click" CausesValidation="false" />
                     </div>
                 </div>
             </div>
