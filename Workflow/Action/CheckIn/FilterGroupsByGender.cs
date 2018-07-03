@@ -19,6 +19,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
     [Export( typeof( ActionComponent ) )]
     [ExportMetadata( "ComponentName", "Filter Groups By Gender" )]
     [BooleanField( "Remove", "Select 'Yes' if groups should be be removed.  Select 'No' if they should just be marked as excluded.", true )]
+    [Obsolete( "As of Rock 1.7.4, the core Filter Groups By Gender action should be used." ) ]
     public class FilterGroupsByGender : CheckInActionComponent
     {
         /// <summary>
@@ -38,14 +39,14 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                 return false;
             }
 
-            var family = checkInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault();
+            var family = checkInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
             if ( family != null )
             {
                 var remove = GetAttributeValue( action, "Remove" ).AsBoolean();
 
                 foreach ( var person in family.People )
                 {
-                    string personsGender = person.Person.Gender.ToString( "d" );
+                    var personsGender = person.Person.Gender.ToString( "d" );
                     foreach ( var groupType in person.GroupTypes.ToList() )
                     {
                         foreach ( var group in groupType.Groups.ToList() )
