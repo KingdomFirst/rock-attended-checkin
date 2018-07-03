@@ -11,6 +11,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using Rock;
 using Rock.Attribute;
+using Rock.Cache;
 using Rock.CheckIn;
 using Rock.Data;
 using Rock.Model;
@@ -52,7 +53,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             if ( !Page.IsPostBack )
             {
                 // Set the check-in state from values passed on query string
-                bool themeRedirect = PageParameter( "ThemeRedirect" ).AsBoolean( false );
+                var themeRedirect = PageParameter( "ThemeRedirect" ).AsBoolean( false );
 
                 var preferredKioskId = PageParameter( "KioskId" ).AsIntegerOrNull();
                 if ( preferredKioskId != null )
@@ -106,7 +107,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }
                 else
                 {
-                    bool useGeoLocationService = GetAttributeValue( "EnableLocationSharing" ).AsBoolean();
+                    var useGeoLocationService = GetAttributeValue( "EnableLocationSharing" ).AsBoolean();
 
                     // Inject script used for geo location determiniation
                     if ( !useGeoLocationService )
@@ -123,7 +124,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                     AttemptKioskMatchByIpOrName();
 
-                    string script = string.Format( @"<script>
+                    var script = string.Format( @"<script>
                         $(document).ready(function (e) {{
                             if (localStorage) {{
                                 if (localStorage.attendedKiosk) {{
@@ -143,7 +144,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         }});
                         </script>", this.Page.ClientScript.GetPostBackEventReference( lbRefresh, "" )
                     );
-                    phScript.Controls.Add( new LiteralControl( script ) );
+                    using ( var literalControl = new LiteralControl( script ) )
+                    {
+                        phScript.Controls.Add( literalControl );
+                    }
 
                     // Initiate the check-in variables
                     lbOk.Focus();
@@ -166,15 +170,15 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         private void AttemptKioskMatchByIpOrName()
         {
             // match kiosk by ip/name.
-            string ipAddress = RockPage.GetClientIpAddress();
-            bool lookupKioskName = GetAttributeValue( "EnableReverseLookup" ).AsBoolean( false );
+            var ipAddress = RockPage.GetClientIpAddress();
+            var lookupKioskName = GetAttributeValue( "EnableReverseLookup" ).AsBoolean( false );
 
             var rockContext = new RockContext();
-            var checkInDeviceTypeId = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.DEVICE_TYPE_CHECKIN_KIOSK ).Id;
+            var checkInDeviceTypeId = CacheDefinedValue.Get( Rock.SystemGuid.DefinedValue.DEVICE_TYPE_CHECKIN_KIOSK ).Id;
             var device = new DeviceService( rockContext ).GetByIPAddress( ipAddress, checkInDeviceTypeId, lookupKioskName );
 
-            string hostName = string.Empty;
-            string deviceLocation = string.Empty;
+            var hostName = string.Empty;
+            var deviceLocation = string.Empty;
 
             try
             {
@@ -377,7 +381,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }});
             </script>
             ", this.Page.ClientScript.GetPostBackEventReference( lbCheckGeoLocation, "" ) );
-            phScript.Controls.Add( new LiteralControl( geoScript ) );
+            using ( var literalControl = new LiteralControl( geoScript ) )
+            {
+                phScript.Controls.Add( literalControl );
+            }
         }
 
         /// <summary>
@@ -388,14 +395,14 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <returns></returns>
         public static Device GetCurrentKioskByGeoFencing( string sLatitude, string sLongitude )
         {
-            double latitude = double.Parse( sLatitude );
-            double longitude = double.Parse( sLongitude );
-            var checkInDeviceTypeId = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.DEVICE_TYPE_CHECKIN_KIOSK ).Id;
+            var latitude = double.Parse( sLatitude );
+            var longitude = double.Parse( sLongitude );
+            var checkInDeviceTypeId = CacheDefinedValue.Get( Rock.SystemGuid.DefinedValue.DEVICE_TYPE_CHECKIN_KIOSK ).Id;
 
             // We need to use the DeviceService until we can get the GeoFence to JSON Serialize/Deserialize.
             using ( var rockContext = new RockContext() )
             {
-                Device kiosk = new DeviceService( rockContext ).GetByGeocode( latitude, longitude, checkInDeviceTypeId );
+                var kiosk = new DeviceService( rockContext ).GetByGeocode( latitude, longitude, checkInDeviceTypeId );
                 return kiosk;
             }
         }
@@ -412,9 +419,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         private void SetDeviceIdCookie( Device kiosk )
         {
             // set an expiration cookie for these coordinates.
-            double timeCacheMinutes = double.Parse( GetAttributeValue( "TimetoCacheKioskGeoLocation" ) ?? "0" );
+            var timeCacheMinutes = double.Parse( GetAttributeValue( "TimetoCacheKioskGeoLocation" ) ?? "0" );
 
-            HttpCookie deviceCookie = Request.Cookies[CheckInCookie.DEVICEID];
+            var deviceCookie = Request.Cookies[CheckInCookie.DEVICEID];
             if ( deviceCookie == null )
             {
                 deviceCookie = new HttpCookie( CheckInCookie.DEVICEID, kiosk.Id.ToString() );
@@ -423,7 +430,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             deviceCookie.Expires = ( timeCacheMinutes == 0 ) ? DateTime.MaxValue : RockDateTime.Now.AddMinutes( timeCacheMinutes );
             Response.Cookies.Set( deviceCookie );
 
-            HttpCookie isMobileCookie = new HttpCookie( CheckInCookie.ISMOBILE, "true" );
+            var isMobileCookie = new HttpCookie( CheckInCookie.ISMOBILE, "true" );
             Response.Cookies.Set( isMobileCookie );
         }
 
@@ -432,8 +439,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// </summary>
         private void ClearMobileCookie()
         {
-            HttpCookie isMobileCookie = new HttpCookie( CheckInCookie.ISMOBILE );
-            isMobileCookie.Expires = RockDateTime.Now.AddDays( -1d );
+            var isMobileCookie = new HttpCookie( CheckInCookie.ISMOBILE )
+            {
+                Expires = RockDateTime.Now.AddDays( -1d )
+            };
             Response.Cookies.Set( isMobileCookie );
         }
 
@@ -446,13 +455,13 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// </summary>
         /// <param name="groupTypeId">The group type identifier.</param>
         /// <returns></returns>
-        private GroupTypeCache GetCheckinType( int? groupTypeId )
+        private CacheGroupType GetCheckinType( int? groupTypeId )
         {
-            Guid templateTypeGuid = Rock.SystemGuid.DefinedValue.GROUPTYPE_PURPOSE_CHECKIN_TEMPLATE.AsGuid();
-            var templateType = DefinedValueCache.Read( templateTypeGuid );
+            var templateTypeGuid = Rock.SystemGuid.DefinedValue.GROUPTYPE_PURPOSE_CHECKIN_TEMPLATE.AsGuid();
+            var templateType = CacheDefinedValue.Get( templateTypeGuid );
             if ( templateType != null )
             {
-                return GetCheckinType( GroupTypeCache.Read( groupTypeId.Value ), templateType.Id );
+                return GetCheckinType( CacheGroupType.Get( groupTypeId.Value ), templateType.Id );
             }
 
             return null;
@@ -465,7 +474,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="templateTypeId">The template type identifier.</param>
         /// <param name="recursionControl">The recursion control.</param>
         /// <returns></returns>
-        private GroupTypeCache GetCheckinType( GroupTypeCache groupType, int templateTypeId, List<int> recursionControl = null )
+        private CacheGroupType GetCheckinType( CacheGroupType groupType, int templateTypeId, List<int> recursionControl = null )
         {
             if ( groupType != null )
             {
@@ -606,13 +615,15 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     var socket = new Socket( AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp );
                     var printerIpEndPoint = new IPEndPoint( IPAddress.Parse( printerAddress ), 9100 );
                     var result = socket.BeginConnect( printerIpEndPoint, null, null );
-                    bool success = result.AsyncWaitHandle.WaitOne( 5000, true );
+                    var success = result.AsyncWaitHandle.WaitOne( 5000, true );
 
                     if ( socket.Connected )
                     {
-                        var ns = new NetworkStream( socket );
-                        byte[] toSend = System.Text.Encoding.ASCII.GetBytes( labelContent.ToString() );
-                        ns.Write( toSend, 0, toSend.Length );
+                        var labelToSend = System.Text.Encoding.ASCII.GetBytes( labelContent.ToString() );
+                        using ( var networkStream = new NetworkStream( socket ) )
+                        {
+                            networkStream.Write( labelToSend, 0, labelToSend.Length );
+                        }
                     }
                     else
                     {

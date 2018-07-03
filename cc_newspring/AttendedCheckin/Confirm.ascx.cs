@@ -115,7 +115,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// </summary>
         protected void BindGrid()
         {
-            var selectedPeopleList = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault()
+            var selectedPeopleList = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected )
                 .People.Where( p => p.Selected ).OrderBy( p => p.Person.FullNameReversed ).ToList();
             var contentTemplate = GetAttributeValue( "ContentTemplate" );
 
@@ -236,8 +236,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="e">The <see cref="GridViewRowEventArgs"/> instance containing the event data.</param>
         protected void gPersonList_RowDataBound( object sender, GridViewRowEventArgs e )
         {
-            Activity activity = e.Row.DataItem as Activity;
-
+            var activity = e.Row.DataItem as Activity;
             if ( e.Row.RowType == DataControlRowType.DataRow && activity != null )
             {
                 if ( !string.IsNullOrWhiteSpace( activity.Content ) )
@@ -331,34 +330,36 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
             if ( alreadyCheckedIn )
             {
-                bool removeAttendance = GetAttributeValue( "RemoveAttendanceOnCheckout" ).AsBoolean();
+                var removeAttendance = GetAttributeValue( "RemoveAttendanceOnCheckout" ).AsBoolean();
 
                 // run task asynchronously so the UI doesn't slow down
                 Task.Run( () =>
                 {
-                    var rockContext = new RockContext();
-                    var today = RockDateTime.Now.Date;
-                    var tomorrow = today.AddDays( 1 );
-                    var personAttendance = rockContext.Attendances.FirstOrDefault( a => a.StartDateTime >= today
-                        && a.StartDateTime < tomorrow
-                        && a.LocationId == locationId
-                        && a.ScheduleId == scheduleId
-                        && a.GroupId == groupId
-                        && a.PersonAlias.PersonId == personId
-                    );
-
-                    if ( personAttendance != null )
+                    using ( var rockContext = new RockContext() )
                     {
-                        if ( removeAttendance )
-                        {
-                            rockContext.Attendances.Remove( personAttendance );
-                        }
-                        else
-                        {
-                            personAttendance.EndDateTime = RockDateTime.Now;
-                        }
+                        var today = RockDateTime.Now.Date;
+                        var tomorrow = today.AddDays( 1 );
+                        var personAttendance = rockContext.Attendances.FirstOrDefault( a => a.StartDateTime >= today
+                            && a.StartDateTime < tomorrow
+                            && a.Occurrence.LocationId == locationId
+                            && a.Occurrence.ScheduleId == scheduleId
+                            && a.Occurrence.GroupId == groupId
+                            && a.PersonAlias.PersonId == personId
+                        );
 
-                        rockContext.SaveChanges();
+                        if ( personAttendance != null )
+                        {
+                            if ( removeAttendance )
+                            {
+                                rockContext.Attendances.Remove( personAttendance );
+                            }
+                            else
+                            {
+                                personAttendance.EndDateTime = RockDateTime.Now;
+                            }
+
+                            rockContext.SaveChanges();
+                        }
                     }
                 } );
             }
@@ -421,8 +422,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             if ( e.CommandName == "Print" )
             {
-                int labelIndex = Convert.ToInt32( e.CommandArgument );
-                var singleLabelDataKey = new ArrayList() { gPersonList.DataKeys[labelIndex] };
+                var labelIndex = Convert.ToInt32( e.CommandArgument );
+                var singleLabelDataKey = new ArrayList { gPersonList.DataKeys[labelIndex] };
                 ProcessLabels( new DataKeyArray( singleLabelDataKey ) );
             }
         }
@@ -472,7 +473,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }
                 else
                 {
-                    string errorMsg = "<ul><li>" + attendanceErrors.AsDelimited( "</li><li>" ) + "</li></ul>";
+                    var errorMsg = "<ul><li>" + attendanceErrors.AsDelimited( "</li><li>" ) + "</li></ul>";
                     maAlert.Show( errorMsg, Rock.Web.UI.Controls.ModalAlertType.Warning );
                     return;
                 }
@@ -481,7 +482,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
 
             var printQueue = new Dictionary<string, StringBuilder>();
-            bool printIndividually = GetAttributeValue( "PrintIndividualLabels" ).AsBoolean();
+            var printIndividually = GetAttributeValue( "PrintIndividualLabels" ).AsBoolean();
             var designatedLabelGuid = GetAttributeValue( "DesignatedSingleLabel" ).AsGuidOrNull();
 
             foreach ( var selectedFamily in CurrentCheckInState.CheckIn.Families.Where( f => f.Selected && f.People.Any( p => p.Selected ) ) )
@@ -589,8 +590,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 // Print server labels
                 if ( labels.Any( l => l.PrintFrom == PrintFrom.Server ) )
                 {
-                    string delayCut = @"^XB";
-                    string endingTag = @"^XZ";
+                    var delayCut = @"^XB";
+                    var endingTag = @"^XZ";
                     var printerIp = string.Empty;
                     var labelContent = new StringBuilder();
 
@@ -598,7 +599,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     var lastLabel = labels.Last( l => l.PrintFrom == PrintFrom.Server && !string.IsNullOrEmpty( l.PrinterAddress ) );
                     foreach ( var label in labels.Where( l => l.PrintFrom == PrintFrom.Server && !string.IsNullOrEmpty( l.PrinterAddress ) ) )
                     {
-                        var labelCache = KioskLabel.Read( label.FileGuid );
+                        var labelCache = KioskLabel.Get( label.FileGuid );
                         if ( labelCache != null )
                         {
                             if ( printerIp != label.PrinterAddress )
@@ -641,7 +642,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     }
                     else
                     {   // give the user feedback when no server labels are configured
-                        phPrinterStatus.Controls.Add( new LiteralControl( "No labels were created.  Please verify that the grouptype is configured with labels and cache is reset." ) );
+                        using ( var literalControl = new LiteralControl( "No labels were created.  Please verify that the grouptype is configured with labels and cache is reset." ) )
+                        {
+                            phPrinterStatus.Controls.Add( literalControl );
+                        }
                     }
                 }
 
@@ -684,17 +688,22 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     var socket = new Socket( AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp );
                     var printerIpEndPoint = new IPEndPoint( IPAddress.Parse( printerIp ), 9100 );
                     var result = socket.BeginConnect( printerIpEndPoint, null, null );
-                    bool success = result.AsyncWaitHandle.WaitOne( 5000, true );
+                    var success = result.AsyncWaitHandle.WaitOne( 5000, true );
 
                     if ( socket.Connected )
                     {
-                        var ns = new NetworkStream( socket );
-                        byte[] toSend = System.Text.Encoding.ASCII.GetBytes( labelContent.ToString() );
-                        ns.Write( toSend, 0, toSend.Length );
+                        var labelToSend = Encoding.ASCII.GetBytes( labelContent.ToString() );
+                        using ( var networkStream = new NetworkStream( socket ) )
+                        {
+                            networkStream.Write( labelToSend, 0, labelToSend.Length );
+                        }
                     }
                     else
                     {
-                        phPrinterStatus.Controls.Add( new LiteralControl( string.Format( "Can't connect to printer: {0}", printerIp ) ) );
+                        using ( var literalControl = new LiteralControl( string.Format( "Can't connect to printer: {0}", printerIp ) ) )
+                        {
+                            phPrinterStatus.Controls.Add( literalControl );
+                        }
                     }
 
                     if ( socket != null && socket.Connected )
@@ -712,7 +721,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="jsonObject">The json object.</param>
         private void AddLabelScript( string jsonObject )
         {
-            string script = string.Format( @"
+            var script = string.Format( @"
 	    // label data
         var labelData = {0};
 		function onPrintClick() {{

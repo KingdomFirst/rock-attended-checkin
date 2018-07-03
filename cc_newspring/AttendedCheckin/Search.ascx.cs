@@ -9,6 +9,7 @@ using Rock.Attribute;
 using Rock.CheckIn;
 using Rock.Model;
 using Rock.Web.Cache;
+using Rock.Cache;
 using Rock.Web.UI.Controls;
 
 namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
@@ -73,7 +74,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     tbSearchBox.Text = CurrentCheckInState.CheckIn.SearchValue;
                 }
 
-                string script = string.Format( @"
+                var script = string.Format( @"
             <script>
                 $(document).ready(function (e) {{
                     if (localStorage) {{
@@ -85,7 +86,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }});
             </script>
             ", CurrentTheme, CurrentKioskId, CurrentCheckinTypeId, CurrentGroupTypeIds.AsDelimited( "," ) );
-                phScript.Controls.Add( new LiteralControl( script ) );
+                using ( var literalControl = new LiteralControl( script ) )
+                {
+                    phScript.Controls.Add( literalControl );
+                }
 
                 // make sure the checkin type isn't set to name only
                 if ( GetAttributeValue( "ShowKeyPad" ).AsBoolean() && !CurrentCheckInType.SearchType.Guid.Equals( Rock.SystemGuid.DefinedValue.CHECKIN_SEARCH_TYPE_NAME.AsGuid() ) )
@@ -102,7 +106,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// </summary>
         private void RegisterRefresh()
         {
-            string script = string.Format( @"
+            var script = string.Format( @"
             var timeoutSeconds = {0};
             if (timeout) {{
                 window.clearTimeout(timeout);
@@ -144,8 +148,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 // run regex expression on input if provided
                 if ( CurrentCheckInType != null && !string.IsNullOrWhiteSpace( CurrentCheckInType.RegularExpressionFilter ) )
                 {
-                    Regex regex = new Regex( CurrentCheckInType.RegularExpressionFilter );
-                    Match match = regex.Match( searchInput );
+                    var regex = new Regex( CurrentCheckInType.RegularExpressionFilter );
+                    var match = regex.Match( searchInput );
                     if ( match.Success )
                     {
                         if ( match.Groups.Count == 2 )
@@ -159,13 +163,13 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 double searchNumber;
                 if ( Double.TryParse( searchInput, out searchNumber ) )
                 {
-                    CurrentCheckInState.CheckIn.SearchType = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.CHECKIN_SEARCH_TYPE_PHONE_NUMBER );
-                    int minLength = CurrentCheckInType != null ? CurrentCheckInType.MinimumPhoneSearchLength : 4;
-                    int maxLength = CurrentCheckInType != null ? CurrentCheckInType.MaximumPhoneSearchLength : 10;
+                    CurrentCheckInState.CheckIn.SearchType = CacheDefinedValue.Get( Rock.SystemGuid.DefinedValue.CHECKIN_SEARCH_TYPE_PHONE_NUMBER );
+                    var minLength = CurrentCheckInType != null ? CurrentCheckInType.MinimumPhoneSearchLength : 4;
+                    var maxLength = CurrentCheckInType != null ? CurrentCheckInType.MaximumPhoneSearchLength : 10;
 
                     if ( searchInput.Length < minLength || searchInput.Length > maxLength )
                     {
-                        string errorMsg = ( searchInput.Length > maxLength )
+                        var errorMsg = ( searchInput.Length > maxLength )
                             ? string.Format( "<ul><li>Please enter no more than {0} character(s)</li></ul>", maxLength )
                             : string.Format( "<ul><li>Please enter at least {0} character(s)</li></ul>", minLength );
 
@@ -175,7 +179,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }
                 else
                 {
-                    CurrentCheckInState.CheckIn.SearchType = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.CHECKIN_SEARCH_TYPE_NAME );
+                    CurrentCheckInState.CheckIn.SearchType = CacheDefinedValue.Get( Rock.SystemGuid.DefinedValue.CHECKIN_SEARCH_TYPE_NAME );
                 }
 
                 // remember the current search value
@@ -189,7 +193,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }
                 else
                 {
-                    string errorMsg = "<ul><li>" + errors.AsDelimited( "</li><li>" ) + "</li></ul>";
+                    var errorMsg = "<ul><li>" + errors.AsDelimited( "</li><li>" ) + "</li></ul>";
                     maWarning.Show( errorMsg.Replace( "'", @"\'" ), ModalAlertType.Warning );
                 }
             }
@@ -207,7 +211,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbBack_Click( object sender, EventArgs e )
         {
-            bool hasFamilyCheckedIn = CurrentCheckInState.CheckIn.Families.Any( f => f.Selected );
+            var hasFamilyCheckedIn = CurrentCheckInState.CheckIn.Families.Any( f => f.Selected );
             if ( !hasFamilyCheckedIn )
             {
                 var queryParams = new Dictionary<string, string>();
