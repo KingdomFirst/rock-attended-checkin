@@ -512,7 +512,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
             if ( firstNameIsEmpty && lastNameIsEmpty )
             {
-                maWarning.Show( "Validation: First or last name is required.", ModalAlertType.Information );
+                maWarning.Show( "First or Last Name is required to search.", ModalAlertType.Information );
                 return;
             }
 

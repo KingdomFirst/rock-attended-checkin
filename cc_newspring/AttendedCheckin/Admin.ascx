@@ -71,7 +71,8 @@
 
                 // Ctrl + Shift + I
                 e.stopPropagation();
-                __doPostBack($('a[id$="lbTestPrint"]').attr('id'), '');
+                var postbackArg = $('a[id$="lbTestPrint"]').attr('id');
+                window.location = "javascript:__doPostBack('" + postbackArg + "', '')";
                 return false;
             }
         });
