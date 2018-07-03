@@ -1056,6 +1056,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 ddlAbilityGrade.LoadAbilityAndGradeItems();
                 ddlPersonGender.BindToEnum<Gender>();
                 ddlSuffix.BindToDefinedType( DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_SUFFIX ) ), true );
+                var personPhoneType = DefinedValueCache.Read( GetAttributeValue( "DefaultPhoneType" ).AsGuid() );
 
                 ViewState["lblAbilityGrade"] = ddlAbilityGrade.Label;
                 person.LoadAttributes();
@@ -1067,7 +1068,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 ddlPersonGender.SelectedIndex = (int)person.Gender;
                 cbSpecialNeeds.Checked = person.GetAttributeValue( SpecialNeedsKey ).AsBoolean();
 
-                tbPhone.Text = person.PhoneNumbers.Select( v => v.NumberFormatted ).FirstOrDefault();
+                tbPhone.Text = person.PhoneNumbers.Where( n => n.NumberTypeValueId == personPhoneType.Id ).Select( n => n.NumberFormatted ).FirstOrDefault();
                 tbEmail.Text = person.Email;
 
                 tbFirstName.Required = true;
