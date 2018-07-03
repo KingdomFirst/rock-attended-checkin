@@ -26,6 +26,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [BooleanField( "Sort Groups By Name", "If false then groups, if displayed, are sorted by the Order they have been placed in on the check-in configuration screen.", true, "", 4 )]
     [AttributeField( Rock.SystemGuid.EntityType.PERSON, "Profile Attributes", "By default, Allergies and Legal Notes are displayed on Profile Edit.  Select others to allow editing.", false, true, "dbd192c9-0aa1-46ec-92ab-a3da8e056d31,f832ab6f-b684-4eea-8db4-c54b895c79ed", "", 5 )]
     [BooleanField( "Track Assignment Changes", "By default, profile changes are tracked in Person History. Should changes to assignments be tracked as well?", false, "", 6)]
+    [DefinedValueField( "8345DD45-73C6-4F5E-BEBD-B77FC83F18FD", "Default Phone Type", "By default, the Home Phone type is stored on the person or family. Select a different type as the default.", false, false, "AA8732FB-2CEA-4C76-8D6D-6AAA2C6A4303", "", 7 )]
     public partial class ActivitySelect : CheckInBlock
     {
         #region Variables
@@ -708,15 +709,16 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             if ( !string.IsNullOrWhiteSpace( tbPhone.Text ) )
             {
                 var unformattedNumber = tbPhone.Text.RemoveSpecialCharacters();
-                if ( !person.PhoneNumbers.Any( pn => pn.Number.Equals( unformattedNumber ) ) )
+                var personPhoneType = DefinedValueCache.Read( GetAttributeValue( "DefaultPhoneType" ).AsGuid(), rockContext );                
+                var countryCodes = DefinedTypeCache.Read( Rock.SystemGuid.DefinedType.COMMUNICATION_PHONE_COUNTRY_CODE.AsGuid() ).DefinedValues;
+                var phoneNumber = person.PhoneNumbers.FirstOrDefault( n => n.NumberTypeValueId == personPhoneType.Id );
+                if ( phoneNumber == null )
                 {
                     History.EvaluateChange( profileChanges, "Phone Number", string.Empty, tbPhone.Text );
-                    var homePhoneType = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.PERSON_PHONE_TYPE_HOME.AsGuid(), rockContext );
-                    var countryCodes = DefinedTypeCache.Read( Rock.SystemGuid.DefinedType.COMMUNICATION_PHONE_COUNTRY_CODE.AsGuid() ).DefinedValues;
                     person.PhoneNumbers.Add( new PhoneNumber
                     {
                         CountryCode = countryCodes.Select( v => v.Value ).FirstOrDefault(),
-                        NumberTypeValueId = homePhoneType.Id,
+                        NumberTypeValueId = personPhoneType.Id,
                         Number = tbPhone.Text,
                         IsSystem = false,
                         IsMessagingEnabled = true
@@ -725,11 +727,16 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     currentPerson.Person.PhoneNumbers.Add( new PhoneNumber
                     {
                         CountryCode = countryCodes.Select( v => v.Value ).FirstOrDefault(),
-                        NumberTypeValueId = homePhoneType.Id,
+                        NumberTypeValueId = personPhoneType.Id,
                         Number = tbPhone.Text,
                         IsSystem = false,
                         IsMessagingEnabled = true
-                    } );
+                    } );        
+                }
+                else if ( !phoneNumber.Number.Equals( unformattedNumber ) )
+                {
+                    History.EvaluateChange( profileChanges, "Phone Number", phoneNumber.Number, tbPhone.Text );
+                    phoneNumber.Number = unformattedNumber;
                 }
             }
 
