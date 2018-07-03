@@ -27,8 +27,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [BooleanField( "Show Contact Info", "Show the phone and email columns on add people/visitor/family modals.", false, "", 2 )]
     [BooleanField( "Hide Special Needs", "Hide the special needs column from add people/visitor/family modals.", false, "", 3 )]
     [DefinedValueField( Rock.SystemGuid.DefinedType.PERSON_CONNECTION_STATUS, "Default Connection Status", "Select the default connection status for people added in checkin", true, false, "B91BA046-BC1E-400C-B85D-638C1F4E0CE2", "", 4 )]
-    [AttributeField( Rock.SystemGuid.EntityType.PERSON, "Person Special Needs Attribute", "Select the person attribute used to filter kids with special needs.", true, false, "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF", "", 5 )]
-    [TextField( "Not Found Text", "What text should display when the nothing is found?", true, "Please add a person or family.", "", 6 )]
+    [DefinedValueField( "8345DD45-73C6-4F5E-BEBD-B77FC83F18FD", "Default Phone Type", "By default, the Home Phone type is stored when Show Contact Info is turned on. Select a different type as the default.", false, false, "AA8732FB-2CEA-4C76-8D6D-6AAA2C6A4303", "", 5 )]
+    [AttributeField( Rock.SystemGuid.EntityType.PERSON, "Person Special Needs Attribute", "Select the person attribute used to filter kids with special needs.", true, false, "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF", "", 6 )]
+    [TextField( "Not Found Text", "What text should display when the nothing is found?", true, "Please add a person or family.", "", 7 )]
     public partial class FamilySelect : CheckInBlock
     {
         #region Variables
@@ -1051,7 +1052,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var rockContext = new RockContext();
             var personService = new PersonService( rockContext );
             var peopleQry = personService.Queryable().AsNoTracking();
-
+            var personPhoneType = DefinedValueCache.Read( GetAttributeValue( "DefaultPhoneType" ).AsGuid(), rockContext );
             var abilityLevelValues = DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_ABILITY_LEVEL_TYPE ), rockContext ).DefinedValues;
 
             var firstNameIsEmpty = string.IsNullOrEmpty( tbFirstName.Text );
@@ -1133,10 +1134,12 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         : abilityLevelValues.Where( dv => dv.Guid.ToString()
                             .Equals( p.AttributeValues["AbilityLevel"].Value, StringComparison.OrdinalIgnoreCase ) )
                             .Select( dv => dv.Value ).FirstOrDefault(),
-                Phone = p.PhoneNumbers.Any() ? p.PhoneNumbers.FirstOrDefault().NumberFormatted : string.Empty,
+                Phone = p.PhoneNumbers.Any( n => n.NumberTypeValueId == personPhoneType.Id ) 
+                        ? p.PhoneNumbers.FirstOrDefault( n => n.NumberTypeValueId == personPhoneType.Id ).NumberFormatted 
+                        : string.Empty,
                 p.Email,
                 HasSpecialNeeds = p.AttributeValues.Keys.Contains( SpecialNeedsKey )
-                         ? p.AttributeValues[SpecialNeedsKey].Value.AsBoolean() == true ? "Yes" : "No"
+                         ? p.AttributeValues[SpecialNeedsKey].Value.AsBoolean() ? "Yes" : "No"
                          : string.Empty
             } ).OrderByDescending( p => p.BirthDate ).ToList();
 
@@ -1173,10 +1176,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var personService = new PersonService( rockContext );
 
             var connectionStatus = DefinedValueCache.Read( GetAttributeValue( "DefaultConnectionStatus" ).AsGuid(), rockContext );
-            var homePhoneType = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.PERSON_PHONE_TYPE_HOME.AsGuid(), rockContext );
+            var personPhoneType = DefinedValueCache.Read( GetAttributeValue( "DefaultPhoneType" ).AsGuid(), rockContext );
             var activeRecord = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.PERSON_RECORD_STATUS_ACTIVE.AsGuid() );
             var personType = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.PERSON_RECORD_TYPE_PERSON.AsGuid() );
-
+            
             foreach ( SerializedPerson personData in serializedPeople )
             {
                 bool hasAbility = !string.IsNullOrWhiteSpace( personData.Ability ) && personData.AbilityGroup == "Ability";
@@ -1222,7 +1225,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     person.PhoneNumbers.Add( new PhoneNumber
                     {
                         CountryCode = countryCodes.Select( v => v.Value ).FirstOrDefault(),
-                        NumberTypeValueId = homePhoneType.Id,
+                        NumberTypeValueId = personPhoneType.Id,
                         Number = personData.PhoneNumber,
                         IsSystem = false,
                         IsMessagingEnabled = true
