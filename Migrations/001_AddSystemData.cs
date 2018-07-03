@@ -8,6 +8,7 @@ namespace cc.newspring.AttendedCheckIn.Migrations
         public string PersonSNAttributeGuid = "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF";
         public string GroupSNAttributeGuid = "9210EC95-7B85-4D11-A82E-0B677B32704E";
         public string AttendedCheckinSiteGuid = "30FB46F7-4814-4691-852A-04FB56CC07F0";
+        public string ChildhoodInformationCategoryGuid = "752DC692-836E-4A3E-B670-4325CD7724BF";
 
         /// <summary>
         /// The commands to run to migrate plugin to the specific version
@@ -224,8 +225,8 @@ namespace cc.newspring.AttendedCheckIn.Migrations
                    ,[CategoryId])
                 VALUES
                    ((SELECT [Id] FROM [Attribute] WHERE [Guid] = '{0}')
-                   ,(SELECT [Id] FROM [Category] WHERE [Name] = 'Childhood Information'))
-            ", PersonSNAttributeGuid ) );
+                   ,(SELECT [Id] FROM [Category] WHERE [Guid] = '{1}'))
+            ", PersonSNAttributeGuid, ChildhoodInformationCategoryGuid ) );
 
             RockMigrationHelper.AddGroupType( "Check in By Special Needs", "", "Group", "Member", false, true, true, "", 0, "0572A5FE-20A4-4BF1-95CD-C71DB5281392", 0, "6BCED84C-69AD-4F5A-9197-5C0F9C02DD34", "2CB16E13-141F-419F-BACD-8283AB6B3299", false );
             RockMigrationHelper.AddGroupTypeRole( "2CB16E13-141F-419F-BACD-8283AB6B3299", "Member", "", 0, null, null, "4DC318F0-5E6F-4F34-B3C5-08264B6DFD29", false );
