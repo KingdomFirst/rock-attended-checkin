@@ -20,7 +20,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 {
     /// <summary>
     /// Family Select block for Attended Check-in
-    /// </summary>                                                                 Agge
+    /// </summary>
     [DisplayName( "Family Select" )]
     [Category( "Check-in > Attended" )]
     [Description( "Attended Check-In Family Select Block" )]
