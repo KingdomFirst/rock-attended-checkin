@@ -20,7 +20,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 {
     /// <summary>
     /// Family Select block for Attended Check-in
-    /// </summary>
+    /// </summary>                                                                 Agge
     [DisplayName( "Family Select" )]
     [Category( "Check-in > Attended" )]
     [Description( "Attended Check-In Family Select Block" )]
@@ -588,13 +588,13 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     }
                     else
                     {   // Visitor
-                        AddVisitorRelationships( selectedFamily, checkInPerson.Person.Id );
                         checkInPerson.FamilyMember = false;
-
-                        // If a child, make the family group explicitly so the child role type can be selected. If no
-                        // family group is explicitly made, Rock makes one with Adult role type by default
-                        if ( dpPersonDOB.SelectedDate.Age() < 18 )
+                        if ( checkInPerson.Person.AgeClassification != AgeClassification.Adult )
                         {
+                            AddVisitorRelationships( selectedFamily, checkInPerson.Person.Id );
+
+                            // If a child, make the family group explicitly so the child role type can be selected. If no
+                            // family group is explicitly made, Rock makes one with Adult role type by default
                             AddGroupMembers( null, newPeople );
                         }
                     }
@@ -647,14 +647,16 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         {
                             // New family member, add them to the current family if they don't exist
                             AddGroupMembers( selectedFamily.Group, new List<Person> { checkInPerson.Person } );
-
                             checkInPerson.FamilyMember = true;
                         }
                         else
                         {
                             // Visitor, associate with current family
-                            AddVisitorRelationships( selectedFamily, personId, rockContext );
                             checkInPerson.FamilyMember = false;
+                            if ( checkInPerson.Person.AgeClassification != AgeClassification.Adult )
+                            {
+                                AddVisitorRelationships( selectedFamily, checkInPerson.Person.Id );
+                            }
                         }
 
                         checkInPerson.Selected = true;
@@ -1238,7 +1240,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         IsMessagingEnabled = true
                     } );
                 }
-
+                
                 // Add the person so we can assign an ability (if set)
                 personService.Add( person );
 
@@ -1264,6 +1266,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
 
             rockContext.SaveChanges();
+            PersonService.UpdatePersonAgeClassificationAll( rockContext );
 
             return newPeopleList;
         }
@@ -1354,8 +1357,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="rockContext">The rock context.</param>
         private void AddVisitorRelationships( CheckInFamily family, int visitorId, RockContext rockContext = null )
         {
-            rockContext = rockContext ?? new RockContext();
-            foreach ( var familyMember in family.People.Where( p => p.FamilyMember ) )
+            rockContext = rockContext ?? new RockContext();)
+            foreach ( var familyMember in family.People.Where( p => p.FamilyMember && p.Person.AgeClassification == AgeClassification.Adult ) )
             {
                 Person.CreateCheckinRelationship( familyMember.Person.Id, visitorId, rockContext );
             }
