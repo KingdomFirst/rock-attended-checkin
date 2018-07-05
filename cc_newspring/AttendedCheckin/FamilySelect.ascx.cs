@@ -589,12 +589,11 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     else
                     {   // Visitor
                         checkInPerson.FamilyMember = false;
-                        if ( checkInPerson.Person.AgeClassification != AgeClassification.Adult )
+                        if ( checkInPerson.Person.Age < 18 || checkInPerson.Person.AgeClassification == AgeClassification.Child )
                         {
                             AddVisitorRelationships( selectedFamily, checkInPerson.Person.Id );
 
-                            // If a child, make the family group explicitly so the child role type can be selected. If no
-                            // family group is explicitly made, Rock makes one with Adult role type by default
+                            // Make the family group so the child role is set correctly (Adult is default)
                             AddGroupMembers( null, newPeople );
                         }
                     }
@@ -651,9 +650,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         }
                         else
                         {
-                            // Visitor, associate with current family
+                            // Visitor, associate with current family unless they're an adult
                             checkInPerson.FamilyMember = false;
-                            if ( checkInPerson.Person.AgeClassification != AgeClassification.Adult )
+                            if ( checkInPerson.Person.Age < 18 || checkInPerson.Person.AgeClassification == AgeClassification.Child )
                             {
                                 AddVisitorRelationships( selectedFamily, checkInPerson.Person.Id );
                             }
@@ -1266,8 +1265,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
 
             rockContext.SaveChanges();
-            PersonService.UpdatePersonAgeClassificationAll( rockContext );
-
             return newPeopleList;
         }
 
@@ -1321,7 +1318,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     GroupMemberStatus = GroupMemberStatus.Active
                 };
 
-                if ( person.Age < 18 )
+
+                if ( person.Age < 18 || person.AgeClassification == AgeClassification.Child )
                 {
                     groupMember.GroupRoleId = familyGroupType.Roles.FirstOrDefault( r =>
                         r.Guid == new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_FAMILY_MEMBER_CHILD ) ).Id;
@@ -1350,15 +1348,15 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         }
 
         /// <summary>
-        /// Adds the visitor group member roles.
+        /// Adds the visitor / checkin relationship to adults in the family.
         /// </summary>
         /// <param name="family">The family.</param>
         /// <param name="visitorId">The person id.</param>
         /// <param name="rockContext">The rock context.</param>
         private void AddVisitorRelationships( CheckInFamily family, int visitorId, RockContext rockContext = null )
         {
-            rockContext = rockContext ?? new RockContext();)
-            foreach ( var familyMember in family.People.Where( p => p.FamilyMember && p.Person.AgeClassification == AgeClassification.Adult ) )
+            rockContext = rockContext ?? new RockContext();
+            foreach ( var familyMember in family.People.Where( p => p.FamilyMember && ( p.Person.Age > 18 || p.Person.AgeClassification == AgeClassification.Adult ) ) )
             {
                 Person.CreateCheckinRelationship( familyMember.Person.Id, visitorId, rockContext );
             }
