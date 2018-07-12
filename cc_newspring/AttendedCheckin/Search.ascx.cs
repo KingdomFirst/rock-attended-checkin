@@ -77,10 +77,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             <script>
                 $(document).ready(function (e) {{
                     if (localStorage) {{
-                        localStorage.theme = '{0}';
-                        localStorage.checkInKiosk = '{1}';
-                        localStorage.checkInType = '{2}';
-                        localStorage.checkInGroupTypes = '{3}';
+                        localStorage.attendedTheme = '{0}';
+                        localStorage.attendedKiosk = '{1}';
+                        localStorage.attendedType = '{2}';
+                        localStorage.attendedGroupTypes = '{3}';
                     }}
                 }});
             </script>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Entity;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -12,6 +13,7 @@ using System.Web.UI.WebControls;
 using Rock;
 using Rock.Attribute;
 using Rock.CheckIn;
+using Rock.Constants;
 using Rock.Data;
 using Rock.Model;
 using Rock.Web.Cache;
@@ -39,6 +41,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         ^FT30,350^A0N,30,30^FH\^FDDeviceName^FS
         ^FT420,350^A0N,30,30^FH\^FDPrinterIP^FS
         ^XZ", order: 3 )]
+    [BooleanField( "Allow Manual Setup", "If enabled, the block will allow the kiosk to be setup manually if it was not set via other means.", false, "", 4 )]
     public partial class Admin : CheckInBlock
     {
         #region Control Methods
@@ -106,16 +109,18 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }
                 else
                 {
-                    bool useGeoLocationService = GetAttributeValue( "EnableLocationSharing" ).AsBoolean();
-
-                    // Inject script used for geo location determiniation
-                    if ( !useGeoLocationService )
+                    if ( GetAttributeValue( "AllowManualSetup" ).AsBoolean() )
+                    {
+                        ddlKiosk.Visible = true;
+                    }
+                    else if ( !GetAttributeValue( "EnableLocationSharing" ).AsBoolean() )
                     {
                         lbOk.Visible = true;
                         AttemptKioskMatchByIpOrName();
                     }
                     else
                     {
+                        // Inject script used for geo location determination
                         RockPage.AddScriptLink( "~/Blocks/CheckIn/Scripts/geo-min.js" );
                         lbRefresh.Visible = true;
                         AddGeoLocationScript();
@@ -144,6 +149,48 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         </script>", this.Page.ClientScript.GetPostBackEventReference( lbRefresh, "" )
                     );
                     phScript.Controls.Add( new LiteralControl( script ) );
+
+                    if ( GetAttributeValue( "AllowManualSetup" ).AsBoolean() )
+                    {
+                        ddlTheme.Items.Clear();
+                        var di = new DirectoryInfo( this.Page.Request.MapPath( ResolveRockUrl( "~~" ) ) );
+                        foreach ( var themeDir in di.Parent.EnumerateDirectories().OrderBy( a => a.Name ) )
+                        {
+                            ddlTheme.Items.Add( new ListItem( themeDir.Name, themeDir.Name.ToLower() ) );
+                        }
+
+                        if ( !string.IsNullOrWhiteSpace( CurrentTheme ) )
+                        {
+                            ddlTheme.SetValue( CurrentTheme );
+                        }
+                        else
+                        {
+                            ddlTheme.SetValue( RockPage.Site.Theme.ToLower() );
+                        }
+
+                        ddlKiosk.Items.Clear();
+                        var kioskDeviceType = Rock.SystemGuid.DefinedValue.DEVICE_TYPE_CHECKIN_KIOSK.AsGuid();
+                        using ( var rockContext = new RockContext() )
+                        {
+                            ddlKiosk.DataSource = new DeviceService( rockContext )
+                                .Queryable().AsNoTracking()
+                                .Where( d => d.DeviceType.Guid.Equals( kioskDeviceType ) )
+                                .OrderBy( d => d.Name )
+                                .Select( d => new
+                                {
+                                    d.Id,
+                                    d.Name
+                                } )
+                                .ToList();
+                        }
+                        ddlKiosk.DataBind();
+                        ddlKiosk.Items.Insert( 0, new ListItem( None.Text, None.IdValue ) );
+
+                        if ( CurrentKioskId.HasValue )
+                        {
+                            ddlKiosk.SetValue( CurrentKioskId );
+                        }
+                    }   
 
                     // Initiate the check-in variables
                     lbOk.Focus();
@@ -205,7 +252,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
             lblInfo.Text = string.Format( "Device IP: {0} &nbsp;&nbsp;&nbsp;&nbsp; Name: {1} &nbsp;&nbsp;&nbsp;&nbsp; Location: {2}", ipAddress, hostName, deviceLocation );
             pnlContent.Update();
-            pnlHeader.Update();
         }
 
         #endregion Control Methods
@@ -329,6 +375,34 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         ( (Button)e.Item.FindControl( "btnGroupType" ) ).AddCssClass( "active" );
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Handles the SelectedIndexChanged event of the ddlTheme control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        protected void ddlTheme_SelectedIndexChanged( object sender, EventArgs e )
+        {
+            CurrentTheme = ddlTheme.SelectedValue;
+            RedirectToNewTheme( ddlTheme.SelectedValue );
+        }
+
+        /// <summary>
+        /// Handles the SelectedIndexChanged event of the ddlKiosk control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        protected void ddlKiosk_SelectedIndexChanged( object sender, EventArgs e )
+        {
+            var selectedKioskId = ddlKiosk.SelectedValueAsInt();
+            if ( selectedKioskId != None.Id )
+            {
+                CurrentKioskId = selectedKioskId;
+                hfGroupTypes.Value = string.Empty;
+                BindGroupTypes();
+                pnlContent.Update();
             }
         }
 
