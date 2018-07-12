@@ -818,7 +818,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 newFamilyList[pageOffset + personOffset] = newPerson;
                 personOffset++;
             }
-
+            
             ViewState["currentPage"] = currentPage;
             ViewState["newFamily"] = newFamilyList;
             dpNewFamily.SetPageProperties( e.StartRowIndex, e.MaximumRows, false );
@@ -1266,8 +1266,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// </summary>
         /// <param name="familyGroup">The family group.</param>
         /// <param name="newPeople">The new people.</param>
+        /// <param name="barcode">The barcode.</param>
         /// <returns></returns>
-        private Group AddGroupMembers( Group familyGroup, List<Person> newPeople )
+        private Group AddGroupMembers( Group familyGroup, List<Person> newPeople, string barcode = null )
         {
             var rockContext = new RockContext();
             var familyGroupType = GroupTypeCache.GetFamilyGroupType();
@@ -1332,6 +1333,16 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
 
             rockContext.SaveChanges();
+
+            // save any barcodes entered during create
+            var familyBarcodes = tbBarcodes.Text;
+            if ( !string.IsNullOrWhiteSpace( familyBarcodes ))
+            {
+                familyGroup.LoadAttributes( rockContext );
+                familyGroup.SetAttributeValue( "CheckinId", familyBarcodes.Replace( ',', '|' ) );
+                familyGroup.SaveAttributeValue( "CheckinId", rockContext );
+            }
+
             return familyGroup;
         }
 

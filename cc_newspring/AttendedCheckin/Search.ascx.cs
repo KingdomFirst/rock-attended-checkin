@@ -67,7 +67,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     pnlKeyPad.Visible = false;
                     tbSearchBox.Placeholder = "Enter Last Name, First Name or Phone";
                 }
-
+                
                 if ( !string.IsNullOrWhiteSpace( CurrentCheckInState.CheckIn.SearchValue ) )
                 {
                     tbSearchBox.Text = CurrentCheckInState.CheckIn.SearchValue;
@@ -94,6 +94,23 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }
 
                 tbSearchBox.Focus();
+            }
+            else
+            {
+                if ( Request.Form["__EVENTARGUMENT"] != null )
+                {
+                    if ( Request.Form["__EVENTARGUMENT"] == "Wedge_Entry" )
+                    {
+                        var dv = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.CHECKIN_SEARCH_TYPE_SCANNED_ID );
+                        SearchFamilyById( dv, hfSearchEntry.Value );
+                    }
+                    else if ( Request.Form["__EVENTARGUMENT"] == "Family_Id_Search" )
+                    {
+                        var dv = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.CHECKIN_SEARCH_TYPE_FAMILY_ID );
+                        SearchFamilyById( dv, hfSearchEntry.Value );
+                    }
+                }
+
             }
         }
 
@@ -232,6 +249,35 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             {
                 NavigateToLinkedPage( "AdminPage" );
                 return;
+            }
+        }
+
+        #endregion
+
+        #region Barcode Scanning
+
+        /// <summary>
+        /// Searches the family by identifier.
+        /// </summary>
+        /// <param name="searchType">Type of the search.</param>
+        /// <param name="searchValue">The search value.</param>
+        private void SearchFamilyById( DefinedValueCache searchType, string searchValue )
+        {
+            CurrentCheckInState.CheckIn.UserEnteredSearch = false;
+            CurrentCheckInState.CheckIn.ConfirmSingleFamily = false;
+            CurrentCheckInState.CheckIn.SearchType = searchType;
+            CurrentCheckInState.CheckIn.SearchValue = searchValue;
+
+            var errors = new List<string>();
+            if ( ProcessActivity( "Family Search", out errors ) )
+            {
+                SaveState();
+                NavigateToNextPage();
+            }
+            else
+            {
+                var errorMsg = "<ul><li>" + errors.AsDelimited( "</li><li>" ) + "</li></ul>";
+                maWarning.Show( errorMsg.Replace( "'", @"\'" ), ModalAlertType.Warning );
             }
         }
 

@@ -3,6 +3,7 @@
 <asp:UpdatePanel ID="pnlContent" runat="server">
     <ContentTemplate>
 
+        <asp:HiddenField ID="hfSearchEntry" runat="server" ClientIDMode="Static" />
         <asp:PlaceHolder ID="phScript" runat="server" />
         <Rock:ModalAlert ID="maWarning" runat="server" />
         <asp:LinkButton ID="lbRefresh" runat="server" OnClick="lbRefresh_Click" />
@@ -78,10 +79,42 @@
             $name.val('');
         });
 
+        var lastKeyPress = 0;
+        var keyboardBuffer = '';
+        var swipeProcessing = false;
+
         $(document).keydown(function (e) {
+            // Ctrl + M to go back
             if (e.keyCode === 77 && e.ctrlKey) {
                 window.location.href = "/attendedcheckin/admin?back=true";
                 return false;
+            }
+
+            // if the character is a line break stop buffering and call postback
+            if (e.key == 13) {
+                if (keyboardBuffer.length != 0 && !swipeProcessing) {
+                    $('#hfSearchEntry').val(keyboardBuffer);
+                    keyboardBuffer = '';
+                    swipeProcessing = true;
+                    window.location = "javascript:__doPostBack('hfSearchEntry', 'Wedge_Entry')";
+                }
+            }
+            else {
+                if ((date.getTime() - lastKeyPress) > 500) {
+                    keyboardBuffer = String.fromCharCode(e.which);
+                } else if ((date.getTime() - lastKeyPress) < 100) {
+                    keyboardBuffer += String.fromCharCode(e.which);
+                }
+            }
+            // if the character is a line break stop buffering and call postback
+            if (e.which == 13 && keyboardBuffer.length != 0) {
+                if (!swipeProcessing) {
+                    $('#hfSearchEntry').val(keyboardBuffer);
+                    keyboardBuffer = '';
+                    swipeProcessing = true;
+                    console.log('processing');
+                    window.location = "javascript:__doPostBack('hfSearchEntry', 'Wedge_Entry')";
+                }
             }
         });
 
@@ -95,5 +128,6 @@
     $(document).ready(function () {
         setClickEvents();
     });
+
     Sys.WebForms.PageRequestManager.getInstance().add_endRequest(setClickEvents);
 </script>
