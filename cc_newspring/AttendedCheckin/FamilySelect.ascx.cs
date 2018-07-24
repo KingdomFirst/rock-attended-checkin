@@ -26,10 +26,11 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [BooleanField( "Enable Add Buttons", "Show the add people/visitor/family buttons on the family select page?", true, "", 1 )]
     [BooleanField( "Show Contact Info", "Show the phone and email columns on add people/visitor/family modals.", false, "", 2 )]
     [BooleanField( "Hide Special Needs", "Hide the special needs column from add people/visitor/family modals.", false, "", 3 )]
-    [DefinedValueField( Rock.SystemGuid.DefinedType.PERSON_CONNECTION_STATUS, "Default Connection Status", "Select the default connection status for people added in checkin", true, false, "B91BA046-BC1E-400C-B85D-638C1F4E0CE2", "", 4 )]
-    [DefinedValueField( "8345DD45-73C6-4F5E-BEBD-B77FC83F18FD", "Default Phone Type", "By default, the Home Phone type is stored when Show Contact Info is turned on. Select a different type as the default.", false, false, "AA8732FB-2CEA-4C76-8D6D-6AAA2C6A4303", "", 5 )]
-    [AttributeField( Rock.SystemGuid.EntityType.PERSON, "Person Special Needs Attribute", "Select the person attribute used to filter kids with special needs.", true, false, "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF", "", 6 )]
-    [TextField( "Not Found Text", "What text should display when the nothing is found?", true, "Please add a person or family.", "", 7 )]
+    [BooleanField( "Preselect Family Members", "By default all eligible family members will be selected for checkin.  Toggle this setting to force manual person selections.", true, "", 4)]
+    [DefinedValueField( Rock.SystemGuid.DefinedType.PERSON_CONNECTION_STATUS, "Default Connection Status", "Select the default connection status for people added in checkin", true, false, "B91BA046-BC1E-400C-B85D-638C1F4E0CE2", "", 5 )]
+    [DefinedValueField( "8345DD45-73C6-4F5E-BEBD-B77FC83F18FD", "Default Phone Type", "By default, the Home Phone type is stored when Show Contact Info is turned on. Select a different type as the default.", false, false, "AA8732FB-2CEA-4C76-8D6D-6AAA2C6A4303", "", 6 )]
+    [AttributeField( Rock.SystemGuid.EntityType.PERSON, "Person Special Needs Attribute", "Select the person attribute used to filter kids with special needs.", true, false, "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF", "", 7 )]
+    [TextField( "Not Found Text", "What text should display when the nothing is found?", true, "Please add a person or family.", "", 8 )]
     public partial class FamilySelect : CheckInBlock
     {
         #region Variables
@@ -818,7 +819,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 newFamilyList[pageOffset + personOffset] = newPerson;
                 personOffset++;
             }
-            
+
             ViewState["currentPage"] = currentPage;
             ViewState["newFamily"] = newFamilyList;
             dpNewFamily.SetPageProperties( e.StartRowIndex, e.MaximumRows, false );
@@ -885,19 +886,19 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 List<CheckInPerson> memberDataSource = null;
                 List<CheckInPerson> visitorDataSource = null;
 
+                var preselectFamilyMembers = GetAttributeValue( "PreselectFamilyMembers" ).AsBoolean();
                 selectedFamily = selectedFamily ?? CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
 
                 if ( selectedFamily != null && selectedFamily.People.Any( f => !f.ExcludedByFilter ) )
                 {
                     memberDataSource = selectedFamily.People.Where( f => f.FamilyMember && !f.ExcludedByFilter )
                         .OrderByDescending( p => p.Person.AgePrecise ).ToList();
-                    memberDataSource.ForEach( p => p.Selected = true );
+                    memberDataSource.ForEach( p => p.Selected = preselectFamilyMembers );
 
                     visitorDataSource = selectedFamily.People.Where( f => !f.FamilyMember && !f.ExcludedByFilter )
                         .OrderByDescending( p => p.Person.AgePrecise ).ToList();
 
-                    hfPersonIds.Value = string.Join( ",", selectedFamily.People.Where( f => !f.ExcludedByFilter && ( f.FamilyMember || f.Selected ) )
-                        .Select( f => f.Person.Id ) ) + ",";
+                    hfPersonIds.Value = string.Join( ",", memberDataSource.Where( p => p.Selected ).Select( f => f.Person.Id ) ) + ",";
                     ViewState["hfPersonIds"] = hfPersonIds.Value;
                 }
 
@@ -1134,8 +1135,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         : abilityLevelValues.Where( dv => dv.Guid.ToString()
                             .Equals( p.AttributeValues["AbilityLevel"].Value, StringComparison.OrdinalIgnoreCase ) )
                             .Select( dv => dv.Value ).FirstOrDefault(),
-                Phone = p.PhoneNumbers.Any( n => n.NumberTypeValueId == personPhoneType.Id ) 
-                        ? p.PhoneNumbers.FirstOrDefault( n => n.NumberTypeValueId == personPhoneType.Id ).NumberFormatted 
+                Phone = p.PhoneNumbers.Any( n => n.NumberTypeValueId == personPhoneType.Id )
+                        ? p.PhoneNumbers.FirstOrDefault( n => n.NumberTypeValueId == personPhoneType.Id ).NumberFormatted
                         : string.Empty,
                 p.Email,
                 HasSpecialNeeds = p.AttributeValues.Keys.Contains( SpecialNeedsKey )
@@ -1179,7 +1180,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var personPhoneType = DefinedValueCache.Read( GetAttributeValue( "DefaultPhoneType" ).AsGuid(), rockContext );
             var activeRecord = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.PERSON_RECORD_STATUS_ACTIVE.AsGuid() );
             var personType = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.PERSON_RECORD_TYPE_PERSON.AsGuid() );
-            
+
             foreach ( SerializedPerson personData in serializedPeople )
             {
                 bool hasAbility = !string.IsNullOrWhiteSpace( personData.Ability ) && personData.AbilityGroup == "Ability";
