@@ -131,16 +131,16 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     string script = string.Format( @"<script>
                         $(document).ready(function (e) {{
                             if (localStorage) {{
-                                if (localStorage.attendedKiosk) {{
-                                    $('[id$=""hfKiosk""]').val(localStorage.attendedKiosk);
-                                    if (localStorage.attendedTheme) {{
-                                        $('[id$=""hfTheme""]').val(localStorage.attendedTheme);
+                                if (localStorage.checkInKiosk) {{
+                                    $('[id$=""hfKiosk""]').val(localStorage.checkInKiosk);
+                                    if (localStorage.theme) {{
+                                        $('[id$=""hfTheme""]').val(localStorage.theme);
                                     }}
-                                    if (localStorage.attendedType) {{
-                                        $('[id$=""hfCheckinType""]').val(localStorage.attendedType);
+                                    if (localStorage.checkInType) {{
+                                        $('[id$=""hfCheckinType""]').val(localStorage.checkInType);
                                     }}
-                                    if (localStorage.attendedGroupTypes) {{
-                                        $('[id$=""hfGroupTypes""]').val(localStorage.attendedGroupTypes);
+                                    if (localStorage.checkInGroupTypes) {{
+                                        $('[id$=""hfGroupTypes""]').val(localStorage.checkInGroupTypes);
                                     }}
                                 }}
                                 window.location = ""javascript:{0}"";
@@ -190,7 +190,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         {
                             ddlKiosk.SetValue( CurrentKioskId );
                         }
-                    }   
+                    }
 
                     // Initiate the check-in variables
                     lbOk.Focus();
@@ -236,7 +236,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             {
                 ClearMobileCookie();
                 CurrentKioskId = device.Id;
-                
+
                 var location = device.Locations.FirstOrDefault();
                 if ( location != null )
                 {

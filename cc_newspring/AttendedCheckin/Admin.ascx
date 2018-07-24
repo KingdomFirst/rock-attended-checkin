@@ -4,12 +4,12 @@
     <ContentTemplate>
 
         <asp:PlaceHolder ID="phScript" runat="server"></asp:PlaceHolder>
-        <asp:HiddenField ID="hfLatitude" runat="server" />
-        <asp:HiddenField ID="hfLongitude" runat="server" />
-        <asp:HiddenField ID="hfTheme" runat="server" />
         <asp:HiddenField ID="hfKiosk" runat="server" />
+        <asp:HiddenField ID="hfTheme" runat="server" />
         <asp:HiddenField ID="hfCheckinType" runat="server" />
         <asp:HiddenField ID="hfGroupTypes" runat="server" />
+        <asp:HiddenField ID="hfLatitude" runat="server" />
+        <asp:HiddenField ID="hfLongitude" runat="server" />
 
         <div style="display: none">
             <asp:LinkButton ID="lbTestPrint" runat="server" />

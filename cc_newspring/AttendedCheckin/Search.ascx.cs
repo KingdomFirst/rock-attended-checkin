@@ -67,7 +67,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     pnlKeyPad.Visible = false;
                     tbSearchBox.Placeholder = "Enter Last Name, First Name or Phone";
                 }
-                
+
                 if ( !string.IsNullOrWhiteSpace( CurrentCheckInState.CheckIn.SearchValue ) )
                 {
                     tbSearchBox.Text = CurrentCheckInState.CheckIn.SearchValue;
@@ -77,10 +77,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             <script>
                 $(document).ready(function (e) {{
                     if (localStorage) {{
-                        localStorage.attendedTheme = '{0}';
-                        localStorage.attendedKiosk = '{1}';
-                        localStorage.attendedType = '{2}';
-                        localStorage.attendedGroupTypes = '{3}';
+                        localStorage.theme = '{0}';
+                        localStorage.checkInKiosk = '{1}';
+                        localStorage.checkInType = '{2}';
+                        localStorage.checkInGroupTypes = '{3}';
                     }}
                 }});
             </script>
@@ -110,7 +110,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         SearchFamilyById( dv, hfSearchEntry.Value );
                     }
                 }
-
             }
         }
 
