@@ -23,8 +23,9 @@
             <asp:UpdatePanel ID="pnlHeader" runat="server">
                 <ContentTemplate>
                     <div class="row checkin-header">
-                        <div class="col-xs-3 push-quarter-top">
-                            <Rock:RockDropDownList ID="ddlKiosk" runat="server" CssClass="input-large" OnSelectedIndexChanged="ddlKiosk_SelectedIndexChanged" AutoPostBack="true" DataTextField="Name" DataValueField="Id" Visible="false" />
+                        <div class="col-xs-3">
+                            <Rock:RockDropDownList ID="ddlKiosk" runat="server" CssClass="input-large" Label="Device" OnSelectedIndexChanged="ddlKiosk_SelectedIndexChanged" AutoPostBack="true" DataTextField="Name" DataValueField="Id" Visible="false" />
+                            <Rock:RockDropDownList ID="ddlTheme" runat="server" CssClass="input-large" Label="Theme" Visible="false" OnSelectedIndexChanged="ddlTheme_SelectedIndexChanged" AutoPostBack="true" />
                         </div>
                         <div class="col-xs-6 text-center">
                             <h1>Admin</h1>
@@ -40,8 +41,8 @@
 
             <div class="row checkin-body">
                 <div class="col-xs-12 centered">
-                    <asp:Label ID="lblHeader" runat="server" Visible="false" CssClass="push-quarter-top"><h4>Checkin Type(s)</h4></asp:Label>
-                    <asp:DataList ID="dlMinistry" runat="server" OnItemDataBound="dlMinistry_ItemDataBound" RepeatColumns="3" CssClass="full-width centered">
+                    <asp:Label ID="lblHeader" runat="server" Visible="false" CssClass="push-quarter-top"><h4>Checkin Area(s)</h4></asp:Label>
+                    <asp:DataList ID="ddlGroupTypes" runat="server" OnItemDataBound="ddlGroupTypes_ItemDataBound" RepeatColumns="3" CssClass="full-width centered">
                         <ItemStyle CssClass="expanded" />
                         <ItemTemplate>
                             <asp:Button ID="btnGroupType" runat="server" data-id='<%# Eval("Id") %>' CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" Text='<%# Eval("Name") %>' OnClientClick="toggleGroupType(this); return false;" />
@@ -51,9 +52,6 @@
             </div>
 
             <div class="row checkin-footer centered">
-                <div class="col-xs-3">
-                    <Rock:RockDropDownList ID="ddlTheme" runat="server" CssClass="input-large" Label="Theme" Visible="false" OnSelectedIndexChanged="ddlTheme_SelectedIndexChanged" AutoPostBack="true" />
-                </div>
                 <asp:Label ID="lblInfo" runat="server" />
             </div>
         </asp:Panel>

@@ -212,7 +212,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             else
             {
                 // Display a warning if the check-in state is active but the schedule is not
-                maWarning.Show( "Check-in does not have an active schedule.", ModalAlertType.Warning );
+                maWarning.Show( "Check-in is not currently active.", ModalAlertType.Warning );
             }
         }
 

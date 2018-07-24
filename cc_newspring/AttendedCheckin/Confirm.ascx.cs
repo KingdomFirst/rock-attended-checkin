@@ -88,8 +88,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 NavigateToHomePage();
             }
 
-            RockPage.AddScriptLink( this.Page, "~/Scripts/CheckinClient/cordova-2.4.0.js", false );
-            RockPage.AddScriptLink( this.Page, "~/Scripts/CheckinClient/ZebraPrint.js", false );
+            RockPage.AddScriptLink( "~/Scripts/CheckinClient/cordova-2.4.0.js", false );
+            RockPage.AddScriptLink( "~/Scripts/CheckinClient/ZebraPrint.js" );
         }
 
         /// <summary>

@@ -243,7 +243,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     deviceLocation = location.Name;
                 }
             }
-            else
+            else if ( !GetAttributeValue( "AllowManualSetup" ).AsBoolean() )
             {
                 maAlert.Show( "This device does not match a known check-in station.", ModalAlertType.Alert );
                 lbOk.Text = @"<span class='fa fa-refresh' />";
@@ -265,21 +265,20 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbOk_Click( object sender, EventArgs e )
         {
-            if ( CurrentCheckInState == null )
+            if ( ddlKiosk.Visible && ddlKiosk.SelectedValue == None.IdValue )
             {
                 // reset client state to match server cache
                 hfGroupTypes.Value = ViewState["hfGroupTypes"] as string;
-                maAlert.Show( "Check-in state timed out.  Please refresh the page.", ModalAlertType.Warning );
+                maAlert.Show( "Please select a check-in device and area.", ModalAlertType.Warning );
                 pnlContent.Update();
-                Response.Redirect( Request.Path, false );
                 return;
             }
-
+            
             var selectedGroupTypes = hfGroupTypes.Value.SplitDelimitedValues().Select( int.Parse ).ToList();
             if ( !selectedGroupTypes.Any() )
             {
                 hfGroupTypes.Value = ViewState["hfGroupTypes"] as string;
-                maAlert.Show( "Please select at least one check-in type.", ModalAlertType.Warning );
+                maAlert.Show( "Please select at least one check-in area.", ModalAlertType.Warning );
                 pnlContent.Update();
                 return;
             }
@@ -359,11 +358,11 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         }
 
         /// <summary>
-        /// Handles the ItemDataBound event of the dlMinistry control.
+        /// Handles the ItemDataBound event of the ddlGroupTypes control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="RepeaterItemEventArgs"/> instance containing the event data.</param>
-        protected void dlMinistry_ItemDataBound( object sender, DataListItemEventArgs e )
+        protected void ddlGroupTypes_ItemDataBound( object sender, DataListItemEventArgs e )
         {
             var selectedGroupTypes = hfGroupTypes.Value.SplitDelimitedValues().Select( int.Parse ).ToList();
             if ( selectedGroupTypes.Count > 0 )
@@ -400,10 +399,15 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             if ( selectedKioskId != None.Id )
             {
                 CurrentKioskId = selectedKioskId;
-                hfGroupTypes.Value = string.Empty;
-                BindGroupTypes();
-                pnlContent.Update();
+                hfKiosk.Value = selectedKioskId.ToString();
             }
+
+            CurrentCheckInState = null;
+            CurrentWorkflow = null;
+            hfGroupTypes.Value = string.Empty;
+            BindGroupTypes();
+            SaveState();
+            pnlContent.Update();
         }
 
         #endregion Events
@@ -572,14 +576,18 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="rockContext">The rock context.</param>
         private void BindGroupTypes( RockContext rockContext = null )
         {
+            var groupTypes = new List<GroupType>();
             if ( CurrentKioskId > 0 )
             {
-                dlMinistry.DataSource = GetDeviceGroupTypes( (int)CurrentKioskId, rockContext );
-                dlMinistry.DataBind();
-                lblHeader.Visible = true;
-                // store server side selections
-                ViewState["hfGroupTypes"] = hfGroupTypes.Value;
+                groupTypes = GetDeviceGroupTypes( (int)CurrentKioskId, rockContext );
             }
+
+            lblHeader.Visible = groupTypes.Any();
+            ddlGroupTypes.DataSource = groupTypes;
+            ddlGroupTypes.DataBind();
+
+            // store server side selections
+            ViewState["hfGroupTypes"] = hfGroupTypes.Value;
         }
 
         /// <summary>
