@@ -90,6 +90,7 @@
                 return false;
             }
 
+            var date = new Date();
             // if the character is a line break stop buffering and call postback
             if (e.key == 13) {
                 if (keyboardBuffer.length != 0 && !swipeProcessing) {
