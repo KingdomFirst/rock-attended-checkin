@@ -90,33 +90,32 @@
                 return false;
             }
 
+            // Ctrl + I to test wedge search
+            if (e.keyCode === 73 && e.ctrlKey) {
+                $('#hfSearchEntry').val('20012867');
+                swipeProcessing = true;
+                window.location = "javascript:__doPostBack('hfSearchEntry', 'Wedge_Entry')";
+            }
+
             var date = new Date();
             // if the character is a line break stop buffering and call postback
-            if (e.key == 13) {
-                if (keyboardBuffer.length != 0 && !swipeProcessing) {
-                    $('#hfSearchEntry').val(keyboardBuffer);
-                    keyboardBuffer = '';
-                    swipeProcessing = true;
-                    window.location = "javascript:__doPostBack('hfSearchEntry', 'Wedge_Entry')";
-                }
-            }
-            else {
-                if ((date.getTime() - lastKeyPress) > 500) {
-                    keyboardBuffer = String.fromCharCode(e.which);
-                } else if ((date.getTime() - lastKeyPress) < 100) {
-                    keyboardBuffer += String.fromCharCode(e.which);
-                }
-            }
-            // if the character is a line break stop buffering and call postback
-            if (e.which == 13 && keyboardBuffer.length != 0) {
+            if (keyboardBuffer.length > 1 && (e.key == 13 || e.which == 13 )) {
                 if (!swipeProcessing) {
                     $('#hfSearchEntry').val(keyboardBuffer);
                     keyboardBuffer = '';
                     swipeProcessing = true;
-                    console.log('processing');
                     window.location = "javascript:__doPostBack('hfSearchEntry', 'Wedge_Entry')";
                 }
             }
+            else if (!e.ctrlKey) {
+                if ((date.getTime() - lastKeyPress) > 300) {
+                    keyboardBuffer = String.fromCharCode(e.which);
+                } else if ((date.getTime() - lastKeyPress) < 80) {
+                    keyboardBuffer += String.fromCharCode(e.which);
+                }
+            }
+
+            lastKeyPress = date.getTime();
         });
 
         // set focus to the input unless on a touch device
