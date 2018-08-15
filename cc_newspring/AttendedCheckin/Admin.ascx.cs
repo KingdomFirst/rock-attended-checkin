@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Entity;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -12,6 +13,7 @@ using System.Web.UI.WebControls;
 using Rock;
 using Rock.Attribute;
 using Rock.CheckIn;
+using Rock.Constants;
 using Rock.Data;
 using Rock.Model;
 using Rock.Web.Cache;
@@ -39,6 +41,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         ^FT30,350^A0N,30,30^FH\^FDDeviceName^FS
         ^FT420,350^A0N,30,30^FH\^FDPrinterIP^FS
         ^XZ", order: 3 )]
+    [BooleanField( "Allow Manual Setup", "If enabled, the block will allow the kiosk to be setup manually if it was not set via other means.", false, "", 4 )]
     public partial class Admin : CheckInBlock
     {
         #region Control Methods
@@ -106,16 +109,18 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }
                 else
                 {
-                    var useGeoLocationService = GetAttributeValue( "EnableLocationSharing" ).AsBoolean();
-
-                    // Inject script used for geo location determiniation
-                    if ( !useGeoLocationService )
+                    if ( GetAttributeValue( "AllowManualSetup" ).AsBoolean() )
+                    {
+                        ddlKiosk.Visible = true;
+                    }
+                    else if ( !GetAttributeValue( "EnableLocationSharing" ).AsBoolean() )
                     {
                         lbOk.Visible = true;
                         AttemptKioskMatchByIpOrName();
                     }
                     else
                     {
+                        // Inject script used for geo location determination
                         RockPage.AddScriptLink( "~/Blocks/CheckIn/Scripts/geo-min.js" );
                         lbRefresh.Visible = true;
                         AddGeoLocationScript();
@@ -126,16 +131,16 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     var script = string.Format( @"<script>
                         $(document).ready(function (e) {{
                             if (localStorage) {{
-                                if (localStorage.attendedKiosk) {{
-                                    $('[id$=""hfKiosk""]').val(localStorage.attendedKiosk);
-                                    if (localStorage.attendedTheme) {{
-                                        $('[id$=""hfTheme""]').val(localStorage.attendedTheme);
+                                if (localStorage.checkInKiosk) {{
+                                    $('[id$=""hfKiosk""]').val(localStorage.checkInKiosk);
+                                    if (localStorage.theme) {{
+                                        $('[id$=""hfTheme""]').val(localStorage.theme);
                                     }}
-                                    if (localStorage.attendedType) {{
-                                        $('[id$=""hfCheckinType""]').val(localStorage.attendedType);
+                                    if (localStorage.checkInType) {{
+                                        $('[id$=""hfCheckinType""]').val(localStorage.checkInType);
                                     }}
-                                    if (localStorage.attendedGroupTypes) {{
-                                        $('[id$=""hfGroupTypes""]').val(localStorage.attendedGroupTypes);
+                                    if (localStorage.checkInGroupTypes) {{
+                                        $('[id$=""hfGroupTypes""]').val(localStorage.checkInGroupTypes);
                                     }}
                                 }}
                                 window.location = ""javascript:{0}"";
@@ -146,6 +151,48 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     using ( var literalControl = new LiteralControl( script ) )
                     {
                         phScript.Controls.Add( literalControl );
+                    }
+
+                    if ( GetAttributeValue( "AllowManualSetup" ).AsBoolean() )
+                    {
+                        ddlTheme.Items.Clear();
+                        var di = new DirectoryInfo( this.Page.Request.MapPath( ResolveRockUrl( "~~" ) ) );
+                        foreach ( var themeDir in di.Parent.EnumerateDirectories().OrderBy( a => a.Name ) )
+                        {
+                            ddlTheme.Items.Add( new ListItem( themeDir.Name, themeDir.Name.ToLower() ) );
+                        }
+
+                        if ( !string.IsNullOrWhiteSpace( CurrentTheme ) )
+                        {
+                            ddlTheme.SetValue( CurrentTheme );
+                        }
+                        else
+                        {
+                            ddlTheme.SetValue( RockPage.Site.Theme.ToLower() );
+                        }
+
+                        ddlKiosk.Items.Clear();
+                        var kioskDeviceType = Rock.SystemGuid.DefinedValue.DEVICE_TYPE_CHECKIN_KIOSK.AsGuid();
+                        using ( var rockContext = new RockContext() )
+                        {
+                            ddlKiosk.DataSource = new DeviceService( rockContext )
+                                .Queryable().AsNoTracking()
+                                .Where( d => d.DeviceType.Guid.Equals( kioskDeviceType ) )
+                                .OrderBy( d => d.Name )
+                                .Select( d => new
+                                {
+                                    d.Id,
+                                    d.Name
+                                } )
+                                .ToList();
+                        }
+                        ddlKiosk.DataBind();
+                        ddlKiosk.Items.Insert( 0, new ListItem( None.Text, None.IdValue ) );
+
+                        if ( CurrentKioskId.HasValue )
+                        {
+                            ddlKiosk.SetValue( CurrentKioskId );
+                        }
                     }
 
                     // Initiate the check-in variables
@@ -199,7 +246,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     deviceLocation = location.Name;
                 }
             }
-            else
+            else if ( !GetAttributeValue( "AllowManualSetup" ).AsBoolean() )
             {
                 maAlert.Show( "This device does not match a known check-in station.", ModalAlertType.Alert );
                 lbOk.Text = @"<span class='fa fa-refresh' />";
@@ -208,7 +255,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
             lblInfo.Text = string.Format( "Device IP: {0} &nbsp;&nbsp;&nbsp;&nbsp; Name: {1} &nbsp;&nbsp;&nbsp;&nbsp; Location: {2}", ipAddress, hostName, deviceLocation );
             pnlContent.Update();
-            pnlHeader.Update();
         }
 
         #endregion Control Methods
@@ -222,21 +268,20 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbOk_Click( object sender, EventArgs e )
         {
-            if ( CurrentCheckInState == null )
+            if ( ddlKiosk.Visible && ddlKiosk.SelectedValue == None.IdValue )
             {
                 // reset client state to match server cache
                 hfGroupTypes.Value = ViewState["hfGroupTypes"] as string;
-                maAlert.Show( "Check-in state timed out.  Please refresh the page.", ModalAlertType.Warning );
+                maAlert.Show( "Please select a check-in device and area.", ModalAlertType.Warning );
                 pnlContent.Update();
-                Response.Redirect( Request.Path, false );
                 return;
             }
-
+            
             var selectedGroupTypes = hfGroupTypes.Value.SplitDelimitedValues().Select( int.Parse ).ToList();
             if ( !selectedGroupTypes.Any() )
             {
                 hfGroupTypes.Value = ViewState["hfGroupTypes"] as string;
-                maAlert.Show( "Please select at least one check-in type.", ModalAlertType.Warning );
+                maAlert.Show( "Please select at least one check-in area.", ModalAlertType.Warning );
                 pnlContent.Update();
                 return;
             }
@@ -316,11 +361,11 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         }
 
         /// <summary>
-        /// Handles the ItemDataBound event of the dlMinistry control.
+        /// Handles the ItemDataBound event of the ddlGroupTypes control.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="RepeaterItemEventArgs"/> instance containing the event data.</param>
-        protected void dlMinistry_ItemDataBound( object sender, DataListItemEventArgs e )
+        protected void ddlGroupTypes_ItemDataBound( object sender, DataListItemEventArgs e )
         {
             var selectedGroupTypes = hfGroupTypes.Value.SplitDelimitedValues().Select( int.Parse ).ToList();
             if ( selectedGroupTypes.Count > 0 )
@@ -333,6 +378,39 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Handles the SelectedIndexChanged event of the ddlTheme control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        protected void ddlTheme_SelectedIndexChanged( object sender, EventArgs e )
+        {
+            CurrentTheme = ddlTheme.SelectedValue;
+            RedirectToNewTheme( ddlTheme.SelectedValue );
+        }
+
+        /// <summary>
+        /// Handles the SelectedIndexChanged event of the ddlKiosk control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        protected void ddlKiosk_SelectedIndexChanged( object sender, EventArgs e )
+        {
+            var selectedKioskId = ddlKiosk.SelectedValueAsInt();
+            if ( selectedKioskId != None.Id )
+            {
+                CurrentKioskId = selectedKioskId;
+                hfKiosk.Value = selectedKioskId.ToString();
+            }
+
+            CurrentCheckInState = null;
+            CurrentWorkflow = null;
+            hfGroupTypes.Value = string.Empty;
+            BindGroupTypes();
+            SaveState();
+            pnlContent.Update();
         }
 
         #endregion Events
@@ -506,14 +584,18 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="rockContext">The rock context.</param>
         private void BindGroupTypes( RockContext rockContext = null )
         {
+            var groupTypes = new List<GroupType>();
             if ( CurrentKioskId > 0 )
             {
-                dlMinistry.DataSource = GetDeviceGroupTypes( (int)CurrentKioskId, rockContext );
-                dlMinistry.DataBind();
-                lblHeader.Visible = true;
-                // store server side selections
-                ViewState["hfGroupTypes"] = hfGroupTypes.Value;
+                groupTypes = GetDeviceGroupTypes( (int)CurrentKioskId, rockContext );
             }
+
+            lblHeader.Visible = groupTypes.Any();
+            ddlGroupTypes.DataSource = groupTypes;
+            ddlGroupTypes.DataBind();
+
+            // store server side selections
+            ViewState["hfGroupTypes"] = hfGroupTypes.Value;
         }
 
         /// <summary>

@@ -244,7 +244,7 @@
         <!-- ADD FAMILY MODAL -->
         <Rock:ModalDialog ID="mdlNewFamily" runat="server" Content-DefaultButton="lbSaveFamily">
             <Content>
-                <div class="soft-quarter-ends">
+                <div class="soft-quarter-top">
                     <!-- Modal Header -->
                     <div class="row checkin-header">
                         <div class="col-xs-3 checkin-actions">
@@ -328,8 +328,13 @@
                             </ItemTemplate>
                         </asp:ListView>
 
-                        <div class="row">
-                            <div class="col-xs-offset-9 col-xs-3 text-right">
+
+                        <div class="row push-quarter-top">
+                            <div class="col-xs-5">
+                                <Rock:RockTextBox ID="tbBarcodes" runat="server" Label="Family Barcode" Placeholder="Enter a comma separated list of barcodes" />
+                            </div>
+                            
+                            <div class="col-xs-offset-4 col-xs-3 text-right push-quarter-top">
                                 <asp:DataPager ID="dpNewFamily" runat="server" PageSize="4" PagedControlID="lvNewFamily">
                                     <Fields>
                                         <asp:NextPreviousPagerField ButtonType="Button" ButtonCssClass="pagination btn btn-lg btn-primary btn-checkin-select" />
