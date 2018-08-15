@@ -9,7 +9,6 @@ using Rock.Attribute;
 using Rock.CheckIn;
 using Rock.Model;
 using Rock.Web.Cache;
-using Rock.Cache;
 using Rock.Web.UI.Controls;
 
 namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
@@ -163,7 +162,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 double searchNumber;
                 if ( Double.TryParse( searchInput, out searchNumber ) )
                 {
-                    CurrentCheckInState.CheckIn.SearchType = CacheDefinedValue.Get( Rock.SystemGuid.DefinedValue.CHECKIN_SEARCH_TYPE_PHONE_NUMBER );
+                    CurrentCheckInState.CheckIn.SearchType = DefinedValueCache.Get( Rock.SystemGuid.DefinedValue.CHECKIN_SEARCH_TYPE_PHONE_NUMBER );
                     var minLength = CurrentCheckInType != null ? CurrentCheckInType.MinimumPhoneSearchLength : 4;
                     var maxLength = CurrentCheckInType != null ? CurrentCheckInType.MaximumPhoneSearchLength : 10;
 
@@ -179,7 +178,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }
                 else
                 {
-                    CurrentCheckInState.CheckIn.SearchType = CacheDefinedValue.Get( Rock.SystemGuid.DefinedValue.CHECKIN_SEARCH_TYPE_NAME );
+                    CurrentCheckInState.CheckIn.SearchType = DefinedValueCache.Get( Rock.SystemGuid.DefinedValue.CHECKIN_SEARCH_TYPE_NAME );
                 }
 
                 // remember the current search value

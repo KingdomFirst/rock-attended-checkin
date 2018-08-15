@@ -9,7 +9,6 @@ using System.Web.UI.WebControls;
 using cc.newspring.AttendedCheckIn.Utility;
 using Rock;
 using Rock.Attribute;
-using Rock.Cache;
 using Rock.CheckIn;
 using Rock.Data;
 using Rock.Model;
@@ -82,7 +81,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     var personSpecialNeedsGuid = GetAttributeValue( "PersonSpecialNeedsAttribute" ).AsGuid();
                     if ( personSpecialNeedsGuid != Guid.Empty )
                     {
-                        var specialNeedsAttribute = CacheAttribute.Get( personSpecialNeedsGuid );
+                        var specialNeedsAttribute = AttributeCache.Get( personSpecialNeedsGuid );
                         if ( specialNeedsAttribute != null )
                         {
                             specialNeedsKey = specialNeedsAttribute.Key;
@@ -431,7 +430,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 var person = ( (ListViewDataItem)e.Item ).DataItem as SerializedPerson;
 
                 var ddlSuffix = (RockDropDownList)e.Item.FindControl( "ddlSuffix" );
-                ddlSuffix.BindToDefinedType( CacheDefinedType.Get( new Guid( Rock.SystemGuid.DefinedType.PERSON_SUFFIX ) ), true );
+                ddlSuffix.BindToDefinedType( DefinedTypeCache.Get( new Guid( Rock.SystemGuid.DefinedType.PERSON_SUFFIX ) ), true );
                 if ( person.SuffixValueId.HasValue )
                 {
                     ddlSuffix.SelectedValue = person.SuffixValueId.ToString();
@@ -1035,7 +1034,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             tbFirstName.Text = string.Empty;
             tbLastName.Text = string.Empty;
-            ddlPersonSuffix.BindToDefinedType( CacheDefinedType.Get( new Guid( Rock.SystemGuid.DefinedType.PERSON_SUFFIX ) ), true );
+            ddlPersonSuffix.BindToDefinedType( DefinedTypeCache.Get( new Guid( Rock.SystemGuid.DefinedType.PERSON_SUFFIX ) ), true );
             ddlPersonSuffix.SelectedIndex = 0;
             ddlPersonGender.BindToEnum<Gender>();
             ddlPersonGender.SelectedIndex = 0;
@@ -1058,8 +1057,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var rockContext = new RockContext();
             var personService = new PersonService( rockContext );
             var peopleQry = personService.Queryable().AsNoTracking();
-            var personPhoneType = CacheDefinedValue.Get( GetAttributeValue( "DefaultPhoneType" ).AsGuid(), rockContext );
-            var abilityLevelValues = CacheDefinedType.Get( new Guid( Rock.SystemGuid.DefinedType.PERSON_ABILITY_LEVEL_TYPE ), rockContext ).DefinedValues;
+            var personPhoneType = DefinedValueCache.Get( GetAttributeValue( "DefaultPhoneType" ).AsGuid(), rockContext );
+            var abilityLevelValues = DefinedTypeCache.Get( new Guid( Rock.SystemGuid.DefinedType.PERSON_ABILITY_LEVEL_TYPE ), rockContext ).DefinedValues;
 
             var firstNameIsEmpty = string.IsNullOrEmpty( tbFirstName.Text );
             var lastNameIsEmpty = string.IsNullOrEmpty( tbLastName.Text );
@@ -1140,8 +1139,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         : abilityLevelValues.Where( dv => dv.Guid.ToString()
                             .Equals( p.AttributeValues["AbilityLevel"].Value, StringComparison.OrdinalIgnoreCase ) )
                             .Select( dv => dv.Value ).FirstOrDefault(),
-                Phone = p.PhoneNumbers.Any( n => n.NumberTypeValueId == personPhoneType.Id ) 
-                        ? p.PhoneNumbers.FirstOrDefault( n => n.NumberTypeValueId == personPhoneType.Id ).NumberFormatted 
+                Phone = p.PhoneNumbers.Any( n => n.NumberTypeValueId == personPhoneType.Id )
+                        ? p.PhoneNumbers.FirstOrDefault( n => n.NumberTypeValueId == personPhoneType.Id ).NumberFormatted
                         : string.Empty,
                 p.Email,
                 HasSpecialNeeds = p.AttributeValues.Keys.Contains( SpecialNeedsKey )
@@ -1181,11 +1180,11 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var rockContext = new RockContext();
             var personService = new PersonService( rockContext );
 
-            var connectionStatus = CacheDefinedValue.Get( GetAttributeValue( "DefaultConnectionStatus" ).AsGuid(), rockContext );
-            var personPhoneType = CacheDefinedValue.Get( GetAttributeValue( "DefaultPhoneType" ).AsGuid(), rockContext );
-            var activeRecord = CacheDefinedValue.Get( Rock.SystemGuid.DefinedValue.PERSON_RECORD_STATUS_ACTIVE.AsGuid() );
-            var personType = CacheDefinedValue.Get( Rock.SystemGuid.DefinedValue.PERSON_RECORD_TYPE_PERSON.AsGuid() );
-            
+            var connectionStatus = DefinedValueCache.Get( GetAttributeValue( "DefaultConnectionStatus" ).AsGuid(), rockContext );
+            var personPhoneType = DefinedValueCache.Get( GetAttributeValue( "DefaultPhoneType" ).AsGuid(), rockContext );
+            var activeRecord = DefinedValueCache.Get( Rock.SystemGuid.DefinedValue.PERSON_RECORD_STATUS_ACTIVE.AsGuid() );
+            var personType = DefinedValueCache.Get( Rock.SystemGuid.DefinedValue.PERSON_RECORD_TYPE_PERSON.AsGuid() );
+
             foreach ( SerializedPerson personData in serializedPeople )
             {
                 var hasAbility = !string.IsNullOrWhiteSpace( personData.Ability ) && personData.AbilityGroup == "Ability";
@@ -1229,7 +1228,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                 if ( !string.IsNullOrWhiteSpace( personData.PhoneNumber ) )
                 {
-                    var countryCodes = CacheDefinedType.Get( Rock.SystemGuid.DefinedType.COMMUNICATION_PHONE_COUNTRY_CODE.AsGuid() ).DefinedValues;
+                    var countryCodes = DefinedTypeCache.Get( Rock.SystemGuid.DefinedType.COMMUNICATION_PHONE_COUNTRY_CODE.AsGuid() ).DefinedValues;
                     person.PhoneNumbers.Add( new PhoneNumber
                     {
                         CountryCode = countryCodes.Select( v => v.Value ).FirstOrDefault(),
@@ -1239,7 +1238,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         IsMessagingEnabled = true
                     } );
                 }
-                
+
                 // Add the person so we can assign an ability (if set)
                 personService.Add( person );
 
@@ -1277,7 +1276,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         private Group AddGroupMembers( Group familyGroup, List<Person> newPeople )
         {
             var rockContext = new RockContext();
-            var familyGroupType = CacheGroupType.GetFamilyGroupType();
+            var familyGroupType = GroupTypeCache.GetFamilyGroupType();
 
             // Create a new family group if one doesn't exist
             if ( familyGroup == null )
@@ -1317,7 +1316,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     PersonId = person.Id,
                     GroupMemberStatus = GroupMemberStatus.Active
                 };
-
 
                 if ( person.Age < 18 || person.AgeClassification == AgeClassification.Child )
                 {

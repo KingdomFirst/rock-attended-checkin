@@ -8,7 +8,6 @@ using System.Web.UI.WebControls;
 using cc.newspring.AttendedCheckIn.Utility;
 using Rock;
 using Rock.Attribute;
-using Rock.Cache;
 using Rock.CheckIn;
 using Rock.Data;
 using Rock.Lava;
@@ -71,7 +70,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     var personSpecialNeedsGuid = GetAttributeValue( "PersonSpecialNeedsAttribute" ).AsGuid();
                     if ( personSpecialNeedsGuid != Guid.Empty )
                     {
-                        specialNeedsKey = CacheAttribute.Get( personSpecialNeedsGuid ).Key;
+                        specialNeedsKey = AttributeCache.Get( personSpecialNeedsGuid ).Key;
                         ViewState["SpecialNeedsKey"] = specialNeedsKey;
                         return specialNeedsKey;
                     }
@@ -187,7 +186,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var attributeGuidList = GetAttributeValue( "ProfileAttributes" ).SplitDelimitedValues();
             foreach( var attributeGuid in attributeGuidList )
             {
-                CacheAttribute.Get( new Guid( attributeGuid ) ).AddControl( phAttributes.Controls, string.Empty, "", true, true );
+                AttributeCache.Get( new Guid( attributeGuid ) ).AddControl( phAttributes.Controls, string.Empty, "", true, true );
             }
 
             hdrLocations.InnerText = DisplayPreference.GetDescription();
@@ -715,8 +714,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             if ( !string.IsNullOrWhiteSpace( tbPhone.Text ) )
             {
                 var unformattedNumber = tbPhone.Text.RemoveSpecialCharacters();
-                var personPhoneType = CacheDefinedValue.Get( GetAttributeValue( "DefaultPhoneType" ).AsGuid(), rockContext );                
-                var countryCodes = CacheDefinedType.Get( Rock.SystemGuid.DefinedType.COMMUNICATION_PHONE_COUNTRY_CODE.AsGuid() ).DefinedValues;
+                var personPhoneType = DefinedValueCache.Get( GetAttributeValue( "DefaultPhoneType" ).AsGuid(), rockContext );
+                var countryCodes = DefinedTypeCache.Get( Rock.SystemGuid.DefinedType.COMMUNICATION_PHONE_COUNTRY_CODE.AsGuid() ).DefinedValues;
                 var phoneNumber = dbPerson.PhoneNumbers.FirstOrDefault( n => n.NumberTypeValueId == personPhoneType.Id );
                 if ( phoneNumber == null )
                 {
@@ -737,7 +736,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         Number = tbPhone.Text,
                         IsSystem = false,
                         IsMessagingEnabled = true
-                    } );        
+                    } );
                 }
                 else if ( !phoneNumber.Number.Equals( unformattedNumber ) )
                 {
@@ -782,7 +781,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var attributeGuidList = GetAttributeValue( "ProfileAttributes" ).SplitDelimitedValues();
             foreach ( var attributeGuid in attributeGuidList )
             {
-                var attribute = CacheAttribute.Get( new Guid( attributeGuid ), rockContext );
+                var attribute = AttributeCache.Get( new Guid( attributeGuid ), rockContext );
                 var attributeControl = phAttributes.FindControl( string.Format( "attribute_field_{0}", attribute.Id ) );
                 if ( attributeControl != null )
                 {
@@ -1063,8 +1062,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             {
                 ddlAbilityGrade.LoadAbilityAndGradeItems();
                 ddlPersonGender.BindToEnum<Gender>();
-                ddlSuffix.BindToDefinedType( CacheDefinedType.Get( new Guid( Rock.SystemGuid.DefinedType.PERSON_SUFFIX ) ), true );
-                var personPhoneType = CacheDefinedValue.Get( GetAttributeValue( "DefaultPhoneType" ).AsGuid() );
+                ddlSuffix.BindToDefinedType( DefinedTypeCache.Get( new Guid( Rock.SystemGuid.DefinedType.PERSON_SUFFIX ) ), true );
+                var personPhoneType = DefinedValueCache.Get( GetAttributeValue( "DefaultPhoneType" ).AsGuid() );
 
                 ViewState["lblAbilityGrade"] = ddlAbilityGrade.Label;
                 person.LoadAttributes();
@@ -1106,7 +1105,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 var attributeGuidList = GetAttributeValue( "ProfileAttributes" ).SplitDelimitedValues();
                 foreach ( var attributeGuid in attributeGuidList )
                 {
-                    var attribute = CacheAttribute.Get( new Guid( attributeGuid ) );
+                    var attribute = AttributeCache.Get( new Guid( attributeGuid ) );
                     if ( attribute != null )
                     {
                         attribute.AddControl( phAttributes.Controls, person.GetAttributeValue( attribute.Key ), "", true, true );
