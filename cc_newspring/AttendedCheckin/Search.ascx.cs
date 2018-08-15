@@ -104,12 +104,12 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 {
                     if ( Request.Form["__EVENTARGUMENT"] == "Wedge_Entry" )
                     {
-                        var dv = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.CHECKIN_SEARCH_TYPE_SCANNED_ID );
+                        var dv = DefinedValueCache.Get( Rock.SystemGuid.DefinedValue.CHECKIN_SEARCH_TYPE_SCANNED_ID );
                         SearchFamilyById( dv, hfSearchEntry.Value );
                     }
                     else if ( Request.Form["__EVENTARGUMENT"] == "Family_Id_Search" )
                     {
-                        var dv = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.CHECKIN_SEARCH_TYPE_FAMILY_ID );
+                        var dv = DefinedValueCache.Get( Rock.SystemGuid.DefinedValue.CHECKIN_SEARCH_TYPE_FAMILY_ID );
                         SearchFamilyById( dv, hfSearchEntry.Value );
                     }
                 }

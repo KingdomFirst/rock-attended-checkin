@@ -276,7 +276,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 pnlContent.Update();
                 return;
             }
-            
+
             var selectedGroupTypes = hfGroupTypes.Value.SplitDelimitedValues().Select( int.Parse ).ToList();
             if ( !selectedGroupTypes.Any() )
             {
@@ -424,7 +424,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// </summary>
         private void AddGeoLocationScript()
         {
-            string geoScript = string.Format( @"
+            var geoScript = string.Format( @"
             <script>
                 $(document).ready(function (e) {{
                     tryGeoLocation();
