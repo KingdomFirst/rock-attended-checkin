@@ -6,10 +6,10 @@ using System.Linq;
 using cc.newspring.AttendedCheckIn.Utility;
 using Rock;
 using Rock.Attribute;
-using Rock.Cache;
 using Rock.CheckIn;
 using Rock.Data;
 using Rock.Model;
+using Rock.Web.Cache;
 using Rock.Workflow;
 using Rock.Workflow.Action.CheckIn;
 
@@ -56,7 +56,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
             var personSpecialNeedsGuid = GetAttributeValue( action, "PersonSpecialNeedsAttribute" ).AsGuid();
             if ( personSpecialNeedsGuid != Guid.Empty )
             {
-                personSpecialNeedsKey = CacheAttribute.Get( personSpecialNeedsGuid, rockContext ).Key;
+                personSpecialNeedsKey = AttributeCache.Get( personSpecialNeedsGuid, rockContext ).Key;
             }
 
             // log a warning if the attribute is missing or invalid
