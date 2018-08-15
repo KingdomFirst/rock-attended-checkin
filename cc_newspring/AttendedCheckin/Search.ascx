@@ -90,13 +90,6 @@
                 return false;
             }
 
-            // Ctrl + I to test wedge search
-            if (e.keyCode === 73 && e.ctrlKey) {
-                $('#hfSearchEntry').val('20012867');
-                swipeProcessing = true;
-                window.location = "javascript:__doPostBack('hfSearchEntry', 'Wedge_Entry')";
-            }
-
             var date = new Date();
             // if the character is a line break stop buffering and call postback
             if (keyboardBuffer.length > 1 && (e.key == 13 || e.which == 13 )) {
