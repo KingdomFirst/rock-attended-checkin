@@ -256,8 +256,6 @@
 }
 
 .modal .checkin-header {
-  background-color: transparent;
-  margin-bottom: 30px;
 }
 
 *:not(.modal-content) > .checkin-header h1 {
@@ -600,12 +598,7 @@ span.month, span.year {
 }
 
 .modal.modal-overflow {
-  top: 5%;
-  position: fixed;
-  height: auto;
-  bottom: auto;
-  max-height: 90%;
-  overflow: hidden;
+    /*overflow: hidden;*/
 }
 
 .modal-content {
