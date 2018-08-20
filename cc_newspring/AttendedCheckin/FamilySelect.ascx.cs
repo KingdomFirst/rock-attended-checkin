@@ -1346,12 +1346,27 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             rockContext.SaveChanges();
 
             // save any barcodes entered during create
-            var familyBarcodes = tbBarcodes.Text;
-            if ( !string.IsNullOrWhiteSpace( familyBarcodes ))
+            if ( !string.IsNullOrWhiteSpace( tbBarcodes.Text ) )
             {
-                familyGroup.LoadAttributes( rockContext );
-                familyGroup.SetAttributeValue( "CheckinId", familyBarcodes.Replace( ',', '|' ) );
-                familyGroup.SaveAttributeValue( "CheckinId", rockContext );
+                var hoh = familyGroup.Members.AsQueryable().HeadOfHousehold();
+                if ( hoh != null && hoh.PrimaryAlias != null )
+                {
+                    var hohBarcode = tbBarcodes.Text.Split( new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries );
+                    var searchTypeValue = DefinedValueCache.Get( Rock.SystemGuid.DefinedValue.PERSON_SEARCH_KEYS_ALTERNATE_ID.AsGuid() );
+                    var personSearchKeyService = new PersonSearchKeyService( rockContext );                             
+                    foreach ( var value in hohBarcode )
+                    {
+                        var searchValue = new PersonSearchKey
+                        {
+                            PersonAliasId = hoh.PrimaryAlias.Id,
+                            SearchTypeValueId = searchTypeValue.Id,
+                            SearchValue = value
+                        };
+                        personSearchKeyService.Add( searchValue );
+                    }
+
+                    rockContext.SaveChanges();
+                }
             }
 
             return familyGroup;
