@@ -45,10 +45,10 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                 return false;
             }
 
-            int selectFromDaysBack = checkInState.CheckInType.AutoSelectDaysBack;
+            var selectFromDaysBack = checkInState.CheckInType.AutoSelectDaysBack;
             var roomBalanceGroupTypes = GetAttributeValue( action, "RoomBalanceGrouptypes" ).SplitDelimitedValues().AsGuidList();
-            int roomBalanceOverride = GetAttributeValue( action, "BalancingOverride" ).AsIntegerOrNull() ?? 5;
-            int maxAssignments = GetAttributeValue( action, "MaxAssignments" ).AsIntegerOrNull() ?? 5;
+            var roomBalanceOverride = GetAttributeValue( action, "BalancingOverride" ).AsIntegerOrNull() ?? 5;
+            var maxAssignments = GetAttributeValue( action, "MaxAssignments" ).AsIntegerOrNull() ?? 5;
             var excludedLocations = GetAttributeValue( action, "ExcludedLocations" ).SplitDelimitedValues( whitespace: false )
                 .Select( s => s.Trim() ).ToList();
 
@@ -56,7 +56,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
             var personSpecialNeedsGuid = GetAttributeValue( action, "PersonSpecialNeedsAttribute" ).AsGuid();
             if ( personSpecialNeedsGuid != Guid.Empty )
             {
-                personSpecialNeedsKey = AttributeCache.Read( personSpecialNeedsGuid, rockContext ).Key;
+                personSpecialNeedsKey = AttributeCache.Get( personSpecialNeedsGuid, rockContext ).Key;
             }
 
             // log a warning if the attribute is missing or invalid
@@ -80,7 +80,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                     // order by most recent attendance
                     var lastDateAttendances = attendanceService.Queryable().Where( a =>
                             a.PersonAlias.PersonId == previousAttender.Person.Id &&
-                            availableGroupTypeIds.Contains( a.Group.GroupTypeId ) &&
+                            availableGroupTypeIds.Contains( a.Occurrence.Group.GroupTypeId ) &&
                             a.StartDateTime >= cutoffDate && a.DidAttend == true )
                         .OrderByDescending( a => a.StartDateTime ).Take( maxAssignments )
                         .ToList();
@@ -91,28 +91,28 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                         // get the most recent day, then create assignments starting with the earliest attendance record
                         var lastAttended = lastDateAttendances.Max( a => a.StartDateTime ).Date;
                         var numAttendances = lastDateAttendances.Count( a => a.StartDateTime >= lastAttended );
-                        foreach ( var groupAttendance in lastDateAttendances.Where( a => a.StartDateTime >= lastAttended ).OrderBy( a => a.Schedule.StartTimeOfDay ) )
+                        foreach ( var groupAttendance in lastDateAttendances.Where( a => a.StartDateTime >= lastAttended ).OrderBy( a => a.Occurrence.Schedule.StartTimeOfDay ) )
                         {
-                            bool currentlyCheckedIn = false;
+                            var currentlyCheckedIn = false;
                             var serviceCutoff = groupAttendance.StartDateTime;
-                            if ( serviceCutoff > RockDateTime.Now.Date && groupAttendance.Schedule != null )
+                            if ( serviceCutoff > RockDateTime.Now.Date && groupAttendance.Occurrence.Schedule != null )
                             {
                                 // calculate the service window to determine if people are still checked in
-                                var serviceTime = groupAttendance.StartDateTime.Date + groupAttendance.Schedule.StartTimeOfDay;
-                                var serviceStart = serviceTime.AddMinutes( ( groupAttendance.Schedule.CheckInStartOffsetMinutes ?? 0 ) * -1.0 );
-                                serviceCutoff = serviceTime.AddMinutes( ( groupAttendance.Schedule.CheckInEndOffsetMinutes ?? 0 ) );
+                                var serviceTime = groupAttendance.StartDateTime.Date + groupAttendance.Occurrence.Schedule.StartTimeOfDay;
+                                var serviceStart = serviceTime.AddMinutes( ( groupAttendance.Occurrence.Schedule.CheckInStartOffsetMinutes ?? 0 ) * -1.0 );
+                                serviceCutoff = serviceTime.AddMinutes( ( groupAttendance.Occurrence.Schedule.CheckInEndOffsetMinutes ?? 0 ) );
                                 currentlyCheckedIn = RockDateTime.Now > serviceStart && RockDateTime.Now < serviceCutoff;
                             }
 
                             // override exists in case they are currently checked in or have special needs
-                            bool useCheckinOverride = currentlyCheckedIn || previousAttender.Person.GetAttributeValue( personSpecialNeedsKey ).AsBoolean();
+                            var useCheckinOverride = currentlyCheckedIn || previousAttender.Person.GetAttributeValue( personSpecialNeedsKey ).AsBoolean();
 
                             // get a list of room balanced grouptype ID's since CheckInGroup model is a shallow clone
                             var roomBalanceGroupTypeIds = previousAttender.GroupTypes.Where( gt => roomBalanceGroupTypes.Contains( gt.GroupType.Guid ) )
                                 .Select( gt => gt.GroupType.Id ).ToList();
 
                             // start with filtered groups unless they have abnormal age and grade parameters (1%)
-                            var groupType = previousAttender.GroupTypes.FirstOrDefault( gt => gt.GroupType.Id == groupAttendance.Group.GroupTypeId && ( !gt.ExcludedByFilter || useCheckinOverride ) );
+                            var groupType = previousAttender.GroupTypes.FirstOrDefault( gt => gt.GroupType.Id == groupAttendance.Occurrence.Group.GroupTypeId && ( !gt.ExcludedByFilter || useCheckinOverride ) );
                             if ( groupType != null )
                             {
                                 // assigning the right schedule depends on prior attendance & currently available schedules being sorted
@@ -128,7 +128,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                 else if ( currentlyCheckedIn )
                                 {
                                     // always pick the schedule they're currently checked into
-                                    currentScheduleId = orderedSchedules.Where( s => s == groupAttendance.ScheduleId ).FirstOrDefault();
+                                    currentScheduleId = orderedSchedules.FirstOrDefault( s => s == groupAttendance.Occurrence.ScheduleId );
                                 }
                                 else
                                 {
@@ -147,7 +147,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                 else
                                 {
                                     // pick the group they last attended, as long as it's open or what they're currently checked into
-                                    group = groupType.Groups.FirstOrDefault( g => g.Group.Id == groupAttendance.GroupId && ( !g.ExcludedByFilter || useCheckinOverride ) );
+                                    group = groupType.Groups.FirstOrDefault( g => g.Group.Id == groupAttendance.Occurrence.GroupId && ( !g.ExcludedByFilter || useCheckinOverride ) );
 
                                     // room balance only on new check-ins and only for the current service
                                     if ( group != null && currentScheduleId != null && roomBalanceGroupTypeIds.Contains( group.Group.GroupTypeId ) && !excludedLocations.Contains( group.Group.Name ) && !useCheckinOverride )
@@ -180,7 +180,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     else
                                     {
                                         // pick the location they last attended, as long as it's open or what they're currently checked into
-                                        location = group.Locations.FirstOrDefault( l => l.Location.Id == groupAttendance.LocationId && ( !l.ExcludedByFilter || useCheckinOverride ) );
+                                        location = group.Locations.FirstOrDefault( l => l.Location.Id == groupAttendance.Occurrence.LocationId && ( !l.ExcludedByFilter || useCheckinOverride ) );
 
                                         // room balance only on new check-ins and only for the current service
                                         if ( location != null && currentScheduleId != null && roomBalanceGroupTypeIds.Contains( group.Group.GroupTypeId ) && !excludedLocations.Contains( location.Location.Name ) && !useCheckinOverride )
@@ -204,11 +204,13 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     {
                                         // the current schedule could exist on multiple locations, so pick the one owned by this location
                                         // if the current schedule just closed, get the first available schedule at this location
-                                        CheckInSchedule schedule = location.Schedules.OrderByDescending( s => s.Schedule.Id == currentScheduleId ).FirstOrDefault();
+                                        var schedule = location.Schedules.OrderByDescending( s => s.Schedule.Id == currentScheduleId ).FirstOrDefault();
                                         if ( schedule != null )
                                         {
                                             // it's impossible to currently be checked in unless these match exactly
-                                            if ( group.Group.Id == groupAttendance.GroupId && location.Location.Id == groupAttendance.LocationId && schedule.Schedule.Id == groupAttendance.ScheduleId )
+                                            if ( group.Group.Id == groupAttendance.Occurrence.GroupId
+                                                && location.Location.Id == groupAttendance.Occurrence.LocationId
+                                                && schedule.Schedule.Id == groupAttendance.Occurrence.ScheduleId )
                                             {
                                                 // checkout feature either removes the attendance or sets the EndDateTime
                                                 var endOfCheckinWindow = groupAttendance.EndDateTime ?? serviceCutoff;

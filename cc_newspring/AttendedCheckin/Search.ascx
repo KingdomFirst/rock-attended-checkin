@@ -3,6 +3,7 @@
 <asp:UpdatePanel ID="pnlContent" runat="server">
     <ContentTemplate>
 
+        <asp:HiddenField ID="hfSearchEntry" runat="server" ClientIDMode="Static" />
         <asp:PlaceHolder ID="phScript" runat="server" />
         <Rock:ModalAlert ID="maWarning" runat="server" />
         <asp:LinkButton ID="lbRefresh" runat="server" OnClick="lbRefresh_Click" />
@@ -78,11 +79,36 @@
             $name.val('');
         });
 
+        var lastKeyPress = 0;
+        var keyboardBuffer = '';
+        var swipeProcessing = false;
+
         $(document).keydown(function (e) {
+            // Ctrl + M to go back
             if (e.keyCode === 77 && e.ctrlKey) {
                 window.location.href = "/attendedcheckin/admin?back=true";
                 return false;
             }
+
+            var date = new Date();
+            // if the character is a line break stop buffering and call postback
+            if (keyboardBuffer.length > 1 && (e.key == 13 || e.which == 13 )) {
+                if (!swipeProcessing) {
+                    $('#hfSearchEntry').val(keyboardBuffer);
+                    keyboardBuffer = '';
+                    swipeProcessing = true;
+                    window.location = "javascript:__doPostBack('hfSearchEntry', 'Wedge_Entry')";
+                }
+            }
+            else if (!e.ctrlKey) {
+                if ((date.getTime() - lastKeyPress) > 300) {
+                    keyboardBuffer = String.fromCharCode(e.which);
+                } else if ((date.getTime() - lastKeyPress) < 80) {
+                    keyboardBuffer += String.fromCharCode(e.which);
+                }
+            }
+
+            lastKeyPress = date.getTime();
         });
 
         // set focus to the input unless on a touch device
@@ -95,5 +121,6 @@
     $(document).ready(function () {
         setClickEvents();
     });
+
     Sys.WebForms.PageRequestManager.getInstance().add_endRequest(setClickEvents);
 </script>

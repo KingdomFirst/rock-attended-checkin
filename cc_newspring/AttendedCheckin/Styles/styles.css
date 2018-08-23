@@ -477,10 +477,6 @@ td.day {
   width: 14.3%;
 }
 
-tfoot {
-  display: none;
-}
-
 .grid-paging {
   padding: 0 !important;
 }
@@ -609,18 +605,20 @@ span.month, span.year {
   height: auto;
   bottom: auto;
   max-height: 90%;
-  overflow: hidden;
+    /*overflow: hidden;*/
 }
 
 .modal-content {
   background-color: #fff !important;
 }
 
+tfoot,
 .modal-header,
 .grid-pagesize,
 .grid-itemcount,
+.grid-actions,
 .modal:not(.bootbox) .modal-footer {
-  display: none;
+    display: none;
 }
 
 .family {

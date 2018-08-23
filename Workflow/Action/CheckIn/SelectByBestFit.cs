@@ -49,8 +49,8 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
             }
 
             var roomBalanceGroupTypes = GetAttributeValue( action, "RoomBalanceGrouptypes" ).SplitDelimitedValues().AsGuidList();
-            bool useGroupMembership = GetAttributeValue( action, "PrioritizeGroupMembership" ).AsBoolean();
-            int roomBalanceOverride = GetAttributeValue( action, "BalancingOverride" ).AsIntegerOrNull() ?? 5;
+            var useGroupMembership = GetAttributeValue( action, "PrioritizeGroupMembership" ).AsBoolean();
+            var roomBalanceOverride = GetAttributeValue( action, "BalancingOverride" ).AsIntegerOrNull() ?? 5;
             var excludedLocations = GetAttributeValue( action, "ExcludedLocations" ).SplitDelimitedValues( false )
                 .Select( s => s.Trim() );
 
@@ -59,28 +59,28 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
             var personSpecialNeedsGuid = GetAttributeValue( action, "PersonSpecialNeedsAttribute" ).AsGuid();
             if ( personSpecialNeedsGuid != Guid.Empty )
             {
-                personSpecialNeedsKey = AttributeCache.Read( personSpecialNeedsGuid, rockContext ).Key;
+                personSpecialNeedsKey = AttributeCache.Get( personSpecialNeedsGuid, rockContext ).Key;
             }
 
             var groupSpecialNeedsKey = string.Empty;
             var groupSpecialNeedsGuid = GetAttributeValue( action, "GroupSpecialNeedsAttribute" ).AsGuid();
             if ( groupSpecialNeedsGuid != Guid.Empty )
             {
-                groupSpecialNeedsKey = AttributeCache.Read( groupSpecialNeedsGuid, rockContext ).Key;
+                groupSpecialNeedsKey = AttributeCache.Get( groupSpecialNeedsGuid, rockContext ).Key;
             }
 
             var groupAgeRangeKey = string.Empty;
             var groupAgeRangeGuid = GetAttributeValue( action, "GroupAgeRangeAttribute" ).AsGuid();
             if ( groupAgeRangeGuid != Guid.Empty )
             {
-                groupAgeRangeKey = AttributeCache.Read( groupAgeRangeGuid, rockContext ).Key;
+                groupAgeRangeKey = AttributeCache.Get( groupAgeRangeGuid, rockContext ).Key;
             }
 
             var groupGradeRangeKey = string.Empty;
             var groupGradeRangeGuid = GetAttributeValue( action, "GroupGradeRangeAttribute" ).AsGuid();
             if ( groupGradeRangeGuid != Guid.Empty )
             {
-                groupGradeRangeKey = AttributeCache.Read( groupGradeRangeGuid, rockContext ).Key;
+                groupGradeRangeKey = AttributeCache.Get( groupGradeRangeGuid, rockContext ).Key;
             }
 
             // log a warning if any of the attributes are missing or invalid
@@ -136,7 +136,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                         }
 
                         // check how many groups exist without getting the whole list
-                        int numValidGroups = validGroups.Take( 2 ).Count();
+                        var numValidGroups = validGroups.Take( 2 ).Count();
                         if ( numValidGroups > 0 )
                         {
                             CheckInGroup bestGroup = null;
@@ -186,7 +186,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         if ( person.Person.Age != null )
                                         {
                                             baseVariance = 100;
-                                            decimal personAge = (decimal)person.Person.AgePrecise;
+                                            var personAge = (decimal)person.Person.AgePrecise;
                                             foreach ( var ageGroup in ageGroups.Where( g => g.AgeRange.Any() ) )
                                             {
                                                 var minAge = ageGroup.AgeRange.First();
@@ -215,7 +215,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     CheckInGroup closestGradeGroup = null;
                                     if ( person.Person.GradeOffset != null )
                                     {
-                                        var gradeValues = DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.SCHOOL_GRADES ) ).DefinedValues;
+                                        var gradeValues = DefinedTypeCache.Get( new Guid( Rock.SystemGuid.DefinedType.SCHOOL_GRADES ) ).DefinedValues;
                                         var gradeGroups = validGroups.Where( g => g.Group.AttributeValues.ContainsKey( groupGradeRangeKey ) && g.Group.AttributeValues[groupGradeRangeKey].Value != null )
                                             .ToList()
                                             .Select( g => new
@@ -233,7 +233,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         if ( person.Person.GradeOffset != null && gradeGroups.Count > 0 )
                                         {
                                             baseVariance = 100;
-                                            decimal gradeOffset = (decimal)person.Person.GradeOffset.Value;
+                                            var gradeOffset = (decimal)person.Person.GradeOffset.Value;
                                             foreach ( var gradeGroup in gradeGroups.Where( g => g.GradeOffsets.Any() ) )
                                             {
                                                 var minGradeOffset = gradeGroup.GradeOffsets.First();
@@ -297,7 +297,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                             }
 
                             // check how many locations exist without getting the whole list
-                            int numValidLocations = validLocations.Take( 2 ).Count();
+                            var numValidLocations = validLocations.Take( 2 ).Count();
                             if ( numValidLocations > 0 )
                             {
                                 CheckInLocation bestLocation = null;

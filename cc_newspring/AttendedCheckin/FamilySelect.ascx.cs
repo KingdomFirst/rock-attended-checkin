@@ -26,10 +26,11 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [BooleanField( "Enable Add Buttons", "Show the add people/visitor/family buttons on the family select page?", true, "", 1 )]
     [BooleanField( "Show Contact Info", "Show the phone and email columns on add people/visitor/family modals.", false, "", 2 )]
     [BooleanField( "Hide Special Needs", "Hide the special needs column from add people/visitor/family modals.", false, "", 3 )]
-    [DefinedValueField( Rock.SystemGuid.DefinedType.PERSON_CONNECTION_STATUS, "Default Connection Status", "Select the default connection status for people added in checkin", true, false, "B91BA046-BC1E-400C-B85D-638C1F4E0CE2", "", 4 )]
-    [DefinedValueField( "8345DD45-73C6-4F5E-BEBD-B77FC83F18FD", "Default Phone Type", "By default, the Home Phone type is stored when Show Contact Info is turned on. Select a different type as the default.", false, false, "AA8732FB-2CEA-4C76-8D6D-6AAA2C6A4303", "", 5 )]
-    [AttributeField( Rock.SystemGuid.EntityType.PERSON, "Person Special Needs Attribute", "Select the person attribute used to filter kids with special needs.", true, false, "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF", "", 6 )]
-    [TextField( "Not Found Text", "What text should display when the nothing is found?", true, "Please add a person or family.", "", 7 )]
+    [BooleanField( "Preselect Family Members", "By default all eligible family members will be selected for checkin.  Toggle this setting to force manual person selections.", true, "", 4)]
+    [DefinedValueField( Rock.SystemGuid.DefinedType.PERSON_CONNECTION_STATUS, "Default Connection Status", "Select the default connection status for people added in checkin", true, false, "B91BA046-BC1E-400C-B85D-638C1F4E0CE2", "", 5 )]
+    [DefinedValueField( "8345DD45-73C6-4F5E-BEBD-B77FC83F18FD", "Default Phone Type", "By default, the Home Phone type is stored when Show Contact Info is turned on. Select a different type as the default.", false, false, "AA8732FB-2CEA-4C76-8D6D-6AAA2C6A4303", "", 6 )]
+    [AttributeField( Rock.SystemGuid.EntityType.PERSON, "Person Special Needs Attribute", "Select the person attribute used to filter kids with special needs.", true, false, "8B562561-2F59-4F5F-B7DC-92B2BB7BB7CF", "", 7 )]
+    [TextField( "Not Found Text", "What text should display when the nothing is found?", true, "Please add a person or family.", "", 8 )]
     public partial class FamilySelect : CheckInBlock
     {
         #region Variables
@@ -81,7 +82,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     var personSpecialNeedsGuid = GetAttributeValue( "PersonSpecialNeedsAttribute" ).AsGuid();
                     if ( personSpecialNeedsGuid != Guid.Empty )
                     {
-                        var specialNeedsAttribute = AttributeCache.Read( personSpecialNeedsGuid );
+                        var specialNeedsAttribute = AttributeCache.Get( personSpecialNeedsGuid );
                         if ( specialNeedsAttribute != null )
                         {
                             specialNeedsKey = specialNeedsAttribute.Key;
@@ -167,7 +168,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var selectedPersonIds = hfPersonIds.Value.SplitDelimitedValues()
                 .Select( int.Parse ).ToList();
 
-            var selectedFamily = CurrentCheckInState.CheckIn.Families.Where( f => f.Selected ).FirstOrDefault();
+            var selectedFamily = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
             if ( selectedFamily == null )
             {
                 maWarning.Show( "Please pick or add a family.", ModalAlertType.Warning );
@@ -175,7 +176,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
             else if ( selectedFamily.People.Count == 0 )
             {
-                string errorMsg = "No one in this family is eligible to check-in.";
+                var errorMsg = "No one in this family is eligible to check-in.";
                 maWarning.Show( errorMsg, ModalAlertType.Warning );
                 return;
             }
@@ -199,7 +200,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }
                 else
                 {
-                    string errorMsg = "<ul><li>" + errors.AsDelimited( "</li><li>" ) + "</li></ul>";
+                    var errorMsg = "<ul><li>" + errors.AsDelimited( "</li><li>" ) + "</li></ul>";
                     maWarning.Show( errorMsg.Replace( "'", @"\'" ), ModalAlertType.Warning );
                 }
             }
@@ -212,7 +213,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="e">The <see cref="ListViewCommandEventArgs"/> instance containing the event data.</param>
         protected void lvFamily_ItemCommand( object sender, ListViewCommandEventArgs e )
         {
-            int id = int.Parse( e.CommandArgument.ToString() );
+            var id = int.Parse( e.CommandArgument.ToString() );
             var family = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Group.Id == id );
 
             foreach ( ListViewDataItem li in ( (ListView)sender ).Items )
@@ -397,8 +398,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 var lbSelectPerson = (LinkButton)e.Item.FindControl( "lbSelectPerson" );
                 var person = (CheckInPerson)e.Item.DataItem;
 
-                string ageLabel = "n/a";
-                string birthdayLabel = "n/a";
+                var ageLabel = "n/a";
+                var birthdayLabel = "n/a";
                 if ( person.Person.Age != null )
                 {
                     birthdayLabel = person.Person.BirthMonth + "/" + person.Person.BirthDay;
@@ -427,10 +428,10 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             if ( e.Item.ItemType == ListViewItemType.DataItem )
             {
-                SerializedPerson person = ( (ListViewDataItem)e.Item ).DataItem as SerializedPerson;
+                var person = ( (ListViewDataItem)e.Item ).DataItem as SerializedPerson;
 
                 var ddlSuffix = (RockDropDownList)e.Item.FindControl( "ddlSuffix" );
-                ddlSuffix.BindToDefinedType( DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_SUFFIX ) ), true );
+                ddlSuffix.BindToDefinedType( DefinedTypeCache.Get( new Guid( Rock.SystemGuid.DefinedType.PERSON_SUFFIX ) ), true );
                 if ( person.SuffixValueId.HasValue )
                 {
                     ddlSuffix.SelectedValue = person.SuffixValueId.ToString();
@@ -530,7 +531,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
         protected void lbNewPerson_Click( object sender, EventArgs e )
         {
-            var newPerson = new SerializedPerson()
+            var newPerson = new SerializedPerson
             {
                 FirstName = tbFirstName.Text,
                 LastName = tbLastName.Text,
@@ -553,13 +554,15 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
 
             if ( newPerson.IsValid() )
-            {	// Person passed validation
+            {
+                // Person passed validation
                 var newPeople = CreatePeople( new List<SerializedPerson>( 1 ) { newPerson } );
-
-                var checkInPerson = new CheckInPerson();
-                checkInPerson.Person = newPeople.FirstOrDefault();
-                checkInPerson.FirstTime = true;
-                bool processFamily = false;
+                var processFamily = false;
+                var checkInPerson = new CheckInPerson
+                {
+                    Person = newPeople.FirstOrDefault(),
+                    FirstTime = true
+                };
 
                 var selectedFamily = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
                 if ( selectedFamily == null )
@@ -585,13 +588,12 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     }
                     else
                     {   // Visitor
-                        AddVisitorRelationships( selectedFamily, checkInPerson.Person.Id );
                         checkInPerson.FamilyMember = false;
-
-                        // If a child, make the family group explicitly so the child role type can be selected. If no
-                        // family group is explicitly made, Rock makes one with Adult role type by default
-                        if ( dpPersonDOB.SelectedDate.Age() < 18 )
+                        if ( checkInPerson.Person.Age < 18 || checkInPerson.Person.AgeClassification == AgeClassification.Child )
                         {
+                            AddVisitorRelationships( selectedFamily, checkInPerson.Person.Id );
+
+                            // Make the family group so the child role is set correctly (Adult is default)
                             AddGroupMembers( null, newPeople );
                         }
                     }
@@ -628,28 +630,32 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 var selectedFamily = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
                 if ( selectedFamily != null )
                 {
-                    int rowIndex = int.Parse( e.CommandArgument.ToString() );
-                    int personId = int.Parse( rGridPersonResults.DataKeys[rowIndex].Value.ToString() );
+                    var rowIndex = int.Parse( e.CommandArgument.ToString() );
+                    var personId = int.Parse( rGridPersonResults.DataKeys[rowIndex].Value.ToString() );
 
                     var checkInPerson = selectedFamily.People.FirstOrDefault( p => p.Person.Id == personId );
                     if ( checkInPerson == null )
                     {
                         var rockContext = new RockContext();
-                        checkInPerson = new CheckInPerson();
-                        checkInPerson.Person = new PersonService( rockContext ).Get( personId ).Clone( false );
+                        checkInPerson = new CheckInPerson
+                        {
+                            Person = new PersonService( rockContext ).Get( personId ).Clone( false )
+                        };
 
                         if ( hfNewPersonType.Value.Equals( "Person" ) )
                         {
                             // New family member, add them to the current family if they don't exist
-                            AddGroupMembers( selectedFamily.Group, new List<Person>() { checkInPerson.Person } );
-
+                            AddGroupMembers( selectedFamily.Group, new List<Person> { checkInPerson.Person } );
                             checkInPerson.FamilyMember = true;
                         }
                         else
                         {
-                            // Visitor, associate with current family
-                            AddVisitorRelationships( selectedFamily, personId, rockContext );
+                            // Visitor, associate with current family unless they're an adult
                             checkInPerson.FamilyMember = false;
+                            if ( checkInPerson.Person.Age < 18 || checkInPerson.Person.AgeClassification == AgeClassification.Child )
+                            {
+                                AddVisitorRelationships( selectedFamily, checkInPerson.Person.Id );
+                            }
                         }
 
                         checkInPerson.Selected = true;
@@ -676,32 +682,28 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var showContactInfo = GetAttributeValue( "ShowContactInfo" ).AsBoolean();
             var hideSpecialNeeds = GetAttributeValue( "HideSpecialNeeds" ).AsBoolean();
             var newFamilyList = (List<SerializedPerson>)ViewState["newFamily"] ?? new List<SerializedPerson>();
-            int? currentPage = ViewState["currentPage"] as int?;
-            int personOffset = 0;
-            int pageOffset = 0;
+            var currentPage = ViewState["currentPage"] as int?;
+            var personOffset = 0;
+            var pageOffset = 0;
 
             // add people from the current page
             foreach ( ListViewItem item in lvNewFamily.Items )
             {
-                var hasInput = false;
-                var newPerson = new SerializedPerson();
+                var newPerson = new SerializedPerson
+                {
+                    FirstName = ( (TextBox)item.FindControl( "tbFirstName" ) ).Text,
+                    LastName = ( (TextBox)item.FindControl( "tbLastName" ) ).Text,
+                    SuffixValueId = ( (RockDropDownList)item.FindControl( "ddlSuffix" ) ).SelectedValueAsId(),
+                    BirthDate = ( (DatePicker)item.FindControl( "dpBirthDate" ) ).SelectedDate,
+                    Gender = ( (RockDropDownList)item.FindControl( "ddlGender" ) ).SelectedValueAsEnum<Gender>(),
+                    Ability = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedValue,
+                    AbilityGroup = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedItem.Attributes["optiongroup"]
+                };
 
-                newPerson.FirstName = ( (TextBox)item.FindControl( "tbFirstName" ) ).Text;
-                hasInput = !string.IsNullOrWhiteSpace( newPerson.FirstName );
-
-                newPerson.LastName = ( (TextBox)item.FindControl( "tbLastName" ) ).Text;
-                hasInput = hasInput || !string.IsNullOrWhiteSpace( newPerson.LastName );
-
-                newPerson.SuffixValueId = ( (RockDropDownList)item.FindControl( "ddlSuffix" ) ).SelectedValueAsId();
-
-                newPerson.BirthDate = ( (DatePicker)item.FindControl( "dpBirthDate" ) ).SelectedDate;
-                hasInput = hasInput || newPerson.BirthDate.HasValue;
-
-                newPerson.Gender = ( (RockDropDownList)item.FindControl( "ddlGender" ) ).SelectedValueAsEnum<Gender>();
-                hasInput = hasInput || newPerson.Gender != Gender.Unknown;
-
-                newPerson.Ability = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedValue;
-                newPerson.AbilityGroup = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedItem.Attributes["optiongroup"];
+                var hasInput = !string.IsNullOrWhiteSpace( newPerson.FirstName )
+                    || !string.IsNullOrWhiteSpace( newPerson.LastName )
+                    || newPerson.BirthDate.HasValue
+                    || newPerson.Gender != Gender.Unknown;
 
                 if ( showContactInfo )
                 {
@@ -716,7 +718,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                 if ( hasInput && !newPerson.IsValid() )
                 {
-                    maWarning.Show( "Validation: Name and Gender are required.", ModalAlertType.Information );
+                    maWarning.Show( "First name, Last name and Gender are required.", ModalAlertType.Information );
                     return;
                 }
 
@@ -729,7 +731,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 personOffset++;
             }
 
-            List<Person> newPeople = CreatePeople( newFamilyList.Where( p => p.IsValid() ).ToList() );
+            var newPeople = CreatePeople( newFamilyList.Where( p => p.IsValid() ).ToList() );
 
             // People passed validation
             if ( newPeople.Any() )
@@ -741,11 +743,13 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                 foreach ( var person in newPeople )
                 {
-                    var checkInPerson = new CheckInPerson();
-                    checkInPerson.Person = person;
-                    checkInPerson.FirstTime = true;
-                    checkInPerson.Selected = true;
-                    checkInPerson.FamilyMember = true;
+                    var checkInPerson = new CheckInPerson
+                    {
+                        Person = person,
+                        FirstTime = true,
+                        Selected = true,
+                        FamilyMember = true
+                    };
                     checkInFamily.People.Add( checkInPerson );
                 }
 
@@ -778,21 +782,23 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var showContactInfo = GetAttributeValue( "ShowContactInfo" ).AsBoolean();
             var hideSpecialNeeds = GetAttributeValue( "HideSpecialNeeds" ).AsBoolean();
             var newFamilyList = (List<SerializedPerson>)ViewState["newFamily"] ?? new List<SerializedPerson>();
-            int currentPage = e.StartRowIndex / e.MaximumRows;
-            int? previousPage = ViewState["currentPage"] as int?;
-            int personOffset = 0;
-            int pageOffset = 0;
+            var currentPage = e.StartRowIndex / e.MaximumRows;
+            var previousPage = ViewState["currentPage"] as int?;
+            var personOffset = 0;
+            var pageOffset = 0;
 
             foreach ( ListViewItem item in lvNewFamily.Items )
             {
-                var newPerson = new SerializedPerson();
-                newPerson.FirstName = ( (TextBox)item.FindControl( "tbFirstName" ) ).Text;
-                newPerson.LastName = ( (TextBox)item.FindControl( "tbLastName" ) ).Text;
-                newPerson.SuffixValueId = ( (RockDropDownList)item.FindControl( "ddlSuffix" ) ).SelectedValueAsId();
-                newPerson.BirthDate = ( (DatePicker)item.FindControl( "dpBirthDate" ) ).SelectedDate;
-                newPerson.Gender = ( (RockDropDownList)item.FindControl( "ddlGender" ) ).SelectedValueAsEnum<Gender>();
-                newPerson.Ability = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedValue;
-                newPerson.AbilityGroup = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedItem.Attributes["optiongroup"];
+                var newPerson = new SerializedPerson
+                {
+                    FirstName = ( (TextBox)item.FindControl( "tbFirstName" ) ).Text,
+                    LastName = ( (TextBox)item.FindControl( "tbLastName" ) ).Text,
+                    SuffixValueId = ( (RockDropDownList)item.FindControl( "ddlSuffix" ) ).SelectedValueAsId(),
+                    BirthDate = ( (DatePicker)item.FindControl( "dpBirthDate" ) ).SelectedDate,
+                    Gender = ( (RockDropDownList)item.FindControl( "ddlGender" ) ).SelectedValueAsEnum<Gender>(),
+                    Ability = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedValue,
+                    AbilityGroup = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedItem.Attributes["optiongroup"]
+                };
 
                 if ( showContactInfo )
                 {
@@ -885,19 +891,19 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 List<CheckInPerson> memberDataSource = null;
                 List<CheckInPerson> visitorDataSource = null;
 
+                var preselectFamilyMembers = GetAttributeValue( "PreselectFamilyMembers" ).AsBoolean();
                 selectedFamily = selectedFamily ?? CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
 
                 if ( selectedFamily != null && selectedFamily.People.Any( f => !f.ExcludedByFilter ) )
                 {
                     memberDataSource = selectedFamily.People.Where( f => f.FamilyMember && !f.ExcludedByFilter )
                         .OrderByDescending( p => p.Person.AgePrecise ).ToList();
-                    memberDataSource.ForEach( p => p.Selected = true );
+                    memberDataSource.ForEach( p => p.Selected = preselectFamilyMembers );
 
                     visitorDataSource = selectedFamily.People.Where( f => !f.FamilyMember && !f.ExcludedByFilter )
                         .OrderByDescending( p => p.Person.AgePrecise ).ToList();
 
-                    hfPersonIds.Value = string.Join( ",", selectedFamily.People.Where( f => !f.ExcludedByFilter && ( f.FamilyMember || f.Selected ) )
-                        .Select( f => f.Person.Id ) ) + ",";
+                    hfPersonIds.Value = string.Join( ",", memberDataSource.Where( p => p.Selected ).Select( f => f.Person.Id ) ) + ",";
                     ViewState["hfPersonIds"] = hfPersonIds.Value;
                 }
 
@@ -924,7 +930,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
             else
             {
-                string errorMsg = "<ul><li>" + errors.AsDelimited( "</li><li>" ) + "</li></ul>";
+                var errorMsg = "<ul><li>" + errors.AsDelimited( "</li><li>" ) + "</li></ul>";
                 maWarning.Show( errorMsg.Replace( "'", @"\'" ), ModalAlertType.Warning );
             }
         }
@@ -945,7 +951,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             if ( !hasValidResults )
             {
                 // Show a custom message when nothing is found
-                string nothingFoundText = GetAttributeValue( "NotFoundText" );
+                var nothingFoundText = GetAttributeValue( "NotFoundText" );
                 lblFamilyTitle.InnerText = "No Results";
                 divNothingFound.InnerText = nothingFoundText;
                 divNothingFound.Visible = true;
@@ -957,7 +963,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
 
             // Admin option whether add buttons can be displayed
-            bool showAddButtons = GetAttributeValue( "EnableAddButtons" ).AsBoolean();
+            var showAddButtons = GetAttributeValue( "EnableAddButtons" ).AsBoolean();
 
             lbAddFamilyMember.Visible = showAddButtons;
             lbAddVisitor.Visible = showAddButtons;
@@ -1029,7 +1035,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             tbFirstName.Text = string.Empty;
             tbLastName.Text = string.Empty;
-            ddlPersonSuffix.BindToDefinedType( DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_SUFFIX ) ), true );
+            ddlPersonSuffix.BindToDefinedType( DefinedTypeCache.Get( new Guid( Rock.SystemGuid.DefinedType.PERSON_SUFFIX ) ), true );
             ddlPersonSuffix.SelectedIndex = 0;
             ddlPersonGender.BindToEnum<Gender>();
             ddlPersonGender.SelectedIndex = 0;
@@ -1052,8 +1058,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var rockContext = new RockContext();
             var personService = new PersonService( rockContext );
             var peopleQry = personService.Queryable().AsNoTracking();
-            var personPhoneType = DefinedValueCache.Read( GetAttributeValue( "DefaultPhoneType" ).AsGuid(), rockContext );
-            var abilityLevelValues = DefinedTypeCache.Read( new Guid( Rock.SystemGuid.DefinedType.PERSON_ABILITY_LEVEL_TYPE ), rockContext ).DefinedValues;
+            var personPhoneType = DefinedValueCache.Get( GetAttributeValue( "DefaultPhoneType" ).AsGuid(), rockContext );
+            var abilityLevelValues = DefinedTypeCache.Get( new Guid( Rock.SystemGuid.DefinedType.PERSON_ABILITY_LEVEL_TYPE ), rockContext ).DefinedValues;
 
             var firstNameIsEmpty = string.IsNullOrEmpty( tbFirstName.Text );
             var lastNameIsEmpty = string.IsNullOrEmpty( tbLastName.Text );
@@ -1134,8 +1140,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         : abilityLevelValues.Where( dv => dv.Guid.ToString()
                             .Equals( p.AttributeValues["AbilityLevel"].Value, StringComparison.OrdinalIgnoreCase ) )
                             .Select( dv => dv.Value ).FirstOrDefault(),
-                Phone = p.PhoneNumbers.Any( n => n.NumberTypeValueId == personPhoneType.Id ) 
-                        ? p.PhoneNumbers.FirstOrDefault( n => n.NumberTypeValueId == personPhoneType.Id ).NumberFormatted 
+                Phone = p.PhoneNumbers.Any( n => n.NumberTypeValueId == personPhoneType.Id )
+                        ? p.PhoneNumbers.FirstOrDefault( n => n.NumberTypeValueId == personPhoneType.Id ).NumberFormatted
                         : string.Empty,
                 p.Email,
                 HasSpecialNeeds = p.AttributeValues.Keys.Contains( SpecialNeedsKey )
@@ -1175,22 +1181,24 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var rockContext = new RockContext();
             var personService = new PersonService( rockContext );
 
-            var connectionStatus = DefinedValueCache.Read( GetAttributeValue( "DefaultConnectionStatus" ).AsGuid(), rockContext );
-            var personPhoneType = DefinedValueCache.Read( GetAttributeValue( "DefaultPhoneType" ).AsGuid(), rockContext );
-            var activeRecord = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.PERSON_RECORD_STATUS_ACTIVE.AsGuid() );
-            var personType = DefinedValueCache.Read( Rock.SystemGuid.DefinedValue.PERSON_RECORD_TYPE_PERSON.AsGuid() );
-            
+            var connectionStatus = DefinedValueCache.Get( GetAttributeValue( "DefaultConnectionStatus" ).AsGuid(), rockContext );
+            var personPhoneType = DefinedValueCache.Get( GetAttributeValue( "DefaultPhoneType" ).AsGuid(), rockContext );
+            var activeRecord = DefinedValueCache.Get( Rock.SystemGuid.DefinedValue.PERSON_RECORD_STATUS_ACTIVE.AsGuid() );
+            var personType = DefinedValueCache.Get( Rock.SystemGuid.DefinedValue.PERSON_RECORD_TYPE_PERSON.AsGuid() );
+
             foreach ( SerializedPerson personData in serializedPeople )
             {
-                bool hasAbility = !string.IsNullOrWhiteSpace( personData.Ability ) && personData.AbilityGroup == "Ability";
-                bool hasGrade = !string.IsNullOrWhiteSpace( personData.Ability ) && personData.AbilityGroup == "Grade";
+                var hasAbility = !string.IsNullOrWhiteSpace( personData.Ability ) && personData.AbilityGroup == "Ability";
+                var hasGrade = !string.IsNullOrWhiteSpace( personData.Ability ) && personData.AbilityGroup == "Grade";
 
-                var person = new Person();
-                person.FirstName = personData.FirstName;
-                person.LastName = personData.LastName;
-                person.SuffixValueId = personData.SuffixValueId;
-                person.Gender = personData.Gender;
-                person.Email = personData.Email;
+                var person = new Person
+                {
+                    FirstName = personData.FirstName,
+                    LastName = personData.LastName,
+                    SuffixValueId = personData.SuffixValueId,
+                    Gender = personData.Gender,
+                    Email = personData.Email
+                };
 
                 if ( personData.BirthDate != null )
                 {
@@ -1221,7 +1229,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                 if ( !string.IsNullOrWhiteSpace( personData.PhoneNumber ) )
                 {
-                    var countryCodes = DefinedTypeCache.Read( Rock.SystemGuid.DefinedType.COMMUNICATION_PHONE_COUNTRY_CODE.AsGuid() ).DefinedValues;
+                    var countryCodes = DefinedTypeCache.Get( Rock.SystemGuid.DefinedType.COMMUNICATION_PHONE_COUNTRY_CODE.AsGuid() ).DefinedValues;
                     person.PhoneNumbers.Add( new PhoneNumber
                     {
                         CountryCode = countryCodes.Select( v => v.Value ).FirstOrDefault(),
@@ -1257,7 +1265,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
 
             rockContext.SaveChanges();
-
             return newPeopleList;
         }
 
@@ -1266,8 +1273,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// </summary>
         /// <param name="familyGroup">The family group.</param>
         /// <param name="newPeople">The new people.</param>
+        /// <param name="barcode">The barcode.</param>
         /// <returns></returns>
-        private Group AddGroupMembers( Group familyGroup, List<Person> newPeople )
+        private Group AddGroupMembers( Group familyGroup, List<Person> newPeople, string barcode = null )
         {
             var rockContext = new RockContext();
             var familyGroupType = GroupTypeCache.GetFamilyGroupType();
@@ -1275,13 +1283,15 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             // Create a new family group if one doesn't exist
             if ( familyGroup == null )
             {
-                familyGroup = new Group();
-                familyGroup.GroupTypeId = familyGroupType.Id;
-                familyGroup.IsSecurityRole = false;
-                familyGroup.IsSystem = false;
-                familyGroup.IsPublic = true;
-                familyGroup.IsActive = true;
-                familyGroup.CampusId = KioskCampusId;
+                familyGroup = new Group
+                {
+                    GroupTypeId = familyGroupType.Id,
+                    IsSecurityRole = false,
+                    IsSystem = false,
+                    IsPublic = true,
+                    IsActive = true,
+                    CampusId = KioskCampusId
+                };
 
                 // Get oldest person's last name
                 var familyName = newPeople.Where( p => p.BirthDate.HasValue )
@@ -1300,14 +1310,16 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var newGroupMembers = new List<GroupMember>();
             foreach ( var person in newPeople )
             {
-                var groupMember = new GroupMember();
-                groupMember.IsSystem = false;
-                groupMember.IsNotified = false;
-                groupMember.GroupId = familyGroup.Id;
-                groupMember.PersonId = person.Id;
-                groupMember.GroupMemberStatus = GroupMemberStatus.Active;
+                var groupMember = new GroupMember
+                {
+                    IsSystem = false,
+                    IsNotified = false,
+                    GroupId = familyGroup.Id,
+                    PersonId = person.Id,
+                    GroupMemberStatus = GroupMemberStatus.Active
+                };
 
-                if ( person.Age < 18 )
+                if ( person.Age < 18 || person.AgeClassification == AgeClassification.Child )
                 {
                     groupMember.GroupRoleId = familyGroupType.Roles.FirstOrDefault( r =>
                         r.Guid == new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_FAMILY_MEMBER_CHILD ) ).Id;
@@ -1332,11 +1344,36 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
 
             rockContext.SaveChanges();
+
+            // save any barcodes entered during create
+            if ( !string.IsNullOrWhiteSpace( tbBarcodes.Text ) )
+            {
+                var hoh = familyGroup.Members.AsQueryable().HeadOfHousehold();
+                if ( hoh != null && hoh.PrimaryAlias != null )
+                {
+                    var hohBarcode = tbBarcodes.Text.Split( new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries );
+                    var searchTypeValue = DefinedValueCache.Get( Rock.SystemGuid.DefinedValue.PERSON_SEARCH_KEYS_ALTERNATE_ID.AsGuid() );
+                    var personSearchKeyService = new PersonSearchKeyService( rockContext );                             
+                    foreach ( var value in hohBarcode )
+                    {
+                        var searchValue = new PersonSearchKey
+                        {
+                            PersonAliasId = hoh.PrimaryAlias.Id,
+                            SearchTypeValueId = searchTypeValue.Id,
+                            SearchValue = value
+                        };
+                        personSearchKeyService.Add( searchValue );
+                    }
+
+                    rockContext.SaveChanges();
+                }
+            }
+
             return familyGroup;
         }
 
         /// <summary>
-        /// Adds the visitor group member roles.
+        /// Adds the visitor / checkin relationship to adults in the family.
         /// </summary>
         /// <param name="family">The family.</param>
         /// <param name="visitorId">The person id.</param>
@@ -1344,7 +1381,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         private void AddVisitorRelationships( CheckInFamily family, int visitorId, RockContext rockContext = null )
         {
             rockContext = rockContext ?? new RockContext();
-            foreach ( var familyMember in family.People.Where( p => p.FamilyMember ) )
+            foreach ( var familyMember in family.People.Where( p => p.FamilyMember && ( p.Person.Age > 18 || p.Person.AgeClassification == AgeClassification.Adult ) ) )
             {
                 Person.CreateCheckinRelationship( familyMember.Person.Id, visitorId, rockContext );
             }
