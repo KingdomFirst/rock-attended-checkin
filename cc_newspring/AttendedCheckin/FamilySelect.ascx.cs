@@ -135,6 +135,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                     // Load the person/visitor results
                     ProcessPeople();
+
+                    ShowHideResults( true );
                 }
                 else
                 {
@@ -965,6 +967,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             // Admin option whether add buttons can be displayed
             var showAddButtons = GetAttributeValue( "EnableAddButtons" ).AsBoolean();
 
+            divActions.Visible = showAddButtons;
             lbAddFamilyMember.Visible = showAddButtons;
             lbAddVisitor.Visible = showAddButtons;
             lbNewFamily.Visible = showAddButtons;
