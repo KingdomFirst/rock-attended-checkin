@@ -103,7 +103,7 @@
             else if (!e.ctrlKey) {
                 if ((date.getTime() - lastKeyPress) > 300) {
                     keyboardBuffer = String.fromCharCode(e.which);
-                } else if ((date.getTime() - lastKeyPress) < 80) {
+                } else if ((date.getTime() - lastKeyPress) < 50) {
                     keyboardBuffer += String.fromCharCode(e.which);
                 }
             }
