@@ -111,11 +111,11 @@
             lastKeyPress = date.getTime();
         });
 
-        // set focus to the input unless on a touch device
-        var isTouchDevice = 'ontouchstart' in document.documentElement;
-        if (!isTouchDevice) {
-            $('.checkin-phone-entry').focus();
-        }
+        var searchInput = $('.checkin-phone-entry');
+        var currentValue = searchInput.val();
+        searchInput.val(currentValue);
+        searchInput.focus();
+        searchInput[0].setSelectionRange(currentValue.length, currentValue.length);
     };
 
     $(document).ready(function () {
