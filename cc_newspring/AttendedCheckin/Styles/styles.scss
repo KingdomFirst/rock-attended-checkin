@@ -215,6 +215,7 @@ html {
 .checkin-header {
     padding: $base-spacing-unit/4;
     margin-top: 0;
+    margin-bottom: 0;
 
     h2 {
         margin-top: $base-spacing-unit/4;
@@ -450,11 +451,11 @@ table thead {
 
 .table-condensed {
     th {
-        padding: 15px !important;
+        padding: 6px !important;
     }
 
     td {
-        padding: 6px 15px !important;
+        padding: 6px !important;
     }
 }
 
