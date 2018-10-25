@@ -113,6 +113,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         SearchFamilyById( dv, hfSearchEntry.Value );
                     }
                 }
+
+                tbSearchBox.Focus();
             }
         }
 
