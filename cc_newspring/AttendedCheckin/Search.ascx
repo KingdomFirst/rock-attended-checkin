@@ -19,9 +19,9 @@
 
                 <div class="col-xs-8">
                     <Rock:RockTextBox ID="tbSearchBox" MaxLength="50" CssClass="checkin-phone-entry" runat="server" Placeholder="Enter Last Name, First Name or Phone" Label="" TabIndex="0" />
-                    <asp:LinkButton runat="server" OnClick="lbSearch_Click">
+                    <%--<asp:LinkButton runat="server" OnClick="lbSearch_Click">
                         <span class="search-button fa fa-search" />
-                    </asp:LinkButton>
+                    </asp:LinkButton>--%>
                 </div>
 
                 <div class="col-xs-2 checkin-actions text-right">
@@ -103,7 +103,7 @@
             else if (!e.ctrlKey) {
                 if ((date.getTime() - lastKeyPress) > 300) {
                     keyboardBuffer = String.fromCharCode(e.which);
-                } else if ((date.getTime() - lastKeyPress) < 50) {
+                } else if ((date.getTime() - lastKeyPress) < 30) {
                     keyboardBuffer += String.fromCharCode(e.which);
                 }
             }
@@ -111,11 +111,11 @@
             lastKeyPress = date.getTime();
         });
 
-        // set focus to the input unless on a touch device
-        var isTouchDevice = 'ontouchstart' in document.documentElement;
-        if (!isTouchDevice) {
-            $('.checkin-phone-entry').focus();
-        }
+        var searchInput = $('.checkin-phone-entry');
+        var currentValue = searchInput.val();
+        searchInput.val(currentValue);
+        searchInput.focus();
+        searchInput[0].setSelectionRange(currentValue.length, currentValue.length);
     };
 
     $(document).ready(function () {

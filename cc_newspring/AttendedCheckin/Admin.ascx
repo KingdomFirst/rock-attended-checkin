@@ -61,21 +61,21 @@
 <script type="text/javascript">
 
     function toggleGroupType(element) {
+        var hfGroupTypes = $("input[id$='hfGroupTypes']"); 
         $(element).toggleClass('active').blur();
-        var selectedIds = $("input[id$='hfGroupTypes']").val();
+        var selectedIds = hfGroupTypes.val();
         var groupTypeId = element.getAttribute('data-id');
         if (selectedIds.indexOf(groupTypeId) >= 0) { // already selected, remove id
             var selectedIdRegex = new RegExp(groupTypeId + ',', "g");
-            $("input[id$='hfGroupTypes']").val(selectedIds.replace(selectedIdRegex, ''));
+            hfGroupTypes.val(selectedIds.replace(selectedIdRegex, ''));
         } else { // newly selected, add id
-            $("input[id$='hfGroupTypes']").val(groupTypeId + ',' + selectedIds);
+            hfGroupTypes.val(groupTypeId + ',' + selectedIds);
         }
     };
 
     var setKeyboardEvents = function () {
         $(document).unbind('keydown').keydown(function (e) {
             if (e.keyCode === 73 && e.ctrlKey) {
-
                 // Ctrl + Shift + I
                 e.stopPropagation();
                 var postbackArg = $('a[id$="lbTestPrint"]').attr('id');

@@ -88,7 +88,7 @@
                                     <Columns>
                                         <asp:BoundField ItemStyle-CssClass="col-xs-3" DataField="Schedule" />
                                         <asp:BoundField ItemStyle-CssClass="col-xs-8" DataField="Location" />
-                                        <Rock:DeleteField ItemStyle-CssClass="col-xs-1" ControlStyle-CssClass="btn btn-lg accent-bold-color accent-bold-color-bordered" OnClick="gSelectedGrid_Delete" />
+                                        <Rock:DeleteField ItemStyle-CssClass="col-xs-1" ControlStyle-CssClass="btn btn-md accent-bold-color accent-bold-color-bordered" OnClick="gSelectedGrid_Delete" />
                                     </Columns>
                                 </Rock:Grid>
                             </div>

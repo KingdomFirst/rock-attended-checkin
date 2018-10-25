@@ -210,6 +210,7 @@
 .checkin-header {
   padding: 15px;
   margin-top: 0;
+  margin-bottom: 0;
 }
 
 .checkin-header h2 {
@@ -432,11 +433,11 @@ table thead {
 }
 
 .table-condensed th {
-  padding: 15px !important;
+  padding: 6px !important;
 }
 
 .table-condensed td {
-  padding: 6px 15px !important;
+  padding: 6px !important;
 }
 
 table td {
