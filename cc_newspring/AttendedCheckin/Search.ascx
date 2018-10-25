@@ -19,9 +19,9 @@
 
                 <div class="col-xs-8">
                     <Rock:RockTextBox ID="tbSearchBox" MaxLength="50" CssClass="checkin-phone-entry" runat="server" Placeholder="Enter Last Name, First Name or Phone" Label="" TabIndex="0" />
-                    <asp:LinkButton runat="server" OnClick="lbSearch_Click">
+                    <%--<asp:LinkButton runat="server" OnClick="lbSearch_Click">
                         <span class="search-button fa fa-search" />
-                    </asp:LinkButton>
+                    </asp:LinkButton>--%>
                 </div>
 
                 <div class="col-xs-2 checkin-actions text-right">
