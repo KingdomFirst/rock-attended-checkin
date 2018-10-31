@@ -41,7 +41,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         ^FT30,350^A0N,30,30^FH\^FDDeviceName^FS
         ^FT420,350^A0N,30,30^FH\^FDPrinterIP^FS
         ^XZ", order: 3 )]
-    [BooleanField( "Allow Manual Setup", "If enabled, the block will allow the kiosk to be setup manually if it was not set via other means.", false, "", 4 )]
+    [BooleanField( "Allow Manual Setup", "By default, the block only allows known devices to access Attended Check-in.  Toggle this to allow manual device configuration.  You should also set Site security to require authenticated devices or users.", false, "", 4 )]
     public partial class Admin : CheckInBlock
     {
         #region Control Methods
