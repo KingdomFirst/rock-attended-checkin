@@ -110,10 +110,7 @@ namespace cc.newspring.AttendedCheckIn.Utility
             {
                 if ( scheduleId != null )
                 {
-                    foreach ( var scheduleAttendance in attendanceCache.Groups.SelectMany( g => g.Schedules ).Where( s => s.ScheduleId == (int)scheduleId ) )
-                    {
-                        attendanceCount += scheduleAttendance.CurrentCount;
-                    }
+                    attendanceCount += attendanceCache.Groups.SelectMany( g => g.Schedules ).Where( s => s.ScheduleId == (int)scheduleId ).Sum( s => s.CurrentCount );
                 }
                 else
                 {
