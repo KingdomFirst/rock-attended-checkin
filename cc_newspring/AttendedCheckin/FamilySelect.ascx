@@ -113,6 +113,7 @@
                     <asp:LinkButton ID="lbAddVisitor" runat="server" Text="Add Visitor" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClick="lbAddVisitor_Click" CausesValidation="false" EnableViewState="false" />
                     <asp:LinkButton ID="lbAddFamilyMember" runat="server" Text="Add Person" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClick="lbAddFamilyMember_Click" CausesValidation="false" EnableViewState="false" />
                     <asp:LinkButton ID="lbNewFamily" runat="server" Text="New Family" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClick="lbNewFamily_Click" CausesValidation="false" EnableViewState="false" />
+                    <asp:LinkButton ID="lbOverride" runat="server" Text="Override" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClick="lbOverride_Click" CausesValidation="false" EnableViewState="false" />
                 </div>
             </div>
         </asp:Panel>

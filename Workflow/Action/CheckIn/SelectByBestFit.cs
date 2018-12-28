@@ -293,6 +293,11 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     }
                                 }
 
+                                if ( bestGroup == null )
+                                {
+                                    return false;
+                                }
+
                                 validLocations = bestGroup.Locations;
                             }
 
