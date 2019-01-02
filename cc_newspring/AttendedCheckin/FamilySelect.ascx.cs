@@ -841,7 +841,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                 if ( e.StartRowIndex + personOffset + e.MaximumRows >= newFamilyList.Count )
                 {
-                    newFamilyList.AddRange( Enumerable.Repeat( new SerializedPerson(), e.MaximumRows ) );
+                    newFamilyList.AddRange( Enumerable.Repeat( new SerializedPerson() { LastName = newPerson.LastName }, e.MaximumRows ) );
                 }
 
                 newFamilyList[pageOffset + personOffset] = newPerson;
