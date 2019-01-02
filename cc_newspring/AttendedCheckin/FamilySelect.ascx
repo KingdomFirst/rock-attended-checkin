@@ -352,8 +352,6 @@
 
 <script type="text/javascript">
 
-
-
     function toggleFamily(e) {
         $(e).toggleClass('active');
         $(e).siblings('.family').removeClass('active');
@@ -373,10 +371,12 @@
 
     var setModalEvents = function () {
 
-        $('.fill-lastname').blur( function () {
+        $('.fill-lastname').blur(function () {
             var lastname = $(this).val();
-            var elIndex = $(".fill-lastname").index($(this));
-            $(".fill-lastname:gt(" + elIndex + ")").val(lastname);
+            if (lastname !== "") {
+                var elIndex = $(".fill-lastname").index($(this));
+                $(".fill-lastname:gt(" + elIndex + ")").val(lastname);
+            }
         });
 
         // begin standard modal input functions
