@@ -127,12 +127,12 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                         if ( person.GroupTypes.Count == 1 )
                         {
                             bestGroupType = person.GroupTypes.FirstOrDefault();
-                            validGroups = bestGroupType.Groups;
+                            validGroups = bestGroupType.Groups.Where( g => !g.Group.IsArchived );
                         }
                         else
                         {
                             // Start with unfiltered groups since one criteria may not match exactly ( SN > Grade > Age )
-                            validGroups = person.GroupTypes.SelectMany( gt => gt.Groups );
+                            validGroups = person.GroupTypes.SelectMany( gt => gt.Groups ).Where( g => !g.Group.IsArchived ) ;
                         }
 
                         // check how many groups exist without getting the whole list

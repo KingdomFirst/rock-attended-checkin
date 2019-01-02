@@ -111,12 +111,19 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                             var roomBalanceGroupTypeIds = previousAttender.GroupTypes.Where( gt => roomBalanceGroupTypes.Contains( gt.GroupType.Guid ) )
                                 .Select( gt => gt.GroupType.Id ).ToList();
 
+                            // skip archived groups
+                            if ( groupAttendance.Occurrence == null || groupAttendance.Occurrence.Group == null )
+                            {
+                                continue;
+                            }
+
                             // start with filtered groups unless they have abnormal age and grade parameters (1%)
                             var groupType = previousAttender.GroupTypes.FirstOrDefault( gt => gt.GroupType.Id == groupAttendance.Occurrence.Group.GroupTypeId && ( !gt.ExcludedByFilter || useCheckinOverride ) );
                             if ( groupType != null )
                             {
                                 // assigning the right schedule depends on prior attendance & currently available schedules being sorted
-                                var orderedSchedules = groupType.Groups.SelectMany( g => g.Locations.SelectMany( l => l.Schedules ) )
+                                var orderedSchedules = groupType.Groups.Where( g => !g.Group.IsArchived )
+                                    .SelectMany( g => g.Locations.SelectMany( l => l.Schedules ) )
                                     .DistinctBy( s => s.Schedule.Id ).OrderBy( s => s.Schedule.StartTimeOfDay )
                                     .Select( s => s.Schedule.Id ).ToList();
 
@@ -147,7 +154,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                 else
                                 {
                                     // pick the group they last attended, as long as it's open or what they're currently checked into
-                                    group = groupType.Groups.FirstOrDefault( g => g.Group.Id == groupAttendance.Occurrence.GroupId && ( !g.ExcludedByFilter || useCheckinOverride ) );
+                                    group = groupType.Groups.FirstOrDefault( g => !g.Group.IsArchived && g.Group.Id == groupAttendance.Occurrence.GroupId && ( !g.ExcludedByFilter || useCheckinOverride ) );
 
                                     // room balance only on new check-ins and only for the current service
                                     if ( group != null && currentScheduleId != null && roomBalanceGroupTypeIds.Contains( group.Group.GroupTypeId ) && !excludedLocations.Contains( group.Group.Name ) && !useCheckinOverride )
@@ -156,7 +163,8 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         var currentAttendance = group.Locations.Where( l => l.AvailableForSchedule.Contains( (int)currentScheduleId ) )
                                             .Select( l => Helpers.ReadAttendanceBySchedule( l.Location.Id, currentScheduleId ) ).Sum();
 
-                                        var lowestAttendedGroup = groupType.Groups.Where( g => g.AvailableForSchedule.Contains( (int)currentScheduleId ) )
+                                        var lowestAttendedGroup = groupType.Groups.Where( g => !g.Group.IsArchived )
+                                            .Where( g => g.AvailableForSchedule.Contains( (int)currentScheduleId ) )
                                             .Where( g => !g.ExcludedByFilter && !excludedLocations.Contains( g.Group.Name ) )
                                             .Select( g => new { Group = g, Attendance = g.Locations.Select( l => Helpers.ReadAttendanceBySchedule( l.Location.Id, currentScheduleId ) ).Sum() } )
                                             .OrderBy( g => g.Attendance )
