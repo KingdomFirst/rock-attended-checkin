@@ -24,6 +24,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [Category( "Check-in > Attended" )]
     [Description( "Attended Check-In Family Select Block" )]
     [BooleanField( "Enable Add Buttons", "Show the add people/visitor/family buttons on the family select page?", true, "", 1 )]
+    [BooleanField( "Enable Override Button", "Show the override button to allow unfiltered checkins?", false, "", 1 )]
     [BooleanField( "Show Contact Info", "Show the phone and email columns on add people/visitor/family modals.", false, "", 2 )]
     [BooleanField( "Hide Special Needs", "Hide the special needs column from add people/visitor/family modals.", false, "", 3 )]
     [BooleanField( "Preselect Family Members", "By default all eligible family members will be selected for checkin.  Toggle this setting to force manual person selections.", true, "", 4)]
@@ -97,6 +98,20 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         throw new Exception( "The Person Special Needs attribute is not selected or invalid on the FamilySelect page." );
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether check-in is currently in override mode
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this instance is override; otherwise, <c>false</c>.
+        /// </value>
+        protected bool IsOverride
+        {
+            get
+            {
+                return Request["Override"] != null && Request["Override"].AsBoolean();
             }
         }
 
@@ -286,6 +301,12 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             mdlNewFamily.Show();
         }
 
+        protected void lbOverride_Click( object sender, EventArgs e )
+        {
+            var queryParams = IsOverride ? null : new Dictionary<string, string>{ {"Override", "True" } };
+            NavigateToCurrentPage( queryParams );
+        }
+
         /// <summary>
         /// Handles the PagePropertiesChanging event of the lvFamily control.
         /// </summary>
@@ -335,7 +356,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var selectedFamily = CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
             if ( selectedFamily != null )
             {
-                var peopleList = selectedFamily.People.Where( f => f.FamilyMember == isFamilyMember && !f.ExcludedByFilter )
+                var peopleList = selectedFamily.People.Where( f => f.FamilyMember == isFamilyMember && ( IsOverride || !f.ExcludedByFilter ) )
                     .OrderByDescending( p => p.Person.AgePrecise ).ToList();
 
                 var selectedPeople = selectedPersonIds.SplitDelimitedValues().Select( int.Parse ).ToList();
@@ -820,7 +841,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                 if ( e.StartRowIndex + personOffset + e.MaximumRows >= newFamilyList.Count )
                 {
-                    newFamilyList.AddRange( Enumerable.Repeat( new SerializedPerson(), e.MaximumRows ) );
+                    newFamilyList.AddRange( Enumerable.Repeat( new SerializedPerson() { LastName = newPerson.LastName }, e.MaximumRows ) );
                 }
 
                 newFamilyList[pageOffset + personOffset] = newPerson;
@@ -896,13 +917,13 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 var preselectFamilyMembers = GetAttributeValue( "PreselectFamilyMembers" ).AsBoolean();
                 selectedFamily = selectedFamily ?? CurrentCheckInState.CheckIn.Families.FirstOrDefault( f => f.Selected );
 
-                if ( selectedFamily != null && selectedFamily.People.Any( f => !f.ExcludedByFilter ) )
+                if ( selectedFamily != null )
                 {
-                    memberDataSource = selectedFamily.People.Where( f => f.FamilyMember && !f.ExcludedByFilter )
+                    memberDataSource = selectedFamily.People.Where( f => f.FamilyMember && ( IsOverride || !f.ExcludedByFilter ) )
                         .OrderByDescending( p => p.Person.AgePrecise ).ToList();
                     memberDataSource.ForEach( p => p.Selected = preselectFamilyMembers );
 
-                    visitorDataSource = selectedFamily.People.Where( f => !f.FamilyMember && !f.ExcludedByFilter )
+                    visitorDataSource = selectedFamily.People.Where( f => !f.FamilyMember && ( IsOverride || !f.ExcludedByFilter ) )
                         .OrderByDescending( p => p.Person.AgePrecise ).ToList();
 
                     hfPersonIds.Value = string.Join( ",", memberDataSource.Where( p => p.Selected ).Select( f => f.Person.Id ) ) + ",";
@@ -971,6 +992,12 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             lbAddFamilyMember.Visible = showAddButtons;
             lbAddVisitor.Visible = showAddButtons;
             lbNewFamily.Visible = showAddButtons;
+            lbOverride.Visible = GetAttributeValue( "EnableOverrideButton" ).AsBoolean();
+
+            if ( IsOverride )
+            {
+                lbOverride.AddCssClass( "active" );
+            }
         }
 
         /// <summary>

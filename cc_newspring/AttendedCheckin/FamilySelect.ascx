@@ -112,7 +112,8 @@
 
                     <asp:LinkButton ID="lbAddVisitor" runat="server" Text="Add Visitor" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClick="lbAddVisitor_Click" CausesValidation="false" EnableViewState="false" />
                     <asp:LinkButton ID="lbAddFamilyMember" runat="server" Text="Add Person" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClick="lbAddFamilyMember_Click" CausesValidation="false" EnableViewState="false" />
-                    <asp:LinkButton ID="lbNewFamily" runat="server" Text="New Family" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClick="lbNewFamily_Click" CausesValidation="false" EnableViewState="false" />
+                    <asp:LinkButton ID="lbNewFamily" runat="server" Text="Add Family" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClick="lbNewFamily_Click" CausesValidation="false" EnableViewState="false" />
+                    <asp:LinkButton ID="lbOverride" runat="server" Text="Override" CssClass="btn btn-primary btn-lg btn-block btn-checkin-select" OnClick="lbOverride_Click" CausesValidation="false" EnableViewState="false" />
                 </div>
             </div>
         </asp:Panel>
@@ -172,10 +173,10 @@
                         </div>
                         <div class="row">
                             <div class="col-xs-2 text-center hard-right" id="divFirstName" runat="server">
-                                <Rock:RockTextBox ID="tbFirstName" runat="server" CssClass="hard-sides" ValidationGroup="Person" />
+                                <Rock:RockTextBox ID="tbFirstName" runat="server" ValidationGroup="Person" />
                             </div>
                             <div class="col-xs-2 text-center hard-right" id="divLastName" runat="server">
-                                <Rock:RockTextBox ID="tbLastName" runat="server" CssClass="hard-sides" ValidationGroup="Person" />
+                                <Rock:RockTextBox ID="tbLastName" runat="server" ValidationGroup="Person" />
                             </div>
                             <div class="col-xs-1 text-center hard-right">
                                 <Rock:RockDropDownList ID="ddlPersonSuffix" runat="server" CssClass="hard-sides" />
@@ -298,10 +299,10 @@
                             <ItemTemplate>
                                 <div class="row expanded">
                                     <div class="col-xs-2 hard-right" id="divFirstName" runat="server">
-                                        <Rock:RockTextBox ID="tbFirstName" runat="server" Text='<%# ((SerializedPerson)Container.DataItem).FirstName %>' ValidationGroup="Family" CssClass="hard-sides" />
+                                        <Rock:RockTextBox ID="tbFirstName" runat="server" Text='<%# ((SerializedPerson)Container.DataItem).FirstName %>' ValidationGroup="Family" />
                                     </div>
                                     <div class="col-xs-2 hard-right"  id="divLastName" runat="server">
-                                        <Rock:RockTextBox ID="tbLastName" runat="server" Text='<%# ((SerializedPerson)Container.DataItem).LastName %>' ValidationGroup="Family" CssClass="hard-sides" />
+                                        <Rock:RockTextBox ID="tbLastName" runat="server" Text='<%# ((SerializedPerson)Container.DataItem).LastName %>' ValidationGroup="Family" CssClass="fill-lastname" />
                                     </div>
                                     <div class="col-xs-1 hard-right">
                                         <Rock:RockDropDownList ID="ddlSuffix" runat="server" CssClass="hard-sides" />
@@ -351,15 +352,15 @@
 
 <script type="text/javascript">
 
-    function toggleFamily(element) {
-        $(element).toggleClass('active');
-        $(element).siblings('.family').removeClass('active');
+    function toggleFamily(e) {
+        $(e).toggleClass('active');
+        $(e).siblings('.family').removeClass('active');
     }
 
-    function togglePerson(element) {
-        $(element).toggleClass('active').blur();
+    function togglePerson(e) {
+        $(e).toggleClass('active').blur();
         var selectedIds = $("input[id$='hfPersonIds']").val();
-        var personId = element.getAttribute('data-id');
+        var personId = e.getAttribute('data-id');
         if (selectedIds.indexOf(personId) >= 0) { // already selected, remove id
             var selectedIdRegex = new RegExp(personId + ',', "g");
             $("input[id$='hfPersonIds']").val(selectedIds.replace(selectedIdRegex, ''));
@@ -369,6 +370,14 @@
     }
 
     var setModalEvents = function () {
+
+        $('.fill-lastname').blur(function () {
+            var lastname = $(this).val();
+            if (lastname !== "") {
+                var elIndex = $(".fill-lastname").index($(this));
+                $(".fill-lastname:gt(" + elIndex + ")").val(lastname);
+            }
+        });
 
         // begin standard modal input functions
         var setFocus = function () {

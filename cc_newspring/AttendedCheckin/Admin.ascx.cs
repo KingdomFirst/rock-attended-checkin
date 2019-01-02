@@ -140,7 +140,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                         $('[id$=""hfCheckinType""]').val(localStorage.checkInType);
                                     }}
                                     if (localStorage.checkInGroupTypes) {{
-                                        $('[id$=""hfGroupTypes""]').val(localStorage.checkInGroupTypes);
+                                        $('[id$=""hfGroupTypes""]').val(localStorage.checkInGroupTypes + ',');
                                     }}
                                 }}
                                 window.location = ""javascript:{0}"";
