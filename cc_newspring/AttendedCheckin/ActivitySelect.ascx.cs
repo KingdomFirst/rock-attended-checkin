@@ -1075,6 +1075,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 ddlPersonGender.SelectedIndex = (int)person.Gender;
                 cbSpecialNeeds.Checked = person.GetAttributeValue( SpecialNeedsKey ).AsBoolean();
 
+                tbPhone.Label = personPhoneType.Value + " Phone";
                 tbPhone.Text = person.PhoneNumbers.Where( n => n.NumberTypeValueId == personPhoneType.Id ).Select( n => n.NumberFormatted ).FirstOrDefault();
                 tbEmail.Text = person.Email;
 
