@@ -115,7 +115,7 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
 
                     // check if this person has special needs
                     var hasSpecialNeeds = person.Person.GetAttributeValue( personSpecialNeedsKey ).AsBoolean();
-
+                    
                     // get a list of room balanced grouptype ID's since CheckInGroup model is a shallow clone
                     var roomBalanceGroupTypeIds = person.GroupTypes.Where( gt => roomBalanceGroupTypes.Contains( gt.GroupType.Guid ) )
                         .Select( gt => gt.GroupType.Id ).ToList();
@@ -177,7 +177,8 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                             AgeRange = g.Group.AttributeValues[groupAgeRangeKey].Value
                                                 .Split( delimiter, StringSplitOptions.None )
                                                 .Where( av => !string.IsNullOrEmpty( av ) )
-                                                .Select( av => av.AsType<decimal>() )
+                                                .Select( av => av.AsType<decimal>() ),
+                                            Gender = g.Group.AttributeValues["Gender"].Value
                                         } )
                                         .ToList();
 
@@ -187,13 +188,15 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         {
                                             baseVariance = 100;
                                             var personAge = (decimal)person.Person.AgePrecise;
-                                            foreach ( var ageGroup in ageGroups.Where( g => g.AgeRange.Any() ) )
+                                            foreach ( var ageGroup in ageGroups.Where( g => g.AgeRange.Any() ).OrderByDescending( g => g.Gender ) )
                                             {
                                                 var minAge = ageGroup.AgeRange.First();
                                                 var maxAge = ageGroup.AgeRange.Last();
+                                                var groupGender = ageGroup.Gender.ConvertToEnumOrNull<Gender>();
                                                 var ageVariance = maxAge - minAge;
-                                                if ( maxAge >= personAge && minAge <= personAge && ageVariance < baseVariance )
-                                                {
+                                                if ( maxAge >= personAge && minAge <= personAge && ageVariance < baseVariance 
+                                                    && ( groupGender == null || groupGender == person.Person.Gender ) )
+                                                {   
                                                     closestAgeGroup = ageGroup.Group;
                                                     baseVariance = ageVariance;
 
@@ -225,7 +228,8 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                                     .Split( delimiter, StringSplitOptions.None )
                                                     .Where( av => !string.IsNullOrEmpty( av ) )
                                                     .Select( av => gradeValues.FirstOrDefault( v => v.Guid == new Guid( av ) ) )
-                                                    .Select( av => av.Value.AsDecimal() )
+                                                    .Select( av => av.Value.AsDecimal() ),
+                                                Gender = g.Group.AttributeValues["Gender"].Value
                                             } )
                                             .ToList();
 
@@ -234,12 +238,14 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                         {
                                             baseVariance = 100;
                                             var gradeOffset = (decimal)person.Person.GradeOffset.Value;
-                                            foreach ( var gradeGroup in gradeGroups.Where( g => g.GradeOffsets.Any() ) )
+                                            foreach ( var gradeGroup in gradeGroups.Where( g => g.GradeOffsets.Any() ).OrderByDescending( g => g.Gender ) )
                                             {
                                                 var minGradeOffset = gradeGroup.GradeOffsets.First();
                                                 var maxGradeOffset = gradeGroup.GradeOffsets.Last();
+                                                var groupGender = gradeGroup.Gender.ConvertToEnumOrNull<Gender>();
                                                 var gradeVariance = minGradeOffset - maxGradeOffset;
-                                                if ( minGradeOffset >= gradeOffset && maxGradeOffset <= gradeOffset && gradeVariance < baseVariance )
+                                                if ( minGradeOffset >= gradeOffset && maxGradeOffset <= gradeOffset && gradeVariance < baseVariance 
+                                                    && ( groupGender == null || groupGender == person.Person.Gender ) )
                                                 {
                                                     closestGradeGroup = gradeGroup.Group;
                                                     baseVariance = gradeVariance;
@@ -262,7 +268,6 @@ namespace cc.newspring.AttendedCheckIn.Workflow.Action.CheckIn
                                     }
 
                                     // Assignment priority: Group Membership, then Ability, then Grade, then Age, then the first non-excluded group
-                                    // NOTE: if group member is prioritized (and membership exists) this section is skipped entirely
                                     bestGroup = closestNeedsGroup ?? closestGradeGroup ?? closestAgeGroup ?? validGroups.FirstOrDefault( g => !g.ExcludedByFilter );
 
                                     // room balance if they fit into multiple groups
