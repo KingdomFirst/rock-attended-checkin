@@ -723,11 +723,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     AbilityGroup = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedItem.Attributes["optiongroup"]
                 };
 
-                var hasInput = !string.IsNullOrWhiteSpace( newPerson.FirstName )
-                    || !string.IsNullOrWhiteSpace( newPerson.LastName )
-                    || newPerson.BirthDate.HasValue
-                    || newPerson.Gender != Gender.Unknown;
-
                 if ( showContactInfo )
                 {
                     newPerson.PhoneNumber = ( (TextBox)item.FindControl( "tbPhone" ) ).Text;
@@ -739,7 +734,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     newPerson.HasSpecialNeeds = ( (RockCheckBox)item.FindControl( "cbSpecialNeeds" ) ).Checked;
                 }
 
-                if ( hasInput && !newPerson.IsValid() )
+                if ( !string.IsNullOrWhiteSpace( newPerson.FirstName ) && !newPerson.IsValid() )
                 {
                     maWarning.Show( "First name, Last name and Gender are required.", ModalAlertType.Information );
                     return;
@@ -1449,8 +1444,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
             public bool IsValid()
             {
-                // use OR and negation to immediately return when not valid
-                return !( string.IsNullOrWhiteSpace( FirstName ) || string.IsNullOrWhiteSpace( LastName ) || Gender == Gender.Unknown );
+                return !string.IsNullOrWhiteSpace( FirstName ) && !string.IsNullOrWhiteSpace( LastName ) && Gender != Gender.Unknown;
             }
 
             public SerializedPerson()
