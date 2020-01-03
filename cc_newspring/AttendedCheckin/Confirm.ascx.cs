@@ -568,7 +568,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         .OrderBy( l => l.PersonId )
                         .ThenBy( l => l.Order )
                         .ToList()
-                        .ForEach( l => l.LabelFile = urlRoot + l.LabelFile );
+                        .ForEach( l => l.LabelFile = urlRoot + l.LabelFile.Replace( urlRoot, "" ) );
 
                     if ( !GetAttributeValue( "ReprintDesignatedLabel" ).AsBoolean() )
                     {
