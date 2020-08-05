@@ -1088,14 +1088,14 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     ddlSuffix.SelectedValue = person.SuffixValueId.ToString();
                 }
 
-                if ( person.GradeOffset.HasValue && person.GradeOffset.Value >= 0 )
+                if ( person.GradeOffset.HasValue && person.GradeOffset.Value >= 0 && ddlAbilityGrade.Items.FindByValue( person.GradeOffset.ToString() ) != null )
                 {
                     ddlAbilityGrade.SelectedValue = person.GradeOffset.ToString();
                 }
                 else if ( person.AttributeValues.ContainsKey( "AbilityLevel" ) )
                 {
                     var personAbility = person.GetAttributeValue( "AbilityLevel" );
-                    if ( !string.IsNullOrWhiteSpace( personAbility ) )
+                    if ( !string.IsNullOrWhiteSpace( personAbility ) && ddlAbilityGrade.Items.FindByValue( personAbility ) != null )
                     {
                         ddlAbilityGrade.SelectedValue = personAbility;
                     }
