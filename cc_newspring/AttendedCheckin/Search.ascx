@@ -83,7 +83,8 @@
         var keyboardBuffer = '';
         var swipeProcessing = false;
 
-        $(document).keydown(function (e) {
+        $(document).off('keypress');
+        $(document).on('keypress', function (e) {
             // Ctrl + M to go back
             if (e.keyCode === 77 && e.ctrlKey) {
                 window.location.href = "/attendedcheckin/admin?back=true";
@@ -92,8 +93,8 @@
 
             var date = new Date();
             // if the character is a line break stop buffering and call postback
-            if (keyboardBuffer.length > 1 && (e.key == 13 || e.which == 13 )) {
-                if (!swipeProcessing) {
+            if (e.which == 13) {
+                if (keyboardBuffer.length != 0 && !swipeProcessing) {
                     $('#hfSearchEntry').val(keyboardBuffer);
                     keyboardBuffer = '';
                     swipeProcessing = true;
@@ -101,12 +102,28 @@
                 }
             }
             else if (!e.ctrlKey) {
-                if ((date.getTime() - lastKeyPress) > 300) {
+                if ((date.getTime() - lastKeyPress) > 500) {
+                    // if it's been more than 500ms, assume it is a new wedge read, so start a new keyboardBuffer
                     keyboardBuffer = String.fromCharCode(e.which);
-                } else if ((date.getTime() - lastKeyPress) < 30) {
+                } else if ((date.getTime() - lastKeyPress) < 100) {
+                    // if it's been more less than 100ms, assume a wedge read is coming in and append to the keyboardBuffer
                     keyboardBuffer += String.fromCharCode(e.which);
                 }
             }
+
+            // if the character is a line break stop buffering and call postback
+            if (e.which == 13 && keyboardBuffer.length != 0) {
+                if (!swipeProcessing) {
+                    $('#hfSearchEntry').val(keyboardBuffer);
+                    keyboardBuffer = '';
+                    swipeProcessing = true;
+                    console.log('processing');
+                    window.location = "javascript:__doPostBack('hfSearchEntry', 'Wedge_Entry')";
+                }
+            }
+
+            // stop the keypress
+            e.preventDefault();
 
             lastKeyPress = date.getTime();
         });
