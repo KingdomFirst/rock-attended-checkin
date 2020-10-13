@@ -123,14 +123,14 @@
             }
 
             // stop the keypress
-            e.preventDefault();
+            //e.preventDefault();
 
             lastKeyPress = date.getTime();
         });
 
         // set focus to the input unless on a touch device
         var isTouchDevice = 'ontouchstart' in document.documentElement;
-        if (!isTouchDevice) {
+        if (!isTouchDevice && autoFocusSearch) {
             var searchBar = $('.checkin-phone-entry');
             var currentValue = searchBar.val();
             searchBar.focus();
