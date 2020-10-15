@@ -21,6 +21,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
     [Description( "Attended Check-In Search block" )]
     [LinkedPage( "Admin Page" )]
     [BooleanField( "Show Key Pad", "Show the number key pad on the search screen", false )]
+    [BooleanField( "Enable Search Auto Focus", "Auto focus to search input on load. You will want to disable this if you are using a barcode scanner. (default: true)", true )]
     public partial class Search : CheckInBlock
     {
         #region Control Methods
@@ -83,8 +84,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         localStorage.checkInGroupTypes = '{3}';
                     }}
                 }});
+                var autoFocusSearch = {4};
             </script>
-            ", CurrentTheme, CurrentKioskId, CurrentCheckinTypeId, CurrentGroupTypeIds.AsDelimited( "," ) );
+            ", CurrentTheme, CurrentKioskId, CurrentCheckinTypeId, CurrentGroupTypeIds.AsDelimited( "," ), GetAttributeValue( "EnableSearchAutoFocus" ).AsBoolean().ToString().ToLower() );
                 using ( var literalControl = new LiteralControl( script ) )
                 {
                     phScript.Controls.Add( literalControl );

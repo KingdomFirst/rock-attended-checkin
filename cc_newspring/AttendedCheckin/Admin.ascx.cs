@@ -309,7 +309,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
 
             // return if kiosk isn't active
-            if ( !CurrentCheckInState.Kiosk.HasActiveLocations( selectedGroupTypes ) )
+            if ( CurrentCheckInState != null && !CurrentCheckInState.Kiosk.HasActiveLocations( selectedGroupTypes ) )
             {
                 hfGroupTypes.Value = ViewState["hfGroupTypes"] as string;
                 maAlert.Show( "There are no active schedules for the selected grouptypes.", ModalAlertType.Information );
