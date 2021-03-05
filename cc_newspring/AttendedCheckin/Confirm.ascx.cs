@@ -542,6 +542,13 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                             );
                         }
                     }
+                    else if ( printIndividually )
+                    {
+                        labels.AddRange( selectedGroupTypes.Where( gt => gt.Labels != null && gt.Selected )
+                            .SelectMany( gt => gt.Labels )
+                            .Where( l => l.PersonId == personId && ( !RemoveFromQueue || l.FileGuid != designatedLabelGuid ) )
+                        );
+                    }
                     else
                     {
                         labels.AddRange( selectedGroupTypes.Where( gt => gt.Labels != null )
