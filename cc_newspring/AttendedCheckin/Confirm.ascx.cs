@@ -541,8 +541,13 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                 .Where( l => ( !RemoveFromQueue || l.FileGuid != designatedLabelGuid ) )
                             );
                         }
-
-                        RemoveFromQueue = RemoveFromQueue || labels.Any( l => l.FileGuid == designatedLabelGuid );
+                    }
+                    else if ( printIndividually )
+                    {
+                        labels.AddRange( selectedGroupTypes.Where( gt => gt.Labels != null && gt.Selected )
+                            .SelectMany( gt => gt.Labels )
+                            .Where( l => l.PersonId == personId && ( !RemoveFromQueue || l.FileGuid != designatedLabelGuid ) )
+                        );
                     }
                     else
                     {
@@ -551,6 +556,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                             .Where( l => ( !RemoveFromQueue || l.FileGuid != designatedLabelGuid ) )
                         );
                     }
+
+                    RemoveFromQueue = RemoveFromQueue || labels.Any( l => l.FileGuid == designatedLabelGuid );
 
                     if ( !printIndividually )
                     {
