@@ -1344,15 +1344,17 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     GroupMemberStatus = GroupMemberStatus.Active
                 };
 
+                var groupTypeRoleService = new GroupTypeRoleService( rockContext );
+                var childRole = groupTypeRoleService.Get( new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_FAMILY_MEMBER_CHILD ) );
+                var adultRole = groupTypeRoleService.Get( new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_FAMILY_MEMBER_ADULT ) );
+
                 if ( person.Age < 18 || person.AgeClassification == AgeClassification.Child )
                 {
-                    groupMember.GroupRoleId = familyGroupType.Roles.FirstOrDefault( r =>
-                        r.Guid == new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_FAMILY_MEMBER_CHILD ) ).Id;
+                    groupMember.GroupRole = childRole;
                 }
                 else
                 {
-                    groupMember.GroupRoleId = familyGroupType.Roles.FirstOrDefault( r =>
-                        r.Guid == new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_FAMILY_MEMBER_ADULT ) ).Id;
+                    groupMember.GroupRole = adultRole;
                 }
 
                 newGroupMembers.Add( groupMember );
