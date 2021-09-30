@@ -1387,7 +1387,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         {
                             PersonAliasId = hoh.PrimaryAlias.Id,
                             SearchTypeValueId = searchTypeValue.Id,
-                            SearchValue = value
+                            SearchValue = value.Trim()
                         };
                         personSearchKeyService.Add( searchValue );
                     }

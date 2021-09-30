@@ -806,19 +806,19 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 var personSearchKeyService = new PersonSearchKeyService( rockContext );
 
                 // Add new barcodes
-                foreach ( var value in barcode.Where( bc => !bcSearchKeyStrings.Any( k => k == bc ) ) )
+                foreach ( var value in barcode.Where( bc => !bcSearchKeyStrings.Any( k => k == bc.Trim() ) ) )
                 {
                     var searchValue = new PersonSearchKey
                     {
                         PersonAliasId = dbPerson.PrimaryAlias.Id,
                         SearchTypeValueId = searchTypeValue.Id,
-                        SearchValue = value
+                        SearchValue = value.Trim()
                     };
                     personSearchKeyService.Add( searchValue );
                 }
 
                 // Remove deleted barcodes
-                foreach ( var value in bcSearchKeys.Where( k => !barcode.Any( bc => bc == k.SearchValue ) ) )
+                foreach ( var value in bcSearchKeys.Where( k => !barcode.Any( bc => bc.Trim() == k.SearchValue ) ) )
                 {
                     personSearchKeyService.Delete( value );
                 }
