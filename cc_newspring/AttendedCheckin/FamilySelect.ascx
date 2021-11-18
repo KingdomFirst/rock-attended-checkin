@@ -179,7 +179,7 @@
                                 <Rock:RockTextBox ID="tbLastName" runat="server" ValidationGroup="Person" />
                             </div>
                             <div class="col-xs-1 text-center hard-right">
-                                <Rock:RockDropDownList ID="ddlPersonSuffix" runat="server" CssClass="hard-sides" />
+                                <Rock:DefinedValuePicker ID="dvpPersonSuffix" runat="server" CssClass="hard-sides" ValidationGroup="Person"></Rock:DefinedValuePicker>
                             </div>
                             <div class="col-xs-2 text-center hard-right">
                                 <Rock:DatePicker ID="dpPersonDOB" runat="server" CssClass="date-picker hard-sides" ValidationGroup="Person" data-show-age="true" />
@@ -305,7 +305,7 @@
                                         <Rock:RockTextBox ID="tbLastName" runat="server" Text='<%# ((SerializedPerson)Container.DataItem).LastName %>' ValidationGroup="Family" CssClass="fill-lastname" />
                                     </div>
                                     <div class="col-xs-1 hard-right">
-                                        <Rock:RockDropDownList ID="ddlSuffix" runat="server" CssClass="hard-sides" />
+                                        <Rock:DefinedValuePicker ID="dvpSuffix" runat="server" CssClass="hard-sides"></Rock:DefinedValuePicker>
                                     </div>
                                     <div class="col-xs-2 hard-right">
                                         <Rock:DatePicker ID="dpBirthDate" runat="server" SelectedDate='<%# ((SerializedPerson)Container.DataItem).BirthDate %>' ValidationGroup="Family" CssClass="date-picker hard-sides" data-show-age="true" />
