@@ -695,9 +695,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             dbPerson.Gender = ddlPersonGender.SelectedValueAsEnum<Gender>();
             checkinPerson.Person.Gender = ddlPersonGender.SelectedValueAsEnum<Gender>();
 
-            History.EvaluateChange( profileChanges, "Suffix", dbPerson.SuffixValueId, ddlSuffix.SelectedValueAsId() );
-            dbPerson.SuffixValueId = ddlSuffix.SelectedValueAsId();
-            checkinPerson.Person.SuffixValueId = ddlSuffix.SelectedValueAsId();
+            History.EvaluateChange( profileChanges, "Suffix", dbPerson.SuffixValueId, dvpSuffix.SelectedValueAsId() );
+            dbPerson.SuffixValueId = dvpSuffix.SelectedValueAsId();
+            checkinPerson.Person.SuffixValueId = dvpSuffix.SelectedValueAsId();
 
             var DOB = dpDOB.SelectedDate;
             if ( DOB != null )
@@ -1092,7 +1092,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             {
                 ddlAbilityGrade.LoadAbilityAndGradeItems();
                 ddlPersonGender.BindToEnum<Gender>();
-                ddlSuffix.BindToDefinedType( DefinedTypeCache.Get( new Guid( Rock.SystemGuid.DefinedType.PERSON_SUFFIX ) ), true );
+                dvpSuffix.DefinedTypeId = DefinedTypeCache.Get( Rock.SystemGuid.DefinedType.PERSON_SUFFIX.AsGuid() ).Id;
                 var personPhoneType = DefinedValueCache.Get( GetAttributeValue( "DefaultPhoneType" ).AsGuid() );
 
                 ViewState["lblAbilityGrade"] = ddlAbilityGrade.Label;
@@ -1115,7 +1115,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                 if ( person.SuffixValueId.HasValue )
                 {
-                    ddlSuffix.SelectedValue = person.SuffixValueId.ToString();
+                    dvpSuffix.SetValue( person.SuffixValueId );
                 }
 
                 if ( person.GradeOffset.HasValue && person.GradeOffset.Value >= 0 && ddlAbilityGrade.Items.FindByValue( person.GradeOffset.ToString() ) != null )

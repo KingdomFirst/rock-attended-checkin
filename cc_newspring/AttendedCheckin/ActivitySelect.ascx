@@ -133,7 +133,7 @@
                                 <Rock:RockTextBox ID="tbLastName" runat="server" Label="Last Name" ValidationGroup="Person" />
                             </div>
                             <div class="col-xs-1">
-                                <Rock:RockDropDownList ID="ddlSuffix" runat="server" Label="Suffix" />
+                                <Rock:DefinedValuePicker ID="dvpSuffix" runat="server" Label="Suffix"></Rock:DefinedValuePicker>
                             </div>
                             <div class="col-xs-2">
                                 <Rock:RockDropDownList ID="ddlPersonGender" runat="server" Label="Gender" />
