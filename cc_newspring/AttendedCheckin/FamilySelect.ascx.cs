@@ -453,11 +453,11 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             {
                 var person = ( (ListViewDataItem)e.Item ).DataItem as SerializedPerson;
 
-                var ddlSuffix = (RockDropDownList)e.Item.FindControl( "ddlSuffix" );
-                ddlSuffix.BindToDefinedType( DefinedTypeCache.Get( new Guid( Rock.SystemGuid.DefinedType.PERSON_SUFFIX ) ), true );
+                var dvpSuffix = (DefinedValuePicker)e.Item.FindControl( "dvpSuffix" );
+                dvpSuffix.DefinedTypeId = DefinedTypeCache.Get( Rock.SystemGuid.DefinedType.PERSON_SUFFIX.AsGuid() ).Id;
                 if ( person.SuffixValueId.HasValue )
                 {
-                    ddlSuffix.SelectedValue = person.SuffixValueId.ToString();
+                    dvpSuffix.SetValue( person.SuffixValueId );
                 }
 
                 var ddlGender = (RockDropDownList)e.Item.FindControl( "ddlGender" );
@@ -558,7 +558,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             {
                 FirstName = tbFirstName.Text,
                 LastName = tbLastName.Text,
-                SuffixValueId = ddlPersonSuffix.SelectedValueAsId(),
+                SuffixValueId = dvpPersonSuffix.SelectedValue.AsIntegerOrNull(),
                 BirthDate = dpPersonDOB.SelectedDate,
                 Gender = ddlPersonGender.SelectedValueAsEnum<Gender>(),
                 Ability = ddlPersonAbilityGrade.SelectedValue,
@@ -716,7 +716,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 {
                     FirstName = ( (TextBox)item.FindControl( "tbFirstName" ) ).Text,
                     LastName = ( (TextBox)item.FindControl( "tbLastName" ) ).Text,
-                    SuffixValueId = ( (RockDropDownList)item.FindControl( "ddlSuffix" ) ).SelectedValueAsId(),
+                    SuffixValueId = ( (DefinedValuePicker)item.FindControl( "dvpSuffix" ) ).SelectedValueAsId(),
                     BirthDate = ( (DatePicker)item.FindControl( "dpBirthDate" ) ).SelectedDate,
                     Gender = ( (RockDropDownList)item.FindControl( "ddlGender" ) ).SelectedValueAsEnum<Gender>(),
                     Ability = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedValue,
@@ -811,7 +811,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 {
                     FirstName = ( (TextBox)item.FindControl( "tbFirstName" ) ).Text,
                     LastName = ( (TextBox)item.FindControl( "tbLastName" ) ).Text,
-                    SuffixValueId = ( (RockDropDownList)item.FindControl( "ddlSuffix" ) ).SelectedValueAsId(),
+                    SuffixValueId = ( (DefinedValuePicker)item.FindControl( "dvpSuffix" ) ).SelectedValueAsId(),
                     BirthDate = ( (DatePicker)item.FindControl( "dpBirthDate" ) ).SelectedDate,
                     Gender = ( (RockDropDownList)item.FindControl( "ddlGender" ) ).SelectedValueAsEnum<Gender>(),
                     Ability = ( (RockDropDownList)item.FindControl( "ddlAbilityGrade" ) ).SelectedValue,
@@ -1060,8 +1060,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             tbFirstName.Text = string.Empty;
             tbLastName.Text = string.Empty;
-            ddlPersonSuffix.BindToDefinedType( DefinedTypeCache.Get( new Guid( Rock.SystemGuid.DefinedType.PERSON_SUFFIX ) ), true );
-            ddlPersonSuffix.SelectedIndex = 0;
+            dvpPersonSuffix.DefinedTypeId = DefinedTypeCache.Get( Rock.SystemGuid.DefinedType.PERSON_SUFFIX.AsGuid() ).Id;
+            dvpPersonSuffix.SetValue( 0 );
             ddlPersonGender.BindToEnum<Gender>();
             ddlPersonGender.SelectedIndex = 0;
             ddlPersonAbilityGrade.LoadAbilityAndGradeItems();
@@ -1101,9 +1101,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 peopleQry = peopleQry.Where( p => p.FirstName.Equals( tbFirstName.Text ) );
             }
 
-            if ( ddlPersonSuffix.SelectedValueAsInt().HasValue )
+            if ( dvpPersonSuffix.SelectedValue.AsIntegerOrNull().HasValue )
             {
-                var suffixValueId = ddlPersonSuffix.SelectedValueAsId();
+                var suffixValueId = dvpPersonSuffix.SelectedValue.AsIntegerOrNull();
                 peopleQry = peopleQry.Where( p => p.SuffixValueId == suffixValueId );
             }
 
@@ -1344,15 +1344,17 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     GroupMemberStatus = GroupMemberStatus.Active
                 };
 
+                var groupTypeRoleService = new GroupTypeRoleService( rockContext );
+                var childRole = groupTypeRoleService.Get( new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_FAMILY_MEMBER_CHILD ) );
+                var adultRole = groupTypeRoleService.Get( new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_FAMILY_MEMBER_ADULT ) );
+
                 if ( person.Age < 18 || person.AgeClassification == AgeClassification.Child )
                 {
-                    groupMember.GroupRoleId = familyGroupType.Roles.FirstOrDefault( r =>
-                        r.Guid == new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_FAMILY_MEMBER_CHILD ) ).Id;
+                    groupMember.GroupRole = childRole;
                 }
                 else
                 {
-                    groupMember.GroupRoleId = familyGroupType.Roles.FirstOrDefault( r =>
-                        r.Guid == new Guid( Rock.SystemGuid.GroupRole.GROUPROLE_FAMILY_MEMBER_ADULT ) ).Id;
+                    groupMember.GroupRole = adultRole;
                 }
 
                 newGroupMembers.Add( groupMember );
@@ -1385,7 +1387,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         {
                             PersonAliasId = hoh.PrimaryAlias.Id,
                             SearchTypeValueId = searchTypeValue.Id,
-                            SearchValue = value
+                            SearchValue = value.Trim()
                         };
                         personSearchKeyService.Add( searchValue );
                     }

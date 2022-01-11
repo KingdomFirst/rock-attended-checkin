@@ -695,9 +695,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             dbPerson.Gender = ddlPersonGender.SelectedValueAsEnum<Gender>();
             checkinPerson.Person.Gender = ddlPersonGender.SelectedValueAsEnum<Gender>();
 
-            History.EvaluateChange( profileChanges, "Suffix", dbPerson.SuffixValueId, ddlSuffix.SelectedValueAsId() );
-            dbPerson.SuffixValueId = ddlSuffix.SelectedValueAsId();
-            checkinPerson.Person.SuffixValueId = ddlSuffix.SelectedValueAsId();
+            History.EvaluateChange( profileChanges, "Suffix", dbPerson.SuffixValueId, dvpSuffix.SelectedValueAsId() );
+            dbPerson.SuffixValueId = dvpSuffix.SelectedValueAsId();
+            checkinPerson.Person.SuffixValueId = dvpSuffix.SelectedValueAsId();
 
             var DOB = dpDOB.SelectedDate;
             if ( DOB != null )
@@ -795,6 +795,36 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             // Save the attribute change to the db (CheckinPerson already tracked)
             dbPerson.SaveAttributeValues();
             rockContext.SaveChanges();
+
+            // save barcodes
+            if ( dbPerson != null && dbPerson.PrimaryAlias != null )
+            {
+                var barcode = tbBarcodes.Text.Split( new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries );
+                var searchTypeValue = DefinedValueCache.Get( Rock.SystemGuid.DefinedValue.PERSON_SEARCH_KEYS_ALTERNATE_ID.AsGuid() );
+                var bcSearchKeys = dbPerson.GetPersonSearchKeys( rockContext ).Where( k => k.SearchTypeValueId == searchTypeValue.Id );
+                var bcSearchKeyStrings = bcSearchKeys.Select( k => k.SearchValue ).ToList();
+                var personSearchKeyService = new PersonSearchKeyService( rockContext );
+
+                // Add new barcodes
+                foreach ( var value in barcode.Where( bc => !bcSearchKeyStrings.Any( k => k == bc.Trim() ) ) )
+                {
+                    var searchValue = new PersonSearchKey
+                    {
+                        PersonAliasId = dbPerson.PrimaryAlias.Id,
+                        SearchTypeValueId = searchTypeValue.Id,
+                        SearchValue = value.Trim()
+                    };
+                    personSearchKeyService.Add( searchValue );
+                }
+
+                // Remove deleted barcodes
+                foreach ( var value in bcSearchKeys.Where( k => !barcode.Any( bc => bc.Trim() == k.SearchValue ) ) )
+                {
+                    personSearchKeyService.Delete( value );
+                }
+
+                rockContext.SaveChanges();
+            }
             mdlInfo.Hide();
         }
 
@@ -1062,7 +1092,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             {
                 ddlAbilityGrade.LoadAbilityAndGradeItems();
                 ddlPersonGender.BindToEnum<Gender>();
-                ddlSuffix.BindToDefinedType( DefinedTypeCache.Get( new Guid( Rock.SystemGuid.DefinedType.PERSON_SUFFIX ) ), true );
+                dvpSuffix.DefinedTypeId = DefinedTypeCache.Get( Rock.SystemGuid.DefinedType.PERSON_SUFFIX.AsGuid() ).Id;
                 var personPhoneType = DefinedValueCache.Get( GetAttributeValue( "DefaultPhoneType" ).AsGuid() );
 
                 ViewState["lblAbilityGrade"] = ddlAbilityGrade.Label;
@@ -1085,7 +1115,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                 if ( person.SuffixValueId.HasValue )
                 {
-                    ddlSuffix.SelectedValue = person.SuffixValueId.ToString();
+                    dvpSuffix.SetValue( person.SuffixValueId );
                 }
 
                 if ( person.GradeOffset.HasValue && person.GradeOffset.Value >= 0 && ddlAbilityGrade.Items.FindByValue( person.GradeOffset.ToString() ) != null )
@@ -1100,6 +1130,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         ddlAbilityGrade.SelectedValue = personAbility;
                     }
                 }
+                var searchTypeValue = DefinedValueCache.Get( Rock.SystemGuid.DefinedValue.PERSON_SEARCH_KEYS_ALTERNATE_ID.AsGuid() );
+                var bcSearchKeys = person.GetPersonSearchKeys().Where( k => k.SearchTypeValueId == searchTypeValue.Id ).Select( k => k.SearchValue ).ToList();
+                tbBarcodes.Text = string.Join( ",", bcSearchKeys );
 
                 // Note: attribute controls are dynamic and must be initialized on PageLoad
                 phAttributes.Controls.Clear();

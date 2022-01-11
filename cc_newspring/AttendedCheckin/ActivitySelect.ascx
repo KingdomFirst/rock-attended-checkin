@@ -133,7 +133,7 @@
                                 <Rock:RockTextBox ID="tbLastName" runat="server" Label="Last Name" ValidationGroup="Person" />
                             </div>
                             <div class="col-xs-1">
-                                <Rock:RockDropDownList ID="ddlSuffix" runat="server" Label="Suffix" />
+                                <Rock:DefinedValuePicker ID="dvpSuffix" runat="server" Label="Suffix"></Rock:DefinedValuePicker>
                             </div>
                             <div class="col-xs-2">
                                 <Rock:RockDropDownList ID="ddlPersonGender" runat="server" Label="Gender" />
@@ -157,6 +157,11 @@
                                 <Rock:RockTextBox ID="tbEmail" runat="server" Label="Email" />
                             </div>
                             
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <Rock:RockTextBox ID="tbBarcodes" runat="server" Label="Barcode" Placeholder="Enter a comma separated list of barcodes" />
+                            </div>
                         </div>
                         <div class="row">
                             <div class="col-xs-6">
