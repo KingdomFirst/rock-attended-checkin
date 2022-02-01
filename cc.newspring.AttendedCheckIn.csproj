@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>cc.newspring.AttendedCheckIn</RootNamespace>
     <AssemblyName>cc.newspring.AttendedCheckIn</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\rock\</SolutionDir>
@@ -33,9 +33,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DotLiquid">
-      <HintPath>..\RockWeb\Bin\DotLiquid.dll</HintPath>
-    </Reference>
     <Reference Include="EntityFramework">
       <HintPath>..\RockWeb\Bin\EntityFramework.dll</HintPath>
     </Reference>
@@ -44,6 +41,12 @@
     </Reference>
     <Reference Include="Rock">
       <HintPath>..\RockWeb\Bin\Rock.dll</HintPath>
+    </Reference>
+    <Reference Include="Rock.Common">
+      <HintPath>..\RockWeb\Bin\Rock.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Rock.Lava.Shared">
+      <HintPath>..\RockWeb\Bin\Rock.Lava.Shared.dll</HintPath>
     </Reference>
     <Reference Include="Rock.Rest">
       <HintPath>..\RockWeb\Bin\Rock.Rest.dll</HintPath>
