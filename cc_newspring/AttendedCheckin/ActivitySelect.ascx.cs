@@ -670,7 +670,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void lbSaveEditInfo_Click( object sender, EventArgs e )
         {
-            if ( string.IsNullOrEmpty( tbFirstName.Text ) || string.IsNullOrEmpty( tbLastName.Text ) || string.IsNullOrEmpty( dpDOB.Text ) )
+            if ( string.IsNullOrEmpty( tbFirstName.Text ) || string.IsNullOrEmpty( tbLastName.Text ) )
             {
                 Page.Validate( "Person" );
                 mdlInfo.Show();
@@ -770,6 +770,15 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     dbPerson.GradeOffset = ddlAbilityGrade.SelectedValueAsId();
                     checkinPerson.Person.GradeOffset = ddlAbilityGrade.SelectedValueAsId();
                 }
+            }
+            else
+            {
+                History.EvaluateChange( profileChanges, "Ability Level", dbPerson.GetAttributeValue( "AbilityLevel" ), string.Empty );
+                dbPerson.SetAttributeValue( "AbilityLevel", string.Empty );
+                checkinPerson.Person.SetAttributeValue( "AbilityLevel", string.Empty );
+                History.EvaluateChange( profileChanges, "Grade", dbPerson.GradeFormatted, string.Empty );
+                dbPerson.GradeOffset = null;
+                checkinPerson.Person.GradeOffset = null;
             }
 
             // Always save the special needs value
@@ -1111,7 +1120,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
 
                 tbFirstName.Required = true;
                 tbLastName.Required = true;
-                dpDOB.Required = true;
+                dpDOB.Required = person.BirthDate.HasValue;
 
                 if ( person.SuffixValueId.HasValue )
                 {

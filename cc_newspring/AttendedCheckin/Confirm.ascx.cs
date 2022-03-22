@@ -16,6 +16,7 @@ using Rock.Attribute;
 using Rock.CheckIn;
 using Rock.Data;
 using Rock.Model;
+using Rock.Web.Cache;
 using Rock.Web.UI;
 using Rock.Web.UI.Controls;
 
@@ -175,11 +176,30 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                     checkIn.Content = contentTemplate.ResolveMergeFields( mergeObjects, null );
                                 }
 
-                                // show "K" when under 1st Grade
                                 if ( person.Person.GradeOffset != null )
                                 {
-                                    var grade = 12 - person.Person.GradeOffset;
-                                    checkIn.Grade = grade <= 0 ? "K" : grade.ToString();
+                                    var schoolGrades = DefinedTypeCache.Get( Rock.SystemGuid.DefinedType.SCHOOL_GRADES.AsGuid() );
+                                    if ( schoolGrades != null )
+                                    {
+                                        var grade = schoolGrades.DefinedValues.FirstOrDefault( dv => dv.Value == person.Person.GradeOffset.Value.ToString() );
+                                        if ( grade == null && person.Person.GradeOffset >= 0 )
+                                        {
+                                            grade = schoolGrades.DefinedValues.OrderBy( dv => dv.Order ).FirstOrDefault();
+                                        }
+                                        if ( grade != null )
+                                        {
+                                            grade.LoadAttributes();
+                                            var abbreviation = grade.GetAttributeValue( "Abbreviation" );
+                                            if ( !string.IsNullOrWhiteSpace( abbreviation ) )
+                                            {
+                                                checkIn.Grade = abbreviation;
+                                            }
+                                            else
+                                            {
+                                                checkIn.Grade = grade.Description;
+                                            }
+                                        }
+                                    }
                                 }
 
                                 // LastCheckin is set to the end time of the current service
