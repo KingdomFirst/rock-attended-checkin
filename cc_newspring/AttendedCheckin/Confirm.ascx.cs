@@ -478,7 +478,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="checkinArray">The checkin array.</param>
         private void ProcessLabels( DataKeyArray checkinArray )
         {
-            if ( checkinArray.Count == 0)
+            if ( checkinArray.Count == 0 )
             {
                 return;
             }
@@ -692,8 +692,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     .SelectMany( s => s.Schedules ).Where( s => s.Selected ).ToList();
                 foreach ( var selectedSchedule in selectedSchedules )
                 {
-                    var serviceStart = (DateTime)selectedSchedule.StartTime;
-                    selectedSchedule.LastCheckIn = serviceStart.AddMinutes( (double)selectedSchedule.Schedule.CheckInEndOffsetMinutes );
+                    var serviceStart = ( DateTime ) selectedSchedule.StartTime;
+                    selectedSchedule.LastCheckIn = serviceStart.AddMinutes( ( double ) selectedSchedule.Schedule.CheckInEndOffsetMinutes );
                 }
             }
 
