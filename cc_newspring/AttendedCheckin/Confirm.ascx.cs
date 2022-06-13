@@ -188,7 +188,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                                         }
                                         if ( grade != null )
                                         {
-                                            grade.LoadAttributes();
                                             var abbreviation = grade.GetAttributeValue( "Abbreviation" );
                                             if ( !string.IsNullOrWhiteSpace( abbreviation ) )
                                             {
