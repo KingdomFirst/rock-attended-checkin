@@ -34,7 +34,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         {
             base.OnInit( e );
 
-            if ( CurrentCheckInState == null || CurrentGroupTypeIds == null )
+            if ( CurrentCheckInState == null || LocalDeviceConfig.CurrentGroupTypeIds == null )
             {
                 NavigateToLinkedPage( "AdminPage" );
                 return;
@@ -86,7 +86,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }});
                 var autoFocusSearch = {4};
             </script>
-            ", CurrentTheme, CurrentKioskId, CurrentCheckinTypeId, CurrentGroupTypeIds.AsDelimited( "," ), GetAttributeValue( "EnableSearchAutoFocus" ).AsBoolean().ToString().ToLower() );
+            ", LocalDeviceConfig.CurrentTheme, LocalDeviceConfig.CurrentKioskId, LocalDeviceConfig.CurrentCheckinTypeId, LocalDeviceConfig.CurrentGroupTypeIds.AsDelimited( "," ), GetAttributeValue( "EnableSearchAutoFocus" ).AsBoolean().ToString().ToLower() );
                 using ( var literalControl = new LiteralControl( script ) )
                 {
                     phScript.Controls.Add( literalControl );
