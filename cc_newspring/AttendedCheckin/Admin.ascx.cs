@@ -60,42 +60,42 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 var preferredKioskId = PageParameter( "KioskId" ).AsIntegerOrNull();
                 if ( preferredKioskId != null )
                 {
-                    CurrentKioskId = preferredKioskId;
+                    LocalDeviceConfig.CurrentKioskId = preferredKioskId;
                 }
 
                 var checkinTypeId = PageParameter( "CheckinTypeId" ).AsIntegerOrNull();
                 if ( checkinTypeId != null )
                 {
-                    CurrentCheckinTypeId = checkinTypeId;
+                    LocalDeviceConfig.CurrentCheckinTypeId = checkinTypeId;
                 }
 
                 var queryStringConfig = PageParameter( "GroupTypeIds" );
                 if ( !string.IsNullOrEmpty( queryStringConfig ) )
                 {
-                    CurrentGroupTypeIds = queryStringConfig.ToStringSafe()
+                    LocalDeviceConfig.CurrentGroupTypeIds = queryStringConfig.ToStringSafe()
                        .Split( new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries )
                        .ToList()
                        .Select( s => s.AsInteger() )
                        .ToList();
                 }
 
-                if ( CurrentCheckInState != null && CurrentCheckInState.Kiosk != null && CurrentGroupTypeIds != null && CurrentGroupTypeIds.Any() && !UserBackedUp )
+                if ( CurrentCheckInState != null && CurrentCheckInState.Kiosk != null && LocalDeviceConfig.CurrentGroupTypeIds != null && LocalDeviceConfig.CurrentGroupTypeIds.Any() && !UserBackedUp )
                 {
                     // Set the local cache if a session is already active
-                    CurrentKioskId = CurrentCheckInState.DeviceId;
-                    CurrentGroupTypeIds = CurrentCheckInState.ConfiguredGroupTypes;
+                    LocalDeviceConfig.CurrentKioskId = CurrentCheckInState.DeviceId;
+                    LocalDeviceConfig.CurrentGroupTypeIds = CurrentCheckInState.ConfiguredGroupTypes;
                     CurrentCheckInState = null;
                     CurrentWorkflow = null;
 
                     // If checkin type not set, try to calculate it from the group types.
-                    if ( !CurrentCheckinTypeId.HasValue )
+                    if ( !LocalDeviceConfig.CurrentCheckinTypeId.HasValue )
                     {
-                        foreach ( int groupTypeId in CurrentGroupTypeIds )
+                        foreach ( int groupTypeId in LocalDeviceConfig.CurrentGroupTypeIds )
                         {
                             var checkinType = GetCheckinType( groupTypeId );
                             if ( checkinType != null )
                             {
-                                CurrentCheckinTypeId = checkinType.Id;
+                                LocalDeviceConfig.CurrentCheckinTypeId = checkinType.Id;
                                 break;
                             }
                         }
@@ -162,9 +162,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                             ddlTheme.Items.Add( new ListItem( themeDir.Name, themeDir.Name.ToLower() ) );
                         }
 
-                        if ( !string.IsNullOrWhiteSpace( CurrentTheme ) )
+                        if ( !string.IsNullOrWhiteSpace( LocalDeviceConfig.CurrentTheme ) )
                         {
-                            ddlTheme.SetValue( CurrentTheme );
+                            ddlTheme.SetValue( LocalDeviceConfig.CurrentTheme );
                         }
                         else
                         {
@@ -189,9 +189,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         ddlKiosk.DataBind();
                         ddlKiosk.Items.Insert( 0, new ListItem( None.Text, None.IdValue ) );
 
-                        if ( CurrentKioskId.HasValue )
+                        if ( LocalDeviceConfig.CurrentKioskId.HasValue )
                         {
-                            ddlKiosk.SetValue( CurrentKioskId );
+                            ddlKiosk.SetValue( LocalDeviceConfig.CurrentKioskId );
                         }
                     }
 
@@ -238,7 +238,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             if ( device != null )
             {
                 ClearMobileCookie();
-                CurrentKioskId = device.Id;
+                LocalDeviceConfig.CurrentKioskId = device.Id;
 
                 var location = device.Locations.FirstOrDefault();
                 if ( location != null )
@@ -286,22 +286,22 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 return;
             }
 
-            if ( CurrentKioskId == null || CurrentKioskId == 0 )
+            if ( LocalDeviceConfig.CurrentKioskId == null || LocalDeviceConfig.CurrentKioskId == 0 )
             {
-                CurrentKioskId = hfKiosk.ValueAsInt();
+                LocalDeviceConfig.CurrentKioskId = hfKiosk.ValueAsInt();
             }
 
             // calculate checkin type from the group types if Kiosk and GroupTypes were passed
-            if ( CurrentKioskId.HasValue && selectedGroupTypes.Any() && !CurrentCheckinTypeId.HasValue )
+            if ( LocalDeviceConfig.CurrentKioskId.HasValue && selectedGroupTypes.Any() && !LocalDeviceConfig.CurrentCheckinTypeId.HasValue )
             {
-                if ( !CurrentCheckinTypeId.HasValue )
+                if ( !LocalDeviceConfig.CurrentCheckinTypeId.HasValue )
                 {
                     foreach ( int groupTypeId in selectedGroupTypes )
                     {
                         var checkinType = GetCheckinType( groupTypeId );
                         if ( checkinType != null )
                         {
-                            CurrentCheckinTypeId = checkinType.Id;
+                            LocalDeviceConfig.CurrentCheckinTypeId = checkinType.Id;
                             break;
                         }
                     }
@@ -318,7 +318,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
 
             ClearMobileCookie();
-            CurrentGroupTypeIds = selectedGroupTypes;
+            LocalDeviceConfig.CurrentGroupTypeIds = selectedGroupTypes;
             CurrentCheckInState = null;
             CurrentWorkflow = null;
             SaveState();
@@ -356,7 +356,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             if ( kiosk != null )
             {
                 SetDeviceIdCookie( kiosk );
-                CurrentKioskId = kiosk.Id;
+                LocalDeviceConfig.CurrentKioskId = kiosk.Id;
             }
         }
 
@@ -387,7 +387,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void ddlTheme_SelectedIndexChanged( object sender, EventArgs e )
         {
-            CurrentTheme = ddlTheme.SelectedValue;
+            LocalDeviceConfig.CurrentTheme = ddlTheme.SelectedValue;
             RedirectToNewTheme( ddlTheme.SelectedValue );
         }
 
@@ -401,7 +401,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             var selectedKioskId = ddlKiosk.SelectedValueAsInt();
             if ( selectedKioskId != None.Id )
             {
-                CurrentKioskId = selectedKioskId;
+                LocalDeviceConfig.CurrentKioskId = selectedKioskId;
                 hfKiosk.Value = selectedKioskId.ToString();
             }
 
@@ -498,16 +498,16 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             // set an expiration cookie for these coordinates.
             var timeCacheMinutes = double.Parse( GetAttributeValue( "TimetoCacheKioskGeoLocation" ) ?? "0" );
 
-            var deviceCookie = Request.Cookies[CheckInCookie.DEVICEID];
+            var deviceCookie = Request.Cookies[CheckInCookieKey.DeviceId];
             if ( deviceCookie == null )
             {
-                deviceCookie = new HttpCookie( CheckInCookie.DEVICEID, kiosk.Id.ToString() );
+                deviceCookie = new HttpCookie( CheckInCookieKey.DeviceId, kiosk.Id.ToString() );
             }
 
             deviceCookie.Expires = ( timeCacheMinutes == 0 ) ? DateTime.MaxValue : RockDateTime.Now.AddMinutes( timeCacheMinutes );
             Response.Cookies.Set( deviceCookie );
 
-            var isMobileCookie = new HttpCookie( CheckInCookie.ISMOBILE, "true" );
+            var isMobileCookie = new HttpCookie( CheckInCookieKey.IsMobile, "true" );
             Response.Cookies.Set( isMobileCookie );
         }
 
@@ -516,7 +516,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// </summary>
         private void ClearMobileCookie()
         {
-            var isMobileCookie = new HttpCookie( CheckInCookie.ISMOBILE )
+            var isMobileCookie = new HttpCookie( CheckInCookieKey.IsMobile )
             {
                 Expires = RockDateTime.Now.AddDays( -1d )
             };
@@ -585,9 +585,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         private void BindGroupTypes( RockContext rockContext = null )
         {
             var groupTypes = new List<GroupType>();
-            if ( CurrentKioskId > 0 )
+            if ( LocalDeviceConfig.CurrentKioskId > 0 )
             {
-                groupTypes = GetDeviceGroupTypes( (int)CurrentKioskId, rockContext );
+                groupTypes = GetDeviceGroupTypes( (int)LocalDeviceConfig.CurrentKioskId, rockContext );
             }
 
             lblHeader.Visible = groupTypes.Any();
@@ -645,9 +645,9 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             pageRef.QueryString = new System.Collections.Specialized.NameValueCollection();
             pageRef.Parameters = new Dictionary<string, string>();
             pageRef.Parameters.Add( "theme", theme );
-            pageRef.Parameters.Add( "KioskId", CurrentKioskId.ToStringSafe() );
-            pageRef.Parameters.Add( "CheckinTypeId", CurrentCheckinTypeId.ToStringSafe() );
-            pageRef.Parameters.Add( "GroupTypeIds", CurrentGroupTypeIds.AsDelimited( "," ) );
+            pageRef.Parameters.Add( "KioskId", LocalDeviceConfig.CurrentKioskId.ToStringSafe() );
+            pageRef.Parameters.Add( "CheckinTypeId", LocalDeviceConfig.CurrentCheckinTypeId.ToStringSafe() );
+            pageRef.Parameters.Add( "GroupTypeIds", LocalDeviceConfig.CurrentGroupTypeIds.AsDelimited( "," ) );
             pageRef.Parameters.Add( "ThemeRedirect", "True" );
 
             Response.Redirect( pageRef.BuildUrl(), false );
@@ -658,7 +658,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
         /// </summary>
         protected void SendTestPrint()
         {
-            if ( CurrentKioskId != null )
+            if ( LocalDeviceConfig.CurrentKioskId != null )
             {
                 // get the current kiosk print options
                 Device device = null;
@@ -673,7 +673,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     using ( var rockContext = new RockContext() )
                     {
                         var deviceService = new DeviceService( rockContext );
-                        device = device ?? deviceService.Get( (int)CurrentKioskId );
+                        device = device ?? deviceService.Get( (int)LocalDeviceConfig.CurrentKioskId );
                         device.PrinterDevice = device.PrinterDevice ?? deviceService.Get( (int)device.PrinterDeviceId );
                     }
                 }
