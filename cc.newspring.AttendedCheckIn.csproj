@@ -78,6 +78,12 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Rock.Enums\Rock.Enums.csproj">
+      <Project>{61dece2b-0434-435e-8d65-49a4fdf98365}</Project>
+      <Name>Rock.Enums</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy /Y /R "$(ProjectDir)bin\$(TargetFileName)" "$(SolutionDir)RockWeb\bin"</PostBuildEvent>
