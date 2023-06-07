@@ -928,7 +928,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                 }
 
                 var placeInList = 1;
-                IEnumerable<ILiquidizable> items = null;
+                IEnumerable<ILavaDataDictionary> items = null;
                 if ( DisplayPreference == NameDisplay.Location )
                 {
                     var allLocations = groupType.Groups.SelectMany( g => g.Locations )
@@ -941,7 +941,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     }
 
                     // by default, show location name and bind CheckInLocation list
-                    items = allLocations.Cast<ILiquidizable>();
+                    items = allLocations.Cast<ILavaDataDictionary>();
                 }
                 else
                 {
@@ -982,7 +982,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     }
 
                     // otherwise show group name and bind CheckInGroup list
-                    items = allGroups.Cast<ILiquidizable>();
+                    items = allGroups.Cast<ILavaDataDictionary>();
                 }
 
                 var pageToGoTo = placeInList / dpLocation.PageSize;
