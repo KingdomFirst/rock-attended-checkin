@@ -1,6 +1,6 @@
 # rock-attended-checkin
 
-This is the source project for the Attended Check-in plugin for [Rock RMS](http://rockrms.com).  You can download the plugin from the [Rock Shop](https://www.rockrms.com/Plugin/32) or build a local copy from the source. This plugin supports RockRMS version 13 and older. 
+This is the source project for the Attended Check-in plugin for [Rock RMS](http://rockrms.com).  You can download the plugin from the [Rock Shop](https://www.rockrms.com/Plugin/32) or build a local copy from the source. This plugin supports RockRMS version 15 and older.
 
 ## Getting Started
 
