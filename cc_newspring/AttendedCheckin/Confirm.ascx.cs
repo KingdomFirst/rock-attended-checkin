@@ -359,7 +359,8 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                     {
                         var today = RockDateTime.Now.Date;
                         var tomorrow = today.AddDays( 1 );
-                        var personAttendance = rockContext.Attendances.FirstOrDefault( a => a.StartDateTime >= today
+                        var attendanceService = new AttendanceService( rockContext );
+                        var personAttendance = attendanceService.Queryable().FirstOrDefault( a => a.StartDateTime >= today
                             && a.StartDateTime < tomorrow
                             && a.Occurrence.LocationId == locationId
                             && a.Occurrence.ScheduleId == scheduleId
@@ -371,7 +372,7 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
                         {
                             if ( removeAttendance )
                             {
-                                rockContext.Attendances.Remove( personAttendance );
+                                attendanceService.Delete( personAttendance );
                             }
                             else
                             {

@@ -101,20 +101,6 @@ namespace RockWeb.Plugins.cc_newspring.AttendedCheckin
             }
         }
 
-        /// <summary>
-        /// Gets a value indicating whether check-in is currently in override mode
-        /// </summary>
-        /// <value>
-        /// <c>true</c> if this instance is override; otherwise, <c>false</c>.
-        /// </value>
-        protected bool IsOverride
-        {
-            get
-            {
-                return Request["Override"] != null && Request["Override"].AsBoolean();
-            }
-        }
-
         #endregion Variables
 
         #region Control Methods
